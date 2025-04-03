@@ -32,7 +32,7 @@ export default function Home({ posts }) {
             <img
               src="/images/profile.svg"
               alt="Corentin Robert"
-              className="w-32 h-32 rounded-full object-cover mb-4 border-2 border-neutral-200 dark:border-neutral-800"
+              className="w-16 h-16 rounded-full object-cover mb-4 border-2 border-neutral-200 dark:border-neutral-800"
             />
             <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Mon Blog</h1>
           </div>
