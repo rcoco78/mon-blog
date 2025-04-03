@@ -28,7 +28,14 @@ export default function Home({ posts }) {
     <Layout>
       <main className="flex-auto min-w-0 mt-6 flex flex-col px-2 md:px-0">
         <section>
-          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Mon Blog</h1>
+          <div className="flex flex-col items-center mb-8">
+            <img
+              src="/images/profile.svg"
+              alt="Corentin Robert"
+              className="w-32 h-32 rounded-full object-cover mb-4 border-2 border-neutral-200 dark:border-neutral-800"
+            />
+            <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Mon Blog</h1>
+          </div>
           <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">
             Je partage ici mes réflexions sur le développement web, mes expériences de voyage et mes découvertes technologiques. Un mélange de technique et de vie personnelle qui reflète mon parcours.
           </p>
