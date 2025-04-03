@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+}
+
+.dark {
+  --foreground-rgb: 255, 255, 255;
+  --background-rgb: 0, 0, 0;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  @apply antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@layer components {
+  .nav-link {
+    @apply transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 m-1;
+  }
+  
+  .post-link {
+    @apply flex flex-col space-y-1 mb-4;
+  }
+  
+  .post-date {
+    @apply text-neutral-600 dark:text-neutral-400 w-[100px] tabular-nums;
+  }
+  
+  .post-title {
+    @apply text-neutral-900 dark:text-neutral-100 tracking-tight;
+  }
+  
+  .footer-link {
+    @apply flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100;
+  }
+} 
