@@ -33,7 +33,7 @@ body {
   }
   
   .post-title {
-    @apply text-neutral-900 dark:text-neutral-100 tracking-tight;
+    @apply text-neutral-900 dark:text-neutral-100 tracking-tight transition-all hover:text-neutral-800 dark:hover:text-neutral-200;
   }
   
   .footer-link {

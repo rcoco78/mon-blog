@@ -1,15 +1,15 @@
-import { ThemeProvider } from 'next-themes'
 import '../styles/globals.css'
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Analytics } from '@vercel/analytics/react'
+import Layout from '../components/Layout'
+import GoogleAnalytics from '../components/GoogleAnalytics'
 
 function MyApp({ Component, pageProps }) {
   return (
-    <ThemeProvider attribute="class">
+    <Layout>
+      {process.env.NEXT_PUBLIC_GA_ID && (
+        <GoogleAnalytics GA_MEASUREMENT_ID={process.env.NEXT_PUBLIC_GA_ID} />
+      )}
       <Component {...pageProps} />
-      <SpeedInsights />
-      <Analytics />
-    </ThemeProvider>
+    </Layout>
   )
 }
 

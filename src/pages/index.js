@@ -44,13 +44,13 @@ export default function Home({ posts }) {
               <Link
                 key={post.slug}
                 href={`/blog/${post.slug}`}
-                className="flex flex-col"
+                className="post-link"
               >
                 <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2">
-                  <p className="text-neutral-600 dark:text-neutral-400 w-[100px] tabular-nums">
+                  <p className="post-date">
                     {post.date}
                   </p>
-                  <p className="text-neutral-900 dark:text-neutral-100 tracking-tight">
+                  <p className="post-title">
                     {post.title}
                   </p>
                 </div>

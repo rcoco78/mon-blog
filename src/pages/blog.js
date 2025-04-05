@@ -9,14 +9,18 @@ export default function Blog({ posts }) {
         <section>
           <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Mon Blog</h1>
           <div>
-            {posts.map((post) => (
-              <Link key={post.id} href={`/blog/${post.slug}`} className="post-link">
-                <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2">
-                  <p className="post-date">{post.date}</p>
-                  <p className="post-title">{post.title}</p>
-                </div>
-              </Link>
-            ))}
+            {posts && posts.length > 0 ? (
+              posts.map((post) => (
+                <Link key={post.id} href={`/blog/${post.slug}`} className="post-link">
+                  <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2">
+                    <p className="post-date">{post.date}</p>
+                    <p className="post-title">{post.title}</p>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <p>Aucun article disponible pour le moment.</p>
+            )}
           </div>
         </section>
       </main>
