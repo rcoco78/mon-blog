@@ -116,7 +116,7 @@ export default function Blog({ posts }) {
   return (
     <main className="flex-auto min-w-0 mt-6 flex flex-col">
       <section>
-        <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Mon Blog</h1>
+        <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Blog</h1>
 
         <SearchBar 
           onSearch={handleSearch} 
@@ -127,26 +127,32 @@ export default function Blog({ posts }) {
 
         <div>
           {filteredPosts && filteredPosts.length > 0 ? (
-            filteredPosts.map((post) => (
-              <Link key={post.id} href={`/blog/${post.slug}`} className="post-link">
-                <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2">
-                  <div className="flex flex-col md:flex-row md:items-center w-full">
-                    <div className="flex-shrink-0">
-                      <p className="post-date whitespace-nowrap">
-                        {post.date}
+            <div className="space-y-4">
+              {filteredPosts.map((post) => (
+                <Link key={post.id} href={`/blog/${post.slug}`} className="post-link">
+                  <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2">
+                    <div className="flex flex-col md:flex-row md:items-center w-full">
+                      <div className="flex-shrink-0">
+                        <p className="post-date whitespace-nowrap">
+                          {new Date(post.date).toLocaleDateString('fr-FR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                      <span className="hidden md:inline text-neutral-400 dark:text-neutral-600 mx-2">·</span>
+                      <p className="post-title flex-grow truncate md:max-w-[60%] w-full">
+                        {post.title}
                       </p>
-                    </div>
-                    <span className="hidden md:inline text-neutral-400 dark:text-neutral-600 mx-2">·</span>
-                    <p className="post-title flex-grow truncate md:max-w-[60%] w-full">
-                      {post.title}
-                    </p>
-                    <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
-                      <ViewCounter slug={post.slug} />
+                      <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
+                        <ViewCounter slug={post.slug} />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))
+                </Link>
+              ))}
+            </div>
           ) : (
             <p>Aucun article disponible pour le moment.</p>
           )}

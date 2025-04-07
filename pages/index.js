@@ -85,16 +85,14 @@ export default function Home({ posts }) {
                 <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2">
                   <div className="flex flex-col md:flex-row md:items-center w-full">
                     <div className="flex-shrink-0">
-                      <p className="post-date whitespace-nowrap">
-                        {post.date}
-                      </p>
+                      <p className="post-date whitespace-nowrap">{new Date(post.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                     </div>
                     <span className="hidden md:inline text-neutral-400 dark:text-neutral-600 mx-2">·</span>
-                    <p className="post-title flex-grow truncate">
-                      {post.title}
-                    </p>
+                    <div className="flex-grow md:max-w-[60%]">
+                      <p className="post-title truncate">{post.title}</p>
+                    </div>
                     <div className="md:ml-auto flex-shrink-0">
-                      <ViewCounter slug={post.slug} />
+                      <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">{post.views} vues</span>
                     </div>
                   </div>
                 </div>

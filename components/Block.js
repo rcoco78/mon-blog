@@ -1,3 +1,6 @@
+import Image from 'next/image'
+import ImageWithZoom from './ImageWithZoom'
+
 export default function Block({ block }) {
   const { type, id } = block
   const value = block[type]
@@ -34,7 +37,7 @@ export default function Block({ block }) {
       )
     case 'heading_2':
       return (
-        <h2 className="text-2xl font-bold mb-3">
+        <h2 className="text-2xl font-bold mb-4">
           {value.rich_text.map((text, i) => (
             <span key={i}>{text.plain_text}</span>
           ))}
@@ -42,7 +45,7 @@ export default function Block({ block }) {
       )
     case 'heading_3':
       return (
-        <h3 className="text-xl font-bold mb-2">
+        <h3 className="text-xl font-bold mb-4">
           {value.rich_text.map((text, i) => (
             <span key={i}>{text.plain_text}</span>
           ))}
@@ -73,6 +76,16 @@ export default function Block({ block }) {
         <pre className="bg-neutral-100 dark:bg-neutral-800 p-4 rounded-lg mb-4 overflow-x-auto">
           <code>{value.rich_text.map((text, i) => text.plain_text).join('')}</code>
         </pre>
+      )
+    case 'image':
+      const imageUrl = block.image.type === 'external' ? block.image.external.url : block.image.file.url
+      const caption = block.image.caption && block.image.caption.length > 0 ? block.image.caption[0].plain_text : ''
+      
+      return (
+        <ImageWithZoom 
+          src={imageUrl}
+          alt={caption}
+        />
       )
     default:
       return null

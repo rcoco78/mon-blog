@@ -7,57 +7,99 @@ export default function About() {
       {/* Section Narrative */}
       <section className="mb-16">
         <h1 className="font-semibold text-2xl mb-8 tracking-tighter">À propos</h1>
-        <p className="text-lg text-neutral-600 dark:text-neutral-400 mb-6">
-          De développeur chez Airbnb à entrepreneur indépendant, mon parcours est marqué par une constante : 
-          la recherche d'innovation et d'impact.
-        </p>
+        <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">De développeur chez Airbnb à entrepreneur indépendant, mon parcours est marqué par une constante : la recherche d'innovation et d'impact.</p>
         
         {/* Section Images qui se chevauchent */}
         <div className="relative h-80 mb-12">
-          <div className="absolute top-0 left-0 w-48 h-48 rounded-lg overflow-hidden z-10 shadow-md">
-            <Image 
-              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-              alt="Photo de profil" 
-              width={192} 
-              height={192} 
-              className="object-cover"
-            />
+          {/* Version mobile */}
+          <div className="md:hidden flex flex-col items-center space-y-4">
+            <div className="w-48 h-48 rounded-lg overflow-hidden shadow-md">
+              <Image 
+                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                alt="Photo de profil" 
+                width={192} 
+                height={192} 
+                className="object-cover"
+              />
+            </div>
+            <div className="flex flex-wrap justify-center gap-4">
+              <div className="w-32 h-32 rounded-lg overflow-hidden shadow-md">
+                <Image 
+                  src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                  alt="Photo de profil" 
+                  width={128} 
+                  height={128} 
+                  className="object-cover"
+                />
+              </div>
+              <div className="w-32 h-32 rounded-lg overflow-hidden shadow-md">
+                <Image 
+                  src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                  alt="Photo de profil" 
+                  width={128} 
+                  height={128} 
+                  className="object-cover"
+                />
+              </div>
+              <div className="w-32 h-32 rounded-lg overflow-hidden shadow-md">
+                <Image 
+                  src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                  alt="Photo de profil" 
+                  width={128} 
+                  height={128} 
+                  className="object-cover"
+                />
+              </div>
+            </div>
           </div>
-          <div className="absolute top-32 left-24 w-40 h-40 rounded-lg overflow-hidden z-20 shadow-md">
-            <Image 
-              src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-              alt="Photo de profil" 
-              width={160} 
-              height={160} 
-              className="object-cover"
-            />
-          </div>
-          <div className="absolute top-8 left-64 w-36 h-36 rounded-lg overflow-hidden z-30 shadow-md">
-            <Image 
-              src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-              alt="Photo de profil" 
-              width={144} 
-              height={144} 
-              className="object-cover"
-            />
-          </div>
-          <div className="absolute top-48 left-8 w-32 h-32 rounded-lg overflow-hidden z-40 shadow-md">
-            <Image 
-              src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-              alt="Photo de profil" 
-              width={128} 
-              height={128} 
-              className="object-cover"
-            />
-          </div>
-          <div className="absolute top-16 left-96 w-28 h-28 rounded-lg overflow-hidden z-50 shadow-md">
-            <Image 
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-              alt="Photo de profil" 
-              width={112} 
-              height={112} 
-              className="object-cover"
-            />
+
+          {/* Version desktop */}
+          <div className="hidden md:block relative h-80">
+            <div className="absolute top-0 left-0 w-48 h-48 rounded-lg overflow-hidden z-10 shadow-md">
+              <Image 
+                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                alt="Photo de profil" 
+                width={192} 
+                height={192} 
+                className="object-cover"
+              />
+            </div>
+            <div className="absolute top-32 left-24 w-40 h-40 rounded-lg overflow-hidden z-20 shadow-md">
+              <Image 
+                src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                alt="Photo de profil" 
+                width={160} 
+                height={160} 
+                className="object-cover"
+              />
+            </div>
+            <div className="absolute top-8 left-64 w-36 h-36 rounded-lg overflow-hidden z-30 shadow-md">
+              <Image 
+                src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                alt="Photo de profil" 
+                width={144} 
+                height={144} 
+                className="object-cover"
+              />
+            </div>
+            <div className="absolute top-48 left-8 w-32 h-32 rounded-lg overflow-hidden z-40 shadow-md">
+              <Image 
+                src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                alt="Photo de profil" 
+                width={128} 
+                height={128} 
+                className="object-cover"
+              />
+            </div>
+            <div className="absolute top-16 left-96 w-28 h-28 rounded-lg overflow-hidden z-50 shadow-md">
+              <Image 
+                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                alt="Photo de profil" 
+                width={112} 
+                height={112} 
+                className="object-cover"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -66,49 +108,39 @@ export default function About() {
       <section className="mb-16">
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Parcours</h2>
         <div className="space-y-8">
-          <div className="flex gap-4">
-            <div className="w-24 text-sm text-neutral-500">2023</div>
+          <div className="flex flex-col sm:flex-row sm:gap-4">
+            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2023</div>
             <div>
               <h3 className="font-medium">Freelance</h3>
-              <p className="text-neutral-600 dark:text-neutral-400">
-                360+ missions réussies sur Malt et Fiverr
-              </p>
+              <p className="text-neutral-600 dark:text-neutral-400">360+ missions réussies sur Malt et Fiverr</p>
             </div>
           </div>
-          <div className="flex gap-4">
-            <div className="w-24 text-sm text-neutral-500">2022</div>
+          <div className="flex flex-col sm:flex-row sm:gap-4">
+            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2022</div>
             <div>
               <h3 className="font-medium">White Bird</h3>
-              <p className="text-neutral-600 dark:text-neutral-400">
-                CTO - Direction technique et développement produit
-              </p>
+              <p className="text-neutral-600 dark:text-neutral-400">CTO - Direction technique et développement produit</p>
             </div>
           </div>
-          <div className="flex gap-4">
-            <div className="w-24 text-sm text-neutral-500">2021</div>
+          <div className="flex flex-col sm:flex-row sm:gap-4">
+            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2021</div>
             <div>
               <h3 className="font-medium">Shine</h3>
-              <p className="text-neutral-600 dark:text-neutral-400">
-                Lead Developer - Développement d'applications web
-              </p>
+              <p className="text-neutral-600 dark:text-neutral-400">Lead Developer - Développement d'applications web</p>
             </div>
           </div>
-          <div className="flex gap-4">
-            <div className="w-24 text-sm text-neutral-500">2020</div>
+          <div className="flex flex-col sm:flex-row sm:gap-4">
+            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2020</div>
             <div>
               <h3 className="font-medium">Airbnb</h3>
-              <p className="text-neutral-600 dark:text-neutral-400">
-                Développeur - Contribution à la plateforme
-              </p>
+              <p className="text-neutral-600 dark:text-neutral-400">Développeur - Contribution à la plateforme</p>
             </div>
           </div>
-          <div className="flex gap-4">
-            <div className="w-24 text-sm text-neutral-500">2015-2018</div>
+          <div className="flex flex-col sm:flex-row sm:gap-4">
+            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2015-2018</div>
             <div>
               <h3 className="font-medium">HETIC</h3>
-              <p className="text-neutral-600 dark:text-neutral-400">
-                Formation en développement web et entrepreneuriat
-              </p>
+              <p className="text-neutral-600 dark:text-neutral-400">Formation en développement web et entrepreneuriat</p>
             </div>
           </div>
         </div>

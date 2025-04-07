@@ -1,18 +1,16 @@
-import Link from 'next/link'
+import PlatformLogo from '../components/PlatformLogo'
 
 export default function Temoignages() {
   return (
-    <main className="flex-auto min-w-0 mt-6 flex flex-col">
-      <section className="mb-16">
+    <main className="min-w-0 mt-6 flex flex-col">
+      <section className="mb-8">
         <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Témoignages</h1>
-        <p className="text-lg text-neutral-600 dark:text-neutral-400 mb-8">
-          Découvrez ce que mes clients disent de mon travail à travers différentes plateformes.
-        </p>
+        <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">Découvrez ce que mes clients disent de mon travail à travers différentes plateformes.</p>
       </section>
 
-      {/* Section Témoignages Fiverr */}
       <section className="mb-16">
         <div className="flex items-center gap-3 mb-6">
+          <PlatformLogo platform="fiverr" />
           <h2 className="font-semibold text-xl tracking-tighter">Fiverr</h2>
           <a 
             href="https://pro.fiverr.com/freelancers/corentinrobert?public_mode=true" 
@@ -60,9 +58,9 @@ export default function Temoignages() {
         </div>
       </section>
 
-      {/* Section Témoignages Malt */}
       <section className="mb-16">
         <div className="flex items-center gap-3 mb-6">
+          <PlatformLogo platform="malt" />
           <h2 className="font-semibold text-xl tracking-tighter">Malt</h2>
           <a 
             href="https://www.malt.fr/profile/growth" 
@@ -110,9 +108,9 @@ export default function Temoignages() {
         </div>
       </section>
 
-      {/* Section Témoignages Comup */}
       <section className="mb-16">
         <div className="flex items-center gap-3 mb-6">
+          <PlatformLogo platform="comeup" />
           <h2 className="font-semibold text-xl tracking-tighter">Comeup</h2>
           <a 
             href="https://comeup.com/fr/@corentinrobert" 
@@ -149,9 +147,9 @@ export default function Temoignages() {
         </div>
       </section>
 
-      {/* Section Témoignages LinkedIn */}
       <section className="mb-16">
         <div className="flex items-center gap-3 mb-6">
+          <PlatformLogo platform="linkedin" />
           <h2 className="font-semibold text-xl tracking-tighter">LinkedIn</h2>
           <a 
             href="https://www.linkedin.com/in/robertcorentin/" 
@@ -188,18 +186,17 @@ export default function Temoignages() {
         </div>
       </section>
 
-      {/* Call-to-Action */}
       <section className="mb-16 text-center">
         <h2 className="font-semibold text-xl mb-4 tracking-tighter">Vous souhaitez travailler avec moi ?</h2>
         <p className="text-neutral-600 dark:text-neutral-400 mb-8">
           N'hésitez pas à me contacter pour discuter de votre projet.
         </p>
-        <Link 
-          href="/contact" 
+        <a
           className="inline-block px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
+          href="/contact"
         >
           Me contacter
-        </Link>
+        </a>
       </section>
     </main>
   )

@@ -8,7 +8,7 @@ export default function ViewCounter({ slug }) {
       try {
         const response = await fetch(`/api/views/${slug}`)
         const data = await response.json()
-        setViews(data.views || 0)
+        setViews(data.views)
       } catch (error) {
         console.error('Erreur lors de la récupération des vues:', error)
       }
@@ -19,7 +19,7 @@ export default function ViewCounter({ slug }) {
 
   return (
     <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">
-      {views} {views === 1 ? 'vue' : 'vues'}
+      {views} vues
     </span>
   )
 } 
