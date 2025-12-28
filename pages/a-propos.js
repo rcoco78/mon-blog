@@ -88,7 +88,7 @@ export default function About() {
             <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2019</div>
             <div className="flex-1 min-w-0">
               <h3 className="font-medium mb-1">Airbnb</h3>
-              <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Développeur - Growth engineer au service d'une équipe marketing</p>
+              <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Growth engineer au service d'une équipe marketing</p>
             </div>
           </div>
         </div>
