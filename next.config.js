@@ -11,7 +11,8 @@ const nextConfig = {
       'yt3.googleusercontent.com',
       'static.vecteezy.com',
       'cdn-icons-png.freepik.com',
-      'images.unsplash.com'
+      'images.unsplash.com',
+      'i.scdn.co' // CDN Spotify pour les images d'albums
     ],
   }
 }
