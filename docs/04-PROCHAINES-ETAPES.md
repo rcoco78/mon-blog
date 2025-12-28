@@ -6,37 +6,13 @@
 
 ## 📋 Vue d'Ensemble
 
-Basé sur l'audit complet et les améliorations déjà réalisées, voici les prochaines étapes prioritaires pour continuer à améliorer le site.
-
----
-
-## ✅ Récemment Terminé
-
-### Système de Tracking des Clics sur les Projets ✅
-**Objectif** : Suivre les clics sur les projets de la homepage pour mesurer l'engagement
-
-**Réalisations** :
-- ✅ Système de tracking basé sur Vercel Blob
-- ✅ Stockage des événements individuels (source de vérité)
-- ✅ Compteurs agrégés pour performance
-- ✅ Script de test pour valider le système (`scripts/test-project-clicks.js`)
-- ✅ Affichage des compteurs sur la homepage
-- ✅ Gestion des problèmes de cache avec retry et cache-busting
-- ✅ Documentation complète dans `docs/10-TESTING-CLICKS.md`
-
-**Impact** : 🟢 **Élevé** - Permet de mesurer l'engagement réel sur les projets
-
-**Prochaines améliorations possibles** :
-- [ ] Dashboard pour visualiser les métriques de clics
-- [ ] Export des données pour analyse
-- [ ] Graphiques d'évolution dans le temps
-- [ ] Comparaison entre projets
+Ce document liste uniquement les fonctionnalités et améliorations **à venir**. Pour voir ce qui a déjà été réalisé, consultez les autres fichiers de documentation dans le dossier `docs/`.
 
 ---
 
 ## 🎯 Priorité 1 : Contenu & Expérience Utilisateur
 
-### 1. Page Facecam dans Outils ⏳
+### 1. Pages Facecam dans Outils ⏳
 **Objectif** : Créer des pages détaillées pour chaque outil Apify avec article et vidéo facecam
 
 **Actions** :
@@ -50,30 +26,15 @@ Basé sur l'audit complet et les améliorations déjà réalisées, voici les pr
 
 ---
 
-### 2. Page "À propos" enrichie ⏳
-**Objectif** : Compléter le parcours professionnel avec toutes les expériences récentes
+### 2. Enrichissements page "À propos" ⏳
+**Objectif** : Compléter la page avec des sections supplémentaires
 
 **Actions** :
-- [ ] Ajouter expériences 2024-2025 (Airbnb, projets récents)
-- [ ] Intégrer témoignages réels depuis Malt (via API ou manuellement)
 - [ ] Ajouter section "Échecs et apprentissages" (inspiration levelsio)
-- [ ] Améliorer storytelling avec dates et résultats concrets
 - [ ] Ajouter section "Stack technique" actuelle
+- [ ] Enrichir avec plus de détails sur les projets récents
 
 **Impact** : 🟢 **Élevé** - Renforce le trust et la crédibilité
-
----
-
-### 3. Témoignages réels de Malt ⏳
-**Objectif** : Remplacer les témoignages génériques par de vrais avis clients
-
-**Actions** :
-- [ ] Intégrer API Malt (si disponible) ou extraction manuelle
-- [ ] Afficher témoignages avec photos, noms, entreprises
-- [ ] Ajouter filtres par type de projet (scraping, automatisation, etc.)
-- [ ] Afficher note moyenne et nombre total d'avis
-
-**Impact** : 🟢 **Élevé** - Preuve sociale directe
 
 ---
 
@@ -154,8 +115,8 @@ Basé sur l'audit complet et les améliorations déjà réalisées, voici les pr
 
 ## 🎨 Priorité 4 : Améliorations UX/UI
 
-### 9. Page Open complète ⏳
-**Objectif** : Enrichir la page Open avec tous les projets
+### 9. Enrichir page Open ⏳
+**Objectif** : Enrichir la page Open avec tous les projets GitHub
 
 **Actions** :
 - [ ] Lister tous les projets open source GitHub
@@ -172,7 +133,6 @@ Basé sur l'audit complet et les améliorations déjà réalisées, voici les pr
 **Objectif** : Rendre la page Outils plus engageante
 
 **Actions** :
-- [ ] Ajouter filtres avancés (catégorie, popularité)
 - [ ] Afficher métriques d'utilisation par outil
 - [ ] Ajouter screenshots/démo pour chaque outil
 - [ ] Section "Outils à venir" (roadmap)
@@ -264,12 +224,11 @@ Basé sur l'audit complet et les améliorations déjà réalisées, voici les pr
 ## 🎯 Recommandations Immédiates
 
 ### Cette semaine
-1. ✅ **Terminé** : Restructuration SEO et configuration
-2. ⏳ **À faire** : Enrichir page "À propos" avec parcours complet
-3. ⏳ **À faire** : Ajouter témoignages réels de Malt (manuellement si API indisponible)
+1. ⏳ Créer première page Facecam pour un outil Apify
+2. ⏳ Enrichir page Open avec projets GitHub
 
 ### Ce mois
-1. ⏳ Créer première page Facecam pour un outil Apify
+1. ⏳ Créer toutes les pages Facecam pour les outils
 2. ⏳ Intégrer API Apify pour métriques live
 3. ⏳ Optimiser Core Web Vitals
 
@@ -296,4 +255,3 @@ Basé sur l'audit complet et les améliorations déjà réalisées, voici les pr
 - [Google Search Console](https://search.google.com/search-console)
 - [Schema.org Documentation](https://schema.org/)
 - [Core Web Vitals](https://web.dev/vitals/)
-
