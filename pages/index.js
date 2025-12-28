@@ -92,7 +92,7 @@ export default function Home({ posts }) {
         
         {/* Section Maintenant */}
         <div className="mb-12 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-          <h2 className="font-semibold text-lg mb-4 tracking-tighter">📍 Maintenant</h2>
+          <h2 className="font-semibold text-lg mb-4 tracking-tighter">Maintenant</h2>
           <p className="mb-3 text-neutral-900 dark:text-neutral-100 tracking-tight">
             Actuellement, je me concentre sur :
           </p>
