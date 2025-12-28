@@ -58,11 +58,9 @@ export default function About() {
             <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 sm:text-right tabular-nums pl-0">2023–present</div>
             <div className="flex-1 min-w-0">
               <h3 className="font-medium mb-1">Freelance</h3>
-              <ul className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed space-y-1">
-                <li>• 160+ missions Malt finalisées</li>
-                <li>• +250 missions Fiverr finalisées</li>
-                <li>• +300 clients accompagnés</li>
-              </ul>
+              <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
+                160+ missions Malt finalisées • +250 missions Fiverr finalisées • +300 clients accompagnés
+              </p>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-6">
