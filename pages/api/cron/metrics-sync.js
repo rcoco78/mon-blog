@@ -11,13 +11,18 @@ export default async function handler(req, res) {
   // Vérifier que la requête vient de Vercel Cron
   // Vercel ajoute automatiquement le header 'x-vercel-cron' pour les cron jobs
   const isVercelCron = req.headers['x-vercel-cron'] === '1'
-  // Alternative : si CRON_SECRET est configuré, on l'utilise aussi
+  
+  // Si CRON_SECRET est configuré, Vercel l'envoie dans le header Authorization
   const hasValidSecret = process.env.CRON_SECRET 
     ? req.headers.authorization === `Bearer ${process.env.CRON_SECRET}`
     : false
   
+  // Si aucun des deux n'est présent, refuser la requête
   if (!isVercelCron && !hasValidSecret) {
-    return res.status(401).json({ message: 'Unauthorized' })
+    return res.status(401).json({ 
+      message: 'Unauthorized',
+      hint: 'This endpoint can only be called by Vercel Cron. Configure CRON_SECRET in Vercel environment variables if testing manually.'
+    })
   }
 
   try {
