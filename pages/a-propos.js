@@ -4,6 +4,7 @@ import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
+import ProjectClickCounter from '../components/ProjectClickCounter'
 
 export default function About() {
   const pageSEO = generatePageSEO({
@@ -103,18 +104,46 @@ export default function About() {
           {siteConfig.projects.map((project, index) => {
             const isActive = project.status === 'active'
             const Component = project.link ? 'a' : 'div'
+            
+            const handleClick = async (e) => {
+              if (project.link && project.id) {
+                // Tracker le clic de manière asynchrone sans bloquer la navigation
+                // Utiliser sendBeacon pour garantir l'envoi même si la page se ferme
+                const timestamp = Date.now()
+                const data = JSON.stringify({ projectId: project.id, timestamp })
+                
+                // Essayer sendBeacon d'abord (plus fiable pour les clics)
+                if (navigator.sendBeacon) {
+                  const blob = new Blob([data], { type: 'application/json' })
+                  navigator.sendBeacon(`/api/projects/click?t=${timestamp}`, blob)
+                } else {
+                  // Fallback sur fetch
+                  fetch(`/api/projects/click?t=${timestamp}`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Cache-Control': 'no-cache',
+                    },
+                    body: data,
+                    keepalive: true, // Important pour les requêtes après navigation
+                  }).catch(err => console.error('Error tracking click:', err))
+                }
+              }
+            }
+
             const props = project.link ? {
               href: project.link,
               target: '_blank',
               rel: 'noopener noreferrer',
-              className: 'flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group'
+              onClick: handleClick,
+              className: 'relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]'
             } : {
-              className: 'flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50'
+              className: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 min-h-[96px]'
             }
 
             return (
               <Component key={index} {...props}>
-                <div className="flex items-start gap-3 flex-1">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
                   {project.image ? (
                     <div className="flex-shrink-0">
                       <Image
@@ -124,46 +153,60 @@ export default function About() {
                         height={24}
                         className="w-6 h-6 rounded-lg object-cover border border-neutral-200 dark:border-neutral-800"
                       />
-            </div>
-                  ) : project.icon && project.icon.startsWith('/') ? (
-                    <div className="flex-shrink-0">
-                      <Image
-                        src={project.icon}
-                        alt={project.iconAlt || `${project.title} icon`}
-                        width={24}
-                        height={24}
-                        className="w-6 h-6 object-contain"
-                      />
-            </div>
+                    </div>
                   ) : project.icon ? (
-                    <div className="flex-shrink-0 text-2xl">
-                      {project.icon}
-            </div>
+                    project.icon.startsWith('/') ? (
+                      <div className="flex-shrink-0">
+                        <Image
+                          src={project.icon}
+                          alt={project.iconAlt || `${project.title} - ${project.description}`}
+                          width={24}
+                          height={24}
+                          className="w-6 h-6"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex-shrink-0 text-2xl">
+                        {project.icon}
+                      </div>
+                    )
                   ) : null}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1.5 flex-wrap relative pr-20 sm:pr-0">
                       <h3 className={`font-medium ${isActive ? '' : 'text-neutral-500 dark:text-neutral-400'}`}>
                         {project.title}
                       </h3>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
                         project.status === 'active' 
                           ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
                           : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
                       }`}>
                         {project.status === 'active' ? 'Actif' : project.status === 'paused' ? 'En pause' : 'Arrêté'}
                       </span>
-            </div>
-                    <p className={isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'}>
-                      {project.description}
-              </p>
-            </div>
+                      {project.link && project.id && (
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 sm:hidden flex items-center">
+                          <ProjectClickCounter projectId={project.id} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+                      <p className={`${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} text-sm`}>
+                        {project.description}
+                      </p>
+                      {project.link && project.id && (
+                        <div className="hidden sm:flex flex-shrink-0">
+                          <ProjectClickCounter projectId={project.id} />
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 {project.link && (
-            <div className="flex items-center transition-all group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-              </svg>
-            </div>
+                  <div className="hidden sm:flex items-center transition-all group-hover:text-neutral-800 dark:group-hover:text-neutral-200 flex-shrink-0 ml-2">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                      <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                    </svg>
+                  </div>
                 )}
               </Component>
             )

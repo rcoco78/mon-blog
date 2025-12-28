@@ -99,16 +99,17 @@ export default function Home({ posts }) {
           </p>
           <ul className="space-y-2 text-neutral-600 dark:text-neutral-400">
             <li className="flex items-start">
-              <span className="mr-2">→</span>
-              <span className="flex items-center gap-1.5">
-                Développement de 
+              <span className="mr-2 flex-shrink-0">→</span>
+              <span>
+                Développement de{' '}
                 <Image
                   src="/images/logement-atypique-icon.svg"
                   alt="Logo Logement Atypique"
                   width={16}
                   height={16}
-                  className="inline-block w-4 h-4"
+                  className="inline-block w-4 h-4 align-middle"
                 />
+                {' '}
                 <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère
               </span>
             </li>
@@ -206,9 +207,9 @@ export default function Home({ posts }) {
               target: '_blank',
               rel: 'noopener noreferrer',
               onClick: handleClick,
-              className: 'relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group'
+              className: 'relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]'
             } : {
-              className: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50'
+              className: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 min-h-[96px]'
             }
 
             return (
