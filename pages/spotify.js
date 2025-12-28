@@ -68,8 +68,11 @@ export default function Spotify() {
               <p className="text-neutral-600 dark:text-neutral-400">Chargement...</p>
             </div>
           ) : error ? (
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <p className="text-neutral-600 dark:text-neutral-400">{error}</p>
+            <div className="p-6 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
+              <p className="text-red-600 dark:text-red-400 mb-2">Erreur : {error}</p>
+              <p className="text-sm text-red-500 dark:text-red-500">
+                Vérifiez que les variables d'environnement Spotify sont bien configurées sur Vercel.
+              </p>
             </div>
           ) : (
             <>
