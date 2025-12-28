@@ -1,5 +1,9 @@
 # 📝 Changelog - corentinrobert.fr
 
+**Historique des modifications et évolutions**
+
+---
+
 ## [2025-01-XX] - Restructuration Complète
 
 ### ✨ Ajouté
@@ -47,12 +51,13 @@
 - **Robots** : Directives appropriées
 
 ### 📚 Documentation
-- **AUDIT_STRUCTURE.md** : Audit complet de la structure
-- **AMELIORATIONS.md** : Liste des améliorations
-- **SEO_IMPLEMENTATION.md** : Documentation SEO complète
-- **BONNES_PRATIQUES.md** : Guide des bonnes pratiques
-- **ARCHITECTURE.md** : Architecture du projet
-- **README.md** : Index de la documentation
+- **README.md** : Index principal de la documentation
+- **01-ARCHITECTURE.md** : Architecture et structure du projet
+- **02-SEO.md** : SEO et performance
+- **03-BONNES-PRATIQUES.md** : Standards et conventions
+- **04-PROCHAINES-ETAPES.md** : Roadmap et plan d'action
+- **05-AUDIT-AMELIORATIONS.md** : Audit et améliorations
+- **06-CHANGELOG.md** : Historique des modifications
 
 ## Prochaines Étapes
 

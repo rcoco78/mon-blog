@@ -1,16 +1,23 @@
-# 🏗️ Architecture - corentinrobert.fr
+# 🏗️ Architecture & Structure - corentinrobert.fr
+
+**Comprendre l'organisation du code et la structure du projet**
+
+---
+
+## 📦 Structure des Fichiers
 
 ## 📦 Structure des Fichiers
 
 ```
 mon-blog/
 ├── docs/                          # Documentation
-│   ├── README.md                  # Index
-│   ├── AUDIT_STRUCTURE.md         # Audit structure
-│   ├── AMELIORATIONS.md           # Améliorations
-│   ├── SEO_IMPLEMENTATION.md     # SEO
-│   ├── BONNES_PRATIQUES.md       # Bonnes pratiques
-│   └── ARCHITECTURE.md            # Ce fichier
+│   ├── README.md                  # Index principal
+│   ├── 01-ARCHITECTURE.md         # Architecture (ce fichier)
+│   ├── 02-SEO.md                  # SEO & Performance
+│   ├── 03-BONNES-PRATIQUES.md     # Bonnes pratiques
+│   ├── 04-PROCHAINES-ETAPES.md    # Roadmap
+│   ├── 05-AUDIT-AMELIORATIONS.md  # Audit & améliorations
+│   └── 06-CHANGELOG.md            # Historique
 │
 ├── components/                     # Composants React
 │   ├── seo/                       # Composants SEO

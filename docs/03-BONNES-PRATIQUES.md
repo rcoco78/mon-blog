@@ -1,5 +1,9 @@
 # ✅ Bonnes Pratiques - corentinrobert.fr
 
+**Standards de code, conventions et bonnes pratiques**
+
+---
+
 ## 🎨 Design System
 
 ### Couleurs

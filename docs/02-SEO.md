@@ -1,4 +1,8 @@
-# 🚀 Implémentation SEO Complète
+# 🚀 SEO & Performance - corentinrobert.fr
+
+**Optimisation SEO et bonnes pratiques de performance**
+
+---
 
 ## ✅ Ce qui a été mis en place
 
