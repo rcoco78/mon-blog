@@ -424,21 +424,39 @@ export default function About() {
             </div>
           </div>
         </div>
-        <div className="mt-8 text-center">
-          <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-            <strong>167 projets</strong> réalisés sur Malt avec <strong>107 avis</strong>
-          </p>
-          <a 
-            href={siteConfig.social.malt}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center px-4 py-2 text-sm border border-neutral-200 dark:border-neutral-800 rounded-lg hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-          >
-            Voir tous les témoignages sur Malt
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-2 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-            </svg>
-          </a>
+        <div className="mt-8 text-center space-y-4">
+          <div>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+              <strong>167 projets</strong> réalisés sur Malt avec <strong>107 avis</strong>
+            </p>
+            <a 
+              href={siteConfig.social.malt}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-4 py-2 text-sm border border-neutral-200 dark:border-neutral-800 rounded-lg hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+            >
+              Voir tous les témoignages sur Malt
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-2 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+              </svg>
+            </a>
+          </div>
+          <div>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+              <strong>167 avis</strong> sur Fiverr avec une note de <strong>4,9/5</strong>
+            </p>
+            <a 
+              href={siteConfig.social.fiverr}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-4 py-2 text-sm border border-neutral-200 dark:border-neutral-800 rounded-lg hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+            >
+              Voir tous les témoignages sur Fiverr
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-2 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+              </svg>
+            </a>
+          </div>
         </div>
       </section>
 
