@@ -21,10 +21,10 @@ export default function About() {
         description: siteConfig.seo.pages.aPropos.description,
         url: `${siteConfig.url}/a-propos`
       }} />
-      <main className="flex-auto min-w-0 mt-6 flex flex-col">
-        {/* Section Narrative */}
-        <section className="mb-16">
-          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">À propos</h1>
+    <main className="flex-auto min-w-0 mt-6 flex flex-col">
+      {/* Section Narrative */}
+      <section className="mb-16">
+        <h1 className="font-semibold text-2xl mb-8 tracking-tighter">À propos</h1>
         <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">De développeur chez Airbnb à entrepreneur indépendant, mon parcours est marqué par une constante : la recherche d'innovation et d'impact.</p>
         
         {/* Section Images qui se chevauchent */}
@@ -127,7 +127,7 @@ export default function About() {
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Parcours</h2>
         <div className="space-y-8">
           <div className="flex flex-col sm:flex-row sm:gap-4">
-            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2020–present</div>
+            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2023–present</div>
             <div>
               <h3 className="font-medium">Freelance</h3>
               <p className="text-neutral-600 dark:text-neutral-400">167 projets réalisés sur Malt, 20 scrapers publics sur Apify avec 154 utilisateurs actifs et 97.3% de taux de succès</p>
@@ -164,104 +164,78 @@ export default function About() {
         </div>
       </section>
 
-      {/* Section Startups */}
+      {/* Section Projets */}
       <section className="mb-16">
-        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Projets</h2>
+        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Mes Projets Clés</h2>
         <div className="flex flex-col space-y-4">
-          <a 
-            href="https://logement-atypique.fr" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-          >
-            <div>
-              <h3 className="font-medium">Logement Atypique</h3>
-              <p className="text-neutral-600 dark:text-neutral-400">
-                Plateforme de logements exceptionnels — développé avec mon frère
+          {siteConfig.projects.map((project, index) => {
+            const isActive = project.status === 'active'
+            const Component = project.link ? 'a' : 'div'
+            const props = project.link ? {
+              href: project.link,
+              target: '_blank',
+              rel: 'noopener noreferrer',
+              className: 'flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group'
+            } : {
+              className: 'flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50'
+            }
+
+            return (
+              <Component key={index} {...props}>
+                <div className="flex items-start gap-3 flex-1">
+                  {project.image ? (
+                    <div className="flex-shrink-0">
+                      <Image
+                        src={project.image}
+                        alt={project.imageAlt || `${project.title} - ${project.description}`}
+                        width={24}
+                        height={24}
+                        className="w-6 h-6 rounded-lg object-cover border border-neutral-200 dark:border-neutral-800"
+                      />
+            </div>
+                  ) : project.icon && project.icon.startsWith('/') ? (
+                    <div className="flex-shrink-0">
+                      <Image
+                        src={project.icon}
+                        alt={project.iconAlt || `${project.title} icon`}
+                        width={24}
+                        height={24}
+                        className="w-6 h-6 object-contain"
+                      />
+            </div>
+                  ) : project.icon ? (
+                    <div className="flex-shrink-0 text-2xl">
+                      {project.icon}
+            </div>
+                  ) : null}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className={`font-medium ${isActive ? '' : 'text-neutral-500 dark:text-neutral-400'}`}>
+                        {project.title}
+                      </h3>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        project.status === 'active' 
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                          : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
+                      }`}>
+                        {project.status === 'active' ? 'Actif' : project.status === 'paused' ? 'En pause' : 'Arrêté'}
+                      </span>
+            </div>
+                    <p className={isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'}>
+                      {project.description}
               </p>
             </div>
+                </div>
+                {project.link && (
             <div className="flex items-center transition-all group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
                 <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
               </svg>
             </div>
-          </a>
-          <a 
-            href="https://apify.com/corent1robert" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-          >
-            <div>
-              <h3 className="font-medium">Contributeurs Apify</h3>
-              <p className="text-neutral-600 dark:text-neutral-400">
-                20 scrapers publics, 154 utilisateurs, 97.3% de succès
-              </p>
-            </div>
-            <div className="flex items-center transition-all group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-              </svg>
-            </div>
-          </a>
-          <a 
-            href="https://www.outreacher.fr/" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-          >
-            <div>
-              <h3 className="font-medium">Outreacher</h3>
-              <p className="text-neutral-600 dark:text-neutral-400">
-                Agence d'outbound marketing — prospection automatisée pour mes clients
-              </p>
-            </div>
-            <div className="flex items-center transition-all group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-              </svg>
-            </div>
-          </a>
-          <a 
-            href="https://datareacher.webflow.io/" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-          >
-            <div>
-              <h3 className="font-medium">Datareacher</h3>
-              <p className="text-neutral-600 dark:text-neutral-400">
-                Mise à disposition de bases de données
-              </p>
-            </div>
-            <div className="flex items-center transition-all group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-              </svg>
-            </div>
-          </a>
-          <div className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-medium text-neutral-500 dark:text-neutral-400">Rare Item Club</h3>
-                <span className="text-xs text-neutral-400 dark:text-neutral-500">(Arrêté en 2022)</span>
-              </div>
-              <p className="text-neutral-500 dark:text-neutral-400">
-                E-commerce sneakers d'occasion
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-medium text-neutral-500 dark:text-neutral-400">InstaNinja</h3>
-                <span className="text-xs text-neutral-400 dark:text-neutral-500">(Arrêté en 2019)</span>
-              </div>
-              <p className="text-neutral-500 dark:text-neutral-400">
-                Automatisation de compte Instagram
-              </p>
-            </div>
-          </div>
+                )}
+              </Component>
+            )
+          })}
         </div>
       </section>
 
@@ -418,4 +392,4 @@ export default function About() {
     </main>
     </>
   )
-}
+} 
