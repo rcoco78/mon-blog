@@ -33,7 +33,9 @@ export default function About() {
       {/* Section Narrative */}
       <section className="mb-16">
         <h1 className="font-semibold text-2xl mb-8 tracking-tighter">À propos</h1>
-        <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">De développeur chez Airbnb à entrepreneur indépendant, mon parcours est marqué par une constante : la recherche d'innovation et d'impact.</p>
+        <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">
+          28 ans, Parisien de naissance. Après plusieurs expériences en startup, je mets aujourd'hui mes compétences au service de fondateurs autour du scraping et de l'automatisation. Le week-end, je pars filmer des logements atypiques avec mon frère — une aventure familiale qui nous passionne.
+        </p>
         
         {/* Section Vidéo YouTube */}
         <div className="mb-8">
