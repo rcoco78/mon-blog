@@ -55,7 +55,7 @@ export default function About() {
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Parcours</h2>
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:gap-6">
-            <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 sm:text-right tabular-nums">2023–present</div>
+            <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 sm:text-right tabular-nums pl-0">2023–present</div>
             <div className="flex-1 min-w-0">
               <h3 className="font-medium mb-1">Freelance</h3>
               <ul className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed space-y-1">
@@ -66,28 +66,28 @@ export default function About() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-6">
-            <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 sm:text-right tabular-nums">2022</div>
+            <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 sm:text-right tabular-nums pl-0">2022</div>
             <div className="flex-1 min-w-0">
               <h3 className="font-medium mb-1">White Bird</h3>
               <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">CTO - Direction technique et développement produit</p>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-6">
-            <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 sm:text-right tabular-nums">2021</div>
+            <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 sm:text-right tabular-nums pl-0">2021</div>
             <div className="flex-1 min-w-0">
               <h3 className="font-medium mb-1">Shine</h3>
               <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Lead Developer - Développement d'applications web</p>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-6">
-            <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 sm:text-right tabular-nums">2020</div>
+            <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 sm:text-right tabular-nums pl-0">2020</div>
             <div className="flex-1 min-w-0">
               <h3 className="font-medium mb-1">Airbnb</h3>
               <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Développeur - Contribution à la plateforme</p>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-6">
-            <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 sm:text-right tabular-nums">2015-2018</div>
+            <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 sm:text-right tabular-nums pl-0">2015-2018</div>
             <div className="flex-1 min-w-0">
               <h3 className="font-medium mb-1">HETIC</h3>
               <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Formation en développement web et entrepreneuriat</p>
