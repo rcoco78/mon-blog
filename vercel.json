@@ -19,7 +19,7 @@
           "value": "http"
         }
       ],
-      "destination": "https://corentinrobert.fr/$1",
+      "destination": "https://www.corentinrobert.fr/$1",
       "permanent": true
     },
     {
@@ -27,10 +27,32 @@
       "has": [
         {
           "type": "host",
-          "value": "www.corentinrobert.fr"
+          "value": "corentinrobert.fr"
         }
       ],
-      "destination": "https://corentinrobert.fr/$1",
+      "destination": "https://www.corentinrobert.fr/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "corentinrobert.com"
+        }
+      ],
+      "destination": "https://www.corentinrobert.fr/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.corentinrobert.com"
+        }
+      ],
+      "destination": "https://www.corentinrobert.fr/$1",
       "permanent": true
     }
   ],

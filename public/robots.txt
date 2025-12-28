@@ -1,10 +1,10 @@
-# robots.txt pour corentinrobert.fr
+# robots.txt pour www.corentinrobert.fr
 
 User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://corentinrobert.fr/sitemap.xml
+Sitemap: https://www.corentinrobert.fr/sitemap.xml
 
 # Bloquer les pages d'administration et API (si nécessaire)
 Disallow: /api/

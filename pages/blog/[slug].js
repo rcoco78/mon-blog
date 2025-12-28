@@ -122,7 +122,7 @@ export default function Post({ post, blocks, allPosts }) {
               </div>
               <div className="flex items-center space-x-3 pt-2">
                 <ShareButtons 
-                  url={`https://corentinrobert.fr/blog/${post.slug}`}
+                  url={articleUrl}
                   title={post.title} 
                 />
               </div>
@@ -165,7 +165,7 @@ export default function Post({ post, blocks, allPosts }) {
               </div>
               <div className="flex items-center space-x-3">
                 <ShareButtons 
-                  url={`https://corentinrobert.fr/blog/${post.slug}`}
+                  url={articleUrl}
                   title={post.title} 
                 />
               </div>
