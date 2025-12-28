@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv'
+import { incrementProjectClick } from '../../../lib/projectClicks'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -13,15 +13,14 @@ export default async function handler(req, res) {
     }
 
     // Incrémenter le compteur de clics
-    const key = `project:clicks:${projectId}`
-    const clicks = await kv.incr(key)
+    const clicks = await incrementProjectClick(projectId)
 
     res.status(200).json({ clicks, projectId })
   } catch (error) {
     console.error('Error tracking project click:', error)
-    // En cas d'erreur (ex: KV non configuré), retourner quand même un succès
+    // En cas d'erreur (ex: Blob non configuré), retourner quand même un succès
     // pour ne pas bloquer la navigation
-    res.status(200).json({ clicks: 0, projectId, error: 'KV not configured' })
+    res.status(200).json({ clicks: 0, projectId, error: 'Blob not configured' })
   }
 }
 
