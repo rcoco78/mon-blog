@@ -11,6 +11,7 @@ export default function Home({ posts }) {
   const [topPosts, setTopPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [metrics, setMetrics] = useState(siteConfig.metrics)
+  const [metricsLoading, setMetricsLoading] = useState(true)
 
   useEffect(() => {
     const fetchViews = async () => {
@@ -63,6 +64,7 @@ export default function Home({ posts }) {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
+        setMetricsLoading(true)
         const response = await fetch('/api/metrics?' + new Date().getTime())
         if (response.ok) {
           const data = await response.json()
@@ -73,6 +75,8 @@ export default function Home({ posts }) {
       } catch (error) {
         console.error('Erreur lors de la récupération des métriques:', error)
         // Garder les métriques par défaut en cas d'erreur
+      } finally {
+        setMetricsLoading(false)
       }
     }
 
@@ -147,13 +151,24 @@ export default function Home({ posts }) {
 
         {/* Métriques de confiance */}
         <div className="mb-12 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {metrics.map((metric, index) => (
-            <div key={index} className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-              <div className="text-2xl font-semibold mb-1 text-neutral-900 dark:text-neutral-100">{metric.value}</div>
-              <div className="text-sm text-neutral-600 dark:text-neutral-400">{metric.label}</div>
-              <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">{metric.source}</div>
-            </div>
-          ))}
+          {metricsLoading ? (
+            // Skeleton pendant le chargement
+            Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                <div className="h-8 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
+                <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-1"></div>
+                <div className="h-3 w-20 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+              </div>
+            ))
+          ) : (
+            metrics.map((metric, index) => (
+              <div key={index} className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                <div className="text-2xl font-semibold mb-1 text-neutral-900 dark:text-neutral-100">{metric.value}</div>
+                <div className="text-sm text-neutral-600 dark:text-neutral-400">{metric.label}</div>
+                <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">{metric.source}</div>
+              </div>
+            ))
+          )}
         </div>
         
         {/* Section Articles récents */}
