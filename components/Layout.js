@@ -7,6 +7,7 @@ import { siteConfig } from '../lib/config'
 export default function Layout({ children }) {
   const { theme, resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -183,6 +184,9 @@ export default function Layout({ children }) {
                             <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                           </svg>
                           <p className="ml-2 h-7">spotify</p>
+                          {isPlaying && (
+                            <span className="ml-2 w-2 h-2 bg-green-500 rounded-full animate-pulse" title="En cours d'écoute"></span>
+                          )}
                         </a>
                       </li>
                     )}
