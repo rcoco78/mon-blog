@@ -29,7 +29,7 @@ export default function Open() {
           </p>
           <div className="space-y-4">
             <a 
-              href="https://apify.com/corent1robert"
+              href="https://apify.com?fpr=0n7ukq"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"

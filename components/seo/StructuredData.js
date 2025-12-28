@@ -71,7 +71,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           sameAs: [
             siteConfig.social.linkedin,
             siteConfig.social.malt,
-            'https://apify.com/corent1robert',
+            'https://apify.com?fpr=0n7ukq',
             'https://github.com/rcoco78'
           ],
           image: siteConfig.ogLogo
