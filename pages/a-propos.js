@@ -271,11 +271,67 @@ export default function About() {
         <div className="space-y-6">
           <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
             <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
-              "Corentin a su comprendre rapidement mes besoins et proposer des solutions adaptées. Il a parfaitement répondu à mes attentes, je le recommande sans hésiter."
+              "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ."
             </p>
             <div className="flex items-center gap-4">
               <div>
-                <p className="font-medium text-neutral-800 dark:text-neutral-200">Nicolas, Gurubay</p>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">Adnane Amahou</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">Responsable CX @ NGI</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
+              "Prestation de scraping impeccable : compréhension rapide du besoin, extraction propre et structurée, délais respectés. Les données livrées sont exploitables immédiatement (format clair, colonnes cohérentes, pas de doublons). Communication fluide et réactif tout au long du projet."
+            </p>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">Mohamed-Amine Zaghdoud</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">Fondateur Kent</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
+              "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !"
+            </p>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">Hugues Chavrier</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
+              "Je recommande vivement Corentin pour sa réactivité et son professionnalisme. J'ai eu la chance de faire appel à lui à deux reprises, et à chaque fois, son accompagnement a été exemplaire."
+            </p>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">Chris Rydahl</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">Cofounder & CTO @ Parallel</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
+              "Nous travaillons avec Corentin depuis plus de 3 ans. Il a toujours été de très bons conseils, réactif et appliqué. Je recommande à 💯 % !"
+            </p>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">Julien Vabre</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">Dirigeant InXpress Gironde</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
+              "Corentin est redoutablement efficace, il comprend vite et travaille vite. Un plaisir."
+            </p>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">Arthur Dalaise</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">Co-fondateur @ La Biche-Renard</p>
               </div>
             </div>
           </div>
@@ -285,7 +341,8 @@ export default function About() {
             </p>
             <div className="flex items-center gap-4">
               <div>
-                <p className="font-medium text-neutral-800 dark:text-neutral-200">Denis, Inovesta</p>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">Denis</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">Inovesta</p>
               </div>
             </div>
           </div>
@@ -295,20 +352,27 @@ export default function About() {
             </p>
             <div className="flex items-center gap-4">
               <div>
-                <p className="font-medium text-neutral-800 dark:text-neutral-200">Charlotte, Agence Canopée</p>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">Charlotte</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">Agence Canopée</p>
               </div>
             </div>
           </div>
-          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
-              "Prestation 100% conforme. Bonne communication. Travail très pro."
-            </p>
-            <div className="flex items-center gap-4">
-              <div>
-                <p className="font-medium text-neutral-800 dark:text-neutral-200">Yanis, Sportintech</p>
-              </div>
-            </div>
-          </div>
+        </div>
+        <div className="mt-8 text-center">
+          <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+            <strong>167 projets</strong> réalisés sur Malt avec <strong>107 avis</strong>
+          </p>
+          <a 
+            href={siteConfig.social.malt}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-4 py-2 text-sm border border-neutral-200 dark:border-neutral-800 rounded-lg hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+          >
+            Voir tous les témoignages sur Malt
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-2 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+            </svg>
+          </a>
         </div>
       </section>
 
