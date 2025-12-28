@@ -373,7 +373,7 @@ export default function About() {
           </div>
           <div>
             <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-              <strong>167 avis</strong> sur Fiverr avec une note de <strong>4,9/5</strong>
+              <strong>103 avis</strong> sur Fiverr avec une note de <strong>4,9/5</strong> • <strong>257 commandes</strong> complétées
             </p>
             <a 
               href={siteConfig.social.fiverr}
