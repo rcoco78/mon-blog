@@ -399,8 +399,8 @@ export default function About() {
             </div>
           </div>
         </div>
-        <div className="mt-8 text-center space-y-4">
-          <div>
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="text-center flex flex-col items-center">
             <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
               <strong>167 projets</strong> réalisés sur Malt avec <strong>107 avis</strong>
             </p>
@@ -416,9 +416,9 @@ export default function About() {
               </svg>
             </a>
           </div>
-          <div>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-              <strong>103 avis</strong> sur Fiverr avec une note de <strong>4,9/5</strong> • <strong>257 commandes</strong> complétées
+          <div className="text-center flex flex-col items-center">
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4 whitespace-nowrap">
+              <strong>103 avis</strong> sur Fiverr • <strong>4,9/5</strong> • <strong>257 commandes</strong>
             </p>
             <a 
               href={siteConfig.social.fiverr}
