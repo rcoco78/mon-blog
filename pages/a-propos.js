@@ -243,6 +243,7 @@ export default function About() {
       <section className="mb-16">
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Témoignages</h2>
         <div className="space-y-6">
+          {/* LinkedIn */}
           <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
             <div className="flex items-start justify-between mb-4">
               <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
@@ -257,6 +258,22 @@ export default function About() {
               </div>
             </div>
           </div>
+          {/* Fiverr */}
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                "Corentin did an excellent job and my cooperation with him was smooth and easy. He delivered what he promised, he was very open and quick to discuss revisions and delivered even them in no time. My project was not a simple one, as it required collecting information from different places. I'm 100% satisfied with the result."
+              </p>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 whitespace-nowrap">Fiverr</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">lampro74</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">Belgique</p>
+              </div>
+            </div>
+          </div>
+          {/* LinkedIn */}
           <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
             <div className="flex items-start justify-between mb-4">
               <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
@@ -271,62 +288,7 @@ export default function About() {
               </div>
             </div>
           </div>
-          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-            <div className="flex items-start justify-between mb-4">
-              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
-                "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !"
-              </p>
-              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <div>
-                <p className="font-medium text-neutral-800 dark:text-neutral-200">Hugues Chavrier</p>
-                <p className="text-sm text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
-              </div>
-            </div>
-          </div>
-          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-            <div className="flex items-start justify-between mb-4">
-              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
-                "Je recommande vivement Corentin pour sa réactivité et son professionnalisme. J'ai eu la chance de faire appel à lui à deux reprises, et à chaque fois, son accompagnement a été exemplaire."
-              </p>
-              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <div>
-                <p className="font-medium text-neutral-800 dark:text-neutral-200">Chris Rydahl</p>
-                <p className="text-sm text-neutral-500 dark:text-neutral-500">Cofounder & CTO @ Parallel</p>
-              </div>
-            </div>
-          </div>
-          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-            <div className="flex items-start justify-between mb-4">
-              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
-                "Nous travaillons avec Corentin depuis plus de 3 ans. Il a toujours été de très bons conseils, réactif et appliqué. Je recommande à 💯 % !"
-              </p>
-              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <div>
-                <p className="font-medium text-neutral-800 dark:text-neutral-200">Julien Vabre</p>
-                <p className="text-sm text-neutral-500 dark:text-neutral-500">Dirigeant InXpress Gironde</p>
-              </div>
-            </div>
-          </div>
-          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-            <div className="flex items-start justify-between mb-4">
-              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
-                "Corentin est redoutablement efficace, il comprend vite et travaille vite. Un plaisir."
-              </p>
-              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <div>
-                <p className="font-medium text-neutral-800 dark:text-neutral-200">Arthur Dalaise</p>
-                <p className="text-sm text-neutral-500 dark:text-neutral-500">Co-fondateur @ La Biche-Renard</p>
-              </div>
-            </div>
-          </div>
+          {/* Malt */}
           <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
             <div className="flex items-start justify-between mb-4">
               <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
@@ -341,6 +303,52 @@ export default function About() {
               </div>
             </div>
           </div>
+          {/* LinkedIn */}
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !"
+              </p>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">Hugues Chavrier</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
+              </div>
+            </div>
+          </div>
+          {/* Fiverr */}
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                "Corentin has been exceptionally fast at delivering that order. Great level of expertise! Kudos Corentin."
+              </p>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 whitespace-nowrap">Fiverr</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">tigerparts</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">Pays-Bas</p>
+              </div>
+            </div>
+          </div>
+          {/* LinkedIn */}
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                "Je recommande vivement Corentin pour sa réactivité et son professionnalisme. J'ai eu la chance de faire appel à lui à deux reprises, et à chaque fois, son accompagnement a été exemplaire."
+              </p>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">Chris Rydahl</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">Cofounder & CTO @ Parallel</p>
+              </div>
+            </div>
+          </div>
+          {/* Malt */}
           <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
             <div className="flex items-start justify-between mb-4">
               <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
@@ -352,6 +360,66 @@ export default function About() {
               <div>
                 <p className="font-medium text-neutral-800 dark:text-neutral-200">Charlotte</p>
                 <p className="text-sm text-neutral-500 dark:text-neutral-500">Agence Canopée</p>
+              </div>
+            </div>
+          </div>
+          {/* LinkedIn */}
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                "Nous travaillons avec Corentin depuis plus de 3 ans. Il a toujours été de très bons conseils, réactif et appliqué. Je recommande à 💯 % !"
+              </p>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">Julien Vabre</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">Dirigeant InXpress Gironde</p>
+              </div>
+            </div>
+          </div>
+          {/* Fiverr */}
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                "Nous sommes extrêmement satisfaits du travail réalisé. Corentin a fait preuve d'un grand professionnalisme, d'une excellente réactivité et d'un sens du détail remarquable. La communication a toujours été fluide et agréable, et le résultat final dépasse largement nos attentes."
+              </p>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 whitespace-nowrap">Fiverr</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">jma225845</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">France</p>
+              </div>
+            </div>
+          </div>
+          {/* LinkedIn */}
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                "Corentin est redoutablement efficace, il comprend vite et travaille vite. Un plaisir."
+              </p>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">Arthur Dalaise</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">Co-fondateur @ La Biche-Renard</p>
+              </div>
+            </div>
+          </div>
+          {/* Fiverr */}
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                "For any scraping needs, he is amazing, was able to scrape 400K companies from a complex site."
+              </p>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 whitespace-nowrap">Fiverr</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">buzzinsider</p>
+                <p className="text-sm text-neutral-500 dark:text-neutral-500">États-Unis</p>
               </div>
             </div>
           </div>
