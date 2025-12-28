@@ -28,7 +28,7 @@ export default function Layout({ children }) {
 
   return (
     <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
-      <div className="flex flex-col min-h-screen mt-4 sm:mt-8">
+      <div className="flex flex-col min-h-screen mt-8 sm:mt-8">
         <nav className="flex flex-row items-center justify-between relative px-0 pb-8 fade md:overflow-auto scroll-pr-6 md:relative" id="nav">
           <div className="flex flex-row items-center space-x-1 sm:space-x-2">
             <Link 
