@@ -36,7 +36,7 @@ export default function About() {
         <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">De développeur chez Airbnb à entrepreneur indépendant, mon parcours est marqué par une constante : la recherche d'innovation et d'impact.</p>
         
         {/* Section Vidéo YouTube */}
-        <div className="mb-12">
+        <div className="mb-8">
           <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg">
             <iframe
               src="https://www.youtube.com/embed/53pisKcp9Vc?rel=0&modestbranding=1"
