@@ -26,18 +26,6 @@ Ce document liste uniquement les fonctionnalités et améliorations **à venir**
 
 ---
 
-### 2. Enrichissements page "À propos" ⏳
-**Objectif** : Compléter la page avec des sections supplémentaires
-
-**Actions** :
-- [ ] Ajouter section "Échecs et apprentissages" (inspiration levelsio)
-- [ ] Ajouter section "Stack technique" actuelle
-- [ ] Enrichir avec plus de détails sur les projets récents
-
-**Impact** : 🟢 **Élevé** - Renforce le trust et la crédibilité
-
----
-
 ## 🔧 Priorité 2 : Intégrations & Automatisation
 
 ### 4. API Apify pour métriques live ⏳

@@ -10,6 +10,7 @@ import ProjectClickCounter from '../components/ProjectClickCounter'
 export default function Home({ posts }) {
   const [topPosts, setTopPosts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [metrics, setMetrics] = useState(siteConfig.metrics)
 
   useEffect(() => {
     const fetchViews = async () => {
@@ -57,6 +58,26 @@ export default function Home({ posts }) {
 
     fetchViews()
   }, [posts])
+
+  // Charger les métriques depuis l'API
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const response = await fetch('/api/metrics?' + new Date().getTime())
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.metrics) {
+            setMetrics(data.metrics)
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des métriques:', error)
+        // Garder les métriques par défaut en cas d'erreur
+      }
+    }
+
+    fetchMetrics()
+  }, [])
 
   const pageSEO = generatePageSEO({
     title: siteConfig.seo.pages.home.title,
@@ -126,7 +147,7 @@ export default function Home({ posts }) {
 
         {/* Métriques de confiance */}
         <div className="mb-12 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {siteConfig.metrics.map((metric, index) => (
+          {metrics.map((metric, index) => (
             <div key={index} className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
               <div className="text-2xl font-semibold mb-1 text-neutral-900 dark:text-neutral-100">{metric.value}</div>
               <div className="text-sm text-neutral-600 dark:text-neutral-400">{metric.label}</div>

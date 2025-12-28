@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/sitemap",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/metrics-sync",
+      "schedule": "0 7 * * *"
     }
   ],
   "redirects": [

@@ -1,0 +1,26 @@
+{
+  "metrics": [
+    {
+      "value": "423",
+      "label": "projets réalisés",
+      "source": "Malt & Fiverr"
+    },
+    {
+      "value": "20",
+      "label": "scrapers publics",
+      "source": "sur Apify"
+    },
+    {
+      "value": "154",
+      "label": "utilisateurs actifs",
+      "source": "de mes scrapers"
+    },
+    {
+      "value": "242",
+      "label": "abonnés",
+      "source": "Logement Atypique"
+    }
+  ],
+  "lastUpdated": null
+}
+

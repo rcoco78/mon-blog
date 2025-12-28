@@ -52,7 +52,7 @@ export default function Layout({ children }) {
         <nav className="flex flex-row items-center justify-between relative px-0 pb-8 fade md:overflow-auto scroll-pr-6 md:relative" id="nav">
           <div className="flex flex-row items-center space-x-1 sm:space-x-2">
             <Link 
-              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 sm:px-3 rounded-md ${
+              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
                 router.pathname === '/' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
               }`} 
               href="/"
