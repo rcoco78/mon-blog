@@ -39,6 +39,12 @@ export default async function handler(req, res) {
  */
 async function getSpotifyAccessToken() {
   try {
+    // Vérifier que les variables d'environnement sont configurées
+    if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) {
+      console.error('SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET not configured')
+      return null
+    }
+
     // Si on a un refresh token, l'utiliser pour obtenir un nouvel access token
     if (process.env.SPOTIFY_REFRESH_TOKEN) {
       const response = await fetch('https://accounts.spotify.com/api/token', {
@@ -57,11 +63,19 @@ async function getSpotifyAccessToken() {
 
       if (response.ok) {
         const data = await response.json()
+        // Si un nouveau refresh token est fourni, on pourrait le sauvegarder
+        // mais pour l'instant on garde celui en variable d'environnement
         return data.access_token
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Error refreshing Spotify token:', errorData)
+        // Si le refresh token est invalide, on ne peut pas continuer
+        return null
       }
     }
 
     // Fallback : Client Credentials Flow (pour les données publiques uniquement)
+    // Note: Ce flow ne permet PAS d'accéder aux données utilisateur (currently playing, top tracks)
     const response = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
       headers: {
@@ -78,6 +92,7 @@ async function getSpotifyAccessToken() {
       return data.access_token
     }
 
+    console.error('Failed to get access token with client credentials')
     return null
   } catch (error) {
     console.error('Error getting Spotify access token:', error)
