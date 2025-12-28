@@ -264,7 +264,7 @@ export default function About() {
               <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                 "Corentin did an excellent job and my cooperation with him was smooth and easy. He delivered what he promised, he was very open and quick to discuss revisions and delivered even them in no time. My project was not a simple one, as it required collecting information from different places. I'm 100% satisfied with the result."
               </p>
-              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 whitespace-nowrap">Fiverr</span>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 whitespace-nowrap">Fiverr</span>
             </div>
             <div className="flex items-center gap-4">
               <div>
@@ -294,7 +294,7 @@ export default function About() {
               <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                 "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
               </p>
-              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 whitespace-nowrap">Malt</span>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400 whitespace-nowrap">Malt</span>
             </div>
             <div className="flex items-center gap-4">
               <div>
@@ -324,7 +324,7 @@ export default function About() {
               <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                 "Corentin has been exceptionally fast at delivering that order. Great level of expertise! Kudos Corentin."
               </p>
-              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 whitespace-nowrap">Fiverr</span>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 whitespace-nowrap">Fiverr</span>
             </div>
             <div className="flex items-center gap-4">
               <div>
@@ -354,7 +354,7 @@ export default function About() {
               <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                 "Corentin est très pro. Il connait son métier, est de très bon conseils, et force de proposition."
               </p>
-              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 whitespace-nowrap">Malt</span>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400 whitespace-nowrap">Malt</span>
             </div>
             <div className="flex items-center gap-4">
               <div>
@@ -384,7 +384,7 @@ export default function About() {
               <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                 "Nous sommes extrêmement satisfaits du travail réalisé. Corentin a fait preuve d'un grand professionnalisme, d'une excellente réactivité et d'un sens du détail remarquable. La communication a toujours été fluide et agréable, et le résultat final dépasse largement nos attentes."
               </p>
-              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 whitespace-nowrap">Fiverr</span>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 whitespace-nowrap">Fiverr</span>
             </div>
             <div className="flex items-center gap-4">
               <div>
@@ -414,7 +414,7 @@ export default function About() {
               <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                 "For any scraping needs, he is amazing, was able to scrape 400K companies from a complex site."
               </p>
-              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 whitespace-nowrap">Fiverr</span>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 whitespace-nowrap">Fiverr</span>
             </div>
             <div className="flex items-center gap-4">
               <div>
@@ -449,12 +449,12 @@ export default function About() {
               href={siteConfig.social.fiverr}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center px-4 py-2 text-sm border border-neutral-200 dark:border-neutral-800 rounded-lg hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-            >
+            className="inline-flex items-center px-4 py-2 text-sm border border-neutral-200 dark:border-neutral-800 rounded-lg hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+          >
               Voir tous les témoignages sur Fiverr
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-2 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-              </svg>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-2 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+            </svg>
             </a>
           </div>
         </div>
