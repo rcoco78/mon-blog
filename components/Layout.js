@@ -13,6 +13,25 @@ export default function Layout({ children }) {
     setMounted(true)
   }, [])
 
+  // Vérifier si une musique est en cours d'écoute
+  useEffect(() => {
+    const checkCurrentlyPlaying = async () => {
+      try {
+        const response = await fetch('/api/spotify/data')
+        const data = await response.json()
+        setIsPlaying(!!data.currentlyPlaying)
+      } catch (error) {
+        // Silencieux en cas d'erreur
+        setIsPlaying(false)
+      }
+    }
+
+    checkCurrentlyPlaying()
+    // Vérifier toutes les 30 secondes
+    const interval = setInterval(checkCurrentlyPlaying, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
   const toggleTheme = () => {
     if (!mounted) return
     
@@ -70,14 +89,6 @@ export default function Layout({ children }) {
               href="/open"
             >
               open
-            </Link>
-            <Link 
-              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 sm:px-3 rounded-md ${
-                router.pathname === '/spotify' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
-              }`} 
-              href="/spotify"
-            >
-              musique
             </Link>
           </div>
           <button
