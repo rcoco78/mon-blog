@@ -27,7 +27,6 @@
       "has": [
         {
           "type": "host",
-          "key": "host",
           "value": "www.corentinrobert.fr"
         }
       ],
