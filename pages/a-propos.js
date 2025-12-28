@@ -21,103 +21,31 @@ export default function About() {
         description: siteConfig.seo.pages.aPropos.description,
         url: `${siteConfig.url}/a-propos`
       }} />
+      <StructuredData type="VideoObject" data={{
+        name: 'Présentation de Corentin Robert - Consultant Scraping et Automatisation',
+        description: 'Découvrez mon parcours de développeur chez Airbnb à entrepreneur indépendant, spécialisé en scraping et automatisation.',
+        videoId: '53pisKcp9Vc',
+        thumbnailUrl: 'https://img.youtube.com/vi/53pisKcp9Vc/maxresdefault.jpg',
+        contentUrl: 'https://www.youtube.com/watch?v=53pisKcp9Vc',
+        embedUrl: 'https://www.youtube.com/embed/53pisKcp9Vc'
+      }} />
     <main className="flex-auto min-w-0 mt-6 flex flex-col">
       {/* Section Narrative */}
       <section className="mb-16">
         <h1 className="font-semibold text-2xl mb-8 tracking-tighter">À propos</h1>
         <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">De développeur chez Airbnb à entrepreneur indépendant, mon parcours est marqué par une constante : la recherche d'innovation et d'impact.</p>
         
-        {/* Section Images qui se chevauchent */}
-        <div className="relative h-80 mb-12">
-          {/* Version mobile */}
-          <div className="md:hidden flex flex-col items-center space-y-4">
-            <div className="w-48 h-48 rounded-lg overflow-hidden shadow-md">
-              <Image 
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                alt="Photo de profil" 
-                width={192} 
-                height={192} 
-                className="object-cover"
-              />
-            </div>
-            <div className="flex flex-wrap justify-center gap-4">
-              <div className="w-32 h-32 rounded-lg overflow-hidden shadow-md">
-                <Image 
-                  src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                  alt="Photo de profil" 
-                  width={128} 
-                  height={128} 
-                  className="object-cover"
-                />
-              </div>
-              <div className="w-32 h-32 rounded-lg overflow-hidden shadow-md">
-                <Image 
-                  src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                  alt="Photo de profil" 
-                  width={128} 
-                  height={128} 
-                  className="object-cover"
-                />
-              </div>
-              <div className="w-32 h-32 rounded-lg overflow-hidden shadow-md">
-                <Image 
-                  src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                  alt="Photo de profil" 
-                  width={128} 
-                  height={128} 
-                  className="object-cover"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Version desktop */}
-          <div className="hidden md:block relative h-80">
-            <div className="absolute top-0 left-0 w-48 h-48 rounded-lg overflow-hidden z-10 shadow-md">
-              <Image 
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                alt="Photo de profil" 
-                width={192} 
-                height={192} 
-                className="object-cover"
-              />
-            </div>
-            <div className="absolute top-32 left-24 w-40 h-40 rounded-lg overflow-hidden z-20 shadow-md">
-              <Image 
-                src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                alt="Photo de profil" 
-                width={160} 
-                height={160} 
-                className="object-cover"
-              />
-            </div>
-            <div className="absolute top-8 left-64 w-36 h-36 rounded-lg overflow-hidden z-30 shadow-md">
-              <Image 
-                src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                alt="Photo de profil" 
-                width={144} 
-                height={144} 
-                className="object-cover"
-              />
-            </div>
-            <div className="absolute top-48 left-8 w-32 h-32 rounded-lg overflow-hidden z-40 shadow-md">
-              <Image 
-                src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                alt="Photo de profil" 
-                width={128} 
-                height={128} 
-                className="object-cover"
-              />
-            </div>
-            <div className="absolute top-16 left-96 w-28 h-28 rounded-lg overflow-hidden z-50 shadow-md">
-              <Image 
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                alt="Photo de profil" 
-                width={112} 
-                height={112} 
-                className="object-cover"
-              />
-            </div>
+        {/* Section Vidéo YouTube */}
+        <div className="mb-12">
+          <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg">
+            <iframe
+              src="https://www.youtube.com/embed/53pisKcp9Vc?rel=0&modestbranding=1"
+              title="Présentation de Corentin Robert - Consultant Scraping et Automatisation"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="absolute top-0 left-0 w-full h-full"
+              loading="lazy"
+            />
           </div>
         </div>
       </section>

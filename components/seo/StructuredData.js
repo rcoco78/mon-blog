@@ -97,6 +97,24 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           areaServed: 'FR',
           description: data.description || siteConfig.seo.defaultDescription
         };
+
+      case 'VideoObject':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'VideoObject',
+          name: data.name || 'Présentation de Corentin Robert',
+          description: data.description || siteConfig.seo.defaultDescription,
+          thumbnailUrl: data.thumbnailUrl || `https://img.youtube.com/vi/${data.videoId}/maxresdefault.jpg`,
+          uploadDate: data.uploadDate || new Date().toISOString(),
+          duration: data.duration,
+          contentUrl: data.contentUrl || `https://www.youtube.com/watch?v=${data.videoId}`,
+          embedUrl: data.embedUrl || `https://www.youtube.com/embed/${data.videoId}`,
+          publisher: {
+            '@type': 'Person',
+            name: siteConfig.author,
+            url: siteConfig.url
+          }
+        };
       
       default:
         return data;
