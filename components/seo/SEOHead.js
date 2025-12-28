@@ -19,14 +19,17 @@ export default function SEOHead({
 }) {
   const router = useRouter();
   
+  // Sécuriser l'accès au router
+  const currentPath = router?.asPath ? router.asPath.split('?')[0] : '/';
+  
   const finalTitle = title 
     ? `${title} | ${siteConfig.name}`
-    : siteConfig.title;
+    : siteConfig.title || 'Corentin Robert';
   
-  const finalDescription = validateMetaDescription(description || siteConfig.description);
-  const finalOGImage = ogImage || siteConfig.ogImage;
-  const canonicalUrl = canonical || `${siteConfig.url}${router.asPath.split('?')[0]}`;
-  const finalImageAlt = imageAlt || finalTitle;
+  const finalDescription = validateMetaDescription(description || siteConfig.description || '');
+  const finalOGImage = ogImage || siteConfig.ogImage || '';
+  const canonicalUrl = canonical || `${siteConfig.url}${currentPath}`;
+  const finalImageAlt = imageAlt || finalTitle || 'Corentin Robert';
 
   return (
     <Head>
@@ -40,14 +43,15 @@ export default function SEOHead({
       <meta name="description" content={finalDescription} />
       
       {/* Keywords */}
-      {keywords && <meta name="keywords" content={keywords} />}
+      {keywords && typeof keywords === 'string' && keywords.trim() && (
+        <meta name="keywords" content={keywords} />
+      )}
       
       {/* Author */}
       <meta name="author" content={siteConfig.author} />
       
       {/* Language */}
       <meta httpEquiv="content-language" content="fr" />
-      <html lang="fr" />
       
       {/* Canonical URL */}
       <link rel="canonical" href={canonicalUrl} />
@@ -102,8 +106,8 @@ export default function SEOHead({
           )}
           <meta property="article:author" content={siteConfig.author} />
           <meta property="article:section" content="Blog" />
-          {tags.map((tag, index) => (
-            <meta key={index} property="article:tag" content={tag} />
+          {tags && Array.isArray(tags) && tags.filter(Boolean).map((tag, index) => (
+            <meta key={index} property="article:tag" content={String(tag)} />
           ))}
         </>
       )}
