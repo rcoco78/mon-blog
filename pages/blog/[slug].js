@@ -2,15 +2,16 @@ import { getPostBlocks, getPostBySlug, getAllPosts } from '../../lib/notion'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import ViewCounter from '../../components/ViewCounter'
-import Newsletter from '../../components/Newsletter'
 import Block from '../../components/Block'
 import Tag from '../../components/Tag'
 import RelatedPosts from '../../components/RelatedPosts'
 import Link from 'next/link'
 import ReadingProgress from '../../components/ReadingProgress'
 import ShareButtons from '../../components/ShareButtons'
-import Head from 'next/head'
+import SEOHead from '../../components/seo/SEOHead'
+import StructuredData from '../../components/seo/StructuredData'
 import Breadcrumb from '../../components/Breadcrumb'
+import { siteConfig } from '../../lib/config'
 
 export default function Post({ post, blocks, allPosts }) {
   const router = useRouter()
@@ -26,75 +27,59 @@ export default function Post({ post, blocks, allPosts }) {
   // Extraire le contenu textuel des blocs pour le calcul du temps de lecture
   const content = blocks
     .map(block => {
-      if (block.type === 'paragraph') {
-        return block.paragraph.rich_text.map(text => text.plain_text).join(' ')
+      if (block.type === 'paragraph' && block.paragraph?.rich_text) {
+        return block.paragraph.rich_text
+          .map(text => text?.plain_text || '')
+          .filter(text => text.length > 0)
+          .join(' ')
       }
       return ''
     })
+    .filter(text => text.length > 0)
     .join(' ')
 
   // Calculer le temps de lecture (200 mots par minute)
   const wordCount = content.trim().split(/\s+/).length
   const readingTime = Math.ceil(wordCount / 200)
 
-  // Utiliser la meta description de la colonne dédiée
-  const metaDescription = post.metaDescription || 
-    'Découvrez notre article sur le growth hacking, le scraping et l\'immobilier de luxe.'
+  const articleUrl = `${siteConfig.url}/blog/${post.slug}`;
+  
+  // Générer une meta description optimisée
+  const metaDescription = post.metaDescription 
+    ? post.metaDescription
+    : post.excerpt 
+    ? post.excerpt.substring(0, 160).replace(/\s+\S*$/, '...')
+    : `Découvrez ${post.title} sur le blog de Corentin Robert. Article sur le scraping, l'automatisation et le growth hacking.`;
 
   return (
     <>
-      <Head>
-        <title>{post.title} | Corentin Robert</title>
-        <meta name="description" content={post.metaDescription || `Découvrez ${post.title} sur le blog de Corentin Robert.`} />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href={`https://corentinrobert.com/blog/${post.slug}`} />
-        
-        {/* Open Graph */}
-        <meta property="og:title" content={post.title} />
-        <meta property="og:description" content={post.metaDescription || `Découvrez ${post.title} sur le blog de Corentin Robert.`} />
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content={`https://corentinrobert.com/blog/${post.slug}`} />
-        <meta property="og:image" content={post.coverImage || 'https://corentinrobert.com/og-image.jpg'} />
-        
-        {/* Twitter Card */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={post.title} />
-        <meta name="twitter:description" content={post.metaDescription || `Découvrez ${post.title} sur le blog de Corentin Robert.`} />
-        <meta name="twitter:image" content={post.coverImage || 'https://corentinrobert.com/og-image.jpg'} />
-
-        {/* Schema.org markup */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BlogPosting",
-            "headline": post.title,
-            "description": post.metaDescription || `Découvrez ${post.title} sur le blog de Corentin Robert.`,
-            "image": post.coverImage || 'https://corentinrobert.com/og-image.jpg',
-            "datePublished": post.date,
-            "dateModified": post.date,
-            "author": {
-              "@type": "Person",
-              "name": "Corentin Robert",
-              "url": "https://corentinrobert.com"
-            },
-            "publisher": {
-              "@type": "Organization",
-              "name": "Corentin Robert",
-              "logo": {
-                "@type": "ImageObject",
-                "url": "https://corentinrobert.com/logo.png"
-              }
-            },
-            "mainEntityOfPage": {
-              "@type": "WebPage",
-              "@id": `https://corentinrobert.com/blog/${post.slug}`
-            }
-          })}
-        </script>
-      </Head>
+      <SEOHead
+        title={post.title}
+        description={metaDescription}
+        canonical={articleUrl}
+        ogImage={post.coverImage || siteConfig.ogImage}
+        ogType="article"
+        keywords={post.tags?.join(', ')}
+        publishedTime={post.date}
+        modifiedTime={post.lastEdited || post.date}
+        tags={post.tags || []}
+        article={true}
+        imageAlt={post.title}
+      />
+      <StructuredData
+        type="BlogPosting"
+        data={{
+          title: post.title,
+          description: metaDescription,
+          image: post.coverImage || siteConfig.ogImage,
+          datePublished: post.date,
+          dateModified: post.date,
+          url: articleUrl
+        }}
+      />
       <article className="flex-auto min-w-0 mt-6 flex flex-col">
         <header className="mb-8">
-          <Breadcrumb title={post.title} />
+          <Breadcrumb title={post.title} slug={post.slug} />
           <h1 className="text-4xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-5xl mb-4">
             {post.title}
           </h1>
@@ -137,7 +122,7 @@ export default function Post({ post, blocks, allPosts }) {
               </div>
               <div className="flex items-center space-x-3 pt-2">
                 <ShareButtons 
-                  url={`https://corentinrobert.com/blog/${post.slug}`}
+                  url={`https://corentinrobert.fr/blog/${post.slug}`}
                   title={post.title} 
                 />
               </div>
@@ -180,7 +165,7 @@ export default function Post({ post, blocks, allPosts }) {
               </div>
               <div className="flex items-center space-x-3">
                 <ShareButtons 
-                  url={`https://corentinrobert.com/blog/${post.slug}`}
+                  url={`https://corentinrobert.fr/blog/${post.slug}`}
                   title={post.title} 
                 />
               </div>
@@ -196,10 +181,6 @@ export default function Post({ post, blocks, allPosts }) {
         </div>
 
         <RelatedPosts currentPost={post} allPosts={allPosts} />
-
-        <div className="mt-12">
-          <Newsletter />
-        </div>
       </article>
     </>
   )

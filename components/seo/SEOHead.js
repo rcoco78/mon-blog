@@ -1,0 +1,118 @@
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { siteConfig } from '../../lib/config';
+import { validateMetaDescription } from '../../lib/seo';
+
+export default function SEOHead({
+  title,
+  description,
+  canonical,
+  noindex = false,
+  ogImage,
+  ogType = 'website',
+  keywords,
+  publishedTime,
+  modifiedTime,
+  tags = [],
+  article = false,
+  imageAlt
+}) {
+  const router = useRouter();
+  
+  const finalTitle = title 
+    ? `${title} | ${siteConfig.name}`
+    : siteConfig.title;
+  
+  const finalDescription = validateMetaDescription(description || siteConfig.description);
+  const finalOGImage = ogImage || siteConfig.ogImage;
+  const canonicalUrl = canonical || `${siteConfig.url}${router.asPath.split('?')[0]}`;
+  const finalImageAlt = imageAlt || finalTitle;
+
+  return (
+    <Head>
+      {/* Meta tags essentiels */}
+      <meta charSet="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+      
+      {/* Title et Description */}
+      <title>{finalTitle}</title>
+      <meta name="description" content={finalDescription} />
+      
+      {/* Keywords */}
+      {keywords && <meta name="keywords" content={keywords} />}
+      
+      {/* Author */}
+      <meta name="author" content={siteConfig.author} />
+      
+      {/* Language */}
+      <meta httpEquiv="content-language" content="fr" />
+      <html lang="fr" />
+      
+      {/* Canonical URL */}
+      <link rel="canonical" href={canonicalUrl} />
+      
+      {/* Robots */}
+      {noindex ? (
+        <meta name="robots" content="noindex, nofollow" />
+      ) : (
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+      )}
+      
+      {/* Geo tags (optionnel) */}
+      <meta name="geo.region" content="FR" />
+      <meta name="geo.placename" content="Paris" />
+      
+      {/* Open Graph / Facebook */}
+      <meta property="og:type" content={ogType} />
+      <meta property="og:title" content={finalTitle} />
+      <meta property="og:description" content={finalDescription} />
+      <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:image" content={finalOGImage} />
+      <meta property="og:image:secure_url" content={finalOGImage} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={finalImageAlt} />
+      <meta property="og:image:type" content="image/jpeg" />
+      <meta property="og:site_name" content={siteConfig.name} />
+      <meta property="og:locale" content="fr_FR" />
+      <meta property="og:locale:alternate" content="en_US" />
+      
+      {/* Twitter Card */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={finalTitle} />
+      <meta name="twitter:description" content={finalDescription} />
+      <meta name="twitter:image" content={finalOGImage} />
+      <meta name="twitter:image:alt" content={finalImageAlt} />
+      {siteConfig.twitter.site && (
+        <meta name="twitter:site" content={siteConfig.twitter.site} />
+      )}
+      {siteConfig.twitter.handle && (
+        <meta name="twitter:creator" content={siteConfig.twitter.handle} />
+      )}
+      
+      {/* Article meta tags */}
+      {article && (
+        <>
+          {publishedTime && (
+            <meta property="article:published_time" content={new Date(publishedTime).toISOString()} />
+          )}
+          {modifiedTime && (
+            <meta property="article:modified_time" content={new Date(modifiedTime).toISOString()} />
+          )}
+          <meta property="article:author" content={siteConfig.author} />
+          <meta property="article:section" content="Blog" />
+          {tags.map((tag, index) => (
+            <meta key={index} property="article:tag" content={tag} />
+          ))}
+        </>
+      )}
+      
+      {/* Additional SEO */}
+      <meta name="theme-color" content="#000000" />
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    </Head>
+  );
+}
+

@@ -1,12 +1,18 @@
-import Head from 'next/head'
+import SEOHead from '../components/seo/SEOHead'
+import { generatePageSEO } from '../lib/seo'
+import { siteConfig } from '../lib/config'
 
 export default function Contact() {
+  const pageSEO = generatePageSEO({
+    title: siteConfig.seo.pages.contact.title,
+    description: siteConfig.seo.pages.contact.description,
+    path: '/contact',
+    keywords: siteConfig.seo.pages.contact.keywords
+  })
+
   return (
     <>
-      <Head>
-        <title>Contact - Corentin Robert</title>
-        <meta name="description" content="Réservez un créneau pour discuter de vos projets avec Corentin Robert." />
-      </Head>
+      <SEOHead {...pageSEO} />
 
       <div className="flex-auto min-w-0 mt-6 flex flex-col">
         <header className="mb-9 space-y-1">

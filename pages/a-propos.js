@@ -1,12 +1,24 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import SEOHead from '../components/seo/SEOHead'
+import { generatePageSEO } from '../lib/seo'
+import { siteConfig } from '../lib/config'
 
 export default function About() {
+  const pageSEO = generatePageSEO({
+    title: siteConfig.seo.pages.aPropos.title,
+    description: siteConfig.seo.pages.aPropos.description,
+    path: '/a-propos',
+    keywords: siteConfig.seo.pages.aPropos.keywords
+  })
+
   return (
-    <main className="flex-auto min-w-0 mt-6 flex flex-col">
-      {/* Section Narrative */}
-      <section className="mb-16">
-        <h1 className="font-semibold text-2xl mb-8 tracking-tighter">À propos</h1>
+    <>
+      <SEOHead {...pageSEO} />
+      <main className="flex-auto min-w-0 mt-6 flex flex-col">
+        {/* Section Narrative */}
+        <section className="mb-16">
+          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">À propos</h1>
         <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">De développeur chez Airbnb à entrepreneur indépendant, mon parcours est marqué par une constante : la recherche d'innovation et d'impact.</p>
         
         {/* Section Images qui se chevauchent */}
@@ -283,5 +295,6 @@ export default function About() {
         </Link>
       </section>
     </main>
+    </>
   )
 } 

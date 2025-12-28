@@ -1,0 +1,23 @@
+# robots.txt pour corentinrobert.fr
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://corentinrobert.fr/sitemap.xml
+
+# Bloquer les pages d'administration et API (si nécessaire)
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+
+# Autoriser les crawlers principaux
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+

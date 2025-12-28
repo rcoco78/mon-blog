@@ -4,6 +4,9 @@ import ViewCounter from '../components/ViewCounter'
 import Tag from '../components/Tag'
 import { useState, useEffect } from 'react'
 import SearchBar from '../components/SearchBar'
+import SEOHead from '../components/seo/SEOHead'
+import { generatePageSEO } from '../lib/seo'
+import { siteConfig } from '../lib/config'
 
 function TagFilter({ tags, selectedTag, onTagSelect }) {
   const [showMore, setShowMore] = useState(false)
@@ -113,10 +116,19 @@ export default function Blog({ posts }) {
     setSearchQuery(query)
   }
 
+  const pageSEO = generatePageSEO({
+    title: siteConfig.seo.pages.blog.title,
+    description: siteConfig.seo.pages.blog.description,
+    path: '/blog',
+    keywords: siteConfig.seo.pages.blog.keywords
+  })
+
   return (
-    <main className="flex-auto min-w-0 mt-6 flex flex-col">
-      <section>
-        <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Blog</h1>
+    <>
+      <SEOHead {...pageSEO} />
+      <main className="flex-auto min-w-0 mt-6 flex flex-col">
+        <section>
+          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Blog</h1>
 
         <SearchBar 
           onSearch={handleSearch} 
@@ -141,8 +153,7 @@ export default function Blog({ posts }) {
                           })}
                         </p>
                       </div>
-                      <span className="hidden md:inline text-neutral-400 dark:text-neutral-600 mx-2">·</span>
-                      <p className="post-title flex-grow truncate md:max-w-[60%] w-full">
+                      <p className="post-title flex-grow truncate md:max-w-[60%] w-full md:ml-4">
                         {post.title}
                       </p>
                       <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
@@ -159,6 +170,7 @@ export default function Blog({ posts }) {
         </div>
       </section>
     </main>
+    </>
   )
 }
 

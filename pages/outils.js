@@ -1,5 +1,8 @@
 import Link from 'next/link'
 import { useState } from 'react'
+import SEOHead from '../components/seo/SEOHead'
+import { generatePageSEO } from '../lib/seo'
+import { siteConfig } from '../lib/config'
 
 export default function Outils() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -49,10 +52,19 @@ export default function Outils() {
     return matchesSearch && matchesCategory
   })
 
+  const pageSEO = generatePageSEO({
+    title: siteConfig.seo.pages.outils.title,
+    description: siteConfig.seo.pages.outils.description,
+    path: '/outils',
+    keywords: siteConfig.seo.pages.outils.keywords
+  })
+
   return (
-    <main className="min-w-0 mt-6 flex flex-col">
-      <section className="mb-8">
-        <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Outils Gratuits</h1>
+    <>
+      <SEOHead {...pageSEO} />
+      <main className="min-w-0 mt-6 flex flex-col">
+        <section className="mb-8">
+          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Outils Gratuits</h1>
         <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">
           Découvrez une collection d'outils gratuits pour optimiser votre productivité et automatiser vos tâches.
         </p>
@@ -147,5 +159,6 @@ export default function Outils() {
         </a>
       </section>
     </main>
+    </>
   )
 } 
