@@ -176,7 +176,22 @@ export default function Home({ posts }) {
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">Articles récents</h2>
           <div className="space-y-4">
             {loading ? (
-              <p className="text-neutral-600 dark:text-neutral-400">Chargement des articles populaires...</p>
+              // Skeleton pour les articles
+              Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2">
+                  <div className="flex flex-col md:flex-row md:items-center w-full">
+                    <div className="flex-shrink-0 mb-2 md:mb-0">
+                      <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                    </div>
+                    <div className="flex-grow md:max-w-[60%] md:ml-4 mb-2 md:mb-0">
+                      <div className="h-5 w-full md:w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                    </div>
+                    <div className="md:ml-auto flex-shrink-0">
+                      <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              ))
             ) : topPosts.length > 0 ? (
             topPosts.map((post) => (
               <Link

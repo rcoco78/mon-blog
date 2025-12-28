@@ -64,8 +64,35 @@ export default function Spotify() {
           </p>
 
           {loading ? (
-            <div className="text-center py-12">
-              <p className="text-neutral-600 dark:text-neutral-400">Chargement...</p>
+            // Skeleton pour Spotify
+            <div className="space-y-12">
+              {/* Skeleton musique en cours */}
+              <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+                <div className="h-6 w-32 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-4"></div>
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-neutral-200 dark:bg-neutral-800 rounded-lg animate-pulse"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-5 w-48 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                    <div className="h-4 w-32 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                    <div className="h-3 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+              {/* Skeleton top tracks */}
+              <div>
+                <div className="h-6 w-40 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-6"></div>
+                <div className="space-y-4">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <div key={index} className="flex items-center gap-4 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                      <div className="w-12 h-12 bg-neutral-200 dark:bg-neutral-800 rounded-lg animate-pulse flex-shrink-0"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 w-48 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                        <div className="h-3 w-32 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           ) : error ? (
             <div className="p-6 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
