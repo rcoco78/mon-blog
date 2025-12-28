@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
@@ -21,145 +22,312 @@ export default function About() {
         url: `${siteConfig.url}/a-propos`
       }} />
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
-        <div className="prose prose-neutral dark:prose-invert max-w-none">
+        {/* Section Narrative */}
+        <section className="mb-16">
           <h1 className="font-semibold text-2xl mb-8 tracking-tighter">À propos</h1>
-          
-          <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">
-            Je suis <strong>Corentin Robert</strong>, consultant freelance spécialisé en <strong>scraping</strong> et <strong>automatisation</strong>. J'aide les entreprises à transformer des données web en insights actionnables avec des solutions sur-mesure — code, low-code, ou no-code.
-          </p>
-          
-          <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            J'ai travaillé avec des entreprises tech comme <a href="https://www.airbnb.fr" target="_blank" rel="noopener noreferrer" className="text-neutral-900 dark:text-neutral-100 hover:underline">Airbnb</a> et <a href="https://www.shine.fr" target="_blank" rel="noopener noreferrer" className="text-neutral-900 dark:text-neutral-100 hover:underline">Shine</a>, et j'ai co-fondé plusieurs projets dont <a href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="text-neutral-900 dark:text-neutral-100 hover:underline">Logement Atypique</a> — une plateforme qui donne de la visibilité aux propriétaires de logements exceptionnels.
-          </p>
+        <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">De développeur chez Airbnb à entrepreneur indépendant, mon parcours est marqué par une constante : la recherche d'innovation et d'impact.</p>
+        
+        {/* Section Images qui se chevauchent */}
+        <div className="relative h-80 mb-12">
+          {/* Version mobile */}
+          <div className="md:hidden flex flex-col items-center space-y-4">
+            <div className="w-48 h-48 rounded-lg overflow-hidden shadow-md">
+              <Image 
+                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                alt="Photo de profil" 
+                width={192} 
+                height={192} 
+                className="object-cover"
+              />
+            </div>
+            <div className="flex flex-wrap justify-center gap-4">
+              <div className="w-32 h-32 rounded-lg overflow-hidden shadow-md">
+                <Image 
+                  src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                  alt="Photo de profil" 
+                  width={128} 
+                  height={128} 
+                  className="object-cover"
+                />
+              </div>
+              <div className="w-32 h-32 rounded-lg overflow-hidden shadow-md">
+                <Image 
+                  src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                  alt="Photo de profil" 
+                  width={128} 
+                  height={128} 
+                  className="object-cover"
+                />
+              </div>
+              <div className="w-32 h-32 rounded-lg overflow-hidden shadow-md">
+                <Image 
+                  src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                  alt="Photo de profil" 
+                  width={128} 
+                  height={128} 
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          </div>
 
-          <p className="mb-12 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            J'aimerais échanger avec vous — <a href="mailto:hello@corentinrobert.fr" className="text-neutral-900 dark:text-neutral-100 hover:underline">hello@corentinrobert.fr</a>.
-          </p>
-
-          <div className="lg:mt-[200px]"></div>
-
-          <h2 id="experience" className="font-semibold text-xl mb-6 tracking-tighter">Expérience Professionnelle</h2>
-          <ul className="list-none space-y-4 mb-12">
-            <li>
-              <a href="https://www.malt.fr/profile/growth" target="_blank" rel="noopener noreferrer" className="text-neutral-900 dark:text-neutral-100 hover:underline">
-                <strong>Freelance</strong>
-              </a> (2020&thinsp;–&thinsp;present) : Consultant en scraping et automatisation. <strong>167 projets réalisés</strong> sur Malt, <strong>20 scrapers publics</strong> sur Apify avec <strong>154 utilisateurs actifs</strong> et <strong>97.3% de taux de succès</strong>.
-            </li>
-            <li>
-              <a href="https://www.airbnb.fr" target="_blank" rel="noopener noreferrer" className="text-neutral-900 dark:text-neutral-100 hover:underline">
-                <strong>Airbnb</strong>
-              </a> (2020) : Développeur — Contribution à la plateforme et développement de fonctionnalités.
-            </li>
-            <li>
-              <a href="https://www.shine.fr" target="_blank" rel="noopener noreferrer" className="text-neutral-900 dark:text-neutral-100 hover:underline">
-                <strong>Shine</strong>
-              </a> (2021) : Lead Developer — Développement d'applications web et architecture technique.
-            </li>
-            <li>
-              <strong>White Bird</strong> (2022) : CTO — Direction technique et développement produit.
-            </li>
-          </ul>
-
-          <h2 id="projets" className="font-semibold text-xl mb-6 tracking-tighter">Projets</h2>
-          <ul className="list-none space-y-4 mb-12">
-            <li>
-              <a href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="text-neutral-900 dark:text-neutral-100 hover:underline">
-                <strong>Logement Atypique</strong>
-              </a> (2024&thinsp;–&thinsp;present) : Plateforme de logements exceptionnels — développé avec mon frère.
-            </li>
-            <li>
-              <a href="https://apify.com/corent1robert" target="_blank" rel="noopener noreferrer" className="text-neutral-900 dark:text-neutral-100 hover:underline">
-                <strong>Contributeurs Apify</strong>
-              </a> (2024&thinsp;–&thinsp;present) : 20 scrapers publics, 154 utilisateurs, 97.3% de succès.
-            </li>
-            <li>
-              <a href="https://www.outreacher.fr" target="_blank" rel="noopener noreferrer" className="text-neutral-900 dark:text-neutral-100 hover:underline">
-                <strong>Outreacher</strong>
-              </a> (2023&thinsp;–&thinsp;present) : Agence d'outbound marketing — prospection automatisée pour mes clients.
-            </li>
-            <li>
-              <a href="https://datareacher.webflow.io" target="_blank" rel="noopener noreferrer" className="text-neutral-900 dark:text-neutral-100 hover:underline">
-                <strong>Datareacher</strong>
-              </a> : Mise à disposition de bases de données.
-            </li>
-            <li>
-              <strong>Immoreacher</strong> : Agence de création de contenus pour les agences immobilières.
-            </li>
-            <li>
-              <strong>Rare Item Club</strong> (2022, arrêté) : E-commerce sneakers d'occasion.
-            </li>
-            <li>
-              <strong>InstaNinja</strong> (2019, arrêté) : Automatisation de compte Instagram.
-            </li>
-          </ul>
-
-          <h2 id="echecs" className="font-semibold text-xl mb-6 tracking-tighter">Échecs et Apprentissages</h2>
-          <p className="mb-4 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Sur tous les projets que j'ai lancés, seuls quelques-uns ont réellement fonctionné. <strong>Plus de 95% de tout ce que j'ai fait a échoué</strong>. Mon taux de réussite est d'environ ~5%.
-          </p>
-          <p className="mb-4 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            <strong>Rare Item Club</strong> (2022) : Tentative de créer un marketplace de sneakers d'occasion. Échec après 6 mois — marché saturé, difficultés de logistique, manque de différenciation. <strong>Apprentissage</strong> : Valider le marché avant de construire, et s'assurer d'avoir un avantage concurrentiel clair.
-          </p>
-          <p className="mb-4 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            <strong>InstaNinja</strong> (2019) : Outil d'automatisation Instagram. Arrêté après que les politiques d'Instagram aient changé. <strong>Apprentissage</strong> : Ne pas construire sur des plateformes dont on ne contrôle pas les règles. Privilégier les solutions durables.
-          </p>
-          <p className="mb-12 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Ces échecs m'ont appris à <strong>valider rapidement</strong>, à <strong>itérer sur ce qui fonctionne</strong>, et à <strong>abandonner rapidement ce qui ne marche pas</strong>. Aujourd'hui, je me concentre sur des projets avec un modèle économique clair dès le départ.
-          </p>
-
-          <h2 id="stack" className="font-semibold text-xl mb-6 tracking-tighter">Stack Technique</h2>
-          <ul className="list-none space-y-2 mb-12">
-            <li><strong>Langages</strong> : JavaScript, TypeScript, Python, Node.js</li>
-            <li><strong>Frameworks</strong> : Next.js, React, Express</li>
-            <li><strong>Scraping</strong> : Puppeteer, Playwright, Cheerio, Apify</li>
-            <li><strong>Bases de données</strong> : PostgreSQL, MongoDB, Redis</li>
-            <li><strong>Cloud & DevOps</strong> : Vercel, AWS, Docker</li>
-            <li><strong>Outils</strong> : Notion API, Zapier, Make (ex-Integromat)</li>
-          </ul>
-
-          <h2 id="temoignages" className="font-semibold text-xl mb-6 tracking-tighter">Témoignages</h2>
-          <ul className="list-none space-y-6 mb-12">
-            <li>
-              <p className="mb-2 text-neutral-600 dark:text-neutral-400 italic">
-                "Corentin a su comprendre rapidement mes besoins et proposer des solutions adaptées. Il a parfaitement répondu à mes attentes, je le recommande sans hésiter."
-              </p>
-              <p className="text-sm text-neutral-500 dark:text-neutral-500">— Nicolas, Gurubay</p>
-            </li>
-            <li>
-              <p className="mb-2 text-neutral-600 dark:text-neutral-400 italic">
-                "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
-              </p>
-              <p className="text-sm text-neutral-500 dark:text-neutral-500">— Denis, Inovesta</p>
-            </li>
-            <li>
-              <p className="mb-2 text-neutral-600 dark:text-neutral-400 italic">
-                "Corentin est très pro. Il connait son métier, est de très bon conseils, et force de proposition."
-              </p>
-              <p className="text-sm text-neutral-500 dark:text-neutral-500">— Charlotte, Agence Canopée</p>
-            </li>
-            <li>
-              <p className="mb-2 text-neutral-600 dark:text-neutral-400 italic">
-                "Prestation 100% conforme. Bonne communication. Travail très pro."
-              </p>
-              <p className="text-sm text-neutral-500 dark:text-neutral-500">— Yanis, Sportintech</p>
-            </li>
-          </ul>
-
-          <h2 id="formation" className="font-semibold text-xl mb-6 tracking-tighter">Formation</h2>
-          <ul className="list-none space-y-4 mb-12">
-            <li>
-              <strong>HETIC</strong> (2015&thinsp;–&thinsp;2018) : Formation en développement web et entrepreneuriat.
-            </li>
-          </ul>
-
-          <h2 id="interets" className="font-semibold text-xl mb-6 tracking-tighter">Intérêts</h2>
-          <ul className="list-none space-y-2 mb-12">
-            <li>Entrepreneuriat et création de produits</li>
-            <li>Scraping et automatisation</li>
-            <li>Growth hacking et outbound marketing</li>
-          </ul>
+          {/* Version desktop */}
+          <div className="hidden md:block relative h-80">
+            <div className="absolute top-0 left-0 w-48 h-48 rounded-lg overflow-hidden z-10 shadow-md">
+              <Image 
+                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                alt="Photo de profil" 
+                width={192} 
+                height={192} 
+                className="object-cover"
+              />
+            </div>
+            <div className="absolute top-32 left-24 w-40 h-40 rounded-lg overflow-hidden z-20 shadow-md">
+              <Image 
+                src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                alt="Photo de profil" 
+                width={160} 
+                height={160} 
+                className="object-cover"
+              />
+            </div>
+            <div className="absolute top-8 left-64 w-36 h-36 rounded-lg overflow-hidden z-30 shadow-md">
+              <Image 
+                src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                alt="Photo de profil" 
+                width={144} 
+                height={144} 
+                className="object-cover"
+              />
+            </div>
+            <div className="absolute top-48 left-8 w-32 h-32 rounded-lg overflow-hidden z-40 shadow-md">
+              <Image 
+                src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                alt="Photo de profil" 
+                width={128} 
+                height={128} 
+                className="object-cover"
+              />
+            </div>
+            <div className="absolute top-16 left-96 w-28 h-28 rounded-lg overflow-hidden z-50 shadow-md">
+              <Image 
+                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                alt="Photo de profil" 
+                width={112} 
+                height={112} 
+                className="object-cover"
+              />
+            </div>
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* Section Parcours */}
+      <section className="mb-16">
+        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Parcours</h2>
+        <div className="space-y-8">
+          <div className="flex flex-col sm:flex-row sm:gap-4">
+            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2020–present</div>
+            <div>
+              <h3 className="font-medium">Freelance</h3>
+              <p className="text-neutral-600 dark:text-neutral-400">167 projets réalisés sur Malt, 20 scrapers publics sur Apify avec 154 utilisateurs actifs et 97.3% de taux de succès</p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:gap-4">
+            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2022</div>
+            <div>
+              <h3 className="font-medium">White Bird</h3>
+              <p className="text-neutral-600 dark:text-neutral-400">CTO - Direction technique et développement produit</p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:gap-4">
+            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2021</div>
+            <div>
+              <h3 className="font-medium">Shine</h3>
+              <p className="text-neutral-600 dark:text-neutral-400">Lead Developer - Développement d'applications web</p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:gap-4">
+            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2020</div>
+            <div>
+              <h3 className="font-medium">Airbnb</h3>
+              <p className="text-neutral-600 dark:text-neutral-400">Développeur - Contribution à la plateforme</p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:gap-4">
+            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2015-2018</div>
+            <div>
+              <h3 className="font-medium">HETIC</h3>
+              <p className="text-neutral-600 dark:text-neutral-400">Formation en développement web et entrepreneuriat</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section Startups */}
+      <section className="mb-16">
+        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Projets</h2>
+        <div className="flex flex-col space-y-4">
+          <a 
+            href="https://logement-atypique.fr" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+          >
+            <div>
+              <h3 className="font-medium">Logement Atypique</h3>
+              <p className="text-neutral-600 dark:text-neutral-400">
+                Plateforme de logements exceptionnels — développé avec mon frère
+              </p>
+            </div>
+            <div className="flex items-center transition-all group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+              </svg>
+            </div>
+          </a>
+          <a 
+            href="https://apify.com/corent1robert" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+          >
+            <div>
+              <h3 className="font-medium">Contributeurs Apify</h3>
+              <p className="text-neutral-600 dark:text-neutral-400">
+                20 scrapers publics, 154 utilisateurs, 97.3% de succès
+              </p>
+            </div>
+            <div className="flex items-center transition-all group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+              </svg>
+            </div>
+          </a>
+          <a 
+            href="https://www.outreacher.fr/" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+          >
+            <div>
+              <h3 className="font-medium">Outreacher</h3>
+              <p className="text-neutral-600 dark:text-neutral-400">
+                Agence d'outbound marketing — prospection automatisée pour mes clients
+              </p>
+            </div>
+            <div className="flex items-center transition-all group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+              </svg>
+            </div>
+          </a>
+          <a 
+            href="https://datareacher.webflow.io/" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+          >
+            <div>
+              <h3 className="font-medium">Datareacher</h3>
+              <p className="text-neutral-600 dark:text-neutral-400">
+                Mise à disposition de bases de données
+              </p>
+            </div>
+            <div className="flex items-center transition-all group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+              </svg>
+            </div>
+          </a>
+          <div className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-medium text-neutral-500 dark:text-neutral-400">Rare Item Club</h3>
+                <span className="text-xs text-neutral-400 dark:text-neutral-500">(Arrêté en 2022)</span>
+              </div>
+              <p className="text-neutral-500 dark:text-neutral-400">
+                E-commerce sneakers d'occasion
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-medium text-neutral-500 dark:text-neutral-400">InstaNinja</h3>
+                <span className="text-xs text-neutral-400 dark:text-neutral-500">(Arrêté en 2019)</span>
+              </div>
+              <p className="text-neutral-500 dark:text-neutral-400">
+                Automatisation de compte Instagram
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section Témoignages */}
+      <section className="mb-16">
+        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Témoignages</h2>
+        <div className="space-y-6">
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
+              "Corentin a su comprendre rapidement mes besoins et proposer des solutions adaptées. Il a parfaitement répondu à mes attentes, je le recommande sans hésiter."
+            </p>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">Nicolas, Gurubay</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
+              "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
+            </p>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">Denis, Inovesta</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
+              "Corentin est très pro. Il connait son métier, est de très bon conseils, et force de proposition."
+            </p>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">Charlotte, Agence Canopée</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
+              "Prestation 100% conforme. Bonne communication. Travail très pro."
+            </p>
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="font-medium text-neutral-800 dark:text-neutral-200">Yanis, Sportintech</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Call-to-Action */}
+      <section className="mb-16 text-center">
+        <h2 className="font-semibold text-xl mb-4 tracking-tighter">Démarrons votre projet ensemble</h2>
+        <p className="text-neutral-600 dark:text-neutral-400 mb-8">
+          Discutons de votre projet et voyons comment je peux vous aider à le concrétiser.
+        </p>
+        <Link 
+          href={siteConfig.social.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
+        >
+          Me contacter
+        </Link>
+      </section>
+    </main>
     </>
   )
 }
