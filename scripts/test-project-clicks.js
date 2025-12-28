@@ -85,6 +85,16 @@ async function simulateClick(projectId) {
     }
     
     const data = await response.json()
+    
+    // Vérifier si l'API retourne une erreur
+    if (data.error) {
+      log(`  ⚠️  ${projectId}: ${data.error}`, 'yellow')
+      if (data.error.includes('Blob not configured')) {
+        log(`     💡 Configurez BLOB_READ_WRITE_TOKEN dans .env.local`, 'gray')
+        log(`     💡 Récupérez le token depuis: https://vercel.com/dashboard`, 'gray')
+      }
+    }
+    
     return data
   } catch (error) {
     log(`❌ Erreur lors du clic sur ${projectId}: ${error.message}`, 'red')
@@ -137,6 +147,8 @@ async function main() {
     log('\nProjets disponibles:', 'yellow')
     PROJECT_IDS.forEach(id => log(`  - ${id}`, 'gray'))
     log('  - all (pour tester tous les projets)', 'gray')
+    log('\n💡 Note: Pour tester en local, configurez BLOB_READ_WRITE_TOKEN dans .env.local', 'yellow')
+    log('   Récupérez le token depuis: https://vercel.com/dashboard → Settings → Storage → Blob', 'gray')
     process.exit(1)
   }
   
