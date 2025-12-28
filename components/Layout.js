@@ -71,6 +71,14 @@ export default function Layout({ children }) {
             >
               open
             </Link>
+            <Link 
+              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 sm:px-3 rounded-md ${
+                router.pathname === '/spotify' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
+              }`} 
+              href="/spotify"
+            >
+              musique
+            </Link>
           </div>
           <button
             aria-label="Toggle Dark Mode"
