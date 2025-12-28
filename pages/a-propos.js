@@ -433,7 +433,7 @@ export default function About() {
               href={siteConfig.social.malt}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center px-4 py-2 text-sm border border-neutral-200 dark:border-neutral-800 rounded-lg hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+              className="inline-flex items-center px-4 py-2 text-sm border border-pink-200 dark:border-pink-800 rounded-lg hover:border-pink-300 dark:hover:border-pink-700 transition-colors group text-pink-700 dark:text-pink-400 hover:text-pink-800 dark:hover:text-pink-300"
             >
               Voir tous les témoignages sur Malt
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-2 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -449,12 +449,12 @@ export default function About() {
               href={siteConfig.social.fiverr}
               target="_blank"
               rel="noopener noreferrer"
-            className="inline-flex items-center px-4 py-2 text-sm border border-neutral-200 dark:border-neutral-800 rounded-lg hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-          >
+              className="inline-flex items-center px-4 py-2 text-sm border border-green-200 dark:border-green-800 rounded-lg hover:border-green-300 dark:hover:border-green-700 transition-colors group text-green-700 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300"
+            >
               Voir tous les témoignages sur Fiverr
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-2 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-            </svg>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-2 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+              </svg>
             </a>
           </div>
         </div>
