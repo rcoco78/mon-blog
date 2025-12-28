@@ -55,36 +55,36 @@ export default function About() {
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Parcours</h2>
         <div className="space-y-8">
           <div className="flex flex-col sm:flex-row sm:gap-4">
-            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2023–present</div>
-            <div>
+            <div className="w-full sm:w-24 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 sm:text-right">2023–present</div>
+            <div className="flex-1">
               <h3 className="font-medium">Freelance</h3>
               <p className="text-neutral-600 dark:text-neutral-400">167 projets réalisés sur Malt, 20 scrapers publics sur Apify avec 154 utilisateurs actifs et 97.3% de taux de succès</p>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-4">
-            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2022</div>
-            <div>
+            <div className="w-full sm:w-24 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 sm:text-right">2022</div>
+            <div className="flex-1">
               <h3 className="font-medium">White Bird</h3>
               <p className="text-neutral-600 dark:text-neutral-400">CTO - Direction technique et développement produit</p>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-4">
-            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2021</div>
-            <div>
+            <div className="w-full sm:w-24 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 sm:text-right">2021</div>
+            <div className="flex-1">
               <h3 className="font-medium">Shine</h3>
               <p className="text-neutral-600 dark:text-neutral-400">Lead Developer - Développement d'applications web</p>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-4">
-            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2020</div>
-            <div>
+            <div className="w-full sm:w-24 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 sm:text-right">2020</div>
+            <div className="flex-1">
               <h3 className="font-medium">Airbnb</h3>
               <p className="text-neutral-600 dark:text-neutral-400">Développeur - Contribution à la plateforme</p>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-4">
-            <div className="w-full sm:w-24 text-sm text-neutral-500 mb-1 sm:mb-0">2015-2018</div>
-            <div>
+            <div className="w-full sm:w-24 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 sm:text-right">2015-2018</div>
+            <div className="flex-1">
               <h3 className="font-medium">HETIC</h3>
               <p className="text-neutral-600 dark:text-neutral-400">Formation en développement web et entrepreneuriat</p>
             </div>
