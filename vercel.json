@@ -21,39 +21,6 @@
       ],
       "destination": "https://www.corentinrobert.fr/$1",
       "permanent": true
-    },
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "corentinrobert.fr"
-        }
-      ],
-      "destination": "https://www.corentinrobert.fr/$1",
-      "permanent": true
-    },
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "corentinrobert.com"
-        }
-      ],
-      "destination": "https://www.corentinrobert.fr/$1",
-      "permanent": true
-    },
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.corentinrobert.com"
-        }
-      ],
-      "destination": "https://www.corentinrobert.fr/$1",
-      "permanent": true
     }
   ],
   "headers": [
