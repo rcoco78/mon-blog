@@ -81,10 +81,10 @@ export default function Home({ posts }) {
           <h1 className="font-semibold text-2xl mb-6 tracking-tighter">Corentin Robert</h1>
         </div>
         <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">
-          Je développe des outils de scraping et d'automatisation pour aider les entreprises à récupérer et utiliser leurs données.
+          Je suis consultant freelance spécialisé en <strong>scraping</strong> et <strong>automatisation</strong>. J'aide les entreprises à récupérer et exploiter leurs données web avec des solutions sur-mesure.
         </p>
         <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          J'ai travaillé avec <strong className="text-neutral-900 dark:text-neutral-100">Airbnb</strong> et <strong className="text-neutral-900 dark:text-neutral-100">Shine</strong>, et j'ai co-fondé <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère.
+          J'ai travaillé avec <strong className="text-neutral-900 dark:text-neutral-100">Airbnb</strong> et <strong className="text-neutral-900 dark:text-neutral-100">Shine</strong>, et j'ai co-fondé <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère — on filme des logements d'exception le week-end.
         </p>
         <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
           Je partage ici mes réflexions, ce que je fais, et quelques outils que je mets à disposition.
