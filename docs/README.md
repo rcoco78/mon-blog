@@ -53,6 +53,12 @@ Documentation centralisée et organisée pour le projet. Toute l'information né
 - Bugs corrigés
 - Évolutions majeures
 
+### 🔄 [7. Redirections](./07-REDIRECTIONS.md)
+**Configuration des redirections**
+- Problème de boucle de redirection
+- Solutions et vérifications
+- Configuration Vercel et DNS
+
 ---
 
 ## 🚀 Démarrage Rapide
