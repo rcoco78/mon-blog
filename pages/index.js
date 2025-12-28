@@ -68,7 +68,7 @@ export default function Home({ posts }) {
   return (
     <>
       <SEOHead {...pageSEO} />
-      <main className="flex-auto min-w-0 mt-6 flex flex-col px-2 md:px-0 mb-0">
+      <main className="flex-auto min-w-0 mt-6 flex flex-col mb-0">
       <section>
         <div>
           <Image
@@ -92,7 +92,7 @@ export default function Home({ posts }) {
         </p>
         
         {/* Section Maintenant */}
-        <div className="mb-12 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+        <div className="mb-12 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
           <h2 className="font-semibold text-lg mb-4 tracking-tighter">Maintenant</h2>
           <p className="mb-3 text-neutral-900 dark:text-neutral-100 tracking-tight">
             Actuellement, je me concentre sur :
@@ -206,14 +206,14 @@ export default function Home({ posts }) {
               target: '_blank',
               rel: 'noopener noreferrer',
               onClick: handleClick,
-              className: 'flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group'
+              className: 'relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group'
             } : {
-              className: 'flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50'
+              className: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50'
             }
 
             return (
               <Component key={index} {...props}>
-                <div className="flex items-start gap-3 flex-1">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
                   {project.image ? (
                     <div className="flex-shrink-0">
                       <Image
@@ -241,31 +241,38 @@ export default function Home({ posts }) {
                       </div>
                     )
                   ) : null}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1.5 flex-wrap relative pr-20 sm:pr-0">
                       <h3 className={`font-medium ${isActive ? '' : 'text-neutral-500 dark:text-neutral-400'}`}>
                         {project.title}
                       </h3>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
                         project.status === 'active' 
                           ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
                           : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
                       }`}>
                         {project.status === 'active' ? 'Actif' : project.status === 'paused' ? 'En pause' : 'Arrêté'}
                       </span>
+                      {project.link && project.id && (
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 sm:hidden flex items-center">
+                          <ProjectClickCounter projectId={project.id} />
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <p className={isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'}>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+                      <p className={`${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} text-sm`}>
                         {project.description}
                       </p>
                       {project.link && project.id && (
-                        <ProjectClickCounter projectId={project.id} />
+                        <div className="hidden sm:flex flex-shrink-0">
+                          <ProjectClickCounter projectId={project.id} />
+                        </div>
                       )}
                     </div>
                   </div>
                 </div>
                 {project.link && (
-                  <div className="flex items-center transition-all group-hover:text-neutral-800 dark:group-hover:text-neutral-200 flex-shrink-0">
+                  <div className="hidden sm:flex items-center transition-all group-hover:text-neutral-800 dark:group-hover:text-neutral-200 flex-shrink-0 ml-2">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
                       <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                     </svg>
