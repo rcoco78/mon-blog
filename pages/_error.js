@@ -5,8 +5,10 @@ import { siteConfig } from '../lib/config'
 
 function Error({ statusCode }) {
   useEffect(() => {
-    // Log l'erreur pour le debugging
-    console.error('Error page rendered:', { statusCode })
+    // Log l'erreur pour le debugging (seulement en développement)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error page rendered:', { statusCode })
+    }
   }, [statusCode])
 
   return (
