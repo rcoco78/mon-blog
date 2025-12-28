@@ -6,6 +6,12 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Vérifier si le token est disponible (pour debug)
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      console.error('API /projects/click: BLOB_READ_WRITE_TOKEN is not set')
+      console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('BLOB')))
+    }
+
     // Gérer sendBeacon (données dans le body brut) et fetch normal (JSON)
     let projectId
     
@@ -28,9 +34,15 @@ export default async function handler(req, res) {
     res.status(200).json({ clicks, projectId })
   } catch (error) {
     console.error('Error tracking project click:', error)
+    console.error('Error details:', error.message, error.stack)
     // En cas d'erreur (ex: Blob non configuré), retourner quand même un succès
     // pour ne pas bloquer la navigation
-    res.status(200).json({ clicks: 0, projectId: req.body?.projectId || 'unknown', error: 'Blob not configured' })
+    res.status(200).json({ 
+      clicks: 0, 
+      projectId: req.body?.projectId || 'unknown', 
+      error: 'Blob not configured',
+      details: process.env.BLOB_READ_WRITE_TOKEN ? 'Token exists but error occurred' : 'BLOB_READ_WRITE_TOKEN not found in environment'
+    })
   }
 }
 
