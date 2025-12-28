@@ -67,7 +67,7 @@ export default function About() {
             <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2022</div>
             <div className="flex-1 min-w-0">
               <h3 className="font-medium mb-1">White Bird</h3>
-              <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">CTO - Direction technique et développement produit</p>
+              <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Growth Engineer - Un marketeux technique au service d'équipe commerciale et marketing</p>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-6">
