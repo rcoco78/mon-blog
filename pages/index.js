@@ -81,10 +81,10 @@ export default function Home({ posts }) {
           <h1 className="font-semibold text-2xl mb-6 tracking-tighter">Corentin Robert</h1>
         </div>
         <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">
-          Je suis <strong>Corentin Robert</strong>, consultant freelance spécialisé en <strong>scraping</strong> et <strong>automatisation</strong>. J'aide les entreprises à transformer des données web en insights actionnables avec des solutions sur-mesure — code, low-code, ou no-code.
+          Je développe des outils de scraping et d'automatisation pour aider les entreprises à récupérer et utiliser leurs données.
         </p>
         <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          J'ai travaillé avec des entreprises tech comme <strong className="text-neutral-900 dark:text-neutral-100">Airbnb</strong> et <strong className="text-neutral-900 dark:text-neutral-100">Shine</strong>, et j'ai co-fondé plusieurs projets dont <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> — une plateforme qui donne de la visibilité aux propriétaires de logements exceptionnels.
+          J'ai travaillé avec <strong className="text-neutral-900 dark:text-neutral-100">Airbnb</strong> et <strong className="text-neutral-900 dark:text-neutral-100">Shine</strong>, et j'ai co-fondé <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère.
         </p>
         <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
           Je partage ici mes réflexions, ce que je fais, et quelques outils que je mets à disposition.
