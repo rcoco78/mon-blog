@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { siteConfig } from '../lib/config'
 import SEOHead from '../components/seo/SEOHead'
 import { generatePageSEO } from '../lib/seo'
+import ProjectClickCounter from '../components/ProjectClickCounter'
 
 export default function Home({ posts }) {
   const [topPosts, setTopPosts] = useState([])
@@ -173,10 +174,25 @@ export default function Home({ posts }) {
           {siteConfig.projects.map((project, index) => {
             const isActive = project.status === 'active'
             const Component = project.link ? 'a' : 'div'
+            
+            const handleClick = async (e) => {
+              if (project.link && project.id) {
+                // Tracker le clic de manière asynchrone sans bloquer la navigation
+                fetch('/api/projects/click', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ projectId: project.id }),
+                }).catch(err => console.error('Error tracking click:', err))
+              }
+            }
+
             const props = project.link ? {
               href: project.link,
               target: '_blank',
               rel: 'noopener noreferrer',
+              onClick: handleClick,
               className: 'flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group'
             } : {
               className: 'flex items-center justify-between p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50'
@@ -225,9 +241,14 @@ export default function Home({ posts }) {
                         {project.status === 'active' ? 'Actif' : project.status === 'paused' ? 'En pause' : 'Arrêté'}
                       </span>
                     </div>
-                    <p className={isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'}>
-                      {project.description}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className={isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'}>
+                        {project.description}
+                      </p>
+                      {project.link && project.id && (
+                        <ProjectClickCounter projectId={project.id} />
+                      )}
+                    </div>
                   </div>
                 </div>
                 {project.link && (
