@@ -270,9 +270,12 @@ export default function About() {
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Témoignages</h2>
         <div className="space-y-6">
           <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
-              "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ."
-            </p>
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ."
+              </p>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
+            </div>
             <div className="flex items-center gap-4">
               <div>
                 <p className="font-medium text-neutral-800 dark:text-neutral-200">Adnane Amahou</p>
@@ -281,9 +284,12 @@ export default function About() {
             </div>
           </div>
           <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
-              "Prestation de scraping impeccable : compréhension rapide du besoin, extraction propre et structurée, délais respectés. Les données livrées sont exploitables immédiatement (format clair, colonnes cohérentes, pas de doublons). Communication fluide et réactif tout au long du projet."
-            </p>
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                "Prestation de scraping impeccable : compréhension rapide du besoin, extraction propre et structurée, délais respectés. Les données livrées sont exploitables immédiatement (format clair, colonnes cohérentes, pas de doublons). Communication fluide et réactif tout au long du projet."
+              </p>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
+            </div>
             <div className="flex items-center gap-4">
               <div>
                 <p className="font-medium text-neutral-800 dark:text-neutral-200">Mohamed-Amine Zaghdoud</p>
@@ -292,9 +298,12 @@ export default function About() {
             </div>
           </div>
           <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
-              "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !"
-            </p>
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !"
+              </p>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
+            </div>
             <div className="flex items-center gap-4">
               <div>
                 <p className="font-medium text-neutral-800 dark:text-neutral-200">Hugues Chavrier</p>
@@ -303,9 +312,12 @@ export default function About() {
             </div>
           </div>
           <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
-              "Je recommande vivement Corentin pour sa réactivité et son professionnalisme. J'ai eu la chance de faire appel à lui à deux reprises, et à chaque fois, son accompagnement a été exemplaire."
-            </p>
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                "Je recommande vivement Corentin pour sa réactivité et son professionnalisme. J'ai eu la chance de faire appel à lui à deux reprises, et à chaque fois, son accompagnement a été exemplaire."
+              </p>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
+            </div>
             <div className="flex items-center gap-4">
               <div>
                 <p className="font-medium text-neutral-800 dark:text-neutral-200">Chris Rydahl</p>
@@ -314,9 +326,12 @@ export default function About() {
             </div>
           </div>
           <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
-              "Nous travaillons avec Corentin depuis plus de 3 ans. Il a toujours été de très bons conseils, réactif et appliqué. Je recommande à 💯 % !"
-            </p>
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                "Nous travaillons avec Corentin depuis plus de 3 ans. Il a toujours été de très bons conseils, réactif et appliqué. Je recommande à 💯 % !"
+              </p>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
+            </div>
             <div className="flex items-center gap-4">
               <div>
                 <p className="font-medium text-neutral-800 dark:text-neutral-200">Julien Vabre</p>
@@ -325,9 +340,12 @@ export default function About() {
             </div>
           </div>
           <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
-              "Corentin est redoutablement efficace, il comprend vite et travaille vite. Un plaisir."
-            </p>
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                "Corentin est redoutablement efficace, il comprend vite et travaille vite. Un plaisir."
+              </p>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
+            </div>
             <div className="flex items-center gap-4">
               <div>
                 <p className="font-medium text-neutral-800 dark:text-neutral-200">Arthur Dalaise</p>
@@ -336,9 +354,12 @@ export default function About() {
             </div>
           </div>
           <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
-              "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
-            </p>
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
+              </p>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 whitespace-nowrap">Malt</span>
+            </div>
             <div className="flex items-center gap-4">
               <div>
                 <p className="font-medium text-neutral-800 dark:text-neutral-200">Denis</p>
@@ -347,9 +368,12 @@ export default function About() {
             </div>
           </div>
           <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-            <p className="text-neutral-900 dark:text-neutral-100 italic mb-4">
-              "Corentin est très pro. Il connait son métier, est de très bon conseils, et force de proposition."
-            </p>
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                "Corentin est très pro. Il connait son métier, est de très bon conseils, et force de proposition."
+              </p>
+              <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 whitespace-nowrap">Malt</span>
+            </div>
             <div className="flex items-center gap-4">
               <div>
                 <p className="font-medium text-neutral-800 dark:text-neutral-200">Charlotte</p>
