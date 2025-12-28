@@ -59,14 +59,24 @@ Documentation centralisée et organisée pour le projet. Toute l'information né
 - Solutions et vérifications
 - Configuration Vercel et DNS
 
+### 🎨 [8. Design System](./08-DESIGN-SYSTEM.md)
+**Documentation complète du design system**
+- Couleurs et palette
+- Typographie et hiérarchie
+- Espacements et layout
+- Composants réutilisables
+- États et interactions
+- Dark mode et responsive
+
 ---
 
 ## 🚀 Démarrage Rapide
 
 ### Pour un nouveau développeur
 1. Lire [Architecture](./01-ARCHITECTURE.md) pour comprendre la structure
-2. Lire [Bonnes Pratiques](./03-BONNES-PRATIQUES.md) pour les conventions
-3. Consulter [Prochaines Étapes](./04-PROCHAINES-ETAPES.md) pour voir ce qui est prévu
+2. Lire [Design System](./08-DESIGN-SYSTEM.md) pour comprendre le style et les composants
+3. Lire [Bonnes Pratiques](./03-BONNES-PRATIQUES.md) pour les conventions
+4. Consulter [Prochaines Étapes](./04-PROCHAINES-ETAPES.md) pour voir ce qui est prévu
 
 ### Pour modifier le SEO
 1. Consulter [SEO & Performance](./02-SEO.md)
@@ -117,6 +127,7 @@ mon-blog/
 - [Roadmap](./04-PROCHAINES-ETAPES.md)
 - [Audit & Améliorations](./05-AUDIT-AMELIORATIONS.md)
 - [Changelog](./06-CHANGELOG.md)
+- [Design System](./08-DESIGN-SYSTEM.md)
 
 ---
 
