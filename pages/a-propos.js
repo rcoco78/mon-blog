@@ -78,17 +78,17 @@ export default function About() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-6">
-            <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2020</div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-medium mb-1">Airbnb</h3>
-              <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Développeur - Contribution à la plateforme</p>
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row sm:gap-6">
-            <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2015-2018</div>
+            <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2020-2021</div>
             <div className="flex-1 min-w-0">
               <h3 className="font-medium mb-1">HETIC</h3>
               <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Formation en développement web et entrepreneuriat</p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:gap-6">
+            <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2019</div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-medium mb-1">Airbnb</h3>
+              <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Développeur - Contribution à la plateforme</p>
             </div>
           </div>
         </div>
