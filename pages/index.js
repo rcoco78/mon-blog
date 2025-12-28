@@ -178,16 +178,26 @@ export default function Home({ posts }) {
             const handleClick = async (e) => {
               if (project.link && project.id) {
                 // Tracker le clic de manière asynchrone sans bloquer la navigation
-                // Ajouter un timestamp pour éviter le cache du navigateur
+                // Utiliser sendBeacon pour garantir l'envoi même si la page se ferme
                 const timestamp = Date.now()
-                fetch(`/api/projects/click?t=${timestamp}`, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Cache-Control': 'no-cache',
-                  },
-                  body: JSON.stringify({ projectId: project.id, timestamp }),
-                }).catch(err => console.error('Error tracking click:', err))
+                const data = JSON.stringify({ projectId: project.id, timestamp })
+                
+                // Essayer sendBeacon d'abord (plus fiable pour les clics)
+                if (navigator.sendBeacon) {
+                  const blob = new Blob([data], { type: 'application/json' })
+                  navigator.sendBeacon(`/api/projects/click?t=${timestamp}`, blob)
+                } else {
+                  // Fallback sur fetch
+                  fetch(`/api/projects/click?t=${timestamp}`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Cache-Control': 'no-cache',
+                    },
+                    body: data,
+                    keepalive: true, // Important pour les requêtes après navigation
+                  }).catch(err => console.error('Error tracking click:', err))
+                }
               }
             }
 
