@@ -1,8 +1,6 @@
 // Callback OAuth pour Spotify
 // Cette route gère la redirection après autorisation Spotify
 
-import { useRouter } from 'next/router'
-
 export default async function handler(req, res) {
   const { code, error } = req.query
 
