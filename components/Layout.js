@@ -87,7 +87,7 @@ export default function Layout({ children }) {
           {children}
         </div>
 
-                <footer className="mt-12 mb-16 px-2 md:px-0">
+                <footer className="mt-8 mb-16 px-2 md:px-0">
                   <ul className="font-sm mt-8 flex flex-row flex-wrap gap-4 text-neutral-600 dark:text-neutral-300">
                     <li>
                       <Link
