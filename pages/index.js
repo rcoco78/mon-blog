@@ -178,12 +178,15 @@ export default function Home({ posts }) {
             const handleClick = async (e) => {
               if (project.link && project.id) {
                 // Tracker le clic de manière asynchrone sans bloquer la navigation
-                fetch('/api/projects/click', {
+                // Ajouter un timestamp pour éviter le cache du navigateur
+                const timestamp = Date.now()
+                fetch(`/api/projects/click?t=${timestamp}`, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache',
                   },
-                  body: JSON.stringify({ projectId: project.id }),
+                  body: JSON.stringify({ projectId: project.id, timestamp }),
                 }).catch(err => console.error('Error tracking click:', err))
               }
             }
