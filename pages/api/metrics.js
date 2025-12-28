@@ -1,11 +1,10 @@
 // API route pour récupérer les métriques mises à jour
-// Les métriques sont mises à jour par le cron job et stockées dans data/metrics.json
+// Les métriques sont mises à jour par le cron job et stockées dans Vercel Blob Storage
 
-import fs from 'fs'
-import path from 'path'
+import { list } from '@vercel/blob'
 import { siteConfig } from '../../lib/config'
 
-const metricsFilePath = path.join(process.cwd(), 'data', 'metrics.json')
+const BLOB_FILENAME = 'metrics.json'
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -13,24 +12,38 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Lire les métriques depuis le fichier JSON
-    if (fs.existsSync(metricsFilePath)) {
-      const fileContent = fs.readFileSync(metricsFilePath, 'utf8')
-      const data = JSON.parse(fileContent)
+    // Récupérer les métriques depuis Vercel Blob Storage
+    const blobs = await list({ prefix: BLOB_FILENAME })
+    const existingBlob = blobs.blobs.find(blob => blob.pathname === BLOB_FILENAME)
+
+    if (existingBlob) {
+      // Cache-busting pour éviter les problèmes de cache
+      const cacheBuster = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      const response = await fetch(`${existingBlob.url}?t=${cacheBuster}`, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+        }
+      })
       
-      return res.status(200).json({
-        success: true,
-        metrics: data.metrics || [],
-        lastUpdated: data.lastUpdated || null
-      })
-    } else {
-      // Fallback vers les métriques statiques si le fichier n'existe pas encore
-      return res.status(200).json({
-        success: true,
-        metrics: siteConfig.metrics,
-        lastUpdated: null
-      })
+      if (response.ok) {
+        const data = await response.json()
+        return res.status(200).json({
+          success: true,
+          metrics: data.metrics || [],
+          lastUpdated: data.lastUpdated || null
+        })
+      }
     }
+    
+    // Fallback vers les métriques statiques si le blob n'existe pas encore
+    return res.status(200).json({
+      success: true,
+      metrics: siteConfig.metrics,
+      lastUpdated: null
+    })
   } catch (error) {
     console.error('Erreur lors de la récupération des métriques:', error)
     

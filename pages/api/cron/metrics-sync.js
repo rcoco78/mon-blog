@@ -2,10 +2,9 @@
 // Exécuté quotidiennement (configuré dans vercel.json)
 
 import { getMetrics } from '../../../lib/notion'
-import fs from 'fs'
-import path from 'path'
+import { put, list } from '@vercel/blob'
 
-const metricsFilePath = path.join(process.cwd(), 'data', 'metrics.json')
+const BLOB_FILENAME = 'metrics.json'
 
 export default async function handler(req, res) {
   // Vérifier que la requête vient de Vercel Cron
@@ -26,6 +25,12 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Vérifier si le token Blob est disponible
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      console.error('BLOB_READ_WRITE_TOKEN is not set in environment variables')
+      throw new Error('Blob not configured: BLOB_READ_WRITE_TOKEN missing')
+    }
+
     // Récupérer les métriques depuis Notion
     const notionMetrics = await getMetrics()
     
@@ -36,19 +41,17 @@ export default async function handler(req, res) {
       source: metric.source
     }))
 
-    // S'assurer que le dossier data existe
-    const dataDir = path.dirname(metricsFilePath)
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true })
-    }
-
-    // Sauvegarder les métriques dans le fichier JSON
+    // Sauvegarder les métriques dans Vercel Blob Storage
     const dataToSave = {
       metrics,
       lastUpdated: new Date().toISOString()
     }
     
-    fs.writeFileSync(metricsFilePath, JSON.stringify(dataToSave, null, 2), 'utf8')
+    await put(BLOB_FILENAME, JSON.stringify(dataToSave, null, 2), {
+      access: 'public',
+      contentType: 'application/json',
+      allowOverwrite: true,
+    })
     
     console.log(`✅ Synchronisation métriques réussie : ${metrics.length} métriques récupérées`)
     
