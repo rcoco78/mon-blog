@@ -155,7 +155,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           license: data.license || 'https://creativecommons.org/licenses/by/4.0/',
           distribution: data.distribution || []
         };
-
+      
       case 'Blog':
         return {
           '@context': 'https://schema.org',

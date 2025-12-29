@@ -460,12 +460,22 @@ export default function Blog({ posts }) {
           <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
             Discutons de votre projet de scraping ou d'automatisation.
           </p>
-          <button
-            onClick={openCalendly}
-            className="inline-block px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
-          >
-            Discutons-en
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+            <button
+              onClick={openCalendly}
+              className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
+            >
+              Discutons-en
+            </button>
+            <Link 
+              href={siteConfig.social.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block px-6 py-3 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            >
+              Me contacter sur LinkedIn
+            </Link>
+          </div>
         </section>
 
         <section className="mb-12 md:mb-16">

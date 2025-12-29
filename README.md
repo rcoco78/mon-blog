@@ -114,3 +114,4 @@ Les cron jobs sont configurés dans `vercel.json` et nécessitent :
 - [ ] Optimiser les performances (lazy loading, images)
 - [ ] Ajouter des tests
 
+

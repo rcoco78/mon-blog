@@ -136,3 +136,4 @@ Le système de tracking utilise :
 
 Cette approche évite les race conditions et permet un tracking fiable même avec des clics simultanés.
 
+

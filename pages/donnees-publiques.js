@@ -191,10 +191,28 @@ export default function DonneesPubliques() {
 
   // Fonction pour formater les nombres
   const formatNumber = (num) => {
-    if (num >= 1000) {
-      return num.toLocaleString('fr-FR')
+    // Arrondir à 1 décimale si c'est un nombre décimal
+    const rounded = num % 1 !== 0 ? Math.round(num * 10) / 10 : num
+    if (rounded >= 1000) {
+      return rounded.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 1 })
     }
-    return num.toString()
+    return rounded.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 1 })
+  }
+
+  // Fonction pour convertir USD en EUR (taux approximatif: 1 USD = 0.92 EUR)
+  const usdToEur = (usd) => {
+    if (usd === null || usd === undefined || isNaN(usd)) {
+      return 0
+    }
+    return usd * 0.92
+  }
+
+  // Fonction pour détecter si un Key Result est lié aux revenus d'affiliation
+  const isAffiliationRevenue = (kr) => {
+    const nameLower = (kr.name || '').toLowerCase()
+    const categoryLower = (kr.category || '').toLowerCase()
+    return (nameLower.includes('revenus d\'affiliation') || nameLower.includes('affiliation') || nameLower.includes('ca affiliation') || nameLower.includes('chiffre d\'affaires affiliation')) &&
+           (categoryLower.includes('affiliation') || categoryLower.includes('partenariats'))
   }
 
   // Fonction pour trier les objectifs dans un ordre logique
@@ -220,7 +238,7 @@ export default function DonneesPubliques() {
         'Revenus d\'affiliation Apify'
       ],
       'Meetings Call': [
-        'Rdv obtenu via Calendly',
+        'Rendez-vous obtenu via Calendly',
         'Calendly (génération de leads)',
         'Rendez-vous ponctuels',
         'Moyenne de durée d\'un appel',
@@ -228,7 +246,7 @@ export default function DonneesPubliques() {
         'Moyenne hebdomadaire des rendez-vous'
       ],
       'Relation client': [
-        'Rdv obtenu via Calendly',
+        'Rendez-vous obtenu via Calendly',
         'Calendly (génération de leads)',
         'Rendez-vous ponctuels',
         'Moyenne de durée d\'un appel',
@@ -353,11 +371,11 @@ export default function DonneesPubliques() {
       
       // Meetings / Appels
       'Meetings Call': 'Rendez-vous et appels clients',
-      'Calendly': 'Rdv obtenu via Calendly',
+      'Calendly': 'Rendez-vous obtenu via Calendly',
       'Meeting Ad-hoc': 'Rendez-vous ponctuels',
       'Meetings ad-hoc': 'Rendez-vous ponctuels',
-      'Calendly (lead gen)': 'Rdv obtenu via Calendly',
-      'Meeting via Calendly': 'Rdv obtenu via Calendly',
+      'Calendly (lead gen)': 'Rendez-vous obtenu via Calendly',
+      'Meeting via Calendly': 'Rendez-vous obtenu via Calendly',
       'Meetings Call - Duration Avg (min)': 'Durée moyenne des rendez-vous (min)',
       'Meetings Call - Duration Avg': 'Durée moyenne des rendez-vous',
       'Rendez-vous Appels - Duration Avg (min)': 'Moyenne de durée d\'un appel',
@@ -422,7 +440,7 @@ export default function DonneesPubliques() {
   }
 
   // Composant réutilisable pour les graphiques de croissance
-  const GrowthChart = ({ title, description, history, loading, colorFrom = 'blue', colorTo = 'blue', insight }) => {
+  const GrowthChart = ({ title, description, history, loading, colorFrom = 'blue', colorTo = 'blue', insight, targetValue }) => {
     // Couleurs plus douces et moins saturées pour différencier tout en restant subtiles
     const colorClasses = {
       blue: 'bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-400',
@@ -461,13 +479,29 @@ export default function DonneesPubliques() {
             <div className="sr-only">
               <p>Graphique en barres représentant l'évolution de {title.toLowerCase()}. Les données sont affichées chronologiquement de gauche à droite.</p>
             </div>
-            <div className="flex items-end justify-between gap-2 h-64" role="img" aria-label={`Graphique de ${title.toLowerCase()}`}>
+            <div className="flex items-end justify-between gap-1 md:gap-2 h-64 relative" role="img" aria-label={`Graphique de ${title.toLowerCase()}`}>
+              {/* Ligne d'objectif si targetValue est fourni */}
+              {targetValue && (() => {
+                const maxValue = Math.max(...history.map(h => h.valeur), targetValue || 0)
+                const targetHeight = maxValue > 0 ? (targetValue / maxValue) * 100 : 0
+                return (
+                  <div 
+                    className="absolute left-0 right-0 border-t-2 border-dashed border-neutral-400 dark:border-neutral-500 z-10"
+                    style={{ bottom: `${targetHeight}%` }}
+                    title={`Objectif: ${formatNumber(targetValue)}`}
+                  >
+                    <div className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-0 md:translate-x-full ml-0 md:ml-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap -mr-2 md:mr-0">
+                      Objectif: {formatNumber(targetValue)}
+                    </div>
+                  </div>
+                )
+              })()}
               {history.map((item, index) => {
-                const maxValue = Math.max(...history.map(h => h.valeur))
+                const maxValue = Math.max(...history.map(h => h.valeur), targetValue || 0)
                 const height = maxValue > 0 ? (item.valeur / maxValue) * 100 : 0
                 
                 return (
-                  <div key={item.id} className="flex-1 flex flex-col items-center gap-2">
+                  <div key={item.id} className="flex-1 flex flex-col items-center gap-1 md:gap-2 min-w-0 relative">
                     <div className="relative w-full flex items-end justify-center" style={{ height: '200px' }}>
                       <div 
                         className={`w-full ${colorClass} rounded-t transition-all duration-500 group relative`}
@@ -479,9 +513,9 @@ export default function DonneesPubliques() {
                         </div>
                       </div>
                     </div>
-                    <div className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-2">
-                      <div className="font-medium">{item.valeur}</div>
-                      <div className="text-[10px] mt-1">{item.date}</div>
+                    <div className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-2 min-w-0 w-full px-0.5">
+                      <div className="font-medium truncate">{formatNumber(item.valeur)}</div>
+                      <div className="hidden md:block text-[10px] mt-1 leading-tight">{item.date}</div>
                     </div>
                   </div>
                 )
@@ -515,6 +549,14 @@ export default function DonneesPubliques() {
                     }%)
                   </span>
                 </div>
+                {targetValue && (
+                  <div className="flex items-center justify-between text-sm mt-2">
+                    <span className="text-neutral-600 dark:text-neutral-400">Objectif 2026</span>
+                    <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+                      {formatNumber(targetValue)}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -559,7 +601,7 @@ export default function DonneesPubliques() {
       }} />
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
         <section className="mb-8">
-          <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Objectifs 2026 - Freelance Scraping et Automatisation</h1>
+          <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Objectifs 2026</h1>
           <div className="mb-6 space-y-3">
             <p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
               Transparence totale sur mes objectifs, mes challenges et ma progression. 
@@ -621,7 +663,7 @@ export default function DonneesPubliques() {
         )}
 
         {/* Section "Pourquoi ces données ?" */}
-        <section className="mb-16 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Pourquoi ces données">
+        <section className="mb-10 md:mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Pourquoi ces données">
           <h2 className="font-semibold text-lg mb-4 tracking-tighter">Pourquoi ces données ?</h2>
           <div className="space-y-3 text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
             <p>
@@ -640,7 +682,7 @@ export default function DonneesPubliques() {
         </section>
 
         {/* Section Impact client */}
-        <section className="mb-16 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Impact client">
+        <section className="mb-10 md:mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Impact client">
           <h2 className="font-semibold text-lg mb-4 tracking-tighter">Impact pour mes clients</h2>
           <div className="space-y-4 text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
             <div>
@@ -660,7 +702,7 @@ export default function DonneesPubliques() {
         </section>
 
         {/* Section Capacité & Disponibilité */}
-        <section className="mb-16 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Capacité et disponibilité">
+        <section className="mb-10 md:mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Capacité et disponibilité">
           <h2 className="font-semibold text-lg mb-4 tracking-tighter">Capacité & Disponibilité</h2>
           <div className="space-y-4 text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
             <div>
@@ -688,7 +730,7 @@ export default function DonneesPubliques() {
         </section>
 
         {/* Section Comment je travaille */}
-        <section className="mb-16 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Process de travail">
+        <section className="mb-10 md:mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Process de travail">
           <h2 className="font-semibold text-lg mb-4 tracking-tighter">Comment je travaille</h2>
           <div className="space-y-3 text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
             <div className="flex items-start gap-3">
@@ -835,21 +877,17 @@ export default function DonneesPubliques() {
 
               {/* Taux de réussite */}
               <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-                <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-3">Taux de réussite</h3>
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex items-baseline gap-2 mb-1">
-                      <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">5/5</p>
-                      <p className="text-sm text-neutral-600 dark:text-neutral-400">sur 160 missions</p>
-                    </div>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500">Malt</p>
+                <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-4">Taux de réussite</h3>
+                <div className="flex flex-col md:flex-row md:gap-4 space-y-3 md:space-y-0">
+                  <div className="flex-1">
+                    <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">5/5</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Malt</p>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">sur 160 missions</p>
                   </div>
-                  <div>
-                    <div className="flex items-baseline gap-2 mb-1">
-                      <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">4,9/5</p>
-                      <p className="text-sm text-neutral-600 dark:text-neutral-400">sur 250 missions</p>
-                    </div>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500">Fiverr</p>
+                  <div className="flex-1">
+                    <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">4,9/5</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Fiverr</p>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">sur 250 missions</p>
                   </div>
                 </div>
               </div>
@@ -988,14 +1026,14 @@ export default function DonneesPubliques() {
                   
                   {/* Encart service - Flux de données clients */}
                   {translatedCategory === 'Relation client' && (
-                    <div className="mb-4 p-4 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
+                    <div className="mb-4 p-3 md:p-4 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                        <div className="flex-1 min-w-0">
                           <h4 className="font-medium text-sm mb-1 text-neutral-900 dark:text-neutral-100">
                             Achat flux de données clients
                           </h4>
-                          <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-2">
-                            Accès en temps réel à chaque nouveau rendez-vous ou sollicitation. Notifications sur Slack, Discord, Telegram ou webhook personnalisé. Contactez directement les prospects dès qu'ils me sollicitent.
+                          <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-2 leading-relaxed">
+                            Accès en temps réel aux nouveaux rendez-vous. Notifications sur Slack, Discord, Telegram ou webhook.
                           </p>
                           <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">
                             10 000 € HT / an
@@ -1003,7 +1041,7 @@ export default function DonneesPubliques() {
                         </div>
                         <a
                           href="mailto:corentin@outreacher.fr?subject=Demande d'information - Flux de données clients"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors flex-shrink-0"
+                          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors flex-shrink-0 self-start sm:self-auto"
                           aria-label="Contacter pour le flux de données clients"
                         >
                           Me contacter
@@ -1051,43 +1089,145 @@ export default function DonneesPubliques() {
                                 <span className={`font-medium ${
                                   kr.progress > 100 ? 'text-orange-700 dark:text-orange-400' : 'text-neutral-900 dark:text-neutral-100'
                                 }`}>
-                                  {formatNumber(kr.currentResult)}
+                                  {(() => {
+                                    // Pour "Revenus d'affiliation" (sans nom de service), calculer la somme de tous les revenus d'affiliation individuels
+                                    const nameLower = (kr.name || '').toLowerCase()
+                                    const categoryLower = (kr.category || '').toLowerCase()
+                                    const isAffiliationTotal = (nameLower.includes('revenus d\'affiliation') || nameLower.includes('ca affiliation') || nameLower.includes('chiffre d\'affaires affiliation')) &&
+                                                               !nameLower.includes('apify') && !nameLower.includes('lemlist') && !nameLower.includes('zapier') &&
+                                                               (categoryLower.includes('affiliation') || categoryLower.includes('partenariats'))
+                                    
+                                    if (isAffiliationTotal) {
+                                      // Somme de tous les revenus d'affiliation individuels (en USD, convertis en EUR)
+                                      const affiliationKRs = keyResults.filter(otherKr => {
+                                        const otherNameLower = (otherKr.name || '').toLowerCase()
+                                        const otherCategoryLower = (otherKr.category || '').toLowerCase()
+                                        return (otherNameLower.includes('revenus d\'affiliation') || otherNameLower.includes('affiliation')) &&
+                                               (otherNameLower.includes('apify') || otherNameLower.includes('lemlist') || otherNameLower.includes('zapier')) &&
+                                               (otherCategoryLower.includes('affiliation') || otherCategoryLower.includes('partenariats'))
+                                      })
+                                      const totalAffiliationUSD = affiliationKRs.reduce((sum, otherKr) => sum + (otherKr.currentResult || 0), 0)
+                                      const totalAffiliationEUR = usdToEur(totalAffiliationUSD)
+                                      return formatNumber(Math.round(totalAffiliationEUR))
+                                    }
+                                    // Pour les revenus d'affiliation individuels, convertir USD en EUR
+                                    if (isAffiliationRevenue(kr)) {
+                                      return formatNumber(Math.round(usdToEur(kr.currentResult || 0)))
+                                    }
+                                    return formatNumber(kr.currentResult)
+                                  })()}
                                 </span>
                                 {' / '}
-                                <span>{formatNumber(kr.targetResult)}</span>
+                                <span>{(() => {
+                                  // Convertir les targetResult des revenus d'affiliation de USD en EUR
+                                  if (isAffiliationRevenue(kr)) {
+                                    return formatNumber(Math.round(usdToEur(kr.targetResult || 0)))
+                                  }
+                                  return formatNumber(kr.targetResult)
+                                })()}</span>
                               </span>
-                              {kr.progress <= 100 && kr.remaining >= 0 && (
-                                <span className="text-neutral-500 dark:text-neutral-500">
-                                  Reste: {formatNumber(kr.remaining)}
-                                </span>
-                              )}
-                              {kr.progress > 100 && (
-                                <span className="text-orange-700 dark:text-orange-400 font-medium">
-                                  Dépassé de {Math.abs(kr.remaining).toFixed(1)}
-                                </span>
-                              )}
+                              {(() => {
+                                // Calculer le remaining et progress avec la valeur réelle pour "Revenus d'affiliation"
+                                const nameLower = (kr.name || '').toLowerCase()
+                                const categoryLower = (kr.category || '').toLowerCase()
+                                const isAffiliationTotal = (nameLower.includes('revenus d\'affiliation') || nameLower.includes('ca affiliation') || nameLower.includes('chiffre d\'affaires affiliation')) &&
+                                                           !nameLower.includes('apify') && !nameLower.includes('lemlist') && !nameLower.includes('zapier') &&
+                                                           (categoryLower.includes('affiliation') || categoryLower.includes('partenariats'))
+                                
+                                let actualCurrentResult = kr.currentResult || 0
+                                let actualTargetResult = kr.targetResult || 0
+                                
+                                // Convertir USD en EUR pour les revenus d'affiliation
+                                if (isAffiliationRevenue(kr)) {
+                                  actualCurrentResult = usdToEur(actualCurrentResult)
+                                  actualTargetResult = usdToEur(actualTargetResult)
+                                }
+                                
+                                if (isAffiliationTotal) {
+                                  const affiliationKRs = keyResults.filter(otherKr => {
+                                    const otherNameLower = (otherKr.name || '').toLowerCase()
+                                    const otherCategoryLower = (otherKr.category || '').toLowerCase()
+                                    return (otherNameLower.includes('revenus d\'affiliation') || otherNameLower.includes('affiliation')) &&
+                                           (otherNameLower.includes('apify') || otherNameLower.includes('lemlist') || otherNameLower.includes('zapier')) &&
+                                           (otherCategoryLower.includes('affiliation') || otherCategoryLower.includes('partenariats'))
+                                  })
+                                  const totalAffiliationUSD = affiliationKRs.reduce((sum, otherKr) => sum + (otherKr.currentResult || 0), 0)
+                                  actualCurrentResult = usdToEur(totalAffiliationUSD)
+                                  // Le targetResult du total est déjà en EUR dans Notion, pas besoin de conversion
+                                }
+                                
+                                const actualRemaining = actualTargetResult - actualCurrentResult
+                                const actualProgress = actualTargetResult > 0 ? (actualCurrentResult / actualTargetResult) * 100 : 0
+                                
+                                return (
+                                  <>
+                                    {actualProgress <= 100 && actualRemaining >= 0 && (
+                                      <span className="text-neutral-500 dark:text-neutral-500">
+                                        Reste: {formatNumber(actualRemaining)}
+                                      </span>
+                                    )}
+                                    {actualProgress > 100 && (
+                                      <span className="text-orange-700 dark:text-orange-400 font-medium">
+                                        Dépassé de {Math.abs(actualRemaining).toFixed(1)}
+                                      </span>
+                                    )}
+                                  </>
+                                )
+                              })()}
                             </div>
                           </div>
                             <div className="flex items-center gap-3 sm:flex-shrink-0">
-                            <div className="w-20 h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full transition-all duration-500 ${
-                                  kr.progress > 100 
-                                    ? 'bg-orange-600 dark:bg-orange-500' 
-                                    : kr.progress >= 100 
-                                      ? 'bg-green-600 dark:bg-green-500' 
-                                      : kr.progress >= 50 
-                                        ? 'bg-blue-600 dark:bg-blue-500' 
-                                        : 'bg-neutral-500 dark:bg-neutral-500'
-                                }`}
-                                style={{ width: `${Math.min(100, kr.progress)}%` }}
-                              ></div>
-                            </div>
-                            <span className={`text-sm tabular-nums text-right w-12 font-medium ${
-                              kr.progress > 100 ? 'text-orange-700 dark:text-orange-400' : ''
-                            }`}>
-                              {kr.progress > 100 ? 'Dépassé' : `${kr.progress.toFixed(1)}%`}
-                            </span>
+                            {(() => {
+                              // Calculer le progress avec la valeur réelle pour "Revenus d'affiliation"
+                              const nameLower = (kr.name || '').toLowerCase()
+                              const categoryLower = (kr.category || '').toLowerCase()
+                              const isAffiliationTotal = (nameLower.includes('revenus d\'affiliation') || nameLower.includes('ca affiliation') || nameLower.includes('chiffre d\'affaires affiliation')) &&
+                                                         !nameLower.includes('apify') && !nameLower.includes('lemlist') && !nameLower.includes('zapier') &&
+                                                         (categoryLower.includes('affiliation') || categoryLower.includes('partenariats'))
+                              
+                              let actualProgress = kr.progress || 0
+                              if (isAffiliationTotal) {
+                                const affiliationKRs = keyResults.filter(otherKr => {
+                                  const otherNameLower = (otherKr.name || '').toLowerCase()
+                                  const otherCategoryLower = (otherKr.category || '').toLowerCase()
+                                  return (otherNameLower.includes('revenus d\'affiliation') || otherNameLower.includes('affiliation')) &&
+                                         (otherNameLower.includes('apify') || otherNameLower.includes('lemlist') || otherNameLower.includes('zapier')) &&
+                                         (otherCategoryLower.includes('affiliation') || otherCategoryLower.includes('partenariats'))
+                                })
+                                const totalAffiliationUSD = affiliationKRs.reduce((sum, otherKr) => sum + (otherKr.currentResult || 0), 0)
+                                const totalAffiliationEUR = usdToEur(totalAffiliationUSD)
+                                actualProgress = kr.targetResult > 0 ? (totalAffiliationEUR / kr.targetResult) * 100 : 0
+                              } else if (isAffiliationRevenue(kr)) {
+                                // Pour les revenus d'affiliation individuels, convertir USD en EUR
+                                const currentEUR = usdToEur(kr.currentResult || 0)
+                                const targetEUR = usdToEur(kr.targetResult || 0)
+                                actualProgress = targetEUR > 0 ? (currentEUR / targetEUR) * 100 : 0
+                              }
+                              
+                              return (
+                                <>
+                                  <div className="w-20 h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
+                                    <div 
+                                      className={`h-full transition-all duration-500 ${
+                                        actualProgress > 100 
+                                          ? 'bg-orange-600 dark:bg-orange-500' 
+                                          : actualProgress >= 100 
+                                            ? 'bg-green-600 dark:bg-green-500' 
+                                            : actualProgress >= 50 
+                                              ? 'bg-blue-600 dark:bg-blue-500' 
+                                              : 'bg-neutral-500 dark:bg-neutral-500'
+                                      }`}
+                                      style={{ width: `${Math.min(100, actualProgress)}%` }}
+                                    ></div>
+                                  </div>
+                                  <span className={`text-sm tabular-nums text-right w-12 font-medium ${
+                                    actualProgress > 100 ? 'text-orange-700 dark:text-orange-400' : ''
+                                  }`}>
+                                    {actualProgress > 100 ? 'Dépassé' : `${actualProgress.toFixed(1)}%`}
+                                  </span>
+                                </>
+                              )
+                            })()}
                           </div>
                         </div>
                       </div>
@@ -1108,6 +1248,38 @@ export default function DonneesPubliques() {
           history={meetingsHistory}
           loading={meetingsLoading}
           colorFrom="blue"
+          targetValue={(() => {
+            // Trouver l'objectif pour les rendez-vous clients
+            // Chercher tous les Key Results qui correspondent aux rendez-vous avec des critères élargis
+            const matchingKRs = keyResults.filter(kr => {
+              const nameLower = (kr.name || '').toLowerCase()
+              const categoryLower = (kr.category || '').toLowerCase()
+              // Critères élargis pour capturer tous les Key Results liés aux rendez-vous
+              const matchesName = nameLower.includes('rendez-vous') || 
+                                  nameLower.includes('meeting') || 
+                                  nameLower.includes('calendly') ||
+                                  nameLower.includes('appel') ||
+                                  nameLower.includes('call')
+              const matchesCategory = categoryLower.includes('meeting') || 
+                                      categoryLower.includes('relation') || 
+                                      categoryLower.includes('client') ||
+                                      categoryLower.includes('appel')
+              return matchesName && matchesCategory
+            })
+            
+            if (matchingKRs.length > 0) {
+              // Toujours prendre celui avec le plus grand targetResult
+              // Cela garantit qu'on prend l'objectif principal (550) plutôt qu'un sous-objectif (360)
+              const meetingsKR = matchingKRs.reduce((max, kr) => {
+                const maxTarget = max.targetResult || 0
+                const krTarget = kr.targetResult || 0
+                return krTarget > maxTarget ? kr : max
+              })
+              return meetingsKR?.targetResult || null
+            }
+            
+            return null
+          })()}
           insight={meetingsHistory.length > 1 ? `Tendance ${meetingsHistory[meetingsHistory.length - 1].valeur >= meetingsHistory[0].valeur ? 'positive' : 'négative'} observée sur la période.` : null}
         />
 
@@ -1117,6 +1289,16 @@ export default function DonneesPubliques() {
           history={abonnesHistory}
           loading={abonnesLoading}
           colorFrom="green"
+          targetValue={(() => {
+            // Trouver l'objectif pour les abonnés Logement Atypique
+            const abonnesKR = keyResults.find(kr => {
+              const nameLower = (kr.name || '').toLowerCase()
+              const categoryLower = (kr.category || '').toLowerCase()
+              return (nameLower.includes('abonnés') || nameLower.includes('abonne')) &&
+                     (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial'))
+            })
+            return abonnesKR?.targetResult || null
+          })()}
           insight={abonnesHistory.length > 1 ? `Croissance de la communauté avec ${abonnesHistory[abonnesHistory.length - 1].valeur - abonnesHistory[0].valeur >= 0 ? '+' : ''}${abonnesHistory[abonnesHistory.length - 1].valeur - abonnesHistory[0].valeur} abonnés sur la période.` : null}
         />
 
@@ -1126,6 +1308,35 @@ export default function DonneesPubliques() {
           history={apifyUsersHistory}
           loading={apifyUsersLoading}
           colorFrom="purple"
+          targetValue={(() => {
+            // Trouver l'objectif pour les utilisateurs Apify
+            // Chercher d'abord "Utilisateurs total" ou "Total users" qui est le Key Result principal
+            let apifyKR = keyResults.find(kr => {
+              const nameLower = (kr.name || '').toLowerCase()
+              const categoryLower = (kr.category || '').toLowerCase()
+              return (nameLower.includes('utilisateurs total') || nameLower.includes('total users')) &&
+                     (categoryLower.includes('apify') || categoryLower.includes('scraping'))
+            })
+            
+            // Si pas trouvé, chercher celui avec le plus grand targetResult parmi ceux qui correspondent
+            if (!apifyKR) {
+              const matchingKRs = keyResults.filter(kr => {
+                const nameLower = (kr.name || '').toLowerCase()
+                const categoryLower = (kr.category || '').toLowerCase()
+                return (nameLower.includes('utilisateur') || nameLower.includes('user')) &&
+                       (categoryLower.includes('apify') || categoryLower.includes('scraping'))
+              })
+              
+              if (matchingKRs.length > 0) {
+                // Prendre celui avec le plus grand targetResult
+                apifyKR = matchingKRs.reduce((max, kr) => 
+                  (kr.targetResult || 0) > (max.targetResult || 0) ? kr : max
+                )
+              }
+            }
+            
+            return apifyKR?.targetResult || null
+          })()}
           insight={apifyUsersHistory.length > 1 ? `Adoption croissante de mes scrapers avec ${apifyUsersHistory[apifyUsersHistory.length - 1].valeur - apifyUsersHistory[0].valeur >= 0 ? '+' : ''}${apifyUsersHistory[apifyUsersHistory.length - 1].valeur - apifyUsersHistory[0].valeur} nouveaux utilisateurs.` : null}
         />
 
@@ -1198,16 +1409,26 @@ export default function DonneesPubliques() {
               Vous avez un projet de scraping, d'automatisation ou d'outbound marketing ? 
               Réservez un créneau pour échanger sur vos besoins et voir comment je peux vous aider.
             </p>
-            <button
-              onClick={openCalendly}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors font-medium"
-              aria-label="Réserver un créneau Calendly"
-            >
-              Réserver un créneau
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-              </svg>
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+              <button
+                onClick={openCalendly}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors font-medium"
+                aria-label="Réserver un créneau Calendly"
+              >
+                Réserver un créneau
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                </svg>
+              </button>
+              <Link 
+                href={siteConfig.social.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-6 py-3 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+              >
+                Me contacter sur LinkedIn
+              </Link>
+            </div>
           </div>
         </section>
 

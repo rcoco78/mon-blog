@@ -90,3 +90,4 @@ curl -I http://www.corentinrobert.fr
 - S'assurer qu'il n'y a pas de redirection automatique vers www
 - Si `www.corentinrobert.fr` est présent, le supprimer ou le configurer correctement
 
+

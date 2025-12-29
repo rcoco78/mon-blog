@@ -79,7 +79,7 @@ Corentin Robert
     <>
       <SEOHead {...pageSEO} />
       <StructuredData type="SoftwareApplication" data={toolStructuredData} />
-      <main className="min-w-0 mt-6 flex flex-col">
+    <main className="min-w-0 mt-6 flex flex-col">
       <section className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <Link href="/outils" className="text-sm text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200">

@@ -154,83 +154,83 @@ export default function Outils() {
               Si vous avez besoin d'un <strong>outil sur-mesure</strong> pour votre business, je peux développer une solution adaptée à vos besoins spécifiques.
             </p>
           </div>
-        </section>
+      </section>
 
         <section className="mb-12">
           <div className="mb-8 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-            <div className="mb-4">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Rechercher un outil..."
-                  className="w-full px-4 py-2 text-sm rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-500 transition-colors bg-transparent"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+          <div className="mb-4">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Rechercher un outil..."
+                className="w-full px-4 py-2 text-sm rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-500 transition-colors bg-transparent"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <svg
+                className="absolute right-3 top-2.5 w-5 h-5 text-neutral-400 dark:text-neutral-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
-                <svg
-                  className="absolute right-3 top-2.5 w-5 h-5 text-neutral-400 dark:text-neutral-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  className={`px-2 py-0.5 rounded-full text-xs transition-colors ${
-                    selectedCategory === category
-                      ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
-                      : 'bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700'
-                  }`}
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {category}
-                </button>
-              ))}
+              </svg>
             </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredTools.map((tool) => (
-              <Link
-                key={tool.name}
-                href={tool.link}
-                className="group block p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
+          <div className="flex flex-wrap gap-1.5">
+            {categories.map((category) => (
+              <button
+                key={category}
+                className={`px-2 py-0.5 rounded-full text-xs transition-colors ${
+                  selectedCategory === category
+                    ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
+                    : 'bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700'
+                }`}
+                onClick={() => setSelectedCategory(category)}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{tool.icon}</span>
-                    <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
-                      {tool.name}
-                      {tool.isNew && (
-                        <span className="ml-2 text-xs bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-2 py-0.5 rounded-full">
-                          Nouveau
-                        </span>
-                      )}
-                    </h2>
-                  </div>
-                </div>
-                <p className="mt-2 text-neutral-600 dark:text-neutral-400">
-                  {tool.description}
-                </p>
-                <div className="mt-4 flex items-center text-sm text-neutral-500 dark:text-neutral-400">
-                  <span className="px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800">
-                    {tool.category}
-                  </span>
-                </div>
-              </Link>
+                {category}
+              </button>
             ))}
           </div>
-        </section>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {filteredTools.map((tool) => (
+            <Link
+              key={tool.name}
+              href={tool.link}
+              className="group block p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{tool.icon}</span>
+                  <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
+                    {tool.name}
+                    {tool.isNew && (
+                      <span className="ml-2 text-xs bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-2 py-0.5 rounded-full">
+                        Nouveau
+                      </span>
+                    )}
+                  </h2>
+                </div>
+              </div>
+              <p className="mt-2 text-neutral-600 dark:text-neutral-400">
+                {tool.description}
+              </p>
+              <div className="mt-4 flex items-center text-sm text-neutral-500 dark:text-neutral-400">
+                <span className="px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800">
+                  {tool.category}
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
         <section className="mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
           <h2 className="font-semibold text-xl mb-4 tracking-tighter">Questions fréquentes</h2>
@@ -263,10 +263,10 @@ export default function Outils() {
           <h2 className="font-semibold text-xl mb-3 tracking-tighter">Besoin d'un outil sur-mesure ?</h2>
           <p className="text-neutral-600 dark:text-neutral-400 mb-6">
             Si vous avez besoin d'un outil personnalisé pour votre business, je peux développer une solution adaptée à vos besoins spécifiques.
-          </p>
+        </p>
           <button
             onClick={openCalendly}
-            className="inline-block px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
+          className="inline-block px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
           >
             Discutons de votre projet
           </button>
@@ -289,8 +289,8 @@ export default function Outils() {
               </Link>
             </p>
           </div>
-        </section>
-      </main>
+      </section>
+    </main>
     </>
   )
 } 

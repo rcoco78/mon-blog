@@ -138,10 +138,10 @@ export default function About() {
         <div className="mb-8 space-y-6">
           <div>
             <p className="text-neutral-900 dark:text-neutral-100 tracking-tight mb-2">
-              28 ans, Parisien. De growth marketeux chez Airbnb à entrepreneur indépendant, je me suis spécialisé en <strong>scraping</strong> et <strong>automatisation</strong>.
+              28 ans, Parisien. De growth marketeux chez Airbnb, en passant chez Shine à aujourd'hui entrepreneur indépendant, je me suis spécialisé en <strong>scraping</strong>, <strong>automatisation</strong> et <strong>outbound marketing</strong>.
             </p>
             <p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
-              Aujourd'hui, j'accompagne les fondateurs TPE-PME sur ces sujets, ainsi que sur l'outbound marketing automatisé.
+              J'accompagne les dirigeants de TPE-PME à gagner du temps et acquérir les bonnes pratiques sur ces sujets.
             </p>
           </div>
           
