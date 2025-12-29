@@ -3,47 +3,13 @@ import { useState } from 'react'
 import SEOHead from '../components/seo/SEOHead'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
+import { tools } from '../lib/tools'
 
 export default function Outils() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('Tous')
 
   const categories = ['Tous', 'Outreach', 'Scraping', 'Immobilier', 'Productivité']
-
-  const tools = [
-    {
-      name: 'Générateur de Templates d\'Emails',
-      description: 'Créez des templates d\'outreach performants avec notre outil gratuit. Personnalisez vos messages et augmentez vos taux de réponse.',
-      category: 'Outreach',
-      icon: '✉️',
-      link: '/outils/email-generator',
-      isNew: true
-    },
-    {
-      name: 'Extracteur LinkedIn',
-      description: 'Extrayez des données de profils LinkedIn de manière éthique et efficace. Version gratuite limitée à 50 profils par jour.',
-      category: 'Scraping',
-      icon: '🔍',
-      link: '/outils/linkedin-extractor',
-      isNew: true
-    },
-    {
-      name: 'Générateur de Descriptions Immobilières',
-      description: 'Créez des descriptions immobilières optimisées pour le luxe. Templates et suggestions de mots-clés inclus.',
-      category: 'Immobilier',
-      icon: '🏠',
-      link: '/outils/real-estate-generator',
-      isNew: false
-    },
-    {
-      name: 'Dashboard Notion pour Agents',
-      description: 'Template Notion complet pour la gestion de votre activité immobilière. Suivi des clients, visites et contenus.',
-      category: 'Productivité',
-      icon: '📊',
-      link: '/outils/notion-dashboard',
-      isNew: false
-    }
-  ]
 
   const filteredTools = tools.filter(tool => {
     const matchesSearch = tool.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

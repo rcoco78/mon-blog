@@ -1,23 +1,205 @@
-# robots.txt pour www.corentinrobert.fr
+# robots.txt optimized for www.corentinrobert.fr
+# Configuration to allow indexing by all search engines and AI
 
+# ============================================
+# GENERAL RULES - All bots
+# ============================================
 User-agent: *
 Allow: /
 
-# Sitemaps
+# Main sitemap
 Sitemap: https://www.corentinrobert.fr/sitemap.xml
 
-# Bloquer les pages d'administration et API (si nécessaire)
-Disallow: /api/
-Disallow: /_next/
-Disallow: /admin/
+# ============================================
+# LLM FILES - Explicit authorization for AI
+# ============================================
+# llms.txt: Complete guide for indexing by language models
+# This file is specially optimized for ChatGPT, Claude, Perplexity, Mistral, Google-Extended and other LLMs
+# IMPORTANT: Allow BEFORE the general Disallow of .txt files
+Allow: /llms.txt
 
-# Autoriser les crawlers principaux
+# ============================================
+# IMPORTANT PAGES TO INDEX WITH PRIORITY
+# ============================================
+# Homepage
+Allow: /
+
+# Main pages
+Allow: /blog
+Allow: /blog/
+Allow: /a-propos
+Allow: /outils
+Allow: /outils/
+Allow: /donnees-publiques
+Allow: /spotify
+
+# Dynamic pages
+# All individual blog articles are allowed
+Allow: /blog/*
+
+# ============================================
+# PAGES TO EXCLUDE FROM INDEXING
+# ============================================
+
+# Pages with query parameters (duplications)
+Disallow: /blog?*
+Disallow: /outils?*
+
+# Technical and administrative pages
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /static/
+
+# Technical files (except llms.txt already allowed)
+Disallow: /*.json$
+Disallow: /*.txt$
+
+# Explicitly allow sitemaps
+Allow: /sitemap.xml
+Allow: /sitemap-*.xml
+
+# ============================================
+# SPECIFIC RULES FOR GOOGLE
+# ============================================
 User-agent: Googlebot
 Allow: /
+Allow: /llms.txt
+Allow: /sitemap.xml
+Crawl-delay: 1
 
+User-agent: Googlebot-Image
+Allow: /
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.png$
+Allow: /*.gif$
+Allow: /*.webp$
+Allow: /*.svg$
+Crawl-delay: 1
+
+User-agent: Googlebot-Video
+Allow: /
+Allow: /*.mp4$
+Allow: /*.webm$
+Allow: /*.avi$
+Allow: /*.mov$
+Crawl-delay: 1
+
+# Google-Extended (for AI model training)
+User-agent: Google-Extended
+Allow: /
+Allow: /llms.txt
+Crawl-delay: 1
+
+# ============================================
+# SPECIFIC RULES FOR AI BOTS
+# ============================================
+# These rules ensure all AI bots can access the llms.txt file
+
+# OpenAI (ChatGPT, GPTBot)
+User-agent: GPTBot
+Allow: /
+Allow: /llms.txt
+Crawl-delay: 1
+
+User-agent: ChatGPT-User
+Allow: /
+Allow: /llms.txt
+Crawl-delay: 1
+
+# Anthropic (Claude)
+User-agent: anthropic-ai
+Allow: /
+Allow: /llms.txt
+Crawl-delay: 1
+
+User-agent: Claude-Web
+Allow: /
+Allow: /llms.txt
+Crawl-delay: 1
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+Allow: /llms.txt
+Crawl-delay: 1
+
+# Mistral AI (French AI)
+User-agent: MistralAI-User
+Allow: /
+Allow: /llms.txt
+Crawl-delay: 1
+
+# Common Crawl (used by many AIs)
+User-agent: CCBot
+Allow: /
+Allow: /llms.txt
+Crawl-delay: 1
+
+# Bingbot (Microsoft - used by ChatGPT via Bing)
 User-agent: Bingbot
 Allow: /
+Allow: /llms.txt
+Crawl-delay: 1
 
-User-agent: Slurp
+# Baidu (Chinese search engine)
+User-agent: Baiduspider
 Allow: /
+Allow: /llms.txt
+Crawl-delay: 2
 
+# Yandex (Russian search engine)
+User-agent: Yandex
+Allow: /
+Allow: /llms.txt
+Crawl-delay: 1
+
+# Applebot (used by Siri)
+User-agent: Applebot
+Allow: /
+Allow: /llms.txt
+Crawl-delay: 1
+
+# Facebook AI (Rosetta)
+User-agent: facebookexternalhit
+Allow: /
+Allow: /llms.txt
+Crawl-delay: 2
+
+# ============================================
+# SPECIFIC RULES FOR SOCIAL NETWORKS
+# ============================================
+User-agent: Twitterbot
+Allow: /
+Crawl-delay: 2
+
+User-agent: LinkedInBot
+Allow: /
+Crawl-delay: 2
+
+User-agent: Pinterest
+Allow: /
+Crawl-delay: 2
+
+User-agent: WhatsApp
+Allow: /
+Crawl-delay: 2
+
+User-agent: TelegramBot
+Allow: /
+Crawl-delay: 2
+
+# ============================================
+# GENERAL CRAWL-DELAY
+# ============================================
+# Delay between requests to avoid overloading the server
+Crawl-delay: 1
+
+# ============================================
+# IMPORTANT NOTES
+# ============================================
+# - The llms.txt file is explicitly allowed for all AI bots
+# - All individual blog pages (/blog/*) are allowed
+# - Sitemaps are accessible to facilitate indexing
+# - Images and videos are allowed for Googlebot-Image and Googlebot-Video

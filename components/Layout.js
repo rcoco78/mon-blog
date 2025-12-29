@@ -50,14 +50,14 @@ export default function Layout({ children }) {
     <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col min-h-screen mt-8 sm:mt-8">
         <nav className="flex flex-row items-center justify-between relative px-0 pb-8 fade md:overflow-auto scroll-pr-6 md:relative" id="nav">
-          <div className="flex flex-row items-center space-x-1 sm:space-x-2">
+          <div className="flex flex-row items-center space-x-1 sm:space-x-2 flex-wrap">
             <Link 
               className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
                 router.pathname === '/' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
               }`} 
               href="/"
             >
-              home
+              accueil
             </Link>
             <Link 
               className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 sm:px-3 rounded-md ${
@@ -85,20 +85,22 @@ export default function Layout({ children }) {
             </Link>
             <Link 
               className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 sm:px-3 rounded-md ${
-                router.pathname === '/open' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
+                router.pathname === '/donnees-publiques' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
               }`} 
-              href="/open"
+              href="/donnees-publiques"
             >
-              open
+              <span className="hidden sm:inline">données publiques</span>
+              <span className="sm:hidden">données</span>
             </Link>
           </div>
-          <button
-            aria-label="Toggle Dark Mode"
-            type="button"
-            className="flex items-center justify-center transition-all py-1 px-2 sm:px-3 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 min-w-[40px]"
-            onClick={toggleTheme}
-            disabled={!mounted}
-          >
+          <div className="flex justify-end max-[480px]:hidden">
+            <button
+              aria-label="Toggle Dark Mode"
+              type="button"
+              className="flex items-center justify-center transition-all py-1 px-2 sm:px-3 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 min-w-[40px]"
+              onClick={toggleTheme}
+              disabled={!mounted}
+            >
             {currentTheme === 'dark' ? (
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
                 <path d="M12 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0M8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0m0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13m8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8m10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0m-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0m9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707M4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708"/>
@@ -109,6 +111,7 @@ export default function Layout({ children }) {
               </svg>
             )}
           </button>
+          </div>
         </nav>
 
         <div>

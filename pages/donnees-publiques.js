@@ -3,12 +3,12 @@ import SEOHead from '../components/seo/SEOHead'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 
-export default function Open() {
+export default function DonneesPubliques() {
   const pageSEO = generatePageSEO({
-    title: siteConfig.seo.pages.open.title,
-    description: siteConfig.seo.pages.open.description,
-    path: '/open',
-    keywords: siteConfig.seo.pages.open.keywords
+    title: siteConfig.seo.pages.donneesPubliques.title,
+    description: siteConfig.seo.pages.donneesPubliques.description,
+    path: '/donnees-publiques',
+    keywords: siteConfig.seo.pages.donneesPubliques.keywords
   })
 
   return (
@@ -16,9 +16,9 @@ export default function Open() {
       <SEOHead {...pageSEO} />
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
         <section>
-          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Projets Open Source</h1>
+          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Données Publiques</h1>
           <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">
-            Découvrez mes projets open source et scrapers publics disponibles gratuitement.
+            Découvrez mes dashboards et données de progression publiques.
           </p>
         </section>
 

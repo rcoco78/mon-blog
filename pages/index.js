@@ -3,7 +3,9 @@ import Image from 'next/image'
 import { getAllPosts } from '../lib/notion'
 import { useState, useEffect } from 'react'
 import { siteConfig } from '../lib/config'
+import { getRecentTools } from '../lib/tools'
 import SEOHead from '../components/seo/SEOHead'
+import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import ProjectClickCounter from '../components/ProjectClickCounter'
 
@@ -124,8 +126,32 @@ export default function Home({ posts }) {
   return (
     <>
       <SEOHead {...pageSEO} />
+      {/* Structured Data pour SEO */}
+      <StructuredData 
+        type="Service" 
+        data={{
+          name: 'Scraping et Automatisation',
+          serviceType: 'Web Scraping, Data Automation, Outbound Marketing',
+          description: 'Expert freelance en scraping web et automatisation. Création d\'outils sur-mesure pour extraire, structurer et exploiter vos données. 424+ projets réalisés via Malt et Fiverr.',
+          offers: {
+            '@type': 'Offer',
+            availability: 'https://schema.org/InStock',
+            priceCurrency: 'EUR',
+            description: 'Services de scraping et automatisation sur-mesure'
+          }
+        }} 
+      />
+      <StructuredData 
+        type="AggregateRating" 
+        data={{
+          ratingValue: '4.9',
+          reviewCount: '270',
+          bestRating: '5',
+          worstRating: '1'
+        }} 
+      />
       <main className="flex-auto min-w-0 mt-6 flex flex-col mb-0">
-      <section>
+      <section aria-label="Présentation">
         <div>
           <Image
             src="/images/profile.jpg"
@@ -138,14 +164,14 @@ export default function Home({ posts }) {
           <h1 className="font-semibold text-2xl mb-6 tracking-tighter">Corentin Robert</h1>
         </div>
         <p className="mb-6 text-neutral-900 dark:text-neutral-100 tracking-tight">
-          Expert freelance en <strong>scraping</strong> et <strong>automatisation</strong>. Analyses concurrentielles, collecte de contacts, enrichissement de données — je crée des outils sur-mesure ou je livre directement les fichiers pour répondre à vos enjeux business.
+          Je transforme vos données web en opportunités business. Expert freelance en <strong>scraping</strong> et <strong>automatisation</strong>, je crée des outils sur-mesure pour extraire, structurer et exploiter vos données.
         </p>
         <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
           Le week-end, je développe <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère — on parcourt la France pour mettre en avant des logements d'exception.
         </p>
         
         {/* Métriques de confiance - Déplacées plus tôt sur mobile */}
-        <div className="mb-8 md:mb-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="mb-8 md:mb-12 grid grid-cols-2 md:grid-cols-4 gap-4" aria-label="Métriques de confiance">
           {metricsLoading ? (
             // Skeleton pendant le chargement
             Array.from({ length: 4 }).map((_, index) => (
@@ -190,8 +216,8 @@ export default function Home({ posts }) {
         </div>
         
         {/* Carousel de témoignages */}
-        <div className="mb-6 relative">
-          <div className="relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+        <section className="mb-6 relative" aria-label="Témoignages clients">
+          <div className="relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-live="polite" aria-atomic="true">
             <div 
               className="flex transition-transform duration-500 ease-in-out"
               style={{ transform: `translateX(-${testimonialIndex * 100}%)` }}
@@ -255,33 +281,22 @@ export default function Home({ posts }) {
               />
             ))}
           </div>
-        </div>
-        
-        {/* CTA secondaire après témoignages */}
-        <div className="mt-6 text-center">
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault()
-              if (typeof window !== 'undefined' && window.Calendly) {
-                window.Calendly.initPopupWidget({
-                  url: 'https://calendly.com/corentinrobert/20min'
-                })
-              } else {
-                window.open('https://calendly.com/corentinrobert/20min', '_blank')
-              }
-              return false
-            }}
-            className="inline-flex items-center text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-          >
-            Discutons de votre projet
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-1.5 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-            </svg>
-          </a>
-        </div>
+          
+          {/* Lien vers la page complète */}
+          <div className="mt-4 text-center">
+            <Link
+              href="/temoignages"
+              className="inline-flex items-center text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+            >
+              Voir tous les témoignages
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-1.5 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+              </svg>
+            </Link>
+          </div>
+        </section>
       </section>
-      <section className="mt-8">
+      <section className="mt-8" aria-label="Projets">
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Projets</h2>
         <div className="flex flex-col space-y-4">
           {siteConfig.projects.map((project, index) => {
@@ -334,6 +349,7 @@ export default function Home({ posts }) {
                         alt={project.imageAlt || `${project.title} - ${project.description}`}
                         width={24}
                         height={24}
+                        loading="lazy"
                         className={`w-6 h-6 rounded-lg object-cover border border-neutral-200 dark:border-neutral-800 ${!isActive ? 'opacity-50 grayscale' : ''}`}
                       />
                     </div>
@@ -345,6 +361,7 @@ export default function Home({ posts }) {
                           alt={project.iconAlt || `${project.title} - ${project.description}`}
                           width={24}
                           height={24}
+                          loading="lazy"
                           className={`w-6 h-6 rounded-lg object-contain ${!isActive ? 'opacity-50 grayscale' : ''}`}
                         />
                       </div>
@@ -356,16 +373,24 @@ export default function Home({ posts }) {
                   ) : null}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      <h3 className={`font-medium ${isActive ? '' : 'text-neutral-500 dark:text-neutral-400'}`}>
+                      <h3 className={`font-medium flex items-center gap-2 ${isActive ? '' : 'text-neutral-500 dark:text-neutral-400'}`}>
                         {project.title}
+                        {project.status === 'active' && (
+                          <span className="relative flex h-2 w-2" title="Projet actif">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                          </span>
+                        )}
                       </h3>
-                      <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
-                        project.status === 'active' 
-                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                          : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
-                      }`}>
-                        {project.status === 'active' ? 'Actif' : project.status === 'paused' ? 'En pause' : 'Arrêté'}
-                      </span>
+                      {project.status !== 'active' && (
+                        <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
+                          project.status === 'paused' 
+                            ? 'bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
+                            : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
+                        }`}>
+                          {project.status === 'paused' ? 'En pause' : 'Arrêté'}
+                        </span>
+                      )}
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
                       <p className={`${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} text-sm`}>
@@ -397,11 +422,95 @@ export default function Home({ posts }) {
         </div>
       </section>
       
+      {/* Section Outils récents */}
+      <section className="mt-12" aria-label="Outils récents">
+        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Outils récents</h2>
+        <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
+          Outils gratuits que j'ai développés et que je mets à disposition — générateurs, extracteurs et templates pour vous aider dans votre quotidien.
+        </p>
+        <div className="flex flex-col space-y-4">
+          {getRecentTools(3).map((tool) => (
+            <Link
+              key={tool.name}
+              href={tool.link}
+              className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]"
+            >
+              <div className="flex items-start gap-3 flex-1 min-w-0">
+                {tool.iconSvg ? (
+                  <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-600 dark:text-neutral-400">
+                    {tool.iconSvg === 'email' && (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
+                        <path d="M8.47 1.318a1 1 0 0 0-.94 0l-6 3.2A1 1 0 0 0 1 5.4v.817l5.75 3.45L8 8.917l1.25.75L15 6.217V5.4a1 1 0 0 0-.53-.882zM15 7.383l-4.778 2.867L15 13.117zm-.035 6.88L8 10.082l-6.965 4.18A1 1 0 0 0 2 15h12a1 1 0 0 0 .965-.738ZM1 13.116l4.778-2.867L1 7.383v5.734ZM7.059.435a2 2 0 0 1 1.882 0l6 3.2A2 2 0 0 1 16 5.4V14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V5.4a2 2 0 0 1 1.059-1.765z"/>
+                      </svg>
+                    )}
+                    {tool.iconSvg === 'search' && (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                      </svg>
+                    )}
+                    {tool.iconSvg === 'house' && (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
+                        <path d="M8 6.982C9.664 5.309 13.825 8.236 8 12 2.175 8.236 6.336 5.309 8 6.982"/>
+                        <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.707L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.646a.5.5 0 0 0 .708-.707L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"/>
+                      </svg>
+                    )}
+                    {tool.iconSvg === 'grid' && (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
+                        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm15 2h-4v3h4zm0 4h-4v3h4zm0 4h-4v3h3a1 1 0 0 0 1-1zm-5 3v-3H6v3zm-5 0v-3H1v2a1 1 0 0 0 1 1zm-4-4h4V7H1zm0-4h4V3H1a1 1 0 0 0-1 1zm5 0v3h4V3zm4 4H6v3h4z"/>
+                      </svg>
+                    )}
+                  </div>
+                ) : tool.icon && tool.icon.startsWith('/') ? (
+                  <div className="flex-shrink-0 w-6 h-6">
+                    <Image
+                      src={tool.icon}
+                      alt={`${tool.name} - ${tool.description}`}
+                      width={24}
+                      height={24}
+                      loading="lazy"
+                      className="w-6 h-6 rounded-lg object-contain"
+                    />
+                  </div>
+                ) : null}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                    <h3 className="font-medium">
+                      {tool.name}
+                    </h3>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+                    <p className="text-neutral-600 dark:text-neutral-400 text-sm">
+                      {tool.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="hidden sm:flex items-center transition-all group-hover:text-neutral-800 dark:group-hover:text-neutral-200 flex-shrink-0 ml-2">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                  <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                </svg>
+              </div>
+            </Link>
+          ))}
+        </div>
+        <div className="mt-6 text-center">
+          <Link
+            href="/outils"
+            className="inline-flex items-center text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+          >
+            Voir tous les outils
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-1.5 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+            </svg>
+          </Link>
+        </div>
+      </section>
+      
       {/* Section Articles récents */}
-      <section className="mt-12">
+      <section className="mt-12" aria-label="Articles récents">
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Articles récents</h2>
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Je partage ici mes réflexions, ce que je fais, et quelques outils que je mets à disposition.
+          Réflexions sur le scraping, l'automatisation, l'entrepreneuriat, le freelance et le voyage.
         </p>
         <div className="space-y-4">
           {loading ? (
@@ -450,28 +559,16 @@ export default function Home({ posts }) {
       </section>
       
       {/* CTA avant footer */}
-      <section className="mt-12 mb-8 text-center">
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault()
-            if (typeof window !== 'undefined' && window.Calendly) {
-              window.Calendly.initPopupWidget({
-                url: 'https://calendly.com/corentinrobert/20min'
-              })
-            } else {
-              // Fallback si Calendly n'est pas encore chargé
-              window.open('https://calendly.com/corentinrobert/20min', '_blank')
-            }
-            return false
-          }}
+      <section className="mt-12 mb-8 text-center" aria-label="Navigation vers le blog">
+        <Link
+          href="/blog"
           className="inline-flex items-center text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
         >
-          Discutons de votre projet
+          Voir tous les articles
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-1.5 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
             <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
           </svg>
-        </a>
+        </Link>
       </section>
     </main>
     </>

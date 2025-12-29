@@ -64,17 +64,19 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         return {
           '@context': 'https://schema.org',
           '@type': 'Person',
-          name: siteConfig.author,
-          url: siteConfig.url,
-          jobTitle: 'Consultant Freelance en Scraping et Automatisation',
-          description: siteConfig.seo.defaultDescription,
-          sameAs: [
+          name: data.name || siteConfig.author,
+          url: data.url || siteConfig.url,
+          jobTitle: data.jobTitle || 'Consultant Freelance en Scraping et Automatisation',
+          description: data.description || siteConfig.seo.defaultDescription,
+          knowsAbout: data.knowsAbout || ['Web Scraping', 'Data Automation', 'Outbound Marketing'],
+          alumniOf: data.alumniOf,
+          sameAs: data.sameAs || [
             siteConfig.social.linkedin,
             siteConfig.social.malt,
             'https://apify.com?fpr=0n7ukq',
             'https://github.com/rcoco78'
           ],
-          image: siteConfig.ogLogo
+          image: data.image || siteConfig.ogLogo
         };
       
       case 'BreadcrumbList':
@@ -89,13 +91,32 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           '@context': 'https://schema.org',
           '@type': 'Service',
           serviceType: data.serviceType || 'Consulting',
+          name: data.name || 'Scraping et Automatisation',
           provider: {
             '@type': 'Person',
             name: siteConfig.author,
             url: siteConfig.url
           },
-          areaServed: 'FR',
-          description: data.description || siteConfig.seo.defaultDescription
+          areaServed: {
+            '@type': 'Country',
+            name: 'France'
+          },
+          description: data.description || siteConfig.seo.defaultDescription,
+          offers: data.offers || {
+            '@type': 'Offer',
+            availability: 'https://schema.org/InStock',
+            priceCurrency: 'EUR'
+          }
+        };
+
+      case 'AggregateRating':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'AggregateRating',
+          ratingValue: data.ratingValue || '4.9',
+          reviewCount: data.reviewCount || '270',
+          bestRating: '5',
+          worstRating: '1'
         };
 
       case 'VideoObject':
