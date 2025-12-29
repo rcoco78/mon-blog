@@ -23,7 +23,7 @@ export default function About() {
         url: `${siteConfig.url}/a-propos`
       }} />
       <StructuredData type="VideoObject" data={{
-        name: 'Présentation de Corentin Robert - Consultant Scraping et Automatisation',
+        name: 'Présentation de Corentin Robert - Freelance Scraping et Automatisation',
         description: 'Découvrez mon parcours de développeur chez Airbnb à entrepreneur indépendant, spécialisé en scraping et automatisation.',
         videoId: '53pisKcp9Vc',
         thumbnailUrl: 'https://img.youtube.com/vi/53pisKcp9Vc/maxresdefault.jpg',
@@ -43,7 +43,7 @@ export default function About() {
           <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg">
             <iframe
               src="https://www.youtube.com/embed/53pisKcp9Vc?rel=0&modestbranding=1"
-              title="Présentation de Corentin Robert - Consultant Scraping et Automatisation"
+              title="Présentation de Corentin Robert - Freelance Scraping et Automatisation"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
               className="absolute top-0 left-0 w-full h-full"
