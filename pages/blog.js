@@ -95,10 +95,13 @@ export default function Blog({ posts }) {
     // Extraire tous les tags uniques
     const tags = [...new Set(posts.flatMap(post => post.tags))]
     setAllTags(tags)
-    // Simuler un petit délai pour le skeleton (optionnel, peut être retiré si pas nécessaire)
-    if (posts.length > 0) {
-      setPostsLoading(false)
-    }
+    // Petit délai pour afficher le skeleton
+    const timer = setTimeout(() => {
+      if (posts.length > 0) {
+        setPostsLoading(false)
+      }
+    }, 300)
+    return () => clearTimeout(timer)
   }, [posts])
 
   useEffect(() => {
