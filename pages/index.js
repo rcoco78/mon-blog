@@ -138,7 +138,7 @@ export default function Home({ posts }) {
           <h1 className="font-semibold text-2xl mb-6 tracking-tighter">Corentin Robert</h1>
         </div>
         <p className="mb-6 text-neutral-900 dark:text-neutral-100 tracking-tight">
-          Je transforme vos données web en opportunités business. Consultant freelance spécialisé en <strong>scraping</strong> et <strong>automatisation</strong>, je crée des solutions sur-mesure pour extraire, structurer et exploiter vos données.
+          Expert freelance en <strong>scraping</strong> et <strong>automatisation</strong>. Analyses concurrentielles, collecte de contacts, enrichissement de données — je crée des outils sur-mesure ou je livre directement les fichiers pour répondre à vos enjeux business.
         </p>
         <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
           Le week-end, je développe <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère — on parcourt la France pour mettre en avant des logements d'exception.
