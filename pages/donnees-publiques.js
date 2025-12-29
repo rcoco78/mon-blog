@@ -21,6 +21,7 @@ export default function DonneesPubliques() {
   const [abonnesLoading, setAbonnesLoading] = useState(true)
   const [apifyUsersHistory, setApifyUsersHistory] = useState([])
   const [apifyUsersLoading, setApifyUsersLoading] = useState(true)
+  const [calendlyLoaded, setCalendlyLoaded] = useState(false)
 
   useEffect(() => {
     const fetchKeyResults = async () => {
@@ -99,6 +100,38 @@ export default function DonneesPubliques() {
 
     fetchApifyUsersHistory()
   }, [])
+
+  const openCalendly = () => {
+    // Charger Calendly seulement au premier clic (lazy load)
+    if (!calendlyLoaded) {
+      if (!document.querySelector('link[href*="calendly.com"]')) {
+        const link = document.createElement('link')
+        link.href = 'https://assets.calendly.com/assets/external/widget.css'
+        link.rel = 'stylesheet'
+        document.head.appendChild(link)
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://assets.calendly.com/assets/external/widget.js'
+      script.type = 'text/javascript'
+      script.async = true
+      script.onload = () => {
+        setCalendlyLoaded(true)
+        if (window.Calendly) {
+          window.Calendly.initPopupWidget({
+            url: 'https://calendly.com/corentinrobert/20min'
+          })
+        }
+      }
+      document.body.appendChild(script)
+    } else {
+      if (window.Calendly) {
+        window.Calendly.initPopupWidget({
+          url: 'https://calendly.com/corentinrobert/20min'
+        })
+      }
+    }
+  }
 
   // Grouper les Key Results par catégorie
   const groupedByCategory = keyResults.reduce((acc, kr) => {
@@ -526,18 +559,66 @@ export default function DonneesPubliques() {
       }} />
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
         <section className="mb-8">
-          <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Objectifs 2026 et Progression Business</h1>
+          <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Objectifs 2026 - Freelance Scraping et Automatisation</h1>
           <div className="mb-6 space-y-3">
             <p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
               Transparence totale sur mes objectifs, mes challenges et ma progression. 
               Voici mes objectifs 2026 et quelques métriques publiques mises à jour en temps réel.
             </p>
             <p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
-              Cette page vous permet de suivre l'évolution de mes projets, de mes partenariats et de mes métriques business. 
-              Chaque objectif est suivi avec précision, et les graphiques montrent la progression dans le temps.
+              En parallèle de mon activité freelance, je développe <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">Logement Atypique</Link> avec mon frère — on met en avant des logements d'exception partout en France. 
+              Cette page vous permet de suivre l'évolution de mes projets, de mes partenariats et de mes métriques business.
             </p>
           </div>
         </section>
+
+        {/* TL;DR - Métriques clés */}
+        {!loading && (
+          <section className="mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Métriques clés">
+            <h2 className="font-semibold text-lg mb-4 tracking-tighter">En un coup d'œil</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
+                  {(() => {
+                    const maltRemaining = keyResults
+                      .filter(kr => {
+                        const nameLower = (kr.name || '').toLowerCase()
+                        return nameLower.includes('mission malt')
+                      })
+                      .reduce((sum, kr) => {
+                        const remaining = (kr.targetResult || 0) - (kr.currentResult || 0)
+                        return sum + Math.max(0, remaining) // Ne pas afficher de nombre négatif
+                      }, 0)
+                    const fiverrRemaining = keyResults
+                      .filter(kr => {
+                        const nameLower = (kr.name || '').toLowerCase()
+                        return nameLower.includes('mission fiverr')
+                      })
+                      .reduce((sum, kr) => {
+                        const remaining = (kr.targetResult || 0) - (kr.currentResult || 0)
+                        return sum + Math.max(0, remaining) // Ne pas afficher de nombre négatif
+                      }, 0)
+                    const totalRemaining = maltRemaining + fiverrRemaining
+                    return totalRemaining > 0 ? `${totalRemaining}+` : '0'
+                  })()}
+                </p>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400">Missions restantes 2026</p>
+              </div>
+              <div>
+                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">5/5</p>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400">Taux de réussite</p>
+              </div>
+              <div>
+                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">7 jours</p>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400">Délai moyen</p>
+              </div>
+              <div>
+                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">20-30</p>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400">Projets/mois</p>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Section "Pourquoi ces données ?" */}
         <section className="mb-16 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Pourquoi ces données">
@@ -555,6 +636,81 @@ export default function DonneesPubliques() {
               <strong className="text-neutral-900 dark:text-neutral-100">Inspiration et partage :</strong> Ces données peuvent inspirer d'autres entrepreneurs 
               et freelances à adopter une approche similaire de transparence dans leur communication.
             </p>
+          </div>
+        </section>
+
+        {/* Section Impact client */}
+        <section className="mb-16 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Impact client">
+          <h2 className="font-semibold text-lg mb-4 tracking-tighter">Impact pour mes clients</h2>
+          <div className="space-y-4 text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
+            <div>
+              <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Réactivité extrême</h3>
+              <p>
+                Livraison en moins d'une semaine. Je privilégie la rapidité d'exécution pour que vous puissiez exploiter vos données rapidement.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Systèmes longue durée</h3>
+              <p>
+                Je construis des solutions pérennes — comme les scrapers Apify — qui fonctionnent dans le temps. 
+                Vous gagnez un temps considérable en automatisant des processus répétitifs, et le système continue de tourner même après la livraison.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Section Capacité & Disponibilité */}
+        <section className="mb-16 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Capacité et disponibilité">
+          <h2 className="font-semibold text-lg mb-4 tracking-tighter">Capacité & Disponibilité</h2>
+          <div className="space-y-4 text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
+            <div>
+              <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Volume de projets</h3>
+              <p>
+                Je traite jusqu'à <strong className="text-neutral-900 dark:text-neutral-100">20 à 30 projets par mois</strong>, 
+                avec un suivi rigoureux de chaque mission.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Disponibilité pour échanger</h3>
+              <p>
+                Jusqu'à <strong className="text-neutral-900 dark:text-neutral-100">4 appels de 20 minutes par jour</strong> pour discuter de votre projet. 
+                <button onClick={openCalendly} className="underline hover:text-neutral-900 dark:hover:text-neutral-100 ml-1">Réservez un créneau via Calendly</button>.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Secteurs d'expertise</h3>
+              <p>
+                J'ai une expérience particulière dans <strong className="text-neutral-900 dark:text-neutral-100">l'immobilier</strong> et 
+                le <strong className="text-neutral-900 dark:text-neutral-100">secteur de la santé</strong>, mais je travaille avec des entreprises de tous secteurs.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Section Comment je travaille */}
+        <section className="mb-16 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Process de travail">
+          <h2 className="font-semibold text-lg mb-4 tracking-tighter">Comment je travaille</h2>
+          <div className="space-y-3 text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
+            <div className="flex items-start gap-3">
+              <span className="font-semibold text-neutral-900 dark:text-neutral-100 flex-shrink-0 w-6">1.</span>
+              <p><strong className="text-neutral-900 dark:text-neutral-100">Appel de 20 minutes</strong> pour comprendre vos besoins et votre contexte.</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="font-semibold text-neutral-900 dark:text-neutral-100 flex-shrink-0 w-6">2.</span>
+              <p><strong className="text-neutral-900 dark:text-neutral-100">Proposition</strong> détaillée avec approche technique et délais.</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="font-semibold text-neutral-900 dark:text-neutral-100 flex-shrink-0 w-6">3.</span>
+              <p><strong className="text-neutral-900 dark:text-neutral-100">Validation</strong> de votre côté, puis démarrage du projet.</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="font-semibold text-neutral-900 dark:text-neutral-100 flex-shrink-0 w-6">4.</span>
+              <p><strong className="text-neutral-900 dark:text-neutral-100">Livraison</strong> en moins d'une semaine, avec aller-retour si nécessaire.</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="font-semibold text-neutral-900 dark:text-neutral-100 flex-shrink-0 w-6">5.</span>
+              <p><strong className="text-neutral-900 dark:text-neutral-100">Suivi</strong> — on se reparle si besoin d'ajustements ou d'évolutions.</p>
+            </div>
           </div>
         </section>
 
@@ -937,6 +1093,7 @@ export default function DonneesPubliques() {
                       </div>
                     ))}
                   </div>
+                  
                 </div>
                 )
               })}
@@ -971,6 +1128,28 @@ export default function DonneesPubliques() {
           colorFrom="purple"
           insight={apifyUsersHistory.length > 1 ? `Adoption croissante de mes scrapers avec ${apifyUsersHistory[apifyUsersHistory.length - 1].valeur - apifyUsersHistory[0].valeur >= 0 ? '+' : ''}${apifyUsersHistory[apifyUsersHistory.length - 1].valeur - apifyUsersHistory[0].valeur} nouveaux utilisateurs.` : null}
         />
+
+        {/* Section Vision 2028-2029 */}
+        <section className="mb-16 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Vision long terme">
+          <h2 className="font-semibold text-lg mb-4 tracking-tighter">Vision 2028-2029</h2>
+          <div className="space-y-4 text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
+            <p>
+              Dans 2 à 3 ans, je veux construire un <strong className="text-neutral-900 dark:text-neutral-100">patrimoine avec business physique</strong>. 
+              Ce qui me ferait kiffer :
+            </p>
+            <ul className="space-y-2 ml-4 list-disc">
+              <li>Un <strong className="text-neutral-900 dark:text-neutral-100">studio de podcast</strong> pour partager mes réflexions et celles d'autres entrepreneurs</li>
+              <li>Un <strong className="text-neutral-900 dark:text-neutral-100">immobilier à Annecy</strong> — j'adore cette ville et j'aimerais y avoir un pied-à-terre</li>
+              <li>Toujours autant de <strong className="text-neutral-900 dark:text-neutral-100">CEOs satisfaits</strong> — la qualité de service reste ma priorité</li>
+              <li>Pleins d'<strong className="text-neutral-900 dark:text-neutral-100">outils gratuits délivrés</strong> — continuer à partager et donner accès à mes outils</li>
+              <li>Un plus large <strong className="text-neutral-900 dark:text-neutral-100">parterre de revenus d'affiliation</strong>, notamment avec Apify — développer des partenariats stratégiques</li>
+            </ul>
+            <p className="mt-4">
+              Cette vision guide mes objectifs 2026 et ma façon de travailler. 
+              Chaque projet freelance, chaque scraper public, chaque outil gratuit contribue à construire ce patrimoine.
+            </p>
+          </div>
+        </section>
 
         {/* Section liens internes */}
         <section className="mb-16 pt-8 border-t border-neutral-200 dark:border-neutral-800" aria-label="Pour aller plus loin">
@@ -1019,8 +1198,8 @@ export default function DonneesPubliques() {
               Vous avez un projet de scraping, d'automatisation ou d'outbound marketing ? 
               Réservez un créneau pour échanger sur vos besoins et voir comment je peux vous aider.
             </p>
-            <Link
-              href="/a-propos#contact"
+            <button
+              onClick={openCalendly}
               className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors font-medium"
               aria-label="Réserver un créneau Calendly"
             >
@@ -1028,7 +1207,7 @@ export default function DonneesPubliques() {
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
               </svg>
-            </Link>
+            </button>
           </div>
         </section>
 
