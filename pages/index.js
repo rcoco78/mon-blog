@@ -12,6 +12,7 @@ export default function Home({ posts }) {
   const [loading, setLoading] = useState(true)
   const [metrics, setMetrics] = useState(siteConfig.metrics)
   const [metricsLoading, setMetricsLoading] = useState(true)
+  const [testimonialIndex, setTestimonialIndex] = useState(0)
 
   useEffect(() => {
     const fetchViews = async () => {
@@ -83,6 +84,36 @@ export default function Home({ posts }) {
     fetchMetrics()
   }, [])
 
+  // Auto-rotation du carousel de témoignages
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTestimonialIndex((prev) => (prev + 1) % 3)
+    }, 5000) // Change toutes les 5 secondes
+
+    return () => clearInterval(interval)
+  }, [])
+
+  // Charger les scripts Calendly
+  useEffect(() => {
+    // Vérifier si les scripts sont déjà chargés
+    if (document.querySelector('link[href*="calendly.com"]')) {
+      return
+    }
+
+    // Charger le CSS
+    const link = document.createElement('link')
+    link.href = 'https://assets.calendly.com/assets/external/widget.css'
+    link.rel = 'stylesheet'
+    document.head.appendChild(link)
+
+    // Charger le JS
+    const script = document.createElement('script')
+    script.src = 'https://assets.calendly.com/assets/external/widget.js'
+    script.type = 'text/javascript'
+    script.async = true
+    document.body.appendChild(script)
+  }, [])
+
   const pageSEO = generatePageSEO({
     title: siteConfig.seo.pages.home.title,
     description: siteConfig.seo.pages.home.description,
@@ -107,50 +138,11 @@ export default function Home({ posts }) {
           <h1 className="font-semibold text-2xl mb-6 tracking-tighter">Corentin Robert</h1>
         </div>
         <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">
-          Je suis consultant freelance spécialisé en <strong>scraping</strong> et <strong>automatisation</strong>. J'aide les entreprises à récupérer et exploiter leurs données web avec des solutions sur-mesure.
-        </p>
-        <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          J'ai travaillé chez <strong className="text-neutral-900 dark:text-neutral-100">Airbnb</strong> et <strong className="text-neutral-900 dark:text-neutral-100">Shine</strong>. Aujourd'hui, je développe <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère — on filme des logements d'exception le week-end.
-        </p>
-        <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Je partage ici mes réflexions, ce que je fais, et quelques outils que je mets à disposition.
+          Je transforme vos données web en opportunités business. Consultant freelance spécialisé en <strong>scraping</strong> et <strong>automatisation</strong>, je crée des solutions sur-mesure pour extraire, structurer et exploiter vos données. Le week-end, je développe <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère — on filme des logements d'exception.
         </p>
         
-        {/* Section Maintenant */}
-        <div className="mb-12 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-          <h2 className="font-semibold text-lg mb-4 tracking-tighter">Maintenant</h2>
-          <p className="mb-3 text-neutral-900 dark:text-neutral-100 tracking-tight">
-            Actuellement, je me concentre sur :
-          </p>
-          <ul className="space-y-2 text-neutral-600 dark:text-neutral-400">
-            <li className="flex items-start">
-              <span className="mr-2 flex-shrink-0">→</span>
-              <span>
-                Développement de{' '}
-                <Image
-                  src="/images/logement-atypique-icon.svg"
-                  alt="Logo Logement Atypique"
-                  width={16}
-                  height={16}
-                  className="inline-block w-4 h-4 align-middle"
-                />
-                {' '}
-                <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère
-              </span>
-            </li>
-            <li className="flex items-start">
-              <span className="mr-2">→</span>
-              <span>Création de <strong className="text-neutral-900 dark:text-neutral-100">scrapers sur-mesure</strong> pour mes clients</span>
-            </li>
-            <li className="flex items-start">
-              <span className="mr-2">→</span>
-              <span>Accompagnement d'entreprises en <strong className="text-neutral-900 dark:text-neutral-100">outbound automatisé</strong></span>
-            </li>
-          </ul>
-        </div>
-
-        {/* Métriques de confiance */}
-        <div className="mb-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* Métriques de confiance - Déplacées plus tôt sur mobile */}
+        <div className="mb-8 md:mb-12 grid grid-cols-2 md:grid-cols-4 gap-4">
           {metricsLoading ? (
             // Skeleton pendant le chargement
             Array.from({ length: 4 }).map((_, index) => (
@@ -163,7 +155,15 @@ export default function Home({ posts }) {
           ) : (
             metrics.map((metric, index) => (
               <div key={index} className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                <div className="text-2xl font-semibold mb-1 text-neutral-900 dark:text-neutral-100">{metric.value}</div>
+                <div className="text-2xl font-semibold mb-1 text-neutral-900 dark:text-neutral-100">
+                  {metric.label === 'projets réalisés' && metric.breakdown ? (
+                    <>
+                      {metric.value} <span className="text-base font-normal text-neutral-500 dark:text-neutral-500">({metric.breakdown.malt} + {metric.breakdown.fiverr})</span>
+                    </>
+                  ) : (
+                    metric.value
+                  )}
+                </div>
                 <div className="text-sm text-neutral-600 dark:text-neutral-400">{metric.label}</div>
                 <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">{metric.source}</div>
               </div>
@@ -171,56 +171,100 @@ export default function Home({ posts }) {
           )}
         </div>
         
-        {/* Section Articles récents */}
-        <div className="mt-12">
-          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Articles récents</h2>
-          <div className="space-y-4">
-            {loading ? (
-              // Skeleton pour les articles
-              Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2">
-                  <div className="flex flex-col md:flex-row md:items-center w-full">
-                    <div className="flex-shrink-0 mb-2 md:mb-0">
-                      <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-                    </div>
-                    <div className="flex-grow md:max-w-[60%] md:ml-4 mb-2 md:mb-0">
-                      <div className="h-5 w-full md:w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-                    </div>
-                    <div className="md:ml-auto flex-shrink-0">
-                      <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-                    </div>
+        {/* Carousel de témoignages */}
+        <div className="mb-8 md:mb-12 relative">
+          <div className="relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+            <div 
+              className="flex transition-transform duration-500 ease-in-out"
+              style={{ transform: `translateX(-${testimonialIndex * 100}%)` }}
+            >
+              {/* Témoignage LinkedIn */}
+              <div className="min-w-full p-4 flex flex-col min-h-[180px]">
+                <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
+                  "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ."
+                </p>
+                <div className="flex items-center justify-between mt-auto">
+                  <div>
+                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Adnane Amahou</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">Responsable CX @ NGI</p>
                   </div>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">LinkedIn</span>
                 </div>
-              ))
-            ) : topPosts.length > 0 ? (
-            topPosts.map((post) => (
-              <Link
-                key={post.slug}
-                href={`/blog/${post.slug}`}
-                className="post-link"
-              >
-                <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2">
-                  <div className="flex flex-col md:flex-row md:items-center w-full">
-                    <div className="flex-shrink-0">
-                      <p className="post-date whitespace-nowrap">{new Date(post.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                    </div>
-                    <div className="flex-grow md:max-w-[60%] md:ml-4">
-                      <p className="post-title truncate">{post.title}</p>
-                    </div>
-                    <div className="md:ml-auto flex-shrink-0">
-                      <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">{post.views} vues</span>
-                    </div>
+              </div>
+              
+              {/* Témoignage Malt */}
+              <div className="min-w-full p-4 flex flex-col min-h-[180px]">
+                <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
+                  "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
+                </p>
+                <div className="flex items-center justify-between mt-auto">
+                  <div>
+                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Denis</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">Inovesta</p>
                   </div>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400">Malt</span>
                 </div>
-              </Link>
-            ))
-          ) : (
-            <p className="text-neutral-600 dark:text-neutral-400">Aucun article disponible pour le moment.</p>
-          )}
+              </div>
+              
+              {/* Témoignage Fiverr */}
+              <div className="min-w-full p-4 flex flex-col min-h-[180px]">
+                <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
+                  "Corentin did an excellent job and my cooperation with him was smooth and easy. He delivered what he promised, he was very open and quick to discuss revisions and delivered even them in no time. My project was not a simple one, as it required collecting information from different places. I'm 100% satisfied with the result."
+                </p>
+                <div className="flex items-center justify-between mt-auto">
+                  <div>
+                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">lampro74</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">Belgique</p>
+                  </div>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">Fiverr</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Indicateurs de navigation */}
+          <div className="flex justify-center gap-2 mt-4">
+            {[0, 1, 2].map((index) => (
+              <button
+                key={index}
+                onClick={() => setTestimonialIndex(index)}
+                className={`h-1.5 rounded-full transition-all ${
+                  testimonialIndex === index
+                    ? 'w-6 bg-neutral-900 dark:bg-neutral-100'
+                    : 'w-1.5 bg-neutral-300 dark:bg-neutral-700'
+                }`}
+                aria-label={`Aller au témoignage ${index + 1}`}
+              />
+            ))}
           </div>
         </div>
+        
+        {/* CTA discret */}
+        <div className="mb-6 text-center">
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault()
+              if (typeof window !== 'undefined' && window.Calendly) {
+                window.Calendly.initPopupWidget({
+                  url: 'https://calendly.com/corentinrobert/20min'
+                })
+              } else {
+                // Fallback si Calendly n'est pas encore chargé
+                window.open('https://calendly.com/corentinrobert/20min', '_blank')
+              }
+              return false
+            }}
+            className="inline-flex items-center text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+          >
+            Discutons de votre projet
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-1.5 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+            </svg>
+          </a>
+        </div>
       </section>
-      <section className="mt-12">
+      <section className="mt-8">
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Projets</h2>
         <div className="flex flex-col space-y-4">
           {siteConfig.projects.map((project, index) => {
@@ -294,7 +338,7 @@ export default function Home({ posts }) {
                     )
                   ) : null}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1.5 flex-wrap relative pr-20 sm:pr-0">
+                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                       <h3 className={`font-medium ${isActive ? '' : 'text-neutral-500 dark:text-neutral-400'}`}>
                         {project.title}
                       </h3>
@@ -305,11 +349,6 @@ export default function Home({ posts }) {
                       }`}>
                         {project.status === 'active' ? 'Actif' : project.status === 'paused' ? 'En pause' : 'Arrêté'}
                       </span>
-                      {project.link && project.id && (
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 sm:hidden flex items-center">
-                          <ProjectClickCounter projectId={project.id} />
-                        </div>
-                      )}
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
                       <p className={`${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} text-sm`}>
@@ -321,6 +360,11 @@ export default function Home({ posts }) {
                         </div>
                       )}
                     </div>
+                    {project.link && project.id && (
+                      <div className="sm:hidden mt-1.5">
+                        <ProjectClickCounter projectId={project.id} />
+                      </div>
+                    )}
                   </div>
                 </div>
                 {project.link && (
@@ -333,6 +377,58 @@ export default function Home({ posts }) {
               </Component>
             )
           })}
+        </div>
+      </section>
+      
+      {/* Section Articles récents */}
+      <section className="mt-12">
+        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Articles récents</h2>
+        <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
+          Je partage ici mes réflexions, ce que je fais, et quelques outils que je mets à disposition.
+        </p>
+        <div className="space-y-4">
+          {loading ? (
+            // Skeleton pour les articles
+            Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2">
+                <div className="flex flex-col md:flex-row md:items-center w-full">
+                  <div className="flex-shrink-0 mb-2 md:mb-0">
+                    <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                  </div>
+                  <div className="flex-grow md:max-w-[60%] md:ml-4 mb-2 md:mb-0">
+                    <div className="h-5 w-full md:w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                  </div>
+                  <div className="md:ml-auto flex-shrink-0">
+                    <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : topPosts.length > 0 ? (
+          topPosts.map((post) => (
+            <Link
+              key={post.slug}
+              href={`/blog/${post.slug}`}
+              className="post-link"
+            >
+              <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2">
+                <div className="flex flex-col md:flex-row md:items-center w-full">
+                  <div className="flex-shrink-0">
+                    <p className="post-date whitespace-nowrap">{new Date(post.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                  </div>
+                  <div className="flex-grow md:max-w-[60%] md:ml-4">
+                    <p className="post-title truncate">{post.title}</p>
+                  </div>
+                  <div className="md:ml-auto flex-shrink-0">
+                    <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">{post.views} vues</span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))
+        ) : (
+          <p className="text-neutral-600 dark:text-neutral-400">Aucun article disponible pour le moment.</p>
+        )}
         </div>
       </section>
     </main>
