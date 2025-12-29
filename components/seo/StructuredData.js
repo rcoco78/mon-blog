@@ -136,6 +136,25 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
             url: siteConfig.url
           }
         };
+
+      case 'Dataset':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'Dataset',
+          name: data.name || 'Objectifs 2026 et Progression Business',
+          description: data.description || 'Données publiques sur mes objectifs business, métriques de croissance et progression des projets.',
+          url: data.url || `${siteConfig.url}/donnees-publiques`,
+          creator: {
+            '@type': 'Person',
+            name: siteConfig.author,
+            url: siteConfig.url
+          },
+          datePublished: data.datePublished || new Date().toISOString(),
+          dateModified: data.dateModified || new Date().toISOString(),
+          keywords: data.keywords || ['objectifs business', 'métriques', 'progression'],
+          license: data.license || 'https://creativecommons.org/licenses/by/4.0/',
+          distribution: data.distribution || []
+        };
       
       default:
         return data;
