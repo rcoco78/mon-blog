@@ -829,6 +829,36 @@ export default function DonneesPubliques() {
                       ({results.length} {results.length > 1 ? 'objectifs' : 'objectif'})
                     </span>
                   </h3>
+                  
+                  {/* Encart service - Flux de données clients */}
+                  {translatedCategory === 'Relation client' && (
+                    <div className="mb-4 p-4 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-sm mb-1 text-neutral-900 dark:text-neutral-100">
+                            Achat flux de données clients
+                          </h4>
+                          <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-2">
+                            Accès en temps réel à chaque nouveau rendez-vous ou sollicitation. Notifications sur Slack, Discord, Telegram ou webhook personnalisé. Contactez directement les prospects dès qu'ils me sollicitent.
+                          </p>
+                          <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">
+                            10 000 € HT / an
+                          </p>
+                        </div>
+                        <a
+                          href="mailto:corentin@outreacher.fr?subject=Demande d'information - Flux de données clients"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors flex-shrink-0"
+                          aria-label="Contacter pour le flux de données clients"
+                        >
+                          Me contacter
+                          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                          </svg>
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="space-y-3">
                     {sortedResults.map((kr) => (
                       <div
