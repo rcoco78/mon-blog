@@ -162,7 +162,7 @@ export default function About() {
                           alt={project.iconAlt || `${project.title} - ${project.description}`}
                           width={24}
                           height={24}
-                          className="w-6 h-6"
+                          className="w-6 h-6 rounded-lg"
                         />
                       </div>
                     ) : (
