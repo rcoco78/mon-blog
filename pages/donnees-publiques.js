@@ -164,8 +164,46 @@ export default function DonneesPubliques() {
     return acc
   }, {})
 
-  // Calculer les statistiques globales
-  const totalKeyResults = keyResults.length
+  // Calculer les objectifs virtuels Chess.com qui seront ajoutés
+  const chessVirtualKRsCount = (() => {
+    if (!chessStats || chessLoading) return 0
+    
+    // Vérifier si on a une catégorie Loisir/Bien-être/Santé
+    const hasLoisirCategory = Object.keys(groupedByCategory).some(cat => 
+      cat.toLowerCase().includes('santé') || 
+      cat.toLowerCase().includes('loisir') || 
+      cat.toLowerCase().includes('bien-être')
+    )
+    
+    if (!hasLoisirCategory) return 0
+    
+    // Trouver la catégorie Loisir
+    const loisirCategory = Object.keys(groupedByCategory).find(cat => 
+      cat.toLowerCase().includes('santé') || 
+      cat.toLowerCase().includes('loisir') || 
+      cat.toLowerCase().includes('bien-être')
+    )
+    
+    if (!loisirCategory) return 0
+    
+    const loisirResults = groupedByCategory[loisirCategory] || []
+    
+    // Vérifier si le Key Result Rapid existe déjà dans Notion
+    const hasRapidKR = loisirResults.some(kr => {
+      const nameLower = (kr.name || '').toLowerCase()
+      return nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess')
+    })
+    
+    // Ajouter Rapid si les données existent et qu'il n'existe pas déjà
+    if (!hasRapidKR && chessStats.rapid && chessStats.rapid.current > 0) {
+      return 1
+    }
+    
+    return 0
+  })()
+
+  // Calculer les statistiques globales (incluant les objectifs virtuels Chess.com)
+  const totalKeyResults = keyResults.length + chessVirtualKRsCount
   const completedKeyResults = keyResults.filter(kr => {
     const status = kr.status?.toLowerCase() || ''
     return status === 'done' || status === 'completed' || status === 'terminé'
@@ -189,10 +227,14 @@ export default function DonneesPubliques() {
                           status !== ''
     
     return isInProgress || isNotCompleted
-  }).length
+  }).length + chessVirtualKRsCount // Ajouter les objectifs Chess.com virtuels (toujours "In progress")
   // Calculer la progression globale basée sur le pourcentage moyen de tous les objectifs
+  // Inclure la progression de l'objectif Chess.com virtuel
+  const chessVirtualProgress = chessVirtualKRsCount > 0 && chessStats && chessStats.rapid
+    ? (chessStats.rapid.current / 1000) * 100 // Objectif Rapid: 1000
+    : 0
   const overallProgress = totalKeyResults > 0 
-    ? Math.round(keyResults.reduce((sum, kr) => sum + (kr.progress || 0), 0) / totalKeyResults)
+    ? Math.round((keyResults.reduce((sum, kr) => sum + (kr.progress || 0), 0) + chessVirtualProgress) / totalKeyResults)
     : 0
 
   // Fonction pour obtenir la couleur du statut
