@@ -151,7 +151,7 @@ export default function About() {
                         alt={project.imageAlt || `${project.title} - ${project.description}`}
                         width={24}
                         height={24}
-                        className="w-6 h-6 rounded-lg object-cover border border-neutral-200 dark:border-neutral-800"
+                        className={`w-6 h-6 rounded-lg object-cover border border-neutral-200 dark:border-neutral-800 ${!isActive ? 'opacity-50 grayscale' : ''}`}
                       />
                     </div>
                   ) : project.icon ? (
@@ -162,11 +162,11 @@ export default function About() {
                           alt={project.iconAlt || `${project.title} - ${project.description}`}
                           width={24}
                           height={24}
-                          className="w-6 h-6 rounded-lg object-contain"
+                          className={`w-6 h-6 rounded-lg object-contain ${!isActive ? 'opacity-50 grayscale' : ''}`}
                         />
                       </div>
                     ) : (
-                      <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-xl leading-none">
+                      <div className={`flex-shrink-0 w-6 h-6 flex items-center justify-center text-xl leading-none ${!isActive ? 'opacity-50' : ''}`}>
                         {project.icon}
                       </div>
                     )
