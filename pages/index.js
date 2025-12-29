@@ -172,7 +172,7 @@ export default function Home({ posts }) {
         </div>
         
         {/* Carousel de témoignages */}
-        <div className="mb-8 md:mb-12 relative">
+        <div className="mb-6 relative">
           <div className="relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
             <div 
               className="flex transition-transform duration-500 ease-in-out"
@@ -239,8 +239,8 @@ export default function Home({ posts }) {
           </div>
         </div>
         
-        {/* CTA discret */}
-        <div className="mb-6 text-center">
+        {/* CTA secondaire après témoignages */}
+        <div className="mt-6 text-center">
           <a
             href="#"
             onClick={(e) => {
@@ -250,7 +250,6 @@ export default function Home({ posts }) {
                   url: 'https://calendly.com/corentinrobert/20min'
                 })
               } else {
-                // Fallback si Calendly n'est pas encore chargé
                 window.open('https://calendly.com/corentinrobert/20min', '_blank')
               }
               return false
@@ -430,6 +429,31 @@ export default function Home({ posts }) {
           <p className="text-neutral-600 dark:text-neutral-400">Aucun article disponible pour le moment.</p>
         )}
         </div>
+      </section>
+      
+      {/* CTA avant footer */}
+      <section className="mt-12 mb-8 text-center">
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault()
+            if (typeof window !== 'undefined' && window.Calendly) {
+              window.Calendly.initPopupWidget({
+                url: 'https://calendly.com/corentinrobert/20min'
+              })
+            } else {
+              // Fallback si Calendly n'est pas encore chargé
+              window.open('https://calendly.com/corentinrobert/20min', '_blank')
+            }
+            return false
+          }}
+          className="inline-flex items-center text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+        >
+          Discutons de votre projet
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-1.5 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+            <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+          </svg>
+        </a>
       </section>
     </main>
     </>

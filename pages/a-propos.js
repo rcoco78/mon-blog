@@ -172,7 +172,7 @@ export default function About() {
                     )
                   ) : null}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1.5 flex-wrap relative pr-20 sm:pr-0">
+                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                       <h3 className={`font-medium ${isActive ? '' : 'text-neutral-500 dark:text-neutral-400'}`}>
                         {project.title}
                       </h3>
@@ -183,11 +183,6 @@ export default function About() {
                       }`}>
                         {project.status === 'active' ? 'Actif' : project.status === 'paused' ? 'En pause' : 'Arrêté'}
                       </span>
-                      {project.link && project.id && (
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 sm:hidden flex items-center">
-                          <ProjectClickCounter projectId={project.id} />
-                        </div>
-                      )}
                     </div>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
                       <p className={`${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} text-sm`}>
@@ -199,6 +194,11 @@ export default function About() {
                         </div>
                       )}
                     </div>
+                    {project.link && project.id && (
+                      <div className="sm:hidden mt-1.5">
+                        <ProjectClickCounter projectId={project.id} />
+                      </div>
+                    )}
                   </div>
                 </div>
                 {project.link && (
