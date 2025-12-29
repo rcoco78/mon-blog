@@ -2,22 +2,21 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
+import FAQ from '../components/FAQ'
+import SearchBar from '../components/SearchBar'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { tools } from '../lib/tools'
 
 export default function Outils() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('Tous')
+  const [selectedCategory, setSelectedCategory] = useState(null)
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
 
-  const categories = ['Tous', 'Outreach', 'Scraping', 'Immobilier', 'Productivité']
+  const categories = ['Outreach', 'Scraping', 'Immobilier', 'Productivité']
 
   const filteredTools = tools.filter(tool => {
-    const matchesSearch = tool.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         tool.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === 'Tous' || tool.category === selectedCategory
-    return matchesSearch && matchesCategory
+    const matchesCategory = selectedCategory === null || tool.category === selectedCategory
+    return matchesCategory
   })
 
   const openCalendly = () => {
@@ -131,7 +130,11 @@ export default function Outils() {
             Tous ces outils sont <strong>100% gratuits</strong> et développés pour démontrer mon expertise en scraping et automatisation.
           </p>
           <div className="flex items-center gap-4 text-sm text-neutral-600 dark:text-neutral-400">
-            <span className="px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800">
+            <span className="px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center gap-2">
+              <span className="relative flex h-2 w-2" title="Outils actifs">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
               {tools.length} outils disponibles
             </span>
           </div>
@@ -156,120 +159,101 @@ export default function Outils() {
           </div>
       </section>
 
+        <section className="mb-6">
+          <SearchBar 
+            tags={categories}
+            selectedTag={selectedCategory}
+            onTagSelect={setSelectedCategory}
+          />
+        </section>
+
         <section className="mb-12">
-          <div className="mb-8 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-          <div className="mb-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Rechercher un outil..."
-                className="w-full px-4 py-2 text-sm rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-500 transition-colors bg-transparent"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <svg
-                className="absolute right-3 top-2.5 w-5 h-5 text-neutral-400 dark:text-neutral-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+          <div className="flex flex-col space-y-4">
+            {filteredTools.map((tool) => (
+              <Link
+                key={tool.name}
+                href={tool.link}
+                className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {categories.map((category) => (
-              <button
-                key={category}
-                className={`px-2 py-0.5 rounded-full text-xs transition-colors ${
-                  selectedCategory === category
-                    ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
-                    : 'bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700'
-                }`}
-                onClick={() => setSelectedCategory(category)}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredTools.map((tool) => (
-            <Link
-              key={tool.name}
-              href={tool.link}
-              className="group block p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{tool.icon}</span>
-                  <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
-                    {tool.name}
-                    {tool.isNew && (
-                      <span className="ml-2 text-xs bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-2 py-0.5 rounded-full">
-                        Nouveau
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <span className="flex-shrink-0 text-2xl">{tool.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
+                        {tool.name}
+                      </h2>
+                    </div>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
+                      {tool.description}
+                    </p>
+                    <div className="mt-2 flex items-center text-xs text-neutral-500 dark:text-neutral-400">
+                      <span className="px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800">
+                        {tool.category}
                       </span>
-                    )}
-                  </h2>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <p className="mt-2 text-neutral-600 dark:text-neutral-400">
-                {tool.description}
-              </p>
-              <div className="mt-4 flex items-center text-sm text-neutral-500 dark:text-neutral-400">
-                <span className="px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800">
-                  {tool.category}
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-        <section className="mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-          <h2 className="font-semibold text-xl mb-4 tracking-tighter">Questions fréquentes</h2>
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-medium mb-2">Les outils sont-ils vraiment gratuits ?</h3>
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                Oui, tous les outils présentés sont entièrement gratuits. Je les développe pour partager mon expertise et aider la communauté. 
-                Certains outils peuvent avoir des limites d'utilisation (comme l'extracteur LinkedIn limité à 50 profils par jour).
-              </p>
-            </div>
-            <div>
-              <h3 className="font-medium mb-2">Comment utiliser ces outils ?</h3>
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                Chaque outil dispose de sa propre page avec des instructions d'utilisation. 
-                Cliquez sur un outil pour accéder à sa page dédiée et commencer à l'utiliser immédiatement, sans inscription nécessaire.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-medium mb-2">Puis-je avoir un outil sur-mesure ?</h3>
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                Absolument ! Si vous avez besoin d'un outil personnalisé pour votre business, je peux développer une solution sur-mesure adaptée à vos besoins spécifiques. 
-                Contactez-moi pour discuter de votre projet.
-              </p>
-            </div>
+                <div className="flex-shrink-0">
+                  <svg
+                    className="w-5 h-5 text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
 
-        <section className="mb-12 text-center p-6 rounded-lg border border-neutral-200 dark:border-neutral-800">
-          <h2 className="font-semibold text-xl mb-3 tracking-tighter">Besoin d'un outil sur-mesure ?</h2>
+        <section className="mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+          <h2 className="font-semibold text-xl mb-4 tracking-tighter">Questions fréquentes</h2>
+          <FAQ
+            items={[
+              {
+                question: "Les outils sont-ils vraiment gratuits ?",
+                answer: "Oui, tous les outils présentés sont entièrement gratuits. Je les développe pour partager mon expertise et aider la communauté. Certains outils peuvent avoir des limites d'utilisation (comme l'extracteur LinkedIn limité à 50 profils par jour)."
+              },
+              {
+                question: "Comment utiliser ces outils ?",
+                answer: "Chaque outil dispose de sa propre page avec des instructions d'utilisation. Cliquez sur un outil pour accéder à sa page dédiée et commencer à l'utiliser immédiatement, sans inscription nécessaire."
+              },
+              {
+                question: "Puis-je avoir un outil sur-mesure ?",
+                answer: "Absolument ! Si vous avez besoin d'un outil personnalisé pour votre business, je peux développer une solution sur-mesure adaptée à vos besoins spécifiques. Contactez-moi pour discuter de votre projet."
+              }
+            ]}
+          />
+        </section>
+
+        <section className="mb-12 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-center" aria-label="Contact">
+          <h2 className="font-semibold text-xl mb-4 tracking-tighter">Besoin d'un outil sur-mesure ?</h2>
           <p className="text-neutral-600 dark:text-neutral-400 mb-6">
             Si vous avez besoin d'un outil personnalisé pour votre business, je peux développer une solution adaptée à vos besoins spécifiques.
-        </p>
-          <button
-            onClick={openCalendly}
-          className="inline-block px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
-          >
-            Discutons de votre projet
-          </button>
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+            <button
+              onClick={openCalendly}
+              className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
+            >
+              Discutons de votre projet
+            </button>
+            <Link 
+              href={siteConfig.social.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block px-6 py-3 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+            >
+              Me contacter sur LinkedIn
+            </Link>
+          </div>
         </section>
 
         <section className="mb-12">

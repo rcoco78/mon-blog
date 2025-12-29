@@ -6,7 +6,7 @@ export default function SearchBar({ tags = [], selectedTag, onTagSelect }) {
         className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
               selectedTag === null
                 ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
-                : 'bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700'
+                : 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-700'
             }`}
           >
             Tous
@@ -18,7 +18,7 @@ export default function SearchBar({ tags = [], selectedTag, onTagSelect }) {
           className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                 selectedTag === tag
                   ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900'
-                  : 'bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700'
+                  : 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-700'
               }`}
             >
               {tag}

@@ -21,6 +21,8 @@ export default function DonneesPubliques() {
   const [abonnesLoading, setAbonnesLoading] = useState(true)
   const [apifyUsersHistory, setApifyUsersHistory] = useState([])
   const [apifyUsersLoading, setApifyUsersLoading] = useState(true)
+  const [chessStats, setChessStats] = useState(null)
+  const [chessLoading, setChessLoading] = useState(true)
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
 
   useEffect(() => {
@@ -99,6 +101,25 @@ export default function DonneesPubliques() {
     }
 
     fetchApifyUsersHistory()
+  }, [])
+
+  useEffect(() => {
+    const fetchChessStats = async () => {
+      try {
+        setChessLoading(true)
+        const response = await fetch('/api/chess-stats')
+        if (response.ok) {
+          const data = await response.json()
+          setChessStats(data)
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des stats d\'échecs:', error)
+      } finally {
+        setChessLoading(false)
+      }
+    }
+
+    fetchChessStats()
   }, [])
 
   const openCalendly = () => {
@@ -197,7 +218,7 @@ export default function DonneesPubliques() {
       return rounded.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 1 })
     }
     return rounded.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 1 })
-  }
+    }
 
   // Fonction pour convertir USD en EUR (taux approximatif: 1 USD = 0.92 EUR)
   const usdToEur = (usd) => {
@@ -286,13 +307,13 @@ export default function DonneesPubliques() {
   // Fonction pour traduire les catégories en bénéfices business
   const translateCategory = (category) => {
     const categoryMap = {
-      'Affiliation': 'Partenariats stratégiques',
+      'Affiliation': 'Affiliation',
       'Meetings Call': 'Relation client',
       'Logement Atypique': 'Projet entrepreneurial',
       'Apify': 'Scrapers publics',
       'Apify & Scraping': 'Scrapers publics',
       'Freelance': 'Activité freelance',
-      'Santé': 'Bien-être',
+      'Santé': 'Loisir',
       'default': category
     }
     // Vérifier aussi si la catégorie contient "Apify" (insensible à la casse)
@@ -882,12 +903,12 @@ export default function DonneesPubliques() {
                   <div className="flex-1">
                     <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">5/5</p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Malt</p>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">sur 160 missions</p>
-                  </div>
+                      <p className="text-sm text-neutral-600 dark:text-neutral-400">sur 160 missions</p>
+                    </div>
                   <div className="flex-1">
                     <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">4,9/5</p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Fiverr</p>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">sur 250 missions</p>
+                      <p className="text-sm text-neutral-600 dark:text-neutral-400">sur 250 missions</p>
                   </div>
                 </div>
               </div>
@@ -974,8 +995,36 @@ export default function DonneesPubliques() {
                 const isApifyCategory = category.toLowerCase().includes('apify')
                 const isLogementAtypiqueCategory = category.toLowerCase().includes('logement')
                 const isFreelanceCategory = category.toLowerCase().includes('freelance') || category.toLowerCase().includes('freelancing')
+                const isLoisirCategory = category.toLowerCase().includes('santé') || category.toLowerCase().includes('loisir') || category.toLowerCase().includes('bien-être')
+                
+                // Ajouter les Key Results d'échecs virtuels si on est dans la catégorie Loisir
+                let resultsToDisplay = [...results]
+                if (isLoisirCategory && chessStats && !chessLoading) {
+                  // Objectif d'échecs Rapid (défini directement, sans Notion)
+                  const rapidTarget = 1000
+                  
+                  // Vérifier si le Key Result Rapid existe déjà dans Notion
+                  const hasRapidKR = results.some(kr => {
+                    const nameLower = (kr.name || '').toLowerCase()
+                    return nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess')
+                  })
+                  
+                  // Ajouter Rapid si les données existent
+                  if (!hasRapidKR && chessStats.rapid.current > 0) {
+                    resultsToDisplay.push({
+                      id: 'chess-rapid-virtual',
+                      name: 'Rapid Chess.com',
+                      category: category,
+                      status: 'In progress',
+                      currentResult: chessStats.rapid.current,
+                      targetResult: rapidTarget,
+                      progress: rapidTarget > 0 ? (chessStats.rapid.current / rapidTarget) * 100 : 0
+                    })
+                  }
+                }
+                
                 // Trier les résultats dans un ordre logique
-                const sortedResults = sortKeyResults(results, category)
+                const sortedResults = sortKeyResults(resultsToDisplay, category)
                 
                 return (
                 <div key={category}>
@@ -1020,7 +1069,7 @@ export default function DonneesPubliques() {
                       translatedCategory
                     )}
                     <span className="text-sm font-normal text-neutral-500 dark:text-neutral-400">
-                      ({results.length} {results.length > 1 ? 'objectifs' : 'objectif'})
+                      ({resultsToDisplay.length} {resultsToDisplay.length > 1 ? 'objectifs' : 'objectif'})
                     </span>
                   </h3>
                   
@@ -1054,7 +1103,18 @@ export default function DonneesPubliques() {
                   )}
                   
                   <div className="space-y-3">
-                    {sortedResults.map((kr) => (
+                    {sortedResults
+                      .filter((kr) => {
+                        const title = improveTitle(kr.name, kr.category)
+                        const nameLower = (kr.name || '').toLowerCase()
+                        // Exclure "Rendez-vous ponctuels" et "% Calendly (génération de leads)"
+                        return !title.includes('Rendez-vous ponctuels') &&
+                               !title.includes('ponctuels') &&
+                               !nameLower.includes('ad-hoc') &&
+                               !nameLower.includes('ad hoc') &&
+                               !(nameLower.includes('calendly') && (nameLower.includes('%') || nameLower.includes('pourcentage') || nameLower.includes('génération')))
+                      })
+                      .map((kr) => (
                       <div
                         key={kr.id}
                         className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all hover:bg-neutral-50 dark:hover:bg-neutral-900/30"
@@ -1090,9 +1150,25 @@ export default function DonneesPubliques() {
                                   kr.progress > 100 ? 'text-orange-700 dark:text-orange-400' : 'text-neutral-900 dark:text-neutral-100'
                                 }`}>
                                   {(() => {
-                                    // Pour "Revenus d'affiliation" (sans nom de service), calculer la somme de tous les revenus d'affiliation individuels
+                                    // Pour les objectifs d'échecs, utiliser les données Chess.com
                                     const nameLower = (kr.name || '').toLowerCase()
                                     const categoryLower = (kr.category || '').toLowerCase()
+                                    const isChessKR = (nameLower.includes('rapid') || nameLower.includes('blitz') || nameLower.includes('tactics') || nameLower.includes('tactiques') || nameLower.includes('échecs') || nameLower.includes('chess')) &&
+                                                      (categoryLower.includes('santé') || categoryLower.includes('loisir') || categoryLower.includes('bien-être'))
+                                    
+                                    if (isChessKR && chessStats) {
+                                      if (nameLower.includes('rapid')) {
+                                        return formatNumber(chessStats.rapid.current || 0)
+                                      }
+                                      if (nameLower.includes('blitz')) {
+                                        return formatNumber(chessStats.blitz.current || 0)
+                                      }
+                                      if (nameLower.includes('tactics') || nameLower.includes('tactiques')) {
+                                        return formatNumber(chessStats.tactics.highest || 0)
+                                      }
+                                    }
+                                    
+                                    // Pour "Revenus d'affiliation" (sans nom de service), calculer la somme de tous les revenus d'affiliation individuels
                                     const isAffiliationTotal = (nameLower.includes('revenus d\'affiliation') || nameLower.includes('ca affiliation') || nameLower.includes('chiffre d\'affaires affiliation')) &&
                                                                !nameLower.includes('apify') && !nameLower.includes('lemlist') && !nameLower.includes('zapier') &&
                                                                (categoryLower.includes('affiliation') || categoryLower.includes('partenariats'))
@@ -1162,15 +1238,15 @@ export default function DonneesPubliques() {
                                 return (
                                   <>
                                     {actualProgress <= 100 && actualRemaining >= 0 && (
-                                      <span className="text-neutral-500 dark:text-neutral-500">
+                                <span className="text-neutral-500 dark:text-neutral-500">
                                         Reste: {formatNumber(actualRemaining)}
-                                      </span>
-                                    )}
+                                </span>
+                              )}
                                     {actualProgress > 100 && (
-                                      <span className="text-orange-700 dark:text-orange-400 font-medium">
+                                <span className="text-orange-700 dark:text-orange-400 font-medium">
                                         Dépassé de {Math.abs(actualRemaining).toFixed(1)}
-                                      </span>
-                                    )}
+                                </span>
+                              )}
                                   </>
                                 )
                               })()}
@@ -1178,15 +1254,36 @@ export default function DonneesPubliques() {
                           </div>
                             <div className="flex items-center gap-3 sm:flex-shrink-0">
                             {(() => {
-                              // Calculer le progress avec la valeur réelle pour "Revenus d'affiliation"
+                              // Calculer le progress avec la valeur réelle pour "Revenus d'affiliation" et échecs
                               const nameLower = (kr.name || '').toLowerCase()
                               const categoryLower = (kr.category || '').toLowerCase()
+                              
+                              // Pour les objectifs d'échecs, utiliser les données Chess.com
+                              const isChessKR = (nameLower.includes('rapid') || nameLower.includes('blitz') || nameLower.includes('tactics') || nameLower.includes('tactiques') || nameLower.includes('échecs') || nameLower.includes('chess')) &&
+                                                (categoryLower.includes('santé') || categoryLower.includes('loisir') || categoryLower.includes('bien-être'))
+                              
+                              let actualCurrentResult = kr.currentResult || 0
+                              let actualTargetResult = kr.targetResult || 0
+                              
+                              if (isChessKR && chessStats) {
+                                if (nameLower.includes('rapid')) {
+                                  actualCurrentResult = chessStats.rapid.current || 0
+                                } else if (nameLower.includes('blitz')) {
+                                  actualCurrentResult = chessStats.blitz.current || 0
+                                } else if (nameLower.includes('tactics') || nameLower.includes('tactiques')) {
+                                  actualCurrentResult = chessStats.tactics.highest || 0
+                                }
+                              }
+                              
                               const isAffiliationTotal = (nameLower.includes('revenus d\'affiliation') || nameLower.includes('ca affiliation') || nameLower.includes('chiffre d\'affaires affiliation')) &&
                                                          !nameLower.includes('apify') && !nameLower.includes('lemlist') && !nameLower.includes('zapier') &&
                                                          (categoryLower.includes('affiliation') || categoryLower.includes('partenariats'))
                               
                               let actualProgress = kr.progress || 0
-                              if (isAffiliationTotal) {
+                              
+                              if (isChessKR && actualTargetResult > 0) {
+                                actualProgress = (actualCurrentResult / actualTargetResult) * 100
+                              } else if (isAffiliationTotal) {
                                 const affiliationKRs = keyResults.filter(otherKr => {
                                   const otherNameLower = (otherKr.name || '').toLowerCase()
                                   const otherCategoryLower = (otherKr.category || '').toLowerCase()
@@ -1206,25 +1303,25 @@ export default function DonneesPubliques() {
                               
                               return (
                                 <>
-                                  <div className="w-20 h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
-                                    <div 
-                                      className={`h-full transition-all duration-500 ${
+                            <div className="w-20 h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
+                              <div 
+                                className={`h-full transition-all duration-500 ${
                                         actualProgress > 100 
-                                          ? 'bg-orange-600 dark:bg-orange-500' 
+                                    ? 'bg-orange-600 dark:bg-orange-500' 
                                           : actualProgress >= 100 
-                                            ? 'bg-green-600 dark:bg-green-500' 
+                                      ? 'bg-green-600 dark:bg-green-500' 
                                             : actualProgress >= 50 
-                                              ? 'bg-blue-600 dark:bg-blue-500' 
-                                              : 'bg-neutral-500 dark:bg-neutral-500'
-                                      }`}
+                                        ? 'bg-blue-600 dark:bg-blue-500' 
+                                        : 'bg-neutral-500 dark:bg-neutral-500'
+                                }`}
                                       style={{ width: `${Math.min(100, actualProgress)}%` }}
-                                    ></div>
-                                  </div>
-                                  <span className={`text-sm tabular-nums text-right w-12 font-medium ${
+                              ></div>
+                            </div>
+                            <span className={`text-sm tabular-nums text-right w-12 font-medium ${
                                     actualProgress > 100 ? 'text-orange-700 dark:text-orange-400' : ''
-                                  }`}>
+                            }`}>
                                     {actualProgress > 100 ? 'Dépassé' : `${actualProgress.toFixed(1)}%`}
-                                  </span>
+                            </span>
                                 </>
                               )
                             })()}
@@ -1340,6 +1437,7 @@ export default function DonneesPubliques() {
           insight={apifyUsersHistory.length > 1 ? `Adoption croissante de mes scrapers avec ${apifyUsersHistory[apifyUsersHistory.length - 1].valeur - apifyUsersHistory[0].valeur >= 0 ? '+' : ''}${apifyUsersHistory[apifyUsersHistory.length - 1].valeur - apifyUsersHistory[0].valeur} nouveaux utilisateurs.` : null}
         />
 
+
         {/* Section Vision 2028-2029 */}
         <section className="mb-16 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Vision long terme">
           <h2 className="font-semibold text-lg mb-4 tracking-tighter">Vision 2028-2029</h2>
@@ -1410,16 +1508,16 @@ export default function DonneesPubliques() {
               Réservez un créneau pour échanger sur vos besoins et voir comment je peux vous aider.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-              <button
-                onClick={openCalendly}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors font-medium"
-                aria-label="Réserver un créneau Calendly"
-              >
-                Réserver un créneau
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                </svg>
-              </button>
+            <button
+              onClick={openCalendly}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors font-medium"
+              aria-label="Réserver un créneau Calendly"
+            >
+              Réserver un créneau
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+              </svg>
+            </button>
               <Link 
                 href={siteConfig.social.linkedin}
                 target="_blank"

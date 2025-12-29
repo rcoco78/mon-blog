@@ -287,57 +287,59 @@ export default function Home({ posts }) {
         {/* Métriques de confiance - Déplacées plus tôt sur mobile */}
         <div className="mb-8 md:mb-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3" aria-label="Métriques de confiance">
-            {metricsLoading ? (
-              // Skeleton pendant le chargement
-              Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                  <div className="h-8 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
-                  <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-1"></div>
-                  <div className="h-3 w-20 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+          {metricsLoading ? (
+            // Skeleton pendant le chargement
+            Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                <div className="h-8 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
+                <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-1"></div>
+                <div className="h-3 w-20 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+              </div>
+            ))
+          ) : (
+            metrics.map((metric, index) => (
+              <div key={index} className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                <div className="text-2xl font-semibold mb-1 text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+                  {metric.label === 'projets réalisés' && metric.breakdown ? (
+                    <>
+                      {metric.value} <span className="text-base font-normal text-neutral-500 dark:text-neutral-500">({metric.breakdown.malt} + {metric.breakdown.fiverr})</span>
+                    </>
+                  ) : (
+                    <>
+                      {metric.value}
+                      {metric.label === 'abonnés' && metric.source === 'Logement Atypique' && (
+                        <a 
+                          href="https://www.instagram.com/logement.atypique" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center hover:opacity-70 transition-opacity text-neutral-400 dark:text-neutral-500"
+                          aria-label="Instagram Logement Atypique"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" className="bi bi-instagram" viewBox="0 0 16 16">
+                            <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"/>
+                          </svg>
+                        </a>
+                      )}
+                    </>
+                  )}
                 </div>
-              ))
-            ) : (
-              metrics.map((metric, index) => (
-                <div key={index} className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                  <div className="text-2xl font-semibold mb-1 text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
-                    {metric.label === 'projets réalisés' && metric.breakdown ? (
-                      <>
-                        {metric.value} <span className="text-base font-normal text-neutral-500 dark:text-neutral-500">({metric.breakdown.malt} + {metric.breakdown.fiverr})</span>
-                      </>
-                    ) : (
-                      <>
-                        {metric.value}
-                        {metric.label === 'abonnés' && metric.source === 'Logement Atypique' && (
-                          <a 
-                            href="https://www.instagram.com/logement.atypique" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center hover:opacity-70 transition-opacity text-neutral-400 dark:text-neutral-500"
-                            aria-label="Instagram Logement Atypique"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" className="bi bi-instagram" viewBox="0 0 16 16">
-                              <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"/>
-                            </svg>
-                          </a>
-                        )}
-                      </>
-                    )}
-                  </div>
-                  <div className="text-sm text-neutral-600 dark:text-neutral-400">{metric.label}</div>
-                  <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">{metric.source}</div>
-                </div>
-              ))
-            )}
+                <div className="text-sm text-neutral-600 dark:text-neutral-400">{metric.label}</div>
+                <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">{metric.source}</div>
+              </div>
+            ))
+          )}
           </div>
-          <Link 
-            href="/donnees-publiques"
-            className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1"
-          >
-            Voir toutes les données publiques
-            <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-            </svg>
-          </Link>
+          <div className="text-center">
+            <Link 
+              href="/donnees-publiques"
+              className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1"
+            >
+              Voir toutes les données publiques
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+              </svg>
+            </Link>
+          </div>
         </div>
         
         {/* Carousel de témoignages */}
@@ -408,13 +410,13 @@ export default function Home({ posts }) {
           </div>
           
           {/* Lien vers la page complète */}
-          <div className="mt-4">
+          <div className="mt-4 text-center">
             <Link
               href="/temoignages"
-              className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1"
+              className="text-sm font-medium text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
             >
               Voir tous les témoignages
-              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
               </svg>
             </Link>
@@ -545,13 +547,13 @@ export default function Home({ posts }) {
             )
           })}
         </div>
-        <div className="mt-4">
+        <div className="mt-4 text-center">
           <Link
             href="/a-propos"
-            className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1"
+            className="text-sm font-medium text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
           >
             Voir tous les projets (y compris arrêtés)
-            <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
             </svg>
           </Link>
@@ -629,13 +631,13 @@ export default function Home({ posts }) {
             </Link>
           ))}
         </div>
-        <div className="mt-6">
+        <div className="mt-6 text-center">
           <Link
             href="/outils"
-            className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1"
+            className="text-sm font-medium text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
           >
             Voir tous les outils
-            <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
             </svg>
           </Link>
@@ -670,16 +672,16 @@ export default function Home({ posts }) {
           topPosts.map((post) => {
             const isNew = new Date(post.date) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
             return (
-              <Link
-                key={post.slug}
-                href={`/blog/${post.slug}`}
+            <Link
+              key={post.slug}
+              href={`/blog/${post.slug}`}
                 className="post-link group"
-              >
+            >
                 <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 transition-all group-hover:translate-x-1">
-                  <div className="flex flex-col md:flex-row md:items-center w-full">
-                    <div className="flex-shrink-0">
-                      <p className="post-date whitespace-nowrap">{new Date(post.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                    </div>
+                <div className="flex flex-col md:flex-row md:items-center w-full">
+                  <div className="flex-shrink-0">
+                    <p className="post-date whitespace-nowrap">{new Date(post.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                  </div>
                     <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 mx-2 flex-shrink-0"></span>
                     <div className="flex-grow md:max-w-[60%] md:ml-0">
                       <p className="post-title truncate flex items-center gap-2">
@@ -690,13 +692,13 @@ export default function Home({ posts }) {
                           </span>
                         )}
                       </p>
-                    </div>
-                    <div className="md:ml-auto flex-shrink-0">
-                      <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">{post.views} vues</span>
-                    </div>
+                  </div>
+                  <div className="md:ml-auto flex-shrink-0">
+                    <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">{post.views} vues</span>
                   </div>
                 </div>
-              </Link>
+              </div>
+            </Link>
             )
           })
         ) : (
@@ -706,13 +708,13 @@ export default function Home({ posts }) {
       </section>
       
       {/* CTA avant footer */}
-      <section className="mt-12 mb-8" aria-label="Navigation vers le blog">
+      <section className="mt-12 mb-8 text-center" aria-label="Navigation vers le blog">
         <Link
           href="/blog"
-          className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1"
+          className="text-sm font-medium text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
         >
           Voir tous les articles
-          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
           </svg>
         </Link>

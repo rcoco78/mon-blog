@@ -12,7 +12,7 @@ export default function About() {
   const [showStoppedProjects, setShowStoppedProjects] = useState(true)
   const [photoIndex, setPhotoIndex] = useState(0)
   const [mounted, setMounted] = useState(false)
-  const [itemsPerView, setItemsPerView] = useState(4)
+  const [itemsPerView, setItemsPerView] = useState(3)
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   
   useEffect(() => {
@@ -20,7 +20,7 @@ export default function About() {
     
     // Calculer itemsPerView selon la taille de l'écran
     const updateItemsPerView = () => {
-      setItemsPerView(window.innerWidth >= 640 ? 4 : 2.5)
+      setItemsPerView(window.innerWidth >= 640 ? 3 : 1.25)
     }
     
     updateItemsPerView()
@@ -150,7 +150,7 @@ export default function About() {
               Le week-end, je développe <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">Logement Atypique</Link> avec mon frère — on parcourt la France pour mettre en avant des logements d'exception.
             </p>
             <p className="text-neutral-600 dark:text-neutral-400 tracking-tight mt-2">
-              En dehors du code, j'ai longtemps pratiqué le Handball et je continue aujourd'hui avec le running et l'Hyrox.
+              En dehors du code, j'ai longtemps pratiqué le Handball et je continue aujourd'hui avec le running et l'Hyrox. Et je me suis pris de passion pour les échecs sur mon temps libre.
             </p>
           </div>
           
@@ -163,7 +163,7 @@ export default function About() {
         
         {/* Section Photos et Vidéos */}
         <div className="mb-8" aria-label="Photos et vidéos">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <div>
               <h2 className="font-semibold text-xl mb-1 tracking-tighter">Photos et vidéos</h2>
               <p className="text-sm text-neutral-600 dark:text-neutral-400">
@@ -172,7 +172,7 @@ export default function About() {
             </div>
             <Link
               href="/photos"
-              className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+              className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors self-start sm:self-auto"
               aria-label="Voir toutes les photos"
             >
               Voir toutes →
@@ -184,7 +184,7 @@ export default function About() {
               style={{ transform: `translateX(-${photoIndex * (100 / itemsPerView)}%)` }}
             >
               {/* Vidéo YouTube en première position */}
-              <div className="relative flex-shrink-0 w-2/5 sm:w-1/4 aspect-[9/16] overflow-hidden rounded-lg">
+              <div className="relative flex-shrink-0 w-4/5 sm:w-1/3 aspect-[9/16] overflow-hidden rounded-lg">
                 <iframe
                   src="https://www.youtube.com/embed/53pisKcp9Vc?rel=0&modestbranding=1"
                   title="Présentation de Corentin Robert - Freelance Scraping et Automatisation"
@@ -200,7 +200,7 @@ export default function About() {
                 <Link
                   key={index}
                   href="/photos"
-                  className="group relative flex-shrink-0 w-2/5 sm:w-1/4 aspect-[9/16] overflow-hidden rounded-lg"
+                  className="group relative flex-shrink-0 w-4/5 sm:w-1/3 aspect-[9/16] overflow-hidden rounded-lg"
                   aria-label={photo.alt || `Photo ${index + 1} - ${photo.location || 'Moment capturé'}`}
                 >
                   <Image
@@ -492,7 +492,7 @@ export default function About() {
       </section>
 
       {/* Call-to-Action */}
-      <section className="mb-16 text-center" aria-label="Contact">
+      <section className="mb-16 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-center" aria-label="Contact">
         <h2 className="font-semibold text-xl mb-4 tracking-tighter">Discutons de votre projet</h2>
         <p className="text-neutral-600 dark:text-neutral-400 mb-6">
           Réservez un créneau ou contactez-moi directement.

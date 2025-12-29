@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import SearchBar from '../components/SearchBar'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
+import FAQ from '../components/FAQ'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 
@@ -185,7 +186,7 @@ export default function Blog({ posts }) {
         window.Calendly.initPopupWidget({
           url: 'https://calendly.com/corentinrobert/20min'
         })
-      }
+  }
     }
   }
 
@@ -256,11 +257,11 @@ export default function Blog({ posts }) {
         </section>
 
         <section className="mb-6">
-          <SearchBar 
-            tags={allTags}
-            selectedTag={selectedTag}
-            onTagSelect={setSelectedTag}
-          />
+        <SearchBar 
+          tags={allTags}
+          selectedTag={selectedTag}
+          onTagSelect={setSelectedTag}
+        />
         </section>
 
         {topPostsLoading ? (
@@ -362,31 +363,31 @@ export default function Blog({ posts }) {
                 return (
                   <Link key={post.id} href={`/blog/${post.slug}`} className="post-link group">
                     <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 transition-all group-hover:translate-x-1">
-                      <div className="flex flex-col md:flex-row md:items-center w-full">
-                        <div className="flex-shrink-0">
-                          <p className="post-date whitespace-nowrap">
-                            {new Date(post.date).toLocaleDateString('fr-FR', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
-                            })}
-                          </p>
-                        </div>
+                    <div className="flex flex-col md:flex-row md:items-center w-full">
+                      <div className="flex-shrink-0">
+                        <p className="post-date whitespace-nowrap">
+                          {new Date(post.date).toLocaleDateString('fr-FR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      </div>
                         <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 mx-2 flex-shrink-0"></span>
                         <p className="post-title flex-grow truncate md:max-w-[60%] w-full md:ml-0 flex items-center gap-2">
-                          {post.title}
+                        {post.title}
                           {isNew && (
                             <span className="text-xs font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-2 py-0.5 rounded-full flex-shrink-0">
                               Nouveau
                             </span>
                           )}
-                        </p>
-                        <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
-                          <ViewCounter slug={post.slug} />
-                        </div>
+                      </p>
+                      <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
+                        <ViewCounter slug={post.slug} />
                       </div>
                     </div>
-                  </Link>
+                  </div>
+                </Link>
                 )
               })}
             </div>
@@ -413,51 +414,32 @@ export default function Blog({ posts }) {
         </section>
 
         <section className="mb-12 md:mb-16 p-4 md:p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Pourquoi ce blog ?</h2>
-          <div className="space-y-3 text-neutral-700 dark:text-neutral-300">
-            <p className="tracking-tight">
-              Ce blog est né d'une volonté de <strong>partager mes réflexions</strong> sur le scraping, l'automatisation et l'entrepreneuriat. 
-              Pas seulement des tutoriels techniques, mais aussi des <strong>cas d'usage business</strong>, des réflexions sur le métier de freelance, 
-              et des retours d'expérience sur mes projets.
-            </p>
-            <p className="tracking-tight">
-              Vous y trouverez des articles variés : <strong>scraping</strong>, <strong>automatisation</strong>, 
-              <strong>entrepreneuriat</strong>, <strong>voyage</strong>, et bien d'autres sujets qui me passionnent. 
-              L'objectif : créer du lien, partager mes apprentissages, et révéler ma personnalité au-delà du simple prestataire.
-            </p>
-          </div>
-        </section>
-
-        <section className="mb-12 md:mb-16 p-4 md:p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">Questions fréquentes</h2>
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-medium mb-2">Qu'est-ce que le scraping ?</h3>
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                Le scraping (ou web scraping) est une technique qui permet d'extraire automatiquement des données depuis des sites web. 
-                C'est utile pour collecter des informations, analyser des tendances, ou automatiser des processus de collecte de données.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-medium mb-2">Comment automatiser mes processus business ?</h3>
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                L'automatisation business passe par l'identification des tâches répétitives, la création de scripts ou d'outils automatisés, 
-                et l'intégration de ces solutions dans vos workflows. Je partage des cas d'usage concrets et des tutoriels dans mes articles.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-medium mb-2">Pourquoi choisir un freelance scraping ?</h3>
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                Un freelance spécialisé en scraping apporte expertise technique, flexibilité et coûts maîtrisés. 
-                Avec 424+ projets réalisés, je développe des solutions sur-mesure adaptées à vos besoins business spécifiques.
-              </p>
-            </div>
-          </div>
+          <FAQ
+            items={[
+              {
+                question: "Pourquoi ce blog ?",
+                answer: "Ce blog est né d'une volonté de partager mes réflexions sur le scraping, l'automatisation et l'entrepreneuriat. Pas seulement des tutoriels techniques, mais aussi des cas d'usage business, des réflexions sur le métier de freelance, et des retours d'expérience sur mes projets. Vous y trouverez des articles variés : scraping, automatisation, entrepreneuriat, voyage, et bien d'autres sujets qui me passionnent. L'objectif : créer du lien, partager mes apprentissages, et révéler ma personnalité au-delà du simple prestataire."
+              },
+              {
+                question: "Qu'est-ce que le scraping ?",
+                answer: "Le scraping (ou web scraping) est une technique qui permet d'extraire automatiquement des données depuis des sites web. C'est utile pour collecter des informations, analyser des tendances, ou automatiser des processus de collecte de données."
+              },
+              {
+                question: "Comment automatiser mes processus business ?",
+                answer: "L'automatisation business passe par l'identification des tâches répétitives, la création de scripts ou d'outils automatisés, et l'intégration de ces solutions dans vos workflows. Je partage des cas d'usage concrets et des tutoriels dans mes articles."
+              },
+              {
+                question: "Pourquoi choisir un freelance scraping ?",
+                answer: "Un freelance spécialisé en scraping apporte expertise technique, flexibilité et coûts maîtrisés. Avec 424+ projets réalisés, je développe des solutions sur-mesure adaptées à vos besoins business spécifiques."
+              }
+            ]}
+          />
         </section>
 
-        <section className="mb-12 md:mb-16 text-center p-4 md:p-6 rounded-lg border border-neutral-200 dark:border-neutral-800">
-          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Une question après lecture ?</h2>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
+        <section className="mb-12 md:mb-16 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-center" aria-label="Contact">
+          <h2 className="font-semibold text-xl mb-4 tracking-tighter">Une question après lecture ?</h2>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-6">
             Discutons de votre projet de scraping ou d'automatisation.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
@@ -494,9 +476,9 @@ export default function Blog({ posts }) {
                 Consultez mes métriques scraping
               </Link>
             </p>
-          </div>
-        </section>
-      </main>
+        </div>
+      </section>
+    </main>
     </>
   )
 }
