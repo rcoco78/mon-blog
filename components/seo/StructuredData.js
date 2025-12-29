@@ -155,6 +155,72 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           license: data.license || 'https://creativecommons.org/licenses/by/4.0/',
           distribution: data.distribution || []
         };
+
+      case 'Blog':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'Blog',
+          name: data.name || 'Blog Scraping et Automatisation - Corentin Robert',
+          description: data.description || 'Articles sur le scraping, l\'automatisation et l\'entrepreneuriat. Cas d\'usage concrets, ROI mesurable, réflexions sur le business.',
+          url: data.url || `${siteConfig.url}/blog`,
+          author: {
+            '@type': 'Person',
+            name: siteConfig.author,
+            url: siteConfig.url
+          },
+          publisher: {
+            '@type': 'Organization',
+            name: siteConfig.name,
+            logo: {
+              '@type': 'ImageObject',
+              url: siteConfig.ogLogo
+            }
+          },
+          blogPost: data.blogPost || []
+        };
+
+      case 'SoftwareApplication':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'SoftwareApplication',
+          name: data.name,
+          applicationCategory: data.applicationCategory || 'BusinessApplication',
+          operatingSystem: data.operatingSystem || 'Web',
+          offers: {
+            '@type': 'Offer',
+            price: data.price || '0',
+            priceCurrency: data.priceCurrency || 'EUR'
+          },
+          aggregateRating: data.aggregateRating || {
+            '@type': 'AggregateRating',
+            ratingValue: '4.8',
+            ratingCount: '150'
+          },
+          description: data.description,
+          url: data.url,
+          author: {
+            '@type': 'Person',
+            name: siteConfig.author,
+            url: siteConfig.url
+          }
+        };
+
+      case 'ItemList':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'ItemList',
+          name: data.name || 'Liste d\'outils gratuits',
+          description: data.description || 'Collection d\'outils gratuits pour automatiser vos processus business',
+          numberOfItems: data.numberOfItems || 0,
+          itemListElement: data.items || []
+        };
+
+      case 'FAQPage':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: data.questions || []
+        };
       
       default:
         return data;

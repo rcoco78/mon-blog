@@ -5,6 +5,7 @@ import Tag from '../components/Tag'
 import { useState, useEffect } from 'react'
 import SearchBar from '../components/SearchBar'
 import SEOHead from '../components/seo/SEOHead'
+import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 
@@ -83,38 +84,108 @@ function TagFilter({ tags, selectedTag, onTagSelect }) {
 
 export default function Blog({ posts }) {
   const [selectedTag, setSelectedTag] = useState(null)
-  const [searchQuery, setSearchQuery] = useState('')
   const [allTags, setAllTags] = useState([])
   const [filteredPosts, setFilteredPosts] = useState(posts)
+  const [calendlyLoaded, setCalendlyLoaded] = useState(false)
+  const [topPosts, setTopPosts] = useState([])
+  const [topPostsLoading, setTopPostsLoading] = useState(true)
+  const [postsLoading, setPostsLoading] = useState(true)
 
   useEffect(() => {
     // Extraire tous les tags uniques
     const tags = [...new Set(posts.flatMap(post => post.tags))]
     setAllTags(tags)
+    // Simuler un petit délai pour le skeleton (optionnel, peut être retiré si pas nécessaire)
+    if (posts.length > 0) {
+      setPostsLoading(false)
+    }
   }, [posts])
 
   useEffect(() => {
-    // Filtrer les posts en fonction du tag sélectionné et de la recherche
+    // Récupérer les articles les plus lus
+    const fetchTopPosts = async () => {
+      if (!posts || posts.length === 0) {
+        setTopPosts([])
+        setTopPostsLoading(false)
+        return
+      }
+
+      try {
+        const slugs = posts.map(post => post.slug).join(',')
+        const response = await fetch(`/api/views/all?slugs=${slugs}`)
+        
+        if (!response.ok) {
+          throw new Error('Erreur lors de la récupération des vues')
+        }
+        
+        const viewsMap = await response.json()
+        
+        // Ajouter les vues aux articles et trier
+        const postsWithViews = posts.map(post => ({
+          ...post,
+          views: viewsMap[post.slug] || 0
+        }))
+        
+        // Trier par nombre de vues (ordre décroissant) et prendre les 3 premiers
+        const sortedPosts = postsWithViews
+          .sort((a, b) => b.views - a.views)
+          .slice(0, 3)
+        
+        setTopPosts(sortedPosts)
+        setTopPostsLoading(false)
+      } catch (error) {
+        console.error('Erreur lors de la récupération des vues:', error)
+        setTopPosts([])
+        setTopPostsLoading(false)
+      }
+    }
+
+    fetchTopPosts()
+  }, [posts])
+
+  useEffect(() => {
+    // Filtrer les posts en fonction du tag sélectionné
     let filtered = posts
 
     if (selectedTag) {
       filtered = filtered.filter(post => post.tags.includes(selectedTag))
     }
 
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(post => 
-        post.title.toLowerCase().includes(query) ||
-        post.tags.some(tag => tag.toLowerCase().includes(query))
-      )
-    }
-
     setFilteredPosts(filtered)
-  }, [selectedTag, searchQuery, posts])
+  }, [selectedTag, posts])
 
-  const handleSearch = (query) => {
-    setSearchQuery(query)
+  const openCalendly = () => {
+    // Charger Calendly seulement au premier clic (lazy load)
+    if (!calendlyLoaded) {
+      if (!document.querySelector('link[href*="calendly.com"]')) {
+        const link = document.createElement('link')
+        link.href = 'https://assets.calendly.com/assets/external/widget.css'
+        link.rel = 'stylesheet'
+        document.head.appendChild(link)
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://assets.calendly.com/assets/external/widget.js'
+      script.type = 'text/javascript'
+      script.async = true
+      script.onload = () => {
+        setCalendlyLoaded(true)
+        if (window.Calendly) {
+          window.Calendly.initPopupWidget({
+            url: 'https://calendly.com/corentinrobert/20min'
+          })
+        }
+      }
+      document.body.appendChild(script)
+    } else {
+      if (window.Calendly) {
+        window.Calendly.initPopupWidget({
+          url: 'https://calendly.com/corentinrobert/20min'
+        })
+      }
+    }
   }
+
 
   const pageSEO = generatePageSEO({
     title: siteConfig.seo.pages.blog.title,
@@ -123,53 +194,296 @@ export default function Blog({ posts }) {
     keywords: siteConfig.seo.pages.blog.keywords
   })
 
+  // Structured Data pour FAQ
+  const faqData = {
+    questions: [
+      {
+        '@type': 'Question',
+        name: 'Qu\'est-ce que le scraping ?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Le scraping (ou web scraping) est une technique qui permet d\'extraire automatiquement des données depuis des sites web. C\'est utile pour collecter des informations, analyser des tendances, ou automatiser des processus de collecte de données.'
+        }
+      },
+      {
+        '@type': 'Question',
+        name: 'Comment automatiser mes processus business ?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'L\'automatisation business passe par l\'identification des tâches répétitives, la création de scripts ou d\'outils automatisés, et l\'intégration de ces solutions dans vos workflows. Je partage des cas d\'usage concrets et des tutoriels dans mes articles.'
+        }
+      },
+      {
+        '@type': 'Question',
+        name: 'Pourquoi choisir un freelance scraping ?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Un freelance spécialisé en scraping apporte expertise technique, flexibilité et coûts maîtrisés. Avec 424+ projets réalisés, je développe des solutions sur-mesure adaptées à vos besoins business spécifiques.'
+        }
+      }
+    ]
+  }
+
+  // Structured Data pour Blog
+  const blogStructuredData = {
+    name: 'Blog - Corentin Robert',
+    description: 'Articles, réflexions et partages sur l\'entrepreneuriat, le scraping, l\'automatisation, le voyage et bien plus.',
+    url: `${siteConfig.url}/blog`,
+    blogPost: posts.slice(0, 10).map(post => ({
+      '@type': 'BlogPosting',
+      headline: post.title,
+      url: `${siteConfig.url}/blog/${post.slug}`,
+      datePublished: post.date
+    }))
+  }
+
   return (
     <>
       <SEOHead {...pageSEO} />
+      <StructuredData type="Blog" data={blogStructuredData} />
+      <StructuredData type="FAQPage" data={faqData} />
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
-        <section>
-          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Blog</h1>
+        <section className="mb-8">
+          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">
+            Blog
+          </h1>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-0 tracking-tight">
+            Articles, réflexions et partages sur l'entrepreneuriat, le scraping, l'automatisation, le voyage et bien plus.
+          </p>
+        </section>
 
-        <SearchBar 
-          onSearch={handleSearch} 
-          tags={allTags}
-          selectedTag={selectedTag}
-          onTagSelect={setSelectedTag}
-        />
+        <section className="mb-6">
+          <SearchBar 
+            tags={allTags}
+            selectedTag={selectedTag}
+            onTagSelect={setSelectedTag}
+          />
+        </section>
 
-        <div>
-          {filteredPosts && filteredPosts.length > 0 ? (
+        {topPostsLoading ? (
+          <section className="mb-12 md:mb-16">
+            <h2 className="font-semibold text-xl mb-6 tracking-tighter">Articles les plus lus</h2>
             <div className="space-y-4">
-              {filteredPosts.map((post) => (
-                <Link key={post.id} href={`/blog/${post.slug}`} className="post-link">
-                  <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2">
-                    <div className="flex flex-col md:flex-row md:items-center w-full">
-                      <div className="flex-shrink-0">
-                        <p className="post-date whitespace-nowrap">
-                          {new Date(post.date).toLocaleDateString('fr-FR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </p>
-                      </div>
-                      <p className="post-title flex-grow truncate md:max-w-[60%] w-full md:ml-4">
-                        {post.title}
-                      </p>
-                      <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
-                        <ViewCounter slug={post.slug} />
-                      </div>
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 animate-pulse">
+                  <div className="flex flex-col md:flex-row md:items-center w-full">
+                    <div className="flex-shrink-0">
+                      <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
+                    </div>
+                    <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 mx-2 flex-shrink-0"></span>
+                    <div className="flex-grow md:max-w-[60%] w-full md:ml-0">
+                      <div className="h-5 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
+                    </div>
+                    <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
+                      <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
+          </section>
+        ) : topPosts.length > 0 && (
+          <section className="mb-12 md:mb-16">
+            <h2 className="font-semibold text-xl mb-6 tracking-tighter">Articles les plus lus</h2>
+            <div className="space-y-4">
+              {topPosts.map((post) => {
+                const isNew = new Date(post.date) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+                return (
+                  <Link key={post.id} href={`/blog/${post.slug}`} className="post-link group">
+                    <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 transition-all group-hover:translate-x-1">
+                      <div className="flex flex-col md:flex-row md:items-center w-full">
+                        <div className="flex-shrink-0">
+                          <p className="post-date whitespace-nowrap">
+                            {new Date(post.date).toLocaleDateString('fr-FR', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </p>
+                        </div>
+                        <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 mx-2 flex-shrink-0"></span>
+                        <p className="post-title flex-grow truncate md:max-w-[60%] w-full md:ml-0 flex items-center gap-2">
+                          {post.title}
+                          {isNew && (
+                            <span className="text-xs font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-2 py-0.5 rounded-full flex-shrink-0">
+                              Nouveau
+                            </span>
+                          )}
+                        </p>
+                        <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
+                          <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">
+                            {post.views} vues
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </section>
+        )}
+
+        <section className="mb-12 md:mb-16">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-semibold text-xl tracking-tighter">Tous les articles</h2>
+            {selectedTag && filteredPosts.length > 0 && (
+              <span className="text-sm text-neutral-500 dark:text-neutral-500">
+                {filteredPosts.length} {filteredPosts.length === 1 ? 'article trouvé' : 'articles trouvés'}
+              </span>
+            )}
+          </div>
+          {postsLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 animate-pulse">
+                  <div className="flex flex-col md:flex-row md:items-center w-full">
+                    <div className="flex-shrink-0">
+                      <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
+                    </div>
+                    <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 mx-2 flex-shrink-0"></span>
+                    <div className="flex-grow md:max-w-[60%] w-full md:ml-0">
+                      <div className="h-5 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
+                    </div>
+                    <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
+                      <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredPosts && filteredPosts.length > 0 ? (
+            <div className="space-y-4">
+              {filteredPosts.map((post) => {
+                const isNew = new Date(post.date) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+                return (
+                  <Link key={post.id} href={`/blog/${post.slug}`} className="post-link group">
+                    <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 transition-all group-hover:translate-x-1">
+                      <div className="flex flex-col md:flex-row md:items-center w-full">
+                        <div className="flex-shrink-0">
+                          <p className="post-date whitespace-nowrap">
+                            {new Date(post.date).toLocaleDateString('fr-FR', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </p>
+                        </div>
+                        <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 mx-2 flex-shrink-0"></span>
+                        <p className="post-title flex-grow truncate md:max-w-[60%] w-full md:ml-0 flex items-center gap-2">
+                          {post.title}
+                          {isNew && (
+                            <span className="text-xs font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-2 py-0.5 rounded-full flex-shrink-0">
+                              Nouveau
+                            </span>
+                          )}
+                        </p>
+                        <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
+                          <ViewCounter slug={post.slug} />
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
           ) : (
-            <p>Aucun article disponible pour le moment.</p>
+            <div className="text-center py-12">
+              <p className="text-neutral-600 dark:text-neutral-400 mb-2">
+                {selectedTag ? (
+                  <>
+                    Aucun article ne correspond à ce tag.
+                    <br />
+                    <button
+                      onClick={() => setSelectedTag(null)}
+                      className="mt-4 text-sm underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                    >
+                      Réinitialiser le filtre
+                    </button>
+                  </>
+                ) : (
+                  'Aucun article disponible pour le moment.'
+                )}
+              </p>
+            </div>
           )}
-        </div>
-      </section>
-    </main>
+        </section>
+
+        <section className="mb-12 md:mb-16 p-4 md:p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Pourquoi ce blog ?</h2>
+          <div className="space-y-3 text-neutral-700 dark:text-neutral-300">
+            <p className="tracking-tight">
+              Ce blog est né d'une volonté de <strong>partager mes réflexions</strong> sur le scraping, l'automatisation et l'entrepreneuriat. 
+              Pas seulement des tutoriels techniques, mais aussi des <strong>cas d'usage business</strong>, des réflexions sur le métier de freelance, 
+              et des retours d'expérience sur mes projets.
+            </p>
+            <p className="tracking-tight">
+              Vous y trouverez des articles variés : <strong>scraping</strong>, <strong>automatisation</strong>, 
+              <strong>entrepreneuriat</strong>, <strong>voyage</strong>, et bien d'autres sujets qui me passionnent. 
+              L'objectif : créer du lien, partager mes apprentissages, et révéler ma personnalité au-delà du simple prestataire.
+            </p>
+          </div>
+        </section>
+
+        <section className="mb-12 md:mb-16 p-4 md:p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Questions fréquentes</h2>
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-medium mb-2">Qu'est-ce que le scraping ?</h3>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                Le scraping (ou web scraping) est une technique qui permet d'extraire automatiquement des données depuis des sites web. 
+                C'est utile pour collecter des informations, analyser des tendances, ou automatiser des processus de collecte de données.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-medium mb-2">Comment automatiser mes processus business ?</h3>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                L'automatisation business passe par l'identification des tâches répétitives, la création de scripts ou d'outils automatisés, 
+                et l'intégration de ces solutions dans vos workflows. Je partage des cas d'usage concrets et des tutoriels dans mes articles.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-medium mb-2">Pourquoi choisir un freelance scraping ?</h3>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                Un freelance spécialisé en scraping apporte expertise technique, flexibilité et coûts maîtrisés. 
+                Avec 424+ projets réalisés, je développe des solutions sur-mesure adaptées à vos besoins business spécifiques.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-12 md:mb-16 text-center p-4 md:p-6 rounded-lg border border-neutral-200 dark:border-neutral-800">
+          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Une question après lecture ?</h2>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
+            Discutons de votre projet de scraping ou d'automatisation.
+          </p>
+          <button
+            onClick={openCalendly}
+            className="inline-block px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
+          >
+            Discutons-en
+          </button>
+        </section>
+
+        <section className="mb-12 md:mb-16">
+          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Pour aller plus loin</h2>
+          <div className="space-y-2 text-neutral-600 dark:text-neutral-400">
+            <p>
+              <Link href="/a-propos" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Découvrez mon expertise en scraping
+              </Link>
+              {' • '}
+              <Link href="/outils" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Explorez mes outils scraping gratuits
+              </Link>
+              {' • '}
+              <Link href="/donnees-publiques" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Consultez mes métriques scraping
+              </Link>
+            </p>
+          </div>
+        </section>
+      </main>
     </>
   )
 }

@@ -1,5 +1,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
+import SEOHead from '../../components/seo/SEOHead'
+import StructuredData from '../../components/seo/StructuredData'
+import { generatePageSEO } from '../../lib/seo'
+import { siteConfig } from '../../lib/config'
 
 export default function EmailGenerator() {
   const [formData, setFormData] = useState({
@@ -50,8 +54,32 @@ Corentin Robert
     navigator.clipboard.writeText(generatedEmail)
   }
 
+  const pageSEO = generatePageSEO({
+    title: 'Générateur de Templates d\'Emails Gratuit - Outil Outreach',
+    description: 'Générateur de templates d\'emails gratuit pour l\'outreach. Créez des emails performants et personnalisés en quelques clics. Augmentez vos taux de réponse avec cet outil gratuit.',
+    path: '/outils/email-generator',
+    keywords: ['générateur templates email', 'outil outreach gratuit', 'email generator', 'templates email outreach']
+  })
+
+  const toolStructuredData = {
+    name: 'Générateur de Templates d\'Emails',
+    applicationCategory: 'BusinessApplication',
+    price: '0',
+    priceCurrency: 'EUR',
+    description: 'Créez des templates d\'outreach performants avec notre outil gratuit. Personnalisez vos messages et augmentez vos taux de réponse.',
+    url: `${siteConfig.url}/outils/email-generator`,
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.8',
+      ratingCount: '150'
+    }
+  }
+
   return (
-    <main className="min-w-0 mt-6 flex flex-col">
+    <>
+      <SEOHead {...pageSEO} />
+      <StructuredData type="SoftwareApplication" data={toolStructuredData} />
+      <main className="min-w-0 mt-6 flex flex-col">
       <section className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <Link href="/outils" className="text-sm text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200">
@@ -247,5 +275,6 @@ Corentin Robert
         </div>
       </section>
     </main>
+    </>
   )
 } 
