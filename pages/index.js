@@ -310,7 +310,7 @@ export default function Home({ posts }) {
               <Component key={index} {...props}>
                 <div className="flex items-start gap-3 flex-1 min-w-0">
                   {project.image ? (
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 w-6 h-6">
                       <Image
                         src={project.image}
                         alt={project.imageAlt || `${project.title} - ${project.description}`}
@@ -321,17 +321,17 @@ export default function Home({ posts }) {
                     </div>
                   ) : project.icon ? (
                     project.icon.startsWith('/') ? (
-                      <div className="flex-shrink-0">
+                      <div className="flex-shrink-0 w-6 h-6">
                         <Image
                           src={project.icon}
                           alt={project.iconAlt || `${project.title} - ${project.description}`}
                           width={24}
                           height={24}
-                          className="w-6 h-6 rounded-lg"
+                          className="w-6 h-6 rounded-lg object-contain"
                         />
                       </div>
                     ) : (
-                      <div className="flex-shrink-0 text-2xl">
+                      <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-xl leading-none">
                         {project.icon}
                       </div>
                     )
