@@ -16,6 +16,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         />
         {/* End Google Tag Manager */}
         
+        {/* Umami Analytics */}
+        <script defer src="https://cloud.umami.is/script.js" data-website-id="34057468-2b5a-4874-82ba-3e8b93514c2e"></script>
+        
         {/* Favicon */}
         <link rel="icon" href="/images/rounded-icon.png" />
         <link rel="apple-touch-icon" href="/images/rounded-icon.png" />
