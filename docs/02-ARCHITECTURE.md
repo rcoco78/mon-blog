@@ -12,12 +12,13 @@
 mon-blog/
 ├── docs/                          # Documentation
 │   ├── README.md                  # Index principal
-│   ├── 01-ARCHITECTURE.md         # Architecture (ce fichier)
-│   ├── 02-SEO.md                  # SEO & Performance
-│   ├── 03-BONNES-PRATIQUES.md     # Bonnes pratiques
-│   ├── 04-PROCHAINES-ETAPES.md    # Roadmap
-│   ├── 05-AUDIT-AMELIORATIONS.md  # Audit & améliorations
-│   └── 06-CHANGELOG.md            # Historique
+│   ├── 01-VISION.md               # Vision & Objectifs
+│   ├── 02-ARCHITECTURE.md         # Architecture (ce fichier)
+│   ├── 03-SEO.md                  # SEO & Performance
+│   ├── 04-DESIGN-SYSTEM.md        # Design System
+│   ├── 05-AUDIT.md                # Audit & Recommandations
+│   ├── 06-CONFIGURATION.md        # Configuration Technique
+│   └── 07-CHANGELOG.md            # Historique
 │
 ├── components/                     # Composants React
 │   ├── seo/                       # Composants SEO

@@ -1,20 +1,27 @@
-# 📚 Documentation Complète - corentinrobert.fr
+# 📚 Documentation - corentinrobert.fr
 
-Documentation centralisée et organisée pour le projet. Toute l'information nécessaire pour comprendre, maintenir et faire évoluer le site.
+Documentation complète et organisée pour comprendre, maintenir et faire évoluer le site.
 
 ---
 
 ## 🗂️ Structure de la Documentation
 
-### 🎯 [1. Architecture & Structure](./01-ARCHITECTURE.md)
-**Comprendre l'organisation du code et la structure du projet**
-- Architecture globale du projet
+### 🎯 [01 - Vision & Objectifs](./01-VISION.md)
+**Vision stratégique et objectifs du site**
+- Objectif principal et positionnement
+- Objectifs stratégiques
+- Cible et persona
+- Principes directeurs
+
+### 🏗️ [02 - Architecture](./02-ARCHITECTURE.md)
+**Architecture technique et structure du code**
 - Structure des fichiers et dossiers
 - Flux de données
-- Système de configuration centralisée
+- Système de configuration
 - Patterns et conventions de code
+- Stack technique
 
-### 🚀 [2. SEO & Performance](./02-SEO.md)
+### 🚀 [03 - SEO](./03-SEO.md)
 **Optimisation SEO et bonnes pratiques**
 - Système SEO centralisé
 - Meta tags et Structured Data
@@ -22,44 +29,7 @@ Documentation centralisée et organisée pour le projet. Toute l'information né
 - Optimisations performance
 - Guide de validation SEO
 
-### ✅ [3. Bonnes Pratiques](./03-BONNES-PRATIQUES.md)
-**Standards de code et conventions**
-- Design System
-- Conventions de nommage
-- Gestion des erreurs
-- Accessibilité
-- Sécurité
-- Maintenance
-
-### 📋 [4. Prochaines Étapes](./04-PROCHAINES-ETAPES.md)
-**Roadmap et plan d'action**
-- Priorités par impact
-- Actions concrètes à réaliser
-- Métriques de succès
-- Timeline recommandée
-- Ressources utiles
-
-### 🔍 [5. Audit & Améliorations](./05-AUDIT-AMELIORATIONS.md)
-**Analyse du code et améliorations identifiées**
-- Audit structure et disposition
-- Améliorations techniques
-- Code mort et optimisations
-- Points d'attention
-
-### 📝 [6. Changelog](./06-CHANGELOG.md)
-**Historique des modifications**
-- Versions et changements
-- Features ajoutées
-- Bugs corrigés
-- Évolutions majeures
-
-### 🔄 [7. Redirections](./07-REDIRECTIONS.md)
-**Configuration des redirections**
-- Problème de boucle de redirection
-- Solutions et vérifications
-- Configuration Vercel et DNS
-
-### 🎨 [8. Design System](./08-DESIGN-SYSTEM.md)
+### 🎨 [04 - Design System](./04-DESIGN-SYSTEM.md)
 **Documentation complète du design system**
 - Couleurs et palette
 - Typographie et hiérarchie
@@ -68,25 +38,52 @@ Documentation centralisée et organisée pour le projet. Toute l'information né
 - États et interactions
 - Dark mode et responsive
 
+### 🔍 [05 - Audit & Recommandations](./05-AUDIT.md)
+**Audit complet et recommandations d'amélioration**
+- Audit par page (Homepage, À propos, Témoignages, etc.)
+- Améliorations SEO
+- Recommandations prioritaires
+- Checklist d'amélioration
+- Métriques de succès
+
+### ⚙️ [06 - Configuration Technique](./06-CONFIGURATION.md)
+**Configuration des services et intégrations**
+- Configuration Spotify API
+- Système de tracking des clics
+- Configuration des redirections
+- Variables d'environnement
+- Intégrations externes
+
+### 📝 [07 - Changelog](./07-CHANGELOG.md)
+**Historique des modifications**
+- Versions et changements
+- Features ajoutées
+- Bugs corrigés
+- Évolutions majeures
+
 ---
 
 ## 🚀 Démarrage Rapide
 
 ### Pour un nouveau développeur
-1. Lire [Architecture](./01-ARCHITECTURE.md) pour comprendre la structure
-2. Lire [Design System](./08-DESIGN-SYSTEM.md) pour comprendre le style et les composants
-3. Lire [Bonnes Pratiques](./03-BONNES-PRATIQUES.md) pour les conventions
-4. Consulter [Prochaines Étapes](./04-PROCHAINES-ETAPES.md) pour voir ce qui est prévu
+1. Lire [Vision & Objectifs](./01-VISION.md) pour comprendre la stratégie
+2. Lire [Architecture](./02-ARCHITECTURE.md) pour comprendre la structure
+3. Lire [Design System](./04-DESIGN-SYSTEM.md) pour comprendre le style
+4. Consulter [Audit & Recommandations](./05-AUDIT.md) pour voir les améliorations prévues
 
 ### Pour modifier le SEO
-1. Consulter [SEO & Performance](./02-SEO.md)
+1. Consulter [SEO](./03-SEO.md)
 2. Modifier `lib/config.js` → `seo.pages.nomPage`
 3. Utiliser `generatePageSEO()` dans la page
 
 ### Pour ajouter une fonctionnalité
-1. Vérifier [Architecture](./01-ARCHITECTURE.md) pour la structure
-2. Suivre [Bonnes Pratiques](./03-BONNES-PRATIQUES.md)
-3. Mettre à jour [Changelog](./06-CHANGELOG.md) après implémentation
+1. Vérifier [Architecture](./02-ARCHITECTURE.md) pour la structure
+2. Suivre [Design System](./04-DESIGN-SYSTEM.md) pour le style
+3. Mettre à jour [Changelog](./07-CHANGELOG.md) après implémentation
+
+### Pour configurer un service
+1. Consulter [Configuration Technique](./06-CONFIGURATION.md)
+2. Suivre les instructions spécifiques au service
 
 ---
 
@@ -121,13 +118,13 @@ mon-blog/
 
 ## 🔗 Liens Rapides
 
-- [Architecture du Code](./01-ARCHITECTURE.md)
-- [Guide SEO Complet](./02-SEO.md)
-- [Bonnes Pratiques](./03-BONNES-PRATIQUES.md)
-- [Roadmap](./04-PROCHAINES-ETAPES.md)
-- [Audit & Améliorations](./05-AUDIT-AMELIORATIONS.md)
-- [Changelog](./06-CHANGELOG.md)
-- [Design System](./08-DESIGN-SYSTEM.md)
+- [Vision & Objectifs](./01-VISION.md)
+- [Architecture du Code](./02-ARCHITECTURE.md)
+- [Guide SEO Complet](./03-SEO.md)
+- [Design System](./04-DESIGN-SYSTEM.md)
+- [Audit & Recommandations](./05-AUDIT.md)
+- [Configuration Technique](./06-CONFIGURATION.md)
+- [Changelog](./07-CHANGELOG.md)
 
 ---
 
@@ -150,4 +147,4 @@ Pour contribuer au projet :
 
 ---
 
-**Dernière mise à jour** : Décembre 2024
+**Dernière mise à jour** : Janvier 2025

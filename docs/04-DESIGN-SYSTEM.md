@@ -165,14 +165,34 @@ className="text-neutral-900 dark:text-neutral-100 tracking-tight"
 ```
 - **Taille** : Par défaut (1rem / 16px)
 - **Tracking** : `tracking-tight` (-0.025em)
-- **Usage** : Paragraphes principaux
+- **Usage** : Paragraphes principaux, texte important
+- **Couleurs** : 
+  - Light mode : `neutral-900` (#171717)
+  - Dark mode : `neutral-100` (#f5f5f5)
 
 #### Corps de Texte Secondaire
 ```jsx
 className="text-neutral-600 dark:text-neutral-400 tracking-tight"
 ```
 - **Taille** : Par défaut (1rem / 16px)
-- **Usage** : Descriptions, métadonnées
+- **Tracking** : `tracking-tight` (-0.025em)
+- **Usage** : Descriptions, métadonnées, textes d'introduction de page
+- **Couleurs** : 
+  - Light mode : `neutral-600` (#525252)
+  - Dark mode : `neutral-400` (#a3a3a3)
+- **⚠️ Important** : Ne jamais utiliser `text-lg`, `text-neutral-700`, `text-neutral-300` ou autres variantes non documentées
+
+#### Mise en Avant de Mots-clés dans le Texte Secondaire
+```jsx
+<p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
+  Texte d'introduction avec des <strong className="text-neutral-900 dark:text-neutral-100">mots-clés importants</strong> mis en avant.
+</p>
+```
+- **Usage** : Pour mettre en avant des mots-clés, concepts importants ou termes techniques dans un texte secondaire
+- **Style** : `<strong className="text-neutral-900 dark:text-neutral-100">` pour créer un contraste avec le texte secondaire
+- **Couleurs** : 
+  - Light mode : `neutral-900` (#171717) - même couleur que le corps principal
+  - Dark mode : `neutral-100` (#f5f5f5) - même couleur que le corps principal
 
 #### Texte Petit
 ```jsx
@@ -204,6 +224,21 @@ Le site utilise un système d'espacement cohérent basé sur Tailwind (multiples
 
 ### Espacements Verticaux
 
+#### Section d'Introduction de Page
+```jsx
+<section className="mb-16">
+  <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Titre</h1>
+  <p className="text-neutral-600 dark:text-neutral-400 mb-0 tracking-tight">
+    Texte d'introduction...
+  </p>
+</section>
+```
+- **Espacement section** : `mb-16` (4rem / 64px)
+- **Espacement H1** : `mb-8` (2rem / 32px)
+- **Texte intro** : Corps secondaire (`text-neutral-600 dark:text-neutral-400 tracking-tight`)
+- **Espacement texte** : `mb-0` (pas de marge en bas, la section gère l'espacement)
+- **Usage** : Section d'introduction présente sur toutes les pages principales
+
 #### Entre Sections Principales
 ```jsx
 className="mb-16"  // 4rem / 64px
@@ -215,6 +250,16 @@ className="mb-16"  // 4rem / 64px
 className="mb-12"  // 3rem / 48px
 ```
 - Utilisé entre sections de niveau moyen
+
+#### Section de Filtrage (Tags/SearchBar)
+```jsx
+<section className="mb-12">
+  <SearchBar tags={tags} selectedTag={selectedTag} onTagSelect={setSelectedTag} />
+</section>
+```
+- **Espacement section** : `mb-12` (3rem / 48px)
+- **Usage** : Section contenant les tags de filtrage (SearchBar)
+- **⚠️ Important** : L'espacement entre les tags et le contenu filtré doit être `mb-12` pour une transition fluide, pas `mb-16`
 
 #### Entre Éléments de Section
 ```jsx
@@ -341,6 +386,71 @@ className="text-neutral-600 dark:text-neutral-400"
 
 ### Cartes
 
+#### Structure Standard de Carte
+Toutes les cards (projets, outils, key results) doivent suivre cette structure uniforme :
+
+```jsx
+<div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 
+                hover:border-neutral-300 dark:hover:border-neutral-700 
+                transition-colors group min-h-[96px]">
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div className="flex items-start gap-3 flex-1 min-w-0">
+      {/* Icône optionnelle */}
+      <div className="flex-shrink-0 w-6 h-6">
+        {/* Icône */}
+      </div>
+      <div className="flex-1 min-w-0">
+        {/* Titre */}
+        <div className="flex items-center gap-2 mb-1">
+          <h2 className="font-semibold text-lg tracking-tighter 
+                        group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
+            Titre de la carte
+          </h2>
+          {/* Badge/Status optionnel */}
+        </div>
+        {/* Description */}
+        <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
+          Description de la carte
+        </p>
+        {/* Tags/Métadonnées optionnels */}
+      </div>
+    </div>
+    {/* Actions/Indicateurs à droite */}
+    <div className="flex items-center gap-3 flex-shrink-0">
+      {/* Icône de redirection, compteur, etc. */}
+    </div>
+  </div>
+</div>
+```
+
+#### Règles de Typographie pour les Cards
+
+**Titre de Carte (H2)**
+```jsx
+className="font-semibold text-lg tracking-tighter 
+           group-hover:text-neutral-800 dark:group-hover:text-neutral-200"
+```
+- **Taille** : `text-lg` (1.125rem / 18px)
+- **Poids** : `font-semibold` (600)
+- **Tracking** : `tracking-tighter`
+- **Espacement** : `mb-1` (0.25rem / 4px) après le conteneur flex
+- **Couleur hover** : `group-hover:text-neutral-800 dark:group-hover:text-neutral-200`
+
+**Description de Carte**
+```jsx
+className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2"
+```
+- **Taille** : `text-sm` (0.875rem / 14px)
+- **Couleur** : `text-neutral-600 dark:text-neutral-400`
+- **Limitation** : `line-clamp-2` (2 lignes max)
+
+**Espacements Internes**
+- **Padding card** : `p-4` (1rem / 16px)
+- **Gap principal** : `gap-3` (0.75rem / 12px)
+- **Gap titre** : `gap-2` (0.5rem / 8px)
+- **Espacement titre** : `mb-1` (0.25rem / 4px)
+- **Hauteur minimale** : `min-h-[96px]` (6rem / 96px)
+
 #### Carte Standard
 ```jsx
 className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800"
@@ -356,7 +466,7 @@ className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800
 ```jsx
 className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 
            hover:border-neutral-300 dark:hover:border-neutral-700 
-           transition-colors group"
+           transition-colors group min-h-[96px]"
 ```
 
 ### Boutons

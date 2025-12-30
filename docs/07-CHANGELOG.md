@@ -52,12 +52,13 @@
 
 ### 📚 Documentation
 - **README.md** : Index principal de la documentation
-- **01-ARCHITECTURE.md** : Architecture et structure du projet
-- **02-SEO.md** : SEO et performance
-- **03-BONNES-PRATIQUES.md** : Standards et conventions
-- **04-PROCHAINES-ETAPES.md** : Roadmap et plan d'action
-- **05-AUDIT-AMELIORATIONS.md** : Audit et améliorations
-- **06-CHANGELOG.md** : Historique des modifications
+- **01-VISION.md** : Vision & Objectifs
+- **02-ARCHITECTURE.md** : Architecture et structure du projet
+- **03-SEO.md** : SEO et performance
+- **04-DESIGN-SYSTEM.md** : Design System
+- **05-AUDIT.md** : Audit & Recommandations
+- **06-CONFIGURATION.md** : Configuration Technique
+- **07-CHANGELOG.md** : Historique des modifications
 
 ## Prochaines Étapes
 
