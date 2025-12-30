@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
@@ -117,49 +118,16 @@ export default function Outils() {
       <StructuredData type="ItemList" data={toolsStructuredData} />
       <StructuredData type="FAQPage" data={faqData} />
       <main className="min-w-0 mt-6 flex flex-col">
-        <section className="mb-12">
-          <h1 className="font-semibold text-2xl mb-4 tracking-tighter">
+        <section className="mb-8">
+          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">
             Outils Scraping et Automatisation Gratuits
           </h1>
-          <p className="text-lg text-neutral-600 dark:text-neutral-400 mb-6 tracking-tight">
-            Collection d'outils gratuits pour automatiser vos processus business, générer des leads et optimiser votre productivité.
-          </p>
-          <p className="text-neutral-700 dark:text-neutral-300 mb-8">
-            Découvrez une collection d'<strong>outils scraping et automatisation gratuits</strong> développés pour répondre à des besoins business concrets. 
-            Générateurs de templates, extracteurs de données, outils de productivité. 
-            Tous ces outils sont <strong>100% gratuits</strong> et développés pour démontrer mon expertise en scraping et automatisation.
-          </p>
-          <div className="flex items-center gap-4 text-sm text-neutral-600 dark:text-neutral-400">
-            <span className="px-3 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center gap-2">
-              <span className="relative flex h-2 w-2" title="Outils actifs">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-              </span>
-              {tools.length} outils disponibles
-            </span>
-          </div>
-        </section>
-
-        <section className="mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-          <h2 className="font-semibold text-xl mb-4 tracking-tighter">Pourquoi ces outils gratuits ?</h2>
-          <div className="space-y-3 text-neutral-700 dark:text-neutral-300">
-            <p>
-              Ces outils gratuits sont nés d'une <strong>philosophie du partage</strong>. 
-              En tant que freelance scraping, je crois en la création de valeur pour la communauté. 
-              Ces outils permettent de <strong>démontrer mon expertise pratique</strong> tout en aidant ceux qui en ont besoin.
-            </p>
-            <p>
-              Chaque outil répond à un <strong>besoin business concret</strong> que j'ai rencontré dans mes projets. 
-              En les partageant gratuitement, je contribue à la communauté tout en montrant ce que je sais faire. 
-              C'est aussi une façon de créer du lien et de générer de la confiance.
-            </p>
-            <p>
-              Si vous avez besoin d'un <strong>outil sur-mesure</strong> pour votre business, je peux développer une solution adaptée à vos besoins spécifiques.
-            </p>
-          </div>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-0 tracking-tight">
+            Collection d'outils gratuits pour automatiser vos processus business, générer des leads et optimiser votre productivité. Découvrez une collection d'<strong className="text-neutral-900 dark:text-neutral-100">outils scraping et automatisation gratuits</strong> développés pour répondre à des besoins business concrets. Générateurs de templates, extracteurs de données, outils de productivité. Tous ces outils sont <strong className="text-neutral-900 dark:text-neutral-100">100% gratuits</strong> et développés pour démontrer mon expertise en scraping et automatisation.
+        </p>
       </section>
 
-        <section className="mb-6">
+        <section className="mb-12">
           <SearchBar 
             tags={categories}
             selectedTag={selectedCategory}
@@ -167,56 +135,100 @@ export default function Outils() {
           />
         </section>
 
-        <section className="mb-12">
+        <section className="mb-16">
           <div className="flex flex-col space-y-4">
-            {filteredTools.map((tool) => (
-              <Link
-                key={tool.name}
-                href={tool.link}
-                className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]"
+          {filteredTools.map((tool) => (
+            <Link
+              key={tool.name}
+              href={tool.link}
+                className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]"
               >
                 <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <span className="flex-shrink-0 text-2xl">{tool.icon}</span>
+                  {tool.iconSvg ? (
+                    <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-600 dark:text-neutral-400">
+                      {tool.iconSvg === 'email' && (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
+                          <path d="M8.47 1.318a1 1 0 0 0-.94 0l-6 3.2A1 1 0 0 0 1 5.4v.817l5.75 3.45L8 8.917l1.25.75L15 6.217V5.4a1 1 0 0 0-.53-.882zM15 7.383l-4.778 2.867L15 13.117zm-.035 6.88L8 10.082l-6.965 4.18A1 1 0 0 0 2 15h12a1 1 0 0 0 .965-.738ZM1 13.116l4.778-2.867L1 7.383v5.734ZM7.059.435a2 2 0 0 1 1.882 0l6 3.2A2 2 0 0 1 16 5.4V14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V5.4a2 2 0 0 1 1.059-1.765z"/>
+                        </svg>
+                      )}
+                      {tool.iconSvg === 'search' && (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
+                          <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                        </svg>
+                      )}
+                      {tool.iconSvg === 'house' && (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
+                          <path d="M8 6.982C9.664 5.309 13.825 8.236 8 12 2.175 8.236 6.336 5.309 8 6.982"/>
+                          <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.707L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.646a.5.5 0 0 0 .708-.707L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"/>
+                        </svg>
+                      )}
+                      {tool.iconSvg === 'grid' && (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
+                          <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm15 2h-4v3h4zm0 4h-4v3h4zm0 4h-4v3h3a1 1 0 0 0 1-1zm-5 3v-3H6v3zm-5 0v-3H1v2a1 1 0 0 0 1 1zm-4-4h4V7H1zm0-4h4V3H1a1 1 0 0 0-1 1zm5 0v3h4V3zm4 4H6v3h4z"/>
+                        </svg>
+                      )}
+                    </div>
+                  ) : tool.icon && tool.icon.startsWith('/') ? (
+                    <div className="flex-shrink-0 w-6 h-6">
+                      <Image
+                        src={tool.icon}
+                        alt={`${tool.name} - ${tool.description}`}
+                        width={24}
+                        height={24}
+                        loading="lazy"
+                        className="w-6 h-6 rounded-lg object-contain"
+                      />
+                    </div>
+                  ) : tool.icon ? (
+                    <span className="flex-shrink-0 text-2xl">{tool.icon}</span>
+                  ) : null}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
-                        {tool.name}
-                      </h2>
-                    </div>
+                  <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
+                    {tool.name}
+                  </h2>
+                </div>
                     <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
-                      {tool.description}
-                    </p>
-                    <div className="mt-2 flex items-center text-xs text-neutral-500 dark:text-neutral-400">
-                      <span className="px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800">
-                        {tool.category}
-                      </span>
-                    </div>
+                {tool.description}
+              </p>
                   </div>
                 </div>
-                <div className="flex-shrink-0">
-                  <svg
-                    className="w-5 h-5 text-neutral-400 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <div className="hidden sm:block">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
+                      <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                    </svg>
+                  </div>
                 </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+            </Link>
+          ))}
+        </div>
+      </section>
 
         <section className="mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-          <h2 className="font-semibold text-xl mb-4 tracking-tighter">Questions fréquentes</h2>
+          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Questions fréquentes</h2>
           <FAQ
             items={[
+              {
+                question: "Pourquoi ces outils gratuits ?",
+                answer: (
+                  <>
+                    <p className="mb-3">
+                      Ces outils gratuits sont nés d'une <strong>philosophie du partage</strong>. 
+                      En tant que freelance scraping, je crois en la création de valeur pour la communauté. 
+                      Ces outils permettent de <strong>démontrer mon expertise pratique</strong> tout en aidant ceux qui en ont besoin.
+                    </p>
+                    <p className="mb-3">
+                      Chaque outil répond à un <strong>besoin business concret</strong> que j'ai rencontré dans mes projets. 
+                      En les partageant gratuitement, je contribue à la communauté tout en montrant ce que je sais faire. 
+                      C'est aussi une façon de créer du lien et de générer de la confiance.
+                    </p>
+                    <p>
+                      Si vous avez besoin d'un <strong>outil sur-mesure</strong> pour votre business, je peux développer une solution adaptée à vos besoins spécifiques.
+                    </p>
+                  </>
+                )
+              },
               {
                 question: "Les outils sont-ils vraiment gratuits ?",
                 answer: "Oui, tous les outils présentés sont entièrement gratuits. Je les développe pour partager mon expertise et aider la communauté. Certains outils peuvent avoir des limites d'utilisation (comme l'extracteur LinkedIn limité à 50 profils par jour)."
@@ -234,7 +246,7 @@ export default function Outils() {
         </section>
 
         <section className="mb-12 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-center" aria-label="Contact">
-          <h2 className="font-semibold text-xl mb-4 tracking-tighter">Besoin d'un outil sur-mesure ?</h2>
+          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Besoin d'un outil sur-mesure ?</h2>
           <p className="text-neutral-600 dark:text-neutral-400 mb-6">
             Si vous avez besoin d'un outil personnalisé pour votre business, je peux développer une solution adaptée à vos besoins spécifiques.
           </p>
@@ -256,20 +268,20 @@ export default function Outils() {
           </div>
         </section>
 
-        <section className="mb-12">
-          <h2 className="font-semibold text-xl mb-4 tracking-tighter">Pour aller plus loin</h2>
+        <section className="mb-16">
+          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Pour aller plus loin</h2>
           <div className="space-y-2 text-neutral-600 dark:text-neutral-400">
             <p>
               <Link href="/blog" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Lisez mes articles scraping
+                Lisez mes articles
               </Link>
               {' • '}
               <Link href="/a-propos" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Découvrez mon expertise scraping
+                Découvrez mon parcours
               </Link>
               {' • '}
               <Link href="/donnees-publiques" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Consultez mes métriques scraping
+                Suivez mes objectifs 2026
               </Link>
             </p>
           </div>

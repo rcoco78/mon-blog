@@ -221,6 +221,33 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           '@type': 'FAQPage',
           mainEntity: data.questions || []
         };
+
+      case 'Review':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'Review',
+          author: {
+            '@type': 'Person',
+            name: data.authorName || 'Client'
+          },
+          datePublished: data.datePublished || new Date().toISOString().split('T')[0],
+          reviewBody: data.reviewBody || '',
+          reviewRating: {
+            '@type': 'Rating',
+            ratingValue: data.ratingValue || '5',
+            bestRating: '5',
+            worstRating: '1'
+          },
+          itemReviewed: {
+            '@type': 'Service',
+            name: data.serviceName || 'Services de Scraping et Automatisation',
+            provider: {
+              '@type': 'Person',
+              name: siteConfig.author,
+              url: siteConfig.url
+            }
+          }
+        };
       
       default:
         return data;

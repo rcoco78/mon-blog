@@ -91,6 +91,7 @@ export default function Blog({ posts }) {
   const [topPosts, setTopPosts] = useState([])
   const [topPostsLoading, setTopPostsLoading] = useState(true)
   const [postsLoading, setPostsLoading] = useState(true)
+  const [allViews, setAllViews] = useState({})
 
   useEffect(() => {
     // Extraire tous les tags uniques
@@ -123,6 +124,7 @@ export default function Blog({ posts }) {
         }
         
         const viewsMap = await response.json()
+        setAllViews(viewsMap) // Stocker toutes les vues pour le calcul du total
         
         // Ajouter les vues aux articles et trier
         const postsWithViews = posts.map(post => ({
@@ -148,15 +150,21 @@ export default function Blog({ posts }) {
   }, [posts])
 
   useEffect(() => {
-    // Filtrer les posts en fonction du tag sélectionné
+    // Filtrer les posts en fonction du tag sélectionné et ajouter les vues
     let filtered = posts
 
     if (selectedTag) {
       filtered = filtered.filter(post => post.tags.includes(selectedTag))
     }
 
-    setFilteredPosts(filtered)
-  }, [selectedTag, posts])
+    // Ajouter les vues aux posts filtrés si disponibles
+    const filteredWithViews = filtered.map(post => ({
+      ...post,
+      views: allViews[post.slug] || post.views || 0
+    }))
+
+    setFilteredPosts(filteredWithViews)
+  }, [selectedTag, posts, allViews])
 
   const openCalendly = () => {
     // Charger Calendly seulement au premier clic (lazy load)
@@ -252,11 +260,11 @@ export default function Blog({ posts }) {
             Blog
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400 mb-0 tracking-tight">
-            Articles, réflexions et partages sur l'entrepreneuriat, le scraping, l'automatisation, le voyage et bien plus.
+            Je vis des trucs, j'aime bien les exprimer et je trouve ça intéressant de m'améliorer en rédaction. Ici je vais m'efforcer de partager uniquement sur des sujets <strong className="text-neutral-900 dark:text-neutral-100">entrepreneuriaux</strong>, plus spécifiquement sur mon métier autour du <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et de l'<strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> et m'étayer sur des articles plus <strong className="text-neutral-900 dark:text-neutral-100">voyage</strong> et pertinents. Ça évolue au fil des années aussi, c'est l'idée.
           </p>
         </section>
 
-        <section className="mb-6">
+        <section className="mb-12">
         <SearchBar 
           tags={allTags}
           selectedTag={selectedTag}
@@ -265,7 +273,7 @@ export default function Blog({ posts }) {
         </section>
 
         {topPostsLoading ? (
-          <section className="mb-12 md:mb-16">
+          <section className="mb-16">
             <h2 className="font-semibold text-xl mb-6 tracking-tighter">Articles les plus lus</h2>
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
@@ -287,7 +295,7 @@ export default function Blog({ posts }) {
             </div>
           </section>
         ) : topPosts.length > 0 && (
-          <section className="mb-12 md:mb-16">
+          <section className="mb-16">
             <h2 className="font-semibold text-xl mb-6 tracking-tighter">Articles les plus lus</h2>
             <div className="space-y-4">
               {topPosts.map((post) => {
@@ -328,9 +336,19 @@ export default function Blog({ posts }) {
           </section>
         )}
 
-        <section className="mb-12 md:mb-16">
+        <section className="mb-16">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="font-semibold text-xl tracking-tighter">Tous les articles</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="font-semibold text-xl tracking-tighter">Tous les articles</h2>
+              <span className="flex items-center gap-1.5 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
+                {filteredPosts.length} {filteredPosts.length === 1 ? 'article' : 'articles'}
+                <span className="w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 flex-shrink-0"></span>
+                {Object.keys(allViews).length > 0 
+                  ? filteredPosts.reduce((sum, post) => sum + (allViews[post.slug] || 0), 0)
+                  : filteredPosts.reduce((sum, post) => sum + (post.views || 0), 0)
+                } lectures
+              </span>
+            </div>
             {selectedTag && filteredPosts.length > 0 && (
               <span className="text-sm text-neutral-500 dark:text-neutral-500">
                 {filteredPosts.length} {filteredPosts.length === 1 ? 'article trouvé' : 'articles trouvés'}
@@ -438,7 +456,7 @@ export default function Blog({ posts }) {
         </section>
 
         <section className="mb-12 md:mb-16 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-center" aria-label="Contact">
-          <h2 className="font-semibold text-xl mb-4 tracking-tighter">Une question après lecture ?</h2>
+          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Une question après lecture ?</h2>
           <p className="text-neutral-600 dark:text-neutral-400 mb-6">
             Discutons de votre projet de scraping ou d'automatisation.
           </p>
@@ -460,20 +478,20 @@ export default function Blog({ posts }) {
           </div>
         </section>
 
-        <section className="mb-12 md:mb-16">
+        <section className="mb-16">
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">Pour aller plus loin</h2>
           <div className="space-y-2 text-neutral-600 dark:text-neutral-400">
             <p>
               <Link href="/a-propos" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Découvrez mon expertise en scraping
+                Découvrez mon parcours
               </Link>
               {' • '}
               <Link href="/outils" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Explorez mes outils scraping gratuits
+                Explorez mes outils gratuits
               </Link>
               {' • '}
               <Link href="/donnees-publiques" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Consultez mes métriques scraping
+                Suivez mes objectifs 2026
               </Link>
             </p>
         </div>

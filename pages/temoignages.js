@@ -12,6 +12,106 @@ export default function Temoignages() {
     keywords: ['témoignages', 'avis clients', 'recommandations', 'Malt', 'Fiverr', 'LinkedIn']
   })
 
+  // Données des témoignages pour le Review Schema
+  const testimonials = [
+    {
+      authorName: 'Adnane Amahou',
+      authorJob: 'Responsable CX @ NGI',
+      reviewBody: "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ.",
+      source: 'LinkedIn',
+      ratingValue: '5',
+      datePublished: '2024-01-15'
+    },
+    {
+      authorName: 'lampro74',
+      authorJob: 'Belgique',
+      reviewBody: "Corentin did an excellent job and my cooperation with him was smooth and easy. He delivered what he promised, he was very open and quick to discuss revisions and delivered even them in no time. My project was not a simple one, as it required collecting information from different places. I'm 100% satisfied with the result.",
+      source: 'Fiverr',
+      ratingValue: '5',
+      datePublished: '2024-01-10'
+    },
+    {
+      authorName: 'Mohamed-Amine Zaghdoud',
+      authorJob: 'Fondateur Kent',
+      reviewBody: "Prestation de scraping impeccable : compréhension rapide du besoin, extraction propre et structurée, délais respectés. Les données livrées sont exploitables immédiatement (format clair, colonnes cohérentes, pas de doublons). Communication fluide et réactif tout au long du projet.",
+      source: 'LinkedIn',
+      ratingValue: '5',
+      datePublished: '2024-01-05'
+    },
+    {
+      authorName: 'Denis',
+      authorJob: 'Inovesta',
+      reviewBody: "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande.",
+      source: 'Malt',
+      ratingValue: '5',
+      datePublished: '2023-12-20'
+    },
+    {
+      authorName: 'Hugues Chavrier',
+      authorJob: 'Président @ Assursafe',
+      reviewBody: "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !",
+      source: 'LinkedIn',
+      ratingValue: '5',
+      datePublished: '2023-12-15'
+    },
+    {
+      authorName: 'tigerparts',
+      authorJob: 'Pays-Bas',
+      reviewBody: "Corentin has been exceptionally fast at delivering that order. Great level of expertise! Kudos Corentin.",
+      source: 'Fiverr',
+      ratingValue: '5',
+      datePublished: '2023-12-10'
+    },
+    {
+      authorName: 'Chris Rydahl',
+      authorJob: 'Cofounder & CTO @ Parallel',
+      reviewBody: "Je recommande vivement Corentin pour sa réactivité et son professionnalisme. J'ai eu la chance de faire appel à lui à deux reprises, et à chaque fois, son accompagnement a été exemplaire.",
+      source: 'LinkedIn',
+      ratingValue: '5',
+      datePublished: '2023-12-05'
+    },
+    {
+      authorName: 'Charlotte',
+      authorJob: 'Agence Canopée',
+      reviewBody: "Corentin est très pro. Il connait son métier, est de très bon conseils, et force de proposition.",
+      source: 'Malt',
+      ratingValue: '5',
+      datePublished: '2023-11-25'
+    },
+    {
+      authorName: 'Julien Vabre',
+      authorJob: 'Dirigeant InXpress Gironde',
+      reviewBody: "Nous travaillons avec Corentin depuis plus de 3 ans. Il a toujours été de très bons conseils, réactif et appliqué. Je recommande à 💯 % !",
+      source: 'LinkedIn',
+      ratingValue: '5',
+      datePublished: '2023-11-20'
+    },
+    {
+      authorName: 'jma225845',
+      authorJob: 'France',
+      reviewBody: "Nous sommes extrêmement satisfaits du travail réalisé. Corentin a fait preuve d'un grand professionnalisme, d'une excellente réactivité et d'un sens du détail remarquable. La communication a toujours été fluide et agréable, et le résultat final dépasse largement nos attentes.",
+      source: 'Fiverr',
+      ratingValue: '5',
+      datePublished: '2023-11-15'
+    },
+    {
+      authorName: 'Arthur Dalaise',
+      authorJob: 'Co-fondateur @ La Biche-Renard',
+      reviewBody: "Corentin est redoutablement efficace, il comprend vite et travaille vite. Un plaisir.",
+      source: 'LinkedIn',
+      ratingValue: '5',
+      datePublished: '2023-11-10'
+    },
+    {
+      authorName: 'buzzinsider',
+      authorJob: 'États-Unis',
+      reviewBody: "For any scraping needs, he is amazing, was able to scrape 400K companies from a complex site.",
+      source: 'Fiverr',
+      ratingValue: '5',
+      datePublished: '2023-11-05'
+    }
+  ]
+
   return (
     <>
       <SEOHead {...pageSEO} />
@@ -21,6 +121,20 @@ export default function Temoignages() {
         bestRating: '5',
         worstRating: '1'
       }} />
+      {/* Review Schema pour chaque témoignage */}
+      {testimonials.map((testimonial, index) => (
+        <StructuredData
+          key={index}
+          type="Review"
+          data={{
+            authorName: testimonial.authorName,
+            reviewBody: testimonial.reviewBody,
+            ratingValue: testimonial.ratingValue,
+            datePublished: testimonial.datePublished,
+            serviceName: 'Services de Scraping et Automatisation'
+          }}
+        />
+      ))}
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
         <section className="mb-16">
           <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Témoignages</h1>
@@ -34,6 +148,9 @@ export default function Temoignages() {
           <div className="space-y-6">
             {/* LinkedIn */}
             <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Automatisation • Compréhension immédiate • Valeur apportée dès le départ</p>
+              </div>
               <div className="flex items-start justify-between mb-4">
                 <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                   "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ."
@@ -49,6 +166,9 @@ export default function Temoignages() {
             </div>
             {/* Fiverr */}
             <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Projet complexe • Révisions rapides • 100% satisfait</p>
+              </div>
               <div className="flex items-start justify-between mb-4">
                 <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                   "Corentin did an excellent job and my cooperation with him was smooth and easy. He delivered what he promised, he was very open and quick to discuss revisions and delivered even them in no time. My project was not a simple one, as it required collecting information from different places. I'm 100% satisfied with the result."
@@ -64,6 +184,9 @@ export default function Temoignages() {
             </div>
             {/* LinkedIn */}
             <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Délais respectés • Données exploitables immédiatement • Communication fluide</p>
+              </div>
               <div className="flex items-start justify-between mb-4">
                 <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                   "Prestation de scraping impeccable : compréhension rapide du besoin, extraction propre et structurée, délais respectés. Les données livrées sont exploitables immédiatement (format clair, colonnes cohérentes, pas de doublons). Communication fluide et réactif tout au long du projet."
@@ -79,6 +202,9 @@ export default function Temoignages() {
             </div>
             {/* Malt */}
             <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Délais respectés • Clarté dès le départ • Professionnalisme</p>
+              </div>
               <div className="flex items-start justify-between mb-4">
                 <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                   "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
@@ -94,6 +220,9 @@ export default function Temoignages() {
             </div>
             {/* LinkedIn */}
             <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Plusieurs missions • Professionnel • À l'écoute</p>
+              </div>
               <div className="flex items-start justify-between mb-4">
                 <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                   "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !"
@@ -109,6 +238,9 @@ export default function Temoignages() {
             </div>
             {/* Fiverr */}
             <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Livraison exceptionnellement rapide • Grande expertise</p>
+              </div>
               <div className="flex items-start justify-between mb-4">
                 <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                   "Corentin has been exceptionally fast at delivering that order. Great level of expertise! Kudos Corentin."
@@ -124,6 +256,9 @@ export default function Temoignages() {
             </div>
             {/* LinkedIn */}
             <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">2 missions • Réactivité • Accompagnement exemplaire</p>
+              </div>
               <div className="flex items-start justify-between mb-4">
                 <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                   "Je recommande vivement Corentin pour sa réactivité et son professionnalisme. J'ai eu la chance de faire appel à lui à deux reprises, et à chaque fois, son accompagnement a été exemplaire."
@@ -145,17 +280,21 @@ export default function Temoignages() {
                 Discutons de votre projet et voyons comment je peux vous aider à le concrétiser.
               </p>
               <Link 
-                href={siteConfig.social.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
+                href="/contact"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
               >
-                Me contacter
+                Réserver un créneau
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                </svg>
               </Link>
             </div>
             
             {/* Malt */}
             <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Expertise • Conseils • Force de proposition</p>
+              </div>
               <div className="flex items-start justify-between mb-4">
                 <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                   "Corentin est très pro. Il connait son métier, est de très bon conseils, et force de proposition."
@@ -171,6 +310,9 @@ export default function Temoignages() {
             </div>
             {/* LinkedIn */}
             <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">3+ ans de collaboration • Conseils • Réactivité</p>
+              </div>
               <div className="flex items-start justify-between mb-4">
                 <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                   "Nous travaillons avec Corentin depuis plus de 3 ans. Il a toujours été de très bons conseils, réactif et appliqué. Je recommande à 💯 % !"
@@ -186,6 +328,9 @@ export default function Temoignages() {
             </div>
             {/* Fiverr */}
             <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Résultat dépasse attentes • Communication fluide • Professionnalisme</p>
+              </div>
               <div className="flex items-start justify-between mb-4">
                 <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                   "Nous sommes extrêmement satisfaits du travail réalisé. Corentin a fait preuve d'un grand professionnalisme, d'une excellente réactivité et d'un sens du détail remarquable. La communication a toujours été fluide et agréable, et le résultat final dépasse largement nos attentes."
@@ -201,6 +346,9 @@ export default function Temoignages() {
             </div>
             {/* LinkedIn */}
             <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Efficacité • Compréhension rapide • Travail rapide</p>
+              </div>
               <div className="flex items-start justify-between mb-4">
                 <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                   "Corentin est redoutablement efficace, il comprend vite et travaille vite. Un plaisir."
@@ -216,6 +364,9 @@ export default function Temoignages() {
             </div>
             {/* Fiverr */}
             <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">400K entreprises scrapées • Site complexe • Expertise scraping</p>
+              </div>
               <div className="flex items-start justify-between mb-4">
                 <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
                   "For any scraping needs, he is amazing, was able to scrape 400K companies from a complex site."

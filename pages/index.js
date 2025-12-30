@@ -275,13 +275,10 @@ export default function Home({ posts }) {
             className="w-16 h-16 rounded-full object-cover mb-4 border-2 border-neutral-200 dark:border-neutral-800"
             priority
           />
-          <h1 className="font-semibold text-2xl mb-6 tracking-tighter">Corentin Robert</h1>
+          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Corentin Robert</h1>
         </div>
-        <p className="mb-6 text-neutral-900 dark:text-neutral-100 tracking-tight">
-          Je transforme vos données web en opportunités business. Expert freelance en <strong>scraping</strong> et <strong>automatisation</strong>, je crée des outils sur-mesure pour extraire, structurer et exploiter vos données.
-        </p>
         <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Le week-end, je développe <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère — on parcourt la France pour mettre en avant des logements d'exception.
+          J'aide les dirigeants de TPE-PME à automatiser leurs processus et gagner du temps. Expert en <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong>, je crée des outils sur-mesure pour extraire, structurer et exploiter vos données — livraison en moins d'une semaine. Le week-end, je développe <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère — on parcourt la France pour mettre en avant des logements d'exception.
         </p>
         
         {/* Métriques de confiance - Déplacées plus tôt sur mobile */}
@@ -300,9 +297,20 @@ export default function Home({ posts }) {
             metrics.map((metric, index) => (
               <div key={index} className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
                 <div className="text-2xl font-semibold mb-1 text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
-                  {metric.label === 'projets réalisés' && metric.breakdown ? (
+                  {metric.label === 'projets réalisés' ? (
                     <>
-                      {metric.value} <span className="text-base font-normal text-neutral-500 dark:text-neutral-500">({metric.breakdown.malt} + {metric.breakdown.fiverr})</span>
+                      {metric.value} {metric.breakdown && <span className="text-base font-normal text-neutral-500 dark:text-neutral-500">({metric.breakdown.malt} + {metric.breakdown.fiverr})</span>}
+                      <a 
+                        href={siteConfig.social.malt}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center hover:opacity-70 transition-opacity text-neutral-400 dark:text-neutral-500"
+                        aria-label="Profil Malt"
+                      >
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                        </svg>
+                      </a>
                     </>
                   ) : (
                     <>
@@ -310,13 +318,26 @@ export default function Home({ posts }) {
                       {metric.label === 'abonnés' && metric.source === 'Logement Atypique' && (
                         <a 
                           href="https://www.instagram.com/logement.atypique" 
-                          target="_blank" 
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center hover:opacity-70 transition-opacity text-neutral-400 dark:text-neutral-500"
                           aria-label="Instagram Logement Atypique"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" className="bi bi-instagram" viewBox="0 0 16 16">
                             <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"/>
+                          </svg>
+                        </a>
+                      )}
+                      {(metric.label === 'utilisateurs actifs' || metric.label?.includes('utilisateurs')) && (
+                        <a 
+                          href="https://apify.com?fpr=0n7ukq"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center hover:opacity-70 transition-opacity text-neutral-400 dark:text-neutral-500"
+                          aria-label="Voir mes scrapers sur Apify"
+                        >
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                           </svg>
                         </a>
                       )}
@@ -343,7 +364,7 @@ export default function Home({ posts }) {
         </div>
         
         {/* Carousel de témoignages */}
-        <section className="mb-6 relative" aria-label="Témoignages clients">
+        <section className="mb-16 relative" aria-label="Témoignages clients">
           <div className="relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-live="polite" aria-atomic="true">
             <div 
               className="flex transition-transform duration-500 ease-in-out"
@@ -351,6 +372,9 @@ export default function Home({ posts }) {
             >
               {/* Témoignage LinkedIn */}
               <div className="min-w-full p-4 flex flex-col min-h-[180px]">
+                <div className="mb-3">
+                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Automatisation • Compréhension immédiate • Valeur apportée dès le départ</p>
+                </div>
                 <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
                   "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ."
                 </p>
@@ -365,6 +389,9 @@ export default function Home({ posts }) {
               
               {/* Témoignage Malt */}
               <div className="min-w-full p-4 flex flex-col min-h-[180px]">
+                <div className="mb-3">
+                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Délais respectés • Clarté dès le départ • Professionnalisme</p>
+                </div>
                 <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
                   "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
                 </p>
@@ -379,6 +406,9 @@ export default function Home({ posts }) {
               
               {/* Témoignage Fiverr */}
               <div className="min-w-full p-4 flex flex-col min-h-[180px]">
+                <div className="mb-3">
+                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Projet complexe • Révisions rapides • 100% satisfait</p>
+                </div>
                 <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
                   "Corentin did an excellent job and my cooperation with him was smooth and easy. He delivered what he promised, he was very open and quick to discuss revisions and delivered even them in no time. My project was not a simple one, as it required collecting information from different places. I'm 100% satisfied with the result."
                 </p>
@@ -461,9 +491,9 @@ export default function Home({ posts }) {
               target: '_blank',
               rel: 'noopener noreferrer',
               onClick: handleClick,
-              className: 'relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]'
+              className: 'relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]'
             } : {
-              className: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 min-h-[96px]'
+              className: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 min-h-[96px]'
             }
 
             return (
@@ -499,8 +529,8 @@ export default function Home({ posts }) {
                     )
                   ) : null}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      <h3 className={`font-medium flex items-center gap-2 ${isActive ? '' : 'text-neutral-500 dark:text-neutral-400'}`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h2 className={`font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 flex items-center gap-2 ${!isActive ? 'text-neutral-500 dark:text-neutral-400' : ''}`}>
                         {project.title}
                         {project.status === 'active' && (
                           <span className="relative flex h-2 w-2" title="Projet actif">
@@ -508,7 +538,7 @@ export default function Home({ posts }) {
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                           </span>
                         )}
-                      </h3>
+                      </h2>
                       {project.status !== 'active' && (
                         <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
                           project.status === 'paused' 
@@ -519,30 +549,26 @@ export default function Home({ posts }) {
                         </span>
                       )}
                     </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
-                      <p className={`${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} text-sm`}>
-                        {project.description}
-                      </p>
-                      {project.link && project.id && (
-                        <div className="hidden sm:flex flex-shrink-0">
-                          <ProjectClickCounter projectId={project.id} />
-                        </div>
-                      )}
-                    </div>
+                    <p className={`text-sm ${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} line-clamp-2`}>
+                      {project.description}
+                    </p>
                     {project.link && project.id && (
-                      <div className="sm:hidden mt-1.5">
+                      <div className="sm:hidden mt-2">
                         <ProjectClickCounter projectId={project.id} />
                       </div>
                     )}
                   </div>
                 </div>
-                {project.link && (
-                  <div className="hidden sm:flex items-center transition-all group-hover:text-neutral-800 dark:group-hover:text-neutral-200 flex-shrink-0 ml-2">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
+                  {project.link && project.id && (
+                    <ProjectClickCounter projectId={project.id} />
+                  )}
+                  {project.link && (
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
                       <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                     </svg>
-                  </div>
-                )}
+                  )}
+                </div>
               </Component>
             )
           })}
@@ -550,7 +576,7 @@ export default function Home({ posts }) {
         <div className="mt-4 text-center">
           <Link
             href="/a-propos"
-            className="text-sm font-medium text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
+            className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
           >
             Voir tous les projets (y compris arrêtés)
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -571,7 +597,7 @@ export default function Home({ posts }) {
             <Link
               key={tool.name}
               href={tool.link}
-              className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]"
+              className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]"
             >
               <div className="flex items-start gap-3 flex-1 min-w-0">
                 {tool.iconSvg ? (
@@ -609,24 +635,26 @@ export default function Home({ posts }) {
                       className="w-6 h-6 rounded-lg object-contain"
                     />
                   </div>
+                ) : tool.icon ? (
+                  <span className="flex-shrink-0 text-2xl">{tool.icon}</span>
                 ) : null}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                    <h3 className="font-medium">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
                       {tool.name}
-                    </h3>
+                    </h2>
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
-                    <p className="text-neutral-600 dark:text-neutral-400 text-sm">
-                      {tool.description}
-                    </p>
-                  </div>
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
+                    {tool.description}
+                  </p>
                 </div>
               </div>
-              <div className="hidden sm:flex items-center transition-all group-hover:text-neutral-800 dark:group-hover:text-neutral-200 flex-shrink-0 ml-2">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                  <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                </svg>
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="hidden sm:block">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
+                    <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                  </svg>
+                </div>
               </div>
             </Link>
           ))}
@@ -634,7 +662,7 @@ export default function Home({ posts }) {
         <div className="mt-6 text-center">
           <Link
             href="/outils"
-            className="text-sm font-medium text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
+            className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
           >
             Voir tous les outils
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -711,7 +739,7 @@ export default function Home({ posts }) {
       <section className="mt-12 mb-8 text-center" aria-label="Navigation vers le blog">
         <Link
           href="/blog"
-          className="text-sm font-medium text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
+          className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
         >
           Voir tous les articles
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -8,6 +8,13 @@ import { siteConfig } from '../lib/config'
 import ProjectClickCounter from '../components/ProjectClickCounter'
 import { photos } from '../lib/photos'
 
+// Configuration des articles "Leçons apprises" pour les projets arrêtés
+// Mettre le slug de l'article quand il sera créé, ou null pour ne pas afficher le lien
+const lessonsArticles = {
+  instaninja: null, // Exemple: 'instaninja-lecons-apprises'
+  rareItemClub: null // Exemple: 'rare-item-club-lecons-apprises'
+}
+
 export default function About() {
   const [showStoppedProjects, setShowStoppedProjects] = useState(true)
   const [photoIndex, setPhotoIndex] = useState(0)
@@ -20,7 +27,7 @@ export default function About() {
     
     // Calculer itemsPerView selon la taille de l'écran
     const updateItemsPerView = () => {
-      setItemsPerView(window.innerWidth >= 640 ? 3 : 1.25)
+      setItemsPerView(window.innerWidth >= 640 ? 3 : 1.5)
     }
     
     updateItemsPerView()
@@ -135,20 +142,12 @@ export default function About() {
       <section className="mb-16" aria-label="Présentation personnelle">
         <h1 className="font-semibold text-2xl mb-8 tracking-tighter">À propos</h1>
         
+        <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
+          28 ans, Parisien. De growth marketeux chez Airbnb, en passant chez Shine à aujourd'hui entrepreneur indépendant, je me suis spécialisé en <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong>, <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> et <strong className="text-neutral-900 dark:text-neutral-100">outbound marketing</strong>. J'accompagne les dirigeants de TPE-PME à gagner du temps et acquérir les bonnes pratiques sur ces sujets. Le week-end, je développe <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> avec mon frère — on parcourt la France pour mettre en avant des logements d'exception.
+        </p>
+        
         <div className="mb-8 space-y-6">
           <div>
-            <p className="text-neutral-900 dark:text-neutral-100 tracking-tight mb-2">
-              28 ans, Parisien. De growth marketeux chez Airbnb, en passant chez Shine à aujourd'hui entrepreneur indépendant, je me suis spécialisé en <strong>scraping</strong>, <strong>automatisation</strong> et <strong>outbound marketing</strong>.
-            </p>
-            <p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
-              J'accompagne les dirigeants de TPE-PME à gagner du temps et acquérir les bonnes pratiques sur ces sujets.
-            </p>
-          </div>
-          
-          <div>
-            <p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
-              Le week-end, je développe <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">Logement Atypique</Link> avec mon frère — on parcourt la France pour mettre en avant des logements d'exception.
-            </p>
             <p className="text-neutral-600 dark:text-neutral-400 tracking-tight mt-2">
               En dehors du code, j'ai longtemps pratiqué le Handball et je continue aujourd'hui avec le running et l'Hyrox. Et je me suis pris de passion pour les échecs sur mon temps libre.
             </p>
@@ -184,7 +183,7 @@ export default function About() {
               style={{ transform: `translateX(-${photoIndex * (100 / itemsPerView)}%)` }}
             >
               {/* Vidéo YouTube en première position */}
-              <div className="relative flex-shrink-0 w-4/5 sm:w-1/3 aspect-[9/16] overflow-hidden rounded-lg">
+              <div className="relative flex-shrink-0 w-3/5 sm:w-1/3 aspect-[9/16] overflow-hidden rounded-lg">
                 <iframe
                   src="https://www.youtube.com/embed/53pisKcp9Vc?rel=0&modestbranding=1"
                   title="Présentation de Corentin Robert - Freelance Scraping et Automatisation"
@@ -200,7 +199,7 @@ export default function About() {
                 <Link
                   key={index}
                   href="/photos"
-                  className="group relative flex-shrink-0 w-4/5 sm:w-1/3 aspect-[9/16] overflow-hidden rounded-lg"
+                  className="group relative flex-shrink-0 w-3/5 sm:w-1/3 aspect-[9/16] overflow-hidden rounded-lg"
                   aria-label={photo.alt || `Photo ${index + 1} - ${photo.location || 'Moment capturé'}`}
                 >
                   <Image
@@ -277,14 +276,34 @@ export default function About() {
                 <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2022</div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium mb-1">Rare Item Club</h3>
-                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Achat-revente de sneakers "rares" via Vinted, Leboncoin, Ebay</p>
+                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed mb-1">
+                    Achat-revente de sneakers "rares" via Vinted, Leboncoin, Ebay
+                  </p>
+                  {lessonsArticles.rareItemClub && (
+                    <Link 
+                      href={`/blog/${lessonsArticles.rareItemClub}`} 
+                      className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
+                    >
+                      Leçons apprises
+                    </Link>
+                  )}
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row sm:gap-6">
                 <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2018-2019</div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-medium mb-1">InstaNinja</h3>
-                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Automatisation de compte Instagram — +400 clients total, 10K€ MRR</p>
+                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed mb-1">
+                    Automatisation de compte Instagram — +400 clients total, 10K€ MRR
+                  </p>
+                  {lessonsArticles.instaninja && (
+                    <Link 
+                      href={`/blog/${lessonsArticles.instaninja}`} 
+                      className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
+                    >
+                      Leçons apprises
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
@@ -405,9 +424,9 @@ export default function About() {
               target: '_blank',
               rel: 'noopener noreferrer',
               onClick: handleClick,
-              className: 'relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]'
+              className: 'relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]'
             } : {
-              className: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 min-h-[96px]'
+              className: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 min-h-[96px]'
             }
 
             return (
@@ -441,8 +460,8 @@ export default function About() {
                     )
                   ) : null}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      <h3 className={`font-medium flex items-center gap-2 ${isActive ? '' : 'text-neutral-500 dark:text-neutral-400'}`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h2 className={`font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 flex items-center gap-2 ${!isActive ? 'text-neutral-500 dark:text-neutral-400' : ''}`}>
                         {project.title}
                         {project.status === 'active' && (
                           <span className="relative flex h-2 w-2" title="Projet actif">
@@ -450,7 +469,7 @@ export default function About() {
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                           </span>
                         )}
-                      </h3>
+                      </h2>
                       {project.status !== 'active' && (
                         <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
                           project.status === 'paused' 
@@ -461,30 +480,26 @@ export default function About() {
                         </span>
                       )}
                     </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
-                      <p className={`${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} text-sm`}>
-                        {project.description}
-                      </p>
-                      {project.link && project.id && (
-                        <div className="hidden sm:flex flex-shrink-0">
-                          <ProjectClickCounter projectId={project.id} />
-                        </div>
-                      )}
-                    </div>
+                    <p className={`text-sm ${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} line-clamp-2`}>
+                      {project.description}
+                    </p>
                     {project.link && project.id && (
-                      <div className="sm:hidden mt-1.5">
+                      <div className="sm:hidden mt-2">
                         <ProjectClickCounter projectId={project.id} />
                       </div>
                     )}
                   </div>
                 </div>
-                {project.link && (
-                  <div className="hidden sm:flex items-center transition-all group-hover:text-neutral-800 dark:group-hover:text-neutral-200 flex-shrink-0 ml-2">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
+                  {project.link && project.id && (
+                    <ProjectClickCounter projectId={project.id} />
+                  )}
+                  {project.link && (
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
                       <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                     </svg>
-                  </div>
-                )}
+                  )}
+                </div>
               </Component>
             )
           })}
@@ -493,7 +508,7 @@ export default function About() {
 
       {/* Call-to-Action */}
       <section className="mb-16 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-center" aria-label="Contact">
-        <h2 className="font-semibold text-xl mb-4 tracking-tighter">Discutons de votre projet</h2>
+        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Discutons de votre projet</h2>
         <p className="text-neutral-600 dark:text-neutral-400 mb-6">
           Réservez un créneau ou contactez-moi directement.
         </p>

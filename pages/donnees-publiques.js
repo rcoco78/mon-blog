@@ -4,6 +4,7 @@ import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { useState, useEffect } from 'react'
+import FAQ from '../components/FAQ'
 
 export default function DonneesPubliques() {
   const pageSEO = generatePageSEO({
@@ -663,18 +664,11 @@ export default function DonneesPubliques() {
         keywords: ['objectifs business', 'métriques', 'progression', 'key results']
       }} />
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
-        <section className="mb-8">
-          <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Objectifs 2026</h1>
-          <div className="mb-6 space-y-3">
-            <p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
-              Transparence totale sur mes objectifs, mes challenges et ma progression. 
-              Voici mes objectifs 2026 et quelques métriques publiques mises à jour en temps réel.
-            </p>
-            <p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
-              En parallèle de mon activité freelance, je développe <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">Logement Atypique</Link> avec mon frère — on met en avant des logements d'exception partout en France. 
-              Cette page vous permet de suivre l'évolution de mes projets, de mes partenariats et de mes métriques business.
-            </p>
-          </div>
+        <section className="mb-16">
+          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Objectifs 2026</h1>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
+            Transparence totale sur mes <strong className="text-neutral-900 dark:text-neutral-100">objectifs</strong>, mes <strong className="text-neutral-900 dark:text-neutral-100">challenges</strong> et ma <strong className="text-neutral-900 dark:text-neutral-100">progression</strong>. Voici mes objectifs 2026 et quelques métriques publiques mises à jour en temps réel. En parallèle de mon activité freelance, je développe <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> avec mon frère — on met en avant des logements d'exception partout en France. Cette page vous permet de suivre l'évolution de mes projets, de mes partenariats et de mes métriques business.
+          </p>
         </section>
 
         {/* TL;DR - Métriques clés */}
@@ -725,99 +719,6 @@ export default function DonneesPubliques() {
           </section>
         )}
 
-        {/* Section "Pourquoi ces données ?" */}
-        <section className="mb-10 md:mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Pourquoi ces données">
-          <h2 className="font-semibold text-lg mb-4 tracking-tighter">Pourquoi ces données ?</h2>
-          <div className="space-y-3 text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
-            <p>
-              <strong className="text-neutral-900 dark:text-neutral-100">Transparence et confiance :</strong> En partageant publiquement mes objectifs et ma progression, 
-              je démontre mon engagement envers la transparence et la responsabilité. C'est une façon de construire la confiance avec mes clients et partenaires.
-            </p>
-            <p>
-              <strong className="text-neutral-900 dark:text-neutral-100">Reconnaissance de la réalité :</strong> Les objectifs ne sont pas toujours atteints, 
-              et c'est normal. Montrer les succès comme les défis permet de donner une vision authentique de mon activité.
-            </p>
-            <p>
-              <strong className="text-neutral-900 dark:text-neutral-100">Inspiration et partage :</strong> Ces données peuvent inspirer d'autres entrepreneurs 
-              et freelances à adopter une approche similaire de transparence dans leur communication.
-            </p>
-          </div>
-        </section>
-
-        {/* Section Impact client */}
-        <section className="mb-10 md:mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Impact client">
-          <h2 className="font-semibold text-lg mb-4 tracking-tighter">Impact pour mes clients</h2>
-          <div className="space-y-4 text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
-            <div>
-              <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Réactivité extrême</h3>
-              <p>
-                Livraison en moins d'une semaine. Je privilégie la rapidité d'exécution pour que vous puissiez exploiter vos données rapidement.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Systèmes longue durée</h3>
-              <p>
-                Je construis des solutions pérennes — comme les scrapers Apify — qui fonctionnent dans le temps. 
-                Vous gagnez un temps considérable en automatisant des processus répétitifs, et le système continue de tourner même après la livraison.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Section Capacité & Disponibilité */}
-        <section className="mb-10 md:mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Capacité et disponibilité">
-          <h2 className="font-semibold text-lg mb-4 tracking-tighter">Capacité & Disponibilité</h2>
-          <div className="space-y-4 text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
-            <div>
-              <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Volume de projets</h3>
-              <p>
-                Je traite jusqu'à <strong className="text-neutral-900 dark:text-neutral-100">20 à 30 projets par mois</strong>, 
-                avec un suivi rigoureux de chaque mission.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Disponibilité pour échanger</h3>
-              <p>
-                Jusqu'à <strong className="text-neutral-900 dark:text-neutral-100">4 appels de 20 minutes par jour</strong> pour discuter de votre projet. 
-                <button onClick={openCalendly} className="underline hover:text-neutral-900 dark:hover:text-neutral-100 ml-1">Réservez un créneau via Calendly</button>.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Secteurs d'expertise</h3>
-              <p>
-                J'ai une expérience particulière dans <strong className="text-neutral-900 dark:text-neutral-100">l'immobilier</strong> et 
-                le <strong className="text-neutral-900 dark:text-neutral-100">secteur de la santé</strong>, mais je travaille avec des entreprises de tous secteurs.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Section Comment je travaille */}
-        <section className="mb-10 md:mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Process de travail">
-          <h2 className="font-semibold text-lg mb-4 tracking-tighter">Comment je travaille</h2>
-          <div className="space-y-3 text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
-            <div className="flex items-start gap-3">
-              <span className="font-semibold text-neutral-900 dark:text-neutral-100 flex-shrink-0 w-6">1.</span>
-              <p><strong className="text-neutral-900 dark:text-neutral-100">Appel de 20 minutes</strong> pour comprendre vos besoins et votre contexte.</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="font-semibold text-neutral-900 dark:text-neutral-100 flex-shrink-0 w-6">2.</span>
-              <p><strong className="text-neutral-900 dark:text-neutral-100">Proposition</strong> détaillée avec approche technique et délais.</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="font-semibold text-neutral-900 dark:text-neutral-100 flex-shrink-0 w-6">3.</span>
-              <p><strong className="text-neutral-900 dark:text-neutral-100">Validation</strong> de votre côté, puis démarrage du projet.</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="font-semibold text-neutral-900 dark:text-neutral-100 flex-shrink-0 w-6">4.</span>
-              <p><strong className="text-neutral-900 dark:text-neutral-100">Livraison</strong> en moins d'une semaine, avec aller-retour si nécessaire.</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="font-semibold text-neutral-900 dark:text-neutral-100 flex-shrink-0 w-6">5.</span>
-              <p><strong className="text-neutral-900 dark:text-neutral-100">Suivi</strong> — on se reparle si besoin d'ajustements ou d'évolutions.</p>
-            </div>
-          </div>
-        </section>
 
         {/* Tableaux détaillés des Key Results par catégorie */}
         <section className="mb-16" aria-label="Détail des objectifs par catégorie">
@@ -1055,7 +956,7 @@ export default function DonneesPubliques() {
                   if (!hasRapidKR && chessStats.rapid.current > 0) {
                     resultsToDisplay.push({
                       id: 'chess-rapid-virtual',
-                      name: 'Rapid Chess.com',
+                      name: 'Classement échecs (Rapid)',
                       category: category,
                       status: 'In progress',
                       currentResult: chessStats.rapid.current,
@@ -1117,29 +1018,29 @@ export default function DonneesPubliques() {
                   
                   {/* Encart service - Flux de données clients */}
                   {translatedCategory === 'Relation client' && (
-                    <div className="mb-4 p-3 md:p-4 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                    <div className="mb-4 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-sm mb-1 text-neutral-900 dark:text-neutral-100">
+                          <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 mb-1">
                             Achat flux de données clients
-                          </h4>
-                          <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-2 leading-relaxed">
+                          </h2>
+                          <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
                             Accès en temps réel aux nouveaux rendez-vous. Notifications sur Slack, Discord, Telegram ou webhook.
                           </p>
-                          <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">
+                          <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                             10 000 € HT / an
                           </p>
                         </div>
-                        <a
-                          href="mailto:corentin@outreacher.fr?subject=Demande d'information - Flux de données clients"
-                          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors flex-shrink-0 self-start sm:self-auto"
-                          aria-label="Contacter pour le flux de données clients"
+                        <button
+                          onClick={openCalendly}
+                          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors flex-shrink-0 self-start sm:self-auto"
+                          aria-label="Réserver un créneau Calendly"
                         >
-                          Me contacter
-                          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          Réserver un créneau
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                           </svg>
-                        </a>
+                        </button>
                       </div>
                     </div>
                   )}
@@ -1159,12 +1060,12 @@ export default function DonneesPubliques() {
                       .map((kr) => (
                       <div
                         key={kr.id}
-                        className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all hover:bg-neutral-50 dark:hover:bg-neutral-900/30"
+                        className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]"
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h4 className="font-medium text-sm">{improveTitle(kr.name, kr.category)}</h4>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">{improveTitle(kr.name, kr.category)}</h2>
                               {kr.status?.toLowerCase() === 'done' && (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 bg-green-600 dark:bg-green-500 text-white">
                                   Terminé
@@ -1186,9 +1087,9 @@ export default function DonneesPubliques() {
                                 </>
                               )}
                             </div>
-                            <div className="flex items-center gap-4 text-xs text-neutral-600 dark:text-neutral-400">
-                              <span>
-                                <span className={`font-medium ${
+                            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-0">
+                              <span className="flex items-center gap-4">
+                                <span className={`text-sm font-medium ${
                                   kr.progress > 100 ? 'text-orange-700 dark:text-orange-400' : 'text-neutral-900 dark:text-neutral-100'
                                 }`}>
                                   {(() => {
@@ -1243,58 +1144,58 @@ export default function DonneesPubliques() {
                                   }
                                   return formatNumber(kr.targetResult)
                                 })()}</span>
+                                {(() => {
+                                  // Calculer le remaining et progress avec la valeur réelle pour "Revenus d'affiliation"
+                                  const nameLower = (kr.name || '').toLowerCase()
+                                  const categoryLower = (kr.category || '').toLowerCase()
+                                  const isAffiliationTotal = (nameLower.includes('revenus d\'affiliation') || nameLower.includes('ca affiliation') || nameLower.includes('chiffre d\'affaires affiliation')) &&
+                                                             !nameLower.includes('apify') && !nameLower.includes('lemlist') && !nameLower.includes('zapier') &&
+                                                             (categoryLower.includes('affiliation') || categoryLower.includes('partenariats'))
+                                  
+                                  let actualCurrentResult = kr.currentResult || 0
+                                  let actualTargetResult = kr.targetResult || 0
+                                  
+                                  // Convertir USD en EUR pour les revenus d'affiliation
+                                  if (isAffiliationRevenue(kr)) {
+                                    actualCurrentResult = usdToEur(actualCurrentResult)
+                                    actualTargetResult = usdToEur(actualTargetResult)
+                                  }
+                                  
+                                  if (isAffiliationTotal) {
+                                    const affiliationKRs = keyResults.filter(otherKr => {
+                                      const otherNameLower = (otherKr.name || '').toLowerCase()
+                                      const otherCategoryLower = (otherKr.category || '').toLowerCase()
+                                      return (otherNameLower.includes('revenus d\'affiliation') || otherNameLower.includes('affiliation')) &&
+                                             (otherNameLower.includes('apify') || otherNameLower.includes('lemlist') || otherNameLower.includes('zapier')) &&
+                                             (otherCategoryLower.includes('affiliation') || otherCategoryLower.includes('partenariats'))
+                                    })
+                                    const totalAffiliationUSD = affiliationKRs.reduce((sum, otherKr) => sum + (otherKr.currentResult || 0), 0)
+                                    actualCurrentResult = usdToEur(totalAffiliationUSD)
+                                    // Le targetResult du total est déjà en EUR dans Notion, pas besoin de conversion
+                                  }
+                                  
+                                  const actualRemaining = actualTargetResult - actualCurrentResult
+                                  const actualProgress = actualTargetResult > 0 ? (actualCurrentResult / actualTargetResult) * 100 : 0
+                                  
+                                  return (
+                                    <>
+                                      {actualProgress <= 100 && actualRemaining >= 0 && (
+                                        <span className="text-sm text-neutral-500 dark:text-neutral-500">
+                                          Reste: {formatNumber(actualRemaining)}
+                                        </span>
+                                      )}
+                                      {actualProgress > 100 && (
+                                        <span className="text-sm text-orange-700 dark:text-orange-400 font-medium">
+                                          Dépassé de {Math.abs(actualRemaining).toFixed(1)}
+                                        </span>
+                                      )}
+                                    </>
+                                  )
+                                })()}
                               </span>
-                              {(() => {
-                                // Calculer le remaining et progress avec la valeur réelle pour "Revenus d'affiliation"
-                                const nameLower = (kr.name || '').toLowerCase()
-                                const categoryLower = (kr.category || '').toLowerCase()
-                                const isAffiliationTotal = (nameLower.includes('revenus d\'affiliation') || nameLower.includes('ca affiliation') || nameLower.includes('chiffre d\'affaires affiliation')) &&
-                                                           !nameLower.includes('apify') && !nameLower.includes('lemlist') && !nameLower.includes('zapier') &&
-                                                           (categoryLower.includes('affiliation') || categoryLower.includes('partenariats'))
-                                
-                                let actualCurrentResult = kr.currentResult || 0
-                                let actualTargetResult = kr.targetResult || 0
-                                
-                                // Convertir USD en EUR pour les revenus d'affiliation
-                                if (isAffiliationRevenue(kr)) {
-                                  actualCurrentResult = usdToEur(actualCurrentResult)
-                                  actualTargetResult = usdToEur(actualTargetResult)
-                                }
-                                
-                                if (isAffiliationTotal) {
-                                  const affiliationKRs = keyResults.filter(otherKr => {
-                                    const otherNameLower = (otherKr.name || '').toLowerCase()
-                                    const otherCategoryLower = (otherKr.category || '').toLowerCase()
-                                    return (otherNameLower.includes('revenus d\'affiliation') || otherNameLower.includes('affiliation')) &&
-                                           (otherNameLower.includes('apify') || otherNameLower.includes('lemlist') || otherNameLower.includes('zapier')) &&
-                                           (otherCategoryLower.includes('affiliation') || otherCategoryLower.includes('partenariats'))
-                                  })
-                                  const totalAffiliationUSD = affiliationKRs.reduce((sum, otherKr) => sum + (otherKr.currentResult || 0), 0)
-                                  actualCurrentResult = usdToEur(totalAffiliationUSD)
-                                  // Le targetResult du total est déjà en EUR dans Notion, pas besoin de conversion
-                                }
-                                
-                                const actualRemaining = actualTargetResult - actualCurrentResult
-                                const actualProgress = actualTargetResult > 0 ? (actualCurrentResult / actualTargetResult) * 100 : 0
-                                
-                                return (
-                                  <>
-                                    {actualProgress <= 100 && actualRemaining >= 0 && (
-                                <span className="text-neutral-500 dark:text-neutral-500">
-                                        Reste: {formatNumber(actualRemaining)}
-                                </span>
-                              )}
-                                    {actualProgress > 100 && (
-                                <span className="text-orange-700 dark:text-orange-400 font-medium">
-                                        Dépassé de {Math.abs(actualRemaining).toFixed(1)}
-                                </span>
-                              )}
-                                  </>
-                                )
-                              })()}
-                            </div>
+                            </p>
                           </div>
-                            <div className="flex items-center gap-3 sm:flex-shrink-0">
+                            <div className="flex items-center gap-3 flex-shrink-0">
                             {(() => {
                               // Calculer le progress avec la valeur réelle pour "Revenus d'affiliation" et échecs
                               const nameLower = (kr.name || '').toLowerCase()
@@ -1480,26 +1381,103 @@ export default function DonneesPubliques() {
         />
 
 
-        {/* Section Vision 2028-2029 */}
-        <section className="mb-16 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Vision long terme">
-          <h2 className="font-semibold text-lg mb-4 tracking-tighter">Vision 2028-2029</h2>
-          <div className="space-y-4 text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
-            <p>
-              Dans 2 à 3 ans, je veux construire un <strong className="text-neutral-900 dark:text-neutral-100">patrimoine avec business physique</strong>. 
-              Ce qui me ferait kiffer :
-            </p>
-            <ul className="space-y-2 ml-4 list-disc">
-              <li>Un <strong className="text-neutral-900 dark:text-neutral-100">studio de podcast</strong> pour partager mes réflexions et celles d'autres entrepreneurs</li>
-              <li>Un <strong className="text-neutral-900 dark:text-neutral-100">immobilier à Annecy</strong> — j'adore cette ville et j'aimerais y avoir un pied-à-terre</li>
-              <li>Toujours autant de <strong className="text-neutral-900 dark:text-neutral-100">CEOs satisfaits</strong> — la qualité de service reste ma priorité</li>
-              <li>Pleins d'<strong className="text-neutral-900 dark:text-neutral-100">outils gratuits délivrés</strong> — continuer à partager et donner accès à mes outils</li>
-              <li>Un plus large <strong className="text-neutral-900 dark:text-neutral-100">parterre de revenus d'affiliation</strong>, notamment avec Apify — développer des partenariats stratégiques</li>
-            </ul>
-            <p className="mt-4">
-              Cette vision guide mes objectifs 2026 et ma façon de travailler. 
-              Chaque projet freelance, chaque scraper public, chaque outil gratuit contribue à construire ce patrimoine.
-            </p>
-          </div>
+        {/* FAQ */}
+        <section className="mb-16 p-4 md:p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Questions fréquentes</h2>
+          <FAQ
+            items={[
+              {
+                question: "Pourquoi ces données publiques ?",
+                answer: (
+                  <>
+                    <p className="mb-3">
+                      <strong>Transparence et confiance :</strong> En partageant publiquement mes objectifs et ma progression, 
+                      je démontre mon engagement envers la transparence et la responsabilité. C'est une façon de construire la confiance avec mes clients et partenaires.
+                    </p>
+                    <p className="mb-3">
+                      <strong>Reconnaissance de la réalité :</strong> Les objectifs ne sont pas toujours atteints, 
+                      et c'est normal. Montrer les succès comme les défis permet de donner une vision authentique de mon activité.
+                    </p>
+                    <p>
+                      <strong>Inspiration et partage :</strong> Ces données peuvent inspirer d'autres entrepreneurs 
+                      et freelances à adopter une approche similaire de transparence dans leur communication.
+                    </p>
+                  </>
+                )
+              },
+              {
+                question: "Quel est l'impact pour mes clients ?",
+                answer: (
+                  <>
+                    <p className="mb-3">
+                      <strong>Réactivité extrême :</strong> Livraison en moins d'une semaine. Je privilégie la rapidité d'exécution pour que vous puissiez exploiter vos données rapidement.
+                    </p>
+                    <p>
+                      <strong>Systèmes longue durée :</strong> Je construis des solutions pérennes — comme les scrapers Apify — qui fonctionnent dans le temps. 
+                      Vous gagnez un temps considérable en automatisant des processus répétitifs, et le système continue de tourner même après la livraison.
+                    </p>
+                  </>
+                )
+              },
+              {
+                question: "Quelle est votre capacité et disponibilité ?",
+                answer: (
+                  <>
+                    <p className="mb-3">
+                      <strong>Volume de projets :</strong> Je traite jusqu'à <strong>20 à 30 projets par mois</strong>, 
+                      avec un suivi rigoureux de chaque mission.
+                    </p>
+                    <p className="mb-3">
+                      <strong>Disponibilité pour échanger :</strong> Jusqu'à <strong>4 appels de 20 minutes par jour</strong> pour discuter de votre projet. 
+                      <button onClick={openCalendly} className="underline hover:text-neutral-900 dark:hover:text-neutral-100 ml-1">Réservez un créneau via Calendly</button>.
+                    </p>
+                    <p>
+                      <strong>Secteurs d'expertise :</strong> J'ai une expérience particulière dans <strong>l'immobilier</strong> et 
+                      le <strong>secteur de la santé</strong>, mais je travaille avec des entreprises de tous secteurs.
+                    </p>
+                  </>
+                )
+              },
+              {
+                question: "Comment travaillez-vous ?",
+                answer: (
+                  <>
+                    <p className="mb-2"><strong>1. Appel de 20 minutes</strong> pour comprendre vos besoins et votre contexte.</p>
+                    <p className="mb-2"><strong>2. Proposition</strong> détaillée avec approche technique et délais.</p>
+                    <p className="mb-2"><strong>3. Validation</strong> de votre côté, puis démarrage du projet.</p>
+                    <p className="mb-2"><strong>4. Livraison</strong> en moins d'une semaine, avec aller-retour si nécessaire.</p>
+                    <p><strong>5. Suivi</strong> — on se reparle si besoin d'ajustements ou d'évolutions.</p>
+                  </>
+                )
+              },
+              {
+                question: "Quelle est votre vision à long terme ?",
+                answer: (
+                  <>
+                    <p className="mb-3">
+                      Dans 2 à 3 ans, je veux construire un <strong>patrimoine avec business physique</strong> qui me permette de vivre pleinement mes passions. 
+                      Cette vision guide mes objectifs 2026 et ma façon de travailler — chaque projet freelance, chaque scraper public, chaque outil gratuit contribue à construire ce patrimoine.
+                    </p>
+                    <p className="mb-3">
+                      <strong>Ce qui me ferait kiffer :</strong>
+                    </p>
+                    <ul className="space-y-2 ml-4 list-disc mb-3">
+                      <li>Un <strong>studio de podcast</strong> pour partager mes réflexions et celles d'autres entrepreneurs — créer du lien et de la valeur autour de conversations authentiques</li>
+                      <li>Un <strong>immobilier à Annecy</strong> — j'adore cette ville et j'aimerais y avoir un pied-à-terre pour sortir plus régulièrement de Paris, prendre l'air, me ressourcer</li>
+                      <li>Toujours autant de <strong>CEOs satisfaits</strong> — la qualité de service reste ma priorité, continuer d'être à l'écoute et de créer de la valeur</li>
+                      <li>Pleins d'<strong>outils gratuits délivrés</strong> — continuer à partager et donner accès à mes outils, créer de la valeur pour la communauté</li>
+                      <li>Un plus large <strong>parterre de revenus d'affiliation</strong>, notamment avec Apify — développer des partenariats stratégiques qui ont du sens</li>
+                    </ul>
+                    <p>
+                      Mais au-delà des objectifs business, je veux aussi <strong>m'améliorer aux échecs</strong>, <strong>savoir prendre plus le temps</strong>, 
+                      continuer d'être à l'écoute et <strong>m'épanouir en sortant plus régulièrement de Paris</strong>. 
+                      C'est cette recherche d'équilibre entre ambition professionnelle et épanouissement personnel qui me guide.
+                    </p>
+                  </>
+                )
+              }
+            ]}
+          />
         </section>
 
         {/* Section liens internes */}
@@ -1544,7 +1522,7 @@ export default function DonneesPubliques() {
         {/* CTA */}
         <section className="mb-16 pt-8 border-t border-neutral-200 dark:border-neutral-800" aria-label="Contact">
           <div className="text-center">
-            <h2 className="font-semibold text-xl mb-4 tracking-tighter">Discutons de votre projet</h2>
+            <h2 className="font-semibold text-xl mb-6 tracking-tighter">Discutons de votre projet</h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 max-w-xl mx-auto">
               Vous avez un projet de scraping, d'automatisation ou d'outbound marketing ? 
               Réservez un créneau pour échanger sur vos besoins et voir comment je peux vous aider.

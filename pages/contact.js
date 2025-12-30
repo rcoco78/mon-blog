@@ -15,12 +15,34 @@ export default function Contact() {
       <SEOHead {...pageSEO} />
 
       <div className="flex-auto min-w-0 mt-6 flex flex-col">
-        <header className="mb-9 space-y-1">
-          <h1 className="font-semibold text-2xl mb-2 tracking-tighter">Contact</h1>
-          <p className="text-neutral-600 dark:text-neutral-400">
-            Réservez un créneau pour discuter de vos projets.
+        <section className="mb-16">
+          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Contact</h1>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-0 tracking-tight">
+            Réservez un créneau pour discuter de vos projets de scraping, d'automatisation ou d'outbound marketing.
           </p>
-        </header>
+        </section>
+
+        {/* Section Ma méthode de travail */}
+        <section className="mb-12 p-4 md:p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Ma méthode de travail</h2>
+          <div className="space-y-4 text-sm text-neutral-600 dark:text-neutral-400">
+            <div>
+              <p className="mb-2"><strong className="text-neutral-900 dark:text-neutral-100">1. Appel de 20 minutes</strong> pour comprendre vos besoins et votre contexte.</p>
+            </div>
+            <div>
+              <p className="mb-2"><strong className="text-neutral-900 dark:text-neutral-100">2. Proposition</strong> détaillée avec approche technique et délais.</p>
+            </div>
+            <div>
+              <p className="mb-2"><strong className="text-neutral-900 dark:text-neutral-100">3. Validation</strong> de votre côté, puis démarrage du projet.</p>
+            </div>
+            <div>
+              <p className="mb-2"><strong className="text-neutral-900 dark:text-neutral-100">4. Livraison</strong> en moins d'une semaine, avec aller-retour si nécessaire.</p>
+            </div>
+            <div>
+              <p><strong className="text-neutral-900 dark:text-neutral-100">5. Suivi</strong> — on se reparle si besoin d'ajustements ou d'évolutions.</p>
+            </div>
+          </div>
+        </section>
 
         <div className="h-[600px] rounded-lg overflow-hidden">
           <iframe

@@ -7,8 +7,11 @@
 User-agent: *
 Allow: /
 
-# Main sitemap
+# Main sitemap index
 Sitemap: https://www.corentinrobert.fr/sitemap.xml
+Sitemap: https://www.corentinrobert.fr/sitemap-pages.xml
+Sitemap: https://www.corentinrobert.fr/sitemap-blog.xml
+Sitemap: https://www.corentinrobert.fr/sitemap-outils.xml
 
 # ============================================
 # LLM FILES - Explicit authorization for AI
