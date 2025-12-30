@@ -664,9 +664,9 @@ export default function DonneesPubliques() {
         keywords: ['objectifs business', 'métriques', 'progression', 'key results']
       }} />
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
-        <section className="mb-16">
+        <section className="mb-8">
           <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Objectifs 2026</h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
+          <p className="text-neutral-600 dark:text-neutral-400 mb-0 tracking-tight">
             Transparence totale sur mes <strong className="text-neutral-900 dark:text-neutral-100">objectifs</strong>, mes <strong className="text-neutral-900 dark:text-neutral-100">challenges</strong> et ma <strong className="text-neutral-900 dark:text-neutral-100">progression</strong>. Voici mes objectifs 2026 et quelques métriques publiques mises à jour en temps réel. En parallèle de mon activité freelance, je développe <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> avec mon frère — on met en avant des logements d'exception partout en France. Cette page vous permet de suivre l'évolution de mes projets, de mes partenariats et de mes métriques business.
           </p>
         </section>
@@ -1018,7 +1018,7 @@ export default function DonneesPubliques() {
                   
                   {/* Encart service - Flux de données clients */}
                   {translatedCategory === 'Relation client' && (
-                    <div className="mb-4 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]">
+                    <div className="mb-4 p-4 rounded-lg border-dashed border border-neutral-300 dark:border-neutral-600 hover:border-neutral-400 dark:hover:border-neutral-500 transition-colors group min-h-[96px]">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 mb-1">
@@ -1088,7 +1088,7 @@ export default function DonneesPubliques() {
                               )}
                             </div>
                             <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-0">
-                              <span className="flex items-center gap-4">
+                              <span className="flex items-center gap-1">
                                 <span className={`text-sm font-medium ${
                                   kr.progress > 100 ? 'text-orange-700 dark:text-orange-400' : 'text-neutral-900 dark:text-neutral-100'
                                 }`}>
@@ -1136,8 +1136,8 @@ export default function DonneesPubliques() {
                                     return formatNumber(kr.currentResult)
                                   })()}
                                 </span>
-                                {' / '}
-                                <span>{(() => {
+                                <span className="text-sm text-neutral-500 dark:text-neutral-400">/</span>
+                                <span className="text-sm">{(() => {
                                   // Convertir les targetResult des revenus d'affiliation de USD en EUR
                                   if (isAffiliationRevenue(kr)) {
                                     return formatNumber(Math.round(usdToEur(kr.targetResult || 0)))
@@ -1177,24 +1177,25 @@ export default function DonneesPubliques() {
                                   const actualRemaining = actualTargetResult - actualCurrentResult
                                   const actualProgress = actualTargetResult > 0 ? (actualCurrentResult / actualTargetResult) * 100 : 0
                                   
-                                  return (
-                                    <>
-                                      {actualProgress <= 100 && actualRemaining >= 0 && (
-                                        <span className="text-sm text-neutral-500 dark:text-neutral-500">
-                                          Reste: {formatNumber(actualRemaining)}
-                                        </span>
-                                      )}
-                                      {actualProgress > 100 && (
-                                        <span className="text-sm text-orange-700 dark:text-orange-400 font-medium">
-                                          Dépassé de {Math.abs(actualRemaining).toFixed(1)}
-                                        </span>
-                                      )}
-                                    </>
-                                  )
+                                  if (actualProgress <= 100 && actualRemaining >= 0) {
+                                    return (
+                                      <span className="ml-4 text-sm text-neutral-500 dark:text-neutral-500">
+                                        Reste: {formatNumber(actualRemaining)}
+                                      </span>
+                                    )
+                                  }
+                                  if (actualProgress > 100) {
+                                    return (
+                                      <span className="ml-4 text-sm text-orange-700 dark:text-orange-400 font-medium">
+                                        Dépassé de {Math.abs(actualRemaining).toFixed(1)}
+                                      </span>
+                                    )
+                                  }
+                                  return null
                                 })()}
                               </span>
                             </p>
-                          </div>
+                            </div>
                             <div className="flex items-center gap-3 flex-shrink-0">
                             {(() => {
                               // Calculer le progress avec la valeur réelle pour "Revenus d'affiliation" et échecs
@@ -1294,7 +1295,10 @@ export default function DonneesPubliques() {
             const matchingKRs = keyResults.filter(kr => {
               const nameLower = (kr.name || '').toLowerCase()
               const categoryLower = (kr.category || '').toLowerCase()
+              const target = kr.targetResult || 0
+              
               // Critères élargis pour capturer tous les Key Results liés aux rendez-vous
+              // On accepte si le nom OU la catégorie correspond (plus permissif)
               const matchesName = nameLower.includes('rendez-vous') || 
                                   nameLower.includes('meeting') || 
                                   nameLower.includes('calendly') ||
@@ -1304,18 +1308,29 @@ export default function DonneesPubliques() {
                                       categoryLower.includes('relation') || 
                                       categoryLower.includes('client') ||
                                       categoryLower.includes('appel')
-              return matchesName && matchesCategory
+              
+              // Prioriser aussi les Key Results avec un targetResult proche de 550 (objectif principal)
+              const isMainObjective = target >= 500 && target <= 600
+              
+              return (matchesName || matchesCategory) && target > 0
             })
             
             if (matchingKRs.length > 0) {
               // Toujours prendre celui avec le plus grand targetResult
-              // Cela garantit qu'on prend l'objectif principal (550) plutôt qu'un sous-objectif (360)
+              // Cela garantit qu'on prend l'objectif principal (550) plutôt qu'un sous-objectif (360, 60, 30)
               const meetingsKR = matchingKRs.reduce((max, kr) => {
                 const maxTarget = max.targetResult || 0
                 const krTarget = kr.targetResult || 0
                 return krTarget > maxTarget ? kr : max
               })
               return meetingsKR?.targetResult || null
+            }
+            
+            // Fallback : chercher spécifiquement un Key Result avec targetResult = 550
+            // (au cas où il ne correspondrait pas aux critères de nom/catégorie)
+            const kr550 = keyResults.find(kr => kr.targetResult === 550)
+            if (kr550) {
+              return 550
             }
             
             return null
@@ -1467,7 +1482,7 @@ export default function DonneesPubliques() {
                       <li>Toujours autant de <strong>CEOs satisfaits</strong> — la qualité de service reste ma priorité, continuer d'être à l'écoute et de créer de la valeur</li>
                       <li>Pleins d'<strong>outils gratuits délivrés</strong> — continuer à partager et donner accès à mes outils, créer de la valeur pour la communauté</li>
                       <li>Un plus large <strong>parterre de revenus d'affiliation</strong>, notamment avec Apify — développer des partenariats stratégiques qui ont du sens</li>
-                    </ul>
+            </ul>
                     <p>
                       Mais au-delà des objectifs business, je veux aussi <strong>m'améliorer aux échecs</strong>, <strong>savoir prendre plus le temps</strong>, 
                       continuer d'être à l'écoute et <strong>m'épanouir en sortant plus régulièrement de Paris</strong>. 
