@@ -490,10 +490,12 @@ export default function DonneesPubliques() {
     const improvements = {
       // Apify / Scrapers
       'Total Actors publiés': 'Nombre de scrapers disponibles',
-      'Total users Apify': 'Utilisateurs total',
+      'Total users Apify': 'Utilisateurs Apify',
+      'Utilisateurs total': 'Utilisateurs Apify',
       'Actors publiés': 'Scrapers publics',
-      'Total monthly users': 'Utilisateurs mensuels',
+      'Total monthly users': 'Utilisateurs mensuels Apify',
       'Total monthly users (Apify)': 'Utilisateurs mensuels Apify',
+      'Utilisateurs mensuels': 'Utilisateurs mensuels Apify',
       'CA Apify custom': 'Chiffre d\'affaires Apify',
       'Chiffre d\'affaires Apify custom': 'Chiffre d\'affaires Apify',
       
@@ -540,10 +542,13 @@ export default function DonneesPubliques() {
       'Classement échecs Rapid': 'Classement échecs chess.com',
       
       // Blog
-      'Articles publiés blog': 'Articles publiés blog',
-      'Visiteurs totaux blog': 'Visiteurs totaux blog',
-      'Impression Google blog': 'Impression Google blog',
-      'Rendez-vous par blog': 'Échanges grâce au blog',
+      'Articles publiés blog': 'Articles publiés',
+      'Articles publiés': 'Articles publiés',
+      'Visiteurs totaux blog': 'Visiteurs blog',
+      'Visiteurs totaux': 'Visiteurs blog',
+      'Impression Google blog': 'Impressions Google',
+      'Impression Google': 'Impressions Google',
+      'Rendez-vous par blog': 'Échanges blog',
       
       // Général
       'CA': 'Chiffre d\'affaires',
@@ -1079,7 +1084,7 @@ export default function DonneesPubliques() {
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors"
                       >
-                        {translatedCategory}
+                        Scrapers publics sur Apify
                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
                           <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                         </svg>
