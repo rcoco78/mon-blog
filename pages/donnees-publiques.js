@@ -24,6 +24,8 @@ export default function DonneesPubliques() {
   const [apifyUsersLoading, setApifyUsersLoading] = useState(true)
   const [chessStats, setChessStats] = useState(null)
   const [chessLoading, setChessLoading] = useState(true)
+  const [chessHistory, setChessHistory] = useState([])
+  const [chessHistoryLoading, setChessHistoryLoading] = useState(true)
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
 
   useEffect(() => {
@@ -121,6 +123,25 @@ export default function DonneesPubliques() {
     }
 
     fetchChessStats()
+  }, [])
+
+  useEffect(() => {
+    const fetchChessHistory = async () => {
+      try {
+        setChessHistoryLoading(true)
+        const response = await fetch('/api/chess-history')
+        if (response.ok) {
+          const data = await response.json()
+          setChessHistory(data)
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération de l\'historique Chess.com:', error)
+      } finally {
+        setChessHistoryLoading(false)
+      }
+    }
+
+    fetchChessHistory()
   }, [])
 
   const openCalendly = () => {
@@ -279,6 +300,57 @@ export default function DonneesPubliques() {
            (categoryLower.includes('affiliation') || categoryLower.includes('partenariats'))
   }
 
+  // Fonction pour déterminer si une métrique est en temps réel ou mensuelle
+  const isRealTimeMetric = (kr) => {
+    const nameLower = (kr.name || '').toLowerCase()
+    const categoryLower = (kr.category || '').toLowerCase()
+    
+    // Métriques en temps réel
+    const realTimeIndicators = [
+      'rendez-vous',
+      'meeting',
+      'calendly',
+      'appel',
+      'call',
+      'utilisateurs',
+      'users',
+      'abonnés',
+      'abonne',
+      'classement échecs',
+      'elo',
+      'chess'
+    ]
+    
+    // Métriques mensuelles (blog, CA, etc.)
+    const monthlyIndicators = [
+      'articles publiés',
+      'visiteurs',
+      'impression',
+      'échanges grâce au blog',
+      'chiffre d\'affaires',
+      'ca ',
+      'revenus'
+    ]
+    
+    // Vérifier d'abord les indicateurs mensuels
+    if (monthlyIndicators.some(indicator => nameLower.includes(indicator))) {
+      return false
+    }
+    
+    // Vérifier les indicateurs temps réel
+    if (realTimeIndicators.some(indicator => nameLower.includes(indicator))) {
+      return true
+    }
+    
+    // Par défaut, considérer comme mensuel si c'est dans la catégorie Blog/Personnel
+    if (categoryLower.includes('personnel') || categoryLower.includes('blog')) {
+      return false
+    }
+    
+    // Par défaut, temps réel pour les autres
+    return true
+  }
+
   // Fonction pour trier les objectifs dans un ordre logique
   const sortKeyResults = (results, category) => {
     // Ordre de priorité pour chaque catégorie
@@ -316,6 +388,14 @@ export default function DonneesPubliques() {
         'Moyenne de durée d\'un appel',
         'Moyenne mensuelle des rendez-vous',
         'Moyenne hebdomadaire des rendez-vous'
+      ],
+      'Personnel': [
+        'Elo chess.com',
+        'Classement échecs (Rapid)',
+        'Articles publiés blog',
+        'Visiteurs totaux blog',
+        'Impression Google blog',
+        'Rendez-vous par blog'
       ],
       'default': []
     }
@@ -357,6 +437,7 @@ export default function DonneesPubliques() {
       'Apify & Scraping': 'Scrapers publics',
       'Freelance': 'Activité freelance',
       'Santé': 'Loisir',
+      'Personnel': 'Blog',
       'default': category
     }
     // Vérifier aussi si la catégorie contient "Apify" (insensible à la casse)
@@ -450,6 +531,19 @@ export default function DonneesPubliques() {
       // Freelance
       'Mission Malt': 'Projets réalisés sur Malt',
       'Mission Fiverr': 'Projets réalisés sur Fiverr',
+      
+      // Personnel / Chess
+      'Elo chess.com': 'Elo chess.com',
+      'Elo Chess.com': 'Elo chess.com',
+      'Elo Chess': 'Elo chess.com',
+      'Classement échecs (Rapid)': 'Classement échecs chess.com',
+      'Classement échecs Rapid': 'Classement échecs chess.com',
+      
+      // Blog
+      'Articles publiés blog': 'Articles publiés blog',
+      'Visiteurs totaux blog': 'Visiteurs totaux blog',
+      'Impression Google blog': 'Impression Google blog',
+      'Rendez-vous par blog': 'Échanges grâce au blog',
       
       // Général
       'CA': 'Chiffre d\'affaires',
@@ -667,7 +761,7 @@ export default function DonneesPubliques() {
         <section className="mb-8">
           <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Objectifs 2026</h1>
           <p className="text-neutral-600 dark:text-neutral-400 mb-0 tracking-tight">
-            Transparence totale sur mes <strong className="text-neutral-900 dark:text-neutral-100">objectifs</strong>, mes <strong className="text-neutral-900 dark:text-neutral-100">challenges</strong> et ma <strong className="text-neutral-900 dark:text-neutral-100">progression</strong>. Voici mes objectifs 2026 et quelques métriques publiques mises à jour en temps réel. En parallèle de mon activité freelance, je développe <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> avec mon frère — on met en avant des logements d'exception partout en France. Cette page vous permet de suivre l'évolution de mes projets, de mes partenariats et de mes métriques business.
+            Transparence totale sur mes <strong className="text-neutral-900 dark:text-neutral-100">objectifs</strong>, mes <strong className="text-neutral-900 dark:text-neutral-100">challenges</strong> et ma <strong className="text-neutral-900 dark:text-neutral-100">progression</strong>. Voici mes objectifs 2026 et quelques métriques publiques. Certaines sont mises à jour en <strong className="text-neutral-900 dark:text-neutral-100">temps réel</strong>, d'autres une <strong className="text-neutral-900 dark:text-neutral-100">fois par mois</strong>. En parallèle de mon activité freelance, je développe <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> avec mon frère — on met en avant des logements d'exception partout en France. Cette page vous permet de suivre l'évolution de mes projets, de mes partenariats et de mes métriques business.
           </p>
         </section>
 
@@ -933,7 +1027,13 @@ export default function DonneesPubliques() {
             <p className="text-neutral-600 dark:text-neutral-400">Aucun objectif disponible pour le moment.</p>
           ) : (
             <div className="space-y-12">
-              {Object.entries(groupedByCategory).map(([category, results]) => {
+              {Object.entries(groupedByCategory)
+                .filter(([category]) => {
+                  // Exclure les catégories "Mission Malt" et "Mission Fiverr"
+                  const categoryLower = category.toLowerCase()
+                  return !categoryLower.includes('mission malt') && !categoryLower.includes('mission fiverr')
+                })
+                .map(([category, results]) => {
                 const translatedCategory = translateCategory(category)
                 const isApifyCategory = category.toLowerCase().includes('apify')
                 const isLogementAtypiqueCategory = category.toLowerCase().includes('logement')
@@ -1012,7 +1112,22 @@ export default function DonneesPubliques() {
                       translatedCategory
                     )}
                     <span className="text-sm font-normal text-neutral-500 dark:text-neutral-400">
-                      ({resultsToDisplay.length} {resultsToDisplay.length > 1 ? 'objectifs' : 'objectif'})
+                      {(() => {
+                        // Compter uniquement les Key Results qui seront réellement affichés (après filtrage)
+                        const filteredCount = sortedResults.filter((kr) => {
+                          const title = improveTitle(kr.name, kr.category)
+                          const nameLower = (kr.name || '').toLowerCase()
+                          const categoryLower = (kr.category || '').toLowerCase()
+                          return !title.includes('Rendez-vous ponctuels') &&
+                                 !title.includes('ponctuels') &&
+                                 !nameLower.includes('ad-hoc') &&
+                                 !nameLower.includes('ad hoc') &&
+                                 !(nameLower.includes('calendly') && (nameLower.includes('%') || nameLower.includes('pourcentage') || nameLower.includes('génération'))) &&
+                                 !(nameLower.includes('appels malt') || nameLower.includes('appels fiverr')) &&
+                                 !(categoryLower.includes('personnel') && (nameLower.includes('elo') || nameLower.includes('chess') || nameLower.includes('échecs')))
+                        }).length
+                        return `(${filteredCount} ${filteredCount > 1 ? 'objectifs' : 'objectif'})`
+                      })()}
                     </span>
                   </h3>
                   
@@ -1050,14 +1165,30 @@ export default function DonneesPubliques() {
                       .filter((kr) => {
                         const title = improveTitle(kr.name, kr.category)
                         const nameLower = (kr.name || '').toLowerCase()
-                        // Exclure "Rendez-vous ponctuels" et "% Calendly (génération de leads)"
+                        const categoryLower = (kr.category || '').toLowerCase()
+                        // Exclure "Rendez-vous ponctuels", "% Calendly (génération de leads)", et les appels Malt/Fiverr (ils seront affichés comme sous-éléments)
+                        // Exclure "Elo chess.com" de la catégorie Blog/Personnel
                         return !title.includes('Rendez-vous ponctuels') &&
                                !title.includes('ponctuels') &&
                                !nameLower.includes('ad-hoc') &&
                                !nameLower.includes('ad hoc') &&
-                               !(nameLower.includes('calendly') && (nameLower.includes('%') || nameLower.includes('pourcentage') || nameLower.includes('génération')))
+                               !(nameLower.includes('calendly') && (nameLower.includes('%') || nameLower.includes('pourcentage') || nameLower.includes('génération'))) &&
+                               !(nameLower.includes('appels malt') || nameLower.includes('appels fiverr')) &&
+                               !(categoryLower.includes('personnel') && (nameLower.includes('elo') || nameLower.includes('chess') || nameLower.includes('échecs')))
                       })
-                      .map((kr) => (
+                      .map((kr) => {
+                        // Détecter si c'est "Rendez-vous obtenu via Calendly"
+                        const title = improveTitle(kr.name, kr.category)
+                        const isCalendlyMain = title.includes('Rendez-vous obtenu via Calendly')
+                        
+                        // Trouver les sous-éléments (Appels Malt et Appels Fiverr) dans la même catégorie
+                        const subItems = isCalendlyMain ? sortedResults.filter(subKr => {
+                          const subNameLower = (subKr.name || '').toLowerCase()
+                          return (subNameLower.includes('appels malt') || subNameLower.includes('appels fiverr')) &&
+                                 subKr.category === kr.category
+                        }) : []
+                        
+                        return (
                       <div
                         key={kr.id}
                         className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]"
@@ -1181,19 +1312,19 @@ export default function DonneesPubliques() {
                                     return (
                                       <span className="ml-4 text-sm text-neutral-500 dark:text-neutral-500">
                                         Reste: {formatNumber(actualRemaining)}
-                                      </span>
+                              </span>
                                     )
                                   }
                                   if (actualProgress > 100) {
                                     return (
                                       <span className="ml-4 text-sm text-orange-700 dark:text-orange-400 font-medium">
                                         Dépassé de {Math.abs(actualRemaining).toFixed(1)}
-                                      </span>
+                                </span>
                                     )
                                   }
                                   return null
                                 })()}
-                              </span>
+                                </span>
                             </p>
                             </div>
                             <div className="flex items-center gap-3 flex-shrink-0">
@@ -1271,8 +1402,68 @@ export default function DonneesPubliques() {
                             })()}
                           </div>
                         </div>
+                        
+                        {/* Sous-éléments pour "Rendez-vous obtenu via Calendly" */}
+                        {isCalendlyMain && subItems.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-700 space-y-2">
+                            {subItems.map((subKr) => (
+                              <div
+                                key={subKr.id}
+                                className="pl-4 py-2 rounded border-l-2 border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-900/30"
+                              >
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                  <div className="flex-1 min-w-0">
+                                    <h3 className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                                      {improveTitle(subKr.name, subKr.category)}
+                                    </h3>
+                                    <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                                      <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                                        {formatNumber(subKr.currentResult || 0)}
+                                      </span>
+                                      <span className="text-neutral-500 dark:text-neutral-500"> / </span>
+                                      <span>{formatNumber(subKr.targetResult || 0)}</span>
+                                      {(() => {
+                                        const remaining = (subKr.targetResult || 0) - (subKr.currentResult || 0)
+                                        const progress = subKr.targetResult > 0 ? (subKr.currentResult / subKr.targetResult) * 100 : 0
+                                        if (progress <= 100 && remaining >= 0) {
+                                          return (
+                                            <span className="ml-3 text-xs text-neutral-500 dark:text-neutral-500">
+                                              Reste: {formatNumber(remaining)}
+                                            </span>
+                                          )
+                                        }
+                                        return null
+                                      })()}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-2 flex-shrink-0">
+                                    <div className="w-16 h-1 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
+                                      <div 
+                                        className={`h-full transition-all duration-500 ${
+                                          subKr.progress > 100 
+                                            ? 'bg-orange-600 dark:bg-orange-500' 
+                                            : subKr.progress >= 100 
+                                              ? 'bg-green-600 dark:bg-green-500' 
+                                              : subKr.progress >= 50 
+                                                ? 'bg-blue-600 dark:bg-blue-500' 
+                                                : 'bg-neutral-500 dark:bg-neutral-500'
+                                        }`}
+                                        style={{ width: `${Math.min(100, subKr.progress || 0)}%` }}
+                                      ></div>
+                                    </div>
+                                    <span className={`text-xs tabular-nums w-10 text-right font-medium ${
+                                      subKr.progress > 100 ? 'text-orange-700 dark:text-orange-400' : ''
+                                    }`}>
+                                      {subKr.progress > 100 ? 'Dépassé' : `${(subKr.progress || 0).toFixed(1)}%`}
+                                    </span>
+                          </div>
+                        </div>
                       </div>
                     ))}
+                          </div>
+                        )}
+                      </div>
+                    )})}
                   </div>
                   
                 </div>
@@ -1393,6 +1584,25 @@ export default function DonneesPubliques() {
             return apifyKR?.targetResult || null
           })()}
           insight={apifyUsersHistory.length > 1 ? `Adoption croissante de mes scrapers avec ${apifyUsersHistory[apifyUsersHistory.length - 1].valeur - apifyUsersHistory[0].valeur >= 0 ? '+' : ''}${apifyUsersHistory[apifyUsersHistory.length - 1].valeur - apifyUsersHistory[0].valeur} nouveaux utilisateurs.` : null}
+        />
+
+        <GrowthChart
+          title="Évolution du classement échecs chess.com"
+          description="Progression de mon classement Rapid sur Chess.com. Cette métrique reflète mon engagement dans l'amélioration personnelle et la pratique régulière des échecs."
+          history={chessHistory}
+          loading={chessHistoryLoading}
+          colorFrom="blue"
+          targetValue={(() => {
+            // Trouver l'objectif pour le classement échecs Rapid
+            const chessKR = keyResults.find(kr => {
+              const nameLower = (kr.name || '').toLowerCase()
+              const categoryLower = (kr.category || '').toLowerCase()
+              return (nameLower.includes('elo') || nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess')) &&
+                     (categoryLower.includes('personnel') || categoryLower.includes('santé') || categoryLower.includes('loisir') || categoryLower.includes('bien-être'))
+            })
+            return chessKR?.targetResult || 1000 // Fallback à 1000 si pas trouvé
+          })()}
+          insight={chessHistory.length > 1 ? `Progression du classement avec ${chessHistory[chessHistory.length - 1].valeur - chessHistory[0].valeur >= 0 ? '+' : ''}${chessHistory[chessHistory.length - 1].valeur - chessHistory[0].valeur} points sur la période.` : null}
         />
 
 
