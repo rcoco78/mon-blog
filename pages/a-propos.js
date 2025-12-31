@@ -77,22 +77,11 @@ export default function About() {
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 8) // Plus de photos pour permettre le scroll
   
-  // Auto-rotation du carousel de photos (uniquement sur desktop)
-  useEffect(() => {
-    const totalItems = recentPhotos.length + 1 // +1 pour la vidéo
-    if (totalItems <= itemsPerView) return
-    if (isMobile) return // Pas d'auto-rotation sur mobile
-    
-    const interval = setInterval(() => {
-      setPhotoIndex((prev) => (prev + 1) % Math.ceil(totalItems / itemsPerView))
-    }, 5000) // Change toutes les 5 secondes
+  // Auto-rotation désactivée - utilisation du scroll uniquement
 
-    return () => clearInterval(interval)
-  }, [recentPhotos.length, itemsPerView, isMobile])
-
-  // Gérer le scroll et mettre à jour les indicateurs sur mobile
+  // Gérer le scroll et mettre à jour les indicateurs
   useEffect(() => {
-    if (!isMobile || !scrollContainerRef.current) return
+    if (!scrollContainerRef.current) return
 
     const container = scrollContainerRef.current
     const totalItems = recentPhotos.length + 1 // +1 pour la vidéo
@@ -100,35 +89,47 @@ export default function About() {
     const handleScroll = () => {
       const scrollLeft = container.scrollLeft
       const containerWidth = container.clientWidth
-      // Sur mobile, chaque élément fait w-3/5 = 60% de la largeur du conteneur
-      // Mais avec padding -mx-4 px-4, la largeur réelle est différente
-      // On calcule en fonction de la largeur visible réelle
-      const scrollableWidth = container.scrollWidth - containerWidth
-      const itemWidth = containerWidth * 0.6 // Approximation pour w-3/5
-      const gap = 12 // gap-3 = 12px
-      const itemWithGap = itemWidth + gap
       
-      // Calculer l'index actuel basé sur la position du scroll
-      // On arrondit pour correspondre au snap
-      const index = Math.round(scrollLeft / itemWithGap)
-      const maxIndex = Math.ceil(totalItems / 1.5) - 1 // itemsPerView = 1.5 sur mobile
-      
-      setCurrentScrollIndex(Math.min(Math.max(0, index), maxIndex))
+      if (isMobile) {
+        // Sur mobile, chaque élément fait w-3/5 = 60% de la largeur du conteneur
+        const itemWidth = containerWidth * 0.6 // Approximation pour w-3/5
+        const gap = 12 // gap-3 = 12px
+        const itemWithGap = itemWidth + gap
+        
+        // Calculer l'index actuel basé sur la position du scroll
+        const index = Math.round(scrollLeft / itemWithGap)
+        const maxIndex = Math.ceil(totalItems / 1.5) - 1 // itemsPerView = 1.5 sur mobile
+        
+        setCurrentScrollIndex(Math.min(Math.max(0, index), maxIndex))
+      } else {
+        // Sur desktop, chaque élément fait 40% de la largeur visible
+        const itemWidth = containerWidth * 0.4
+        const gap = 12 // gap-3 = 12px
+        const itemWithGap = itemWidth + gap
+        
+        // Calculer l'index actuel basé sur la position du scroll
+        const index = Math.round(scrollLeft / itemWithGap)
+        const maxIndex = totalItems - 1
+        
+        setPhotoIndex(Math.min(Math.max(0, index), maxIndex))
+      }
     }
 
-    // Vérifier l'état initial après un court délai pour que le DOM soit prêt
-    const timeout = setTimeout(handleScroll, 100)
+    // Appeler handleScroll immédiatement pour synchroniser l'état initial
+    handleScroll()
     
     container.addEventListener('scroll', handleScroll, { passive: true })
     window.addEventListener('resize', handleScroll)
     
     return () => {
-      clearTimeout(timeout)
       container.removeEventListener('scroll', handleScroll)
       window.removeEventListener('resize', handleScroll)
     }
-  }, [isMobile, recentPhotos.length])
+  }, [isMobile, recentPhotos.length, itemsPerView])
 
+  // Calculer les valeurs pour le carousel desktop
+  const totalItems = recentPhotos.length + 1
+  const totalPages = Math.ceil(totalItems / itemsPerView)
   
   const pageSEO = generatePageSEO({
     title: siteConfig.seo.pages.aPropos.title,
@@ -228,13 +229,10 @@ export default function About() {
           <div className="relative overflow-hidden">
             <div 
               ref={scrollContainerRef}
-              className="flex gap-3 sm:transition-transform sm:duration-500 sm:ease-in-out overflow-x-auto sm:overflow-x-hidden scroll-smooth snap-x snap-mandatory sm:snap-none -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-              style={{ 
-                transform: mounted && !isMobile ? `translateX(-${photoIndex * (100 / itemsPerView)}%)` : 'none'
-              }}
+              className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             >
               {/* Vidéo YouTube en première position */}
-              <div className="relative flex-shrink-0 w-3/5 sm:w-1/3 aspect-[9/16] overflow-hidden rounded-lg snap-start">
+              <div className="relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start">
                 <iframe
                   src="https://www.youtube.com/embed/53pisKcp9Vc?rel=0&modestbranding=1"
                   title="Présentation de Corentin Robert - Freelance Scraping et Automatisation"
@@ -250,7 +248,7 @@ export default function About() {
                 <Link
                   key={index}
                   href="/photos"
-                  className="group relative flex-shrink-0 w-3/5 sm:w-1/3 aspect-[9/16] overflow-hidden rounded-lg snap-start"
+                  className="group relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start"
                   aria-label={photo.alt || `Photo ${index + 1} - ${photo.location || 'Moment capturé'}`}
                 >
                   <Image
@@ -265,23 +263,31 @@ export default function About() {
             </div>
             
             {/* Indicateurs de navigation */}
-            {(recentPhotos.length + 1) > itemsPerView && (
+            {(recentPhotos.length + 1) > (isMobile ? 1.5 : 1) && (
               <div className="flex justify-center gap-2 mt-4">
-                {Array.from({ length: Math.ceil((recentPhotos.length + 1) / itemsPerView) }).map((_, index) => {
+                {Array.from({ length: recentPhotos.length + 1 }).map((_, index) => {
                   const isActive = isMobile ? currentScrollIndex === index : photoIndex === index
                   return (
                     <button
                       key={index}
                       onClick={() => {
-                        if (isMobile && scrollContainerRef.current) {
+                        if (scrollContainerRef.current) {
                           const container = scrollContainerRef.current
                           const containerWidth = container.clientWidth
-                          const itemWidth = containerWidth * 0.6
-                          const gap = 12
-                          const scrollPosition = index * (itemWidth + gap)
-                          container.scrollTo({ left: scrollPosition, behavior: 'smooth' })
-                        } else {
-                          setPhotoIndex(index)
+                          
+                          if (isMobile) {
+                            const itemWidth = containerWidth * 0.6
+                            const gap = 12
+                            const scrollPosition = index * (itemWidth + gap)
+                            container.scrollTo({ left: scrollPosition, behavior: 'smooth' })
+                          } else {
+                            // Sur desktop, chaque élément fait 40% de la largeur visible
+                            const itemWidth = containerWidth * 0.4
+                            const gap = 12
+                            const scrollPosition = index * (itemWidth + gap)
+                            container.scrollTo({ left: scrollPosition, behavior: 'smooth' })
+                            setPhotoIndex(index)
+                          }
                         }
                       }}
                       className={`h-1.5 rounded-full transition-all ${

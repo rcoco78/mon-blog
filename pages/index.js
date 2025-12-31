@@ -213,38 +213,37 @@ export default function Home({ posts }) {
     return () => window.removeEventListener('resize', updateIsMobile)
   }, [])
 
-  // Auto-rotation du carousel de témoignages (uniquement sur desktop)
+  // Auto-rotation désactivée - utilisation du scroll uniquement
+
+  // Gérer le scroll et mettre à jour les indicateurs pour témoignages
   useEffect(() => {
-    if (isMobile) return
-    const interval = setInterval(() => {
-      setTestimonialIndex((prev) => (prev + 1) % 3)
-    }, 5000) // Change toutes les 5 secondes
-
-    return () => clearInterval(interval)
-  }, [isMobile])
-
-  // Gérer le scroll et mettre à jour les indicateurs sur mobile pour témoignages
-  useEffect(() => {
-    if (!isMobile || !testimonialScrollRef.current) return
-
     const container = testimonialScrollRef.current
+    if (!container) return
     
     const handleScroll = () => {
       const scrollLeft = container.scrollLeft
       const containerWidth = container.clientWidth
-      const itemWidth = containerWidth // min-w-full = 100% de la largeur
       
-      // Calculer l'index actuel basé sur la position du scroll
+      // Chaque élément fait 100% de la largeur (mobile et desktop)
+      const itemWidth = containerWidth
       const index = Math.round(scrollLeft / itemWidth)
-      setCurrentTestimonialScrollIndex(Math.min(Math.max(0, index), 2))
+      const maxIndex = 2 // 3 témoignages au total
+      const clampedIndex = Math.min(Math.max(0, index), maxIndex)
+      
+      if (isMobile) {
+        setCurrentTestimonialScrollIndex(clampedIndex)
+      } else {
+        setTestimonialIndex(clampedIndex)
+      }
     }
 
-    const timeout = setTimeout(handleScroll, 100)
+    // Appeler handleScroll immédiatement pour synchroniser l'état initial
+    handleScroll()
+    
     container.addEventListener('scroll', handleScroll, { passive: true })
     window.addEventListener('resize', handleScroll)
     
     return () => {
-      clearTimeout(timeout)
       container.removeEventListener('scroll', handleScroll)
       window.removeEventListener('resize', handleScroll)
     }
@@ -440,13 +439,10 @@ export default function Home({ posts }) {
           <div className="relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-live="polite" aria-atomic="true">
             <div 
               ref={testimonialScrollRef}
-              className="flex sm:transition-transform sm:duration-500 sm:ease-in-out overflow-x-auto sm:overflow-x-hidden scroll-smooth snap-x snap-mandatory sm:snap-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-              style={{ 
-                transform: !isMobile ? `translateX(-${testimonialIndex * 100}%)` : 'none'
-              }}
+              className="flex overflow-x-auto scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             >
               {/* Témoignage LinkedIn */}
-              <div className="min-w-full p-4 flex flex-col min-h-[180px] snap-start">
+              <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
                 <div className="mb-3">
                   <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Automatisation • Compréhension immédiate • Valeur apportée dès le départ</p>
                 </div>
@@ -463,7 +459,7 @@ export default function Home({ posts }) {
               </div>
               
               {/* Témoignage Malt */}
-              <div className="min-w-full p-4 flex flex-col min-h-[180px] snap-start">
+              <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
                 <div className="mb-3">
                   <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Délais respectés • Clarté dès le départ • Professionnalisme</p>
                 </div>
@@ -480,7 +476,7 @@ export default function Home({ posts }) {
               </div>
               
               {/* Témoignage Fiverr */}
-              <div className="min-w-full p-4 flex flex-col min-h-[180px] snap-start">
+              <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
                 <div className="mb-3">
                   <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Projet complexe • Révisions rapides • 100% satisfait</p>
                 </div>
@@ -506,13 +502,18 @@ export default function Home({ posts }) {
               <button
                 key={index}
                   onClick={() => {
-                    if (isMobile && testimonialScrollRef.current) {
+                    if (testimonialScrollRef.current) {
                       const container = testimonialScrollRef.current
                       const containerWidth = container.clientWidth
-                      const scrollPosition = index * containerWidth
+                      
+                      // Chaque élément fait 100% de la largeur (mobile et desktop)
+                      const itemWidth = containerWidth
+                      const scrollPosition = index * itemWidth
                       container.scrollTo({ left: scrollPosition, behavior: 'smooth' })
-                    } else {
-                      setTestimonialIndex(index)
+                      
+                      if (!isMobile) {
+                        setTestimonialIndex(index)
+                      }
                     }
                   }}
                 className={`h-1.5 rounded-full transition-all ${

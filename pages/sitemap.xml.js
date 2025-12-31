@@ -33,4 +33,4 @@ export const getServerSideProps = async ({ res }) => {
   }
 }
 
-export default Sitemap
+export default Sitemap 
