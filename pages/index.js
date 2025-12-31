@@ -305,6 +305,37 @@ export default function Home({ posts }) {
           worstRating: '1'
         }} 
       />
+      {/* Review Schema individuelles pour Google Search Console (Extraits d'avis) */}
+      <StructuredData
+        type="Review"
+        data={{
+          authorName: 'Adnane Amahou',
+          reviewBody: "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ.",
+          ratingValue: '5',
+          datePublished: '2024-01-15',
+          serviceName: 'Services de Scraping et Automatisation'
+        }}
+      />
+      <StructuredData
+        type="Review"
+        data={{
+          authorName: 'Mohamed-Amine Zaghdoud',
+          reviewBody: "Prestation de scraping impeccable : compréhension rapide du besoin, extraction propre et structurée, délais respectés. Les données livrées sont exploitables immédiatement (format clair, colonnes cohérentes, pas de doublons). Communication fluide et réactif tout au long du projet.",
+          ratingValue: '5',
+          datePublished: '2024-01-05',
+          serviceName: 'Services de Scraping et Automatisation'
+        }}
+      />
+      <StructuredData
+        type="Review"
+        data={{
+          authorName: 'Hugues Chavrier',
+          reviewBody: "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !",
+          ratingValue: '5',
+          datePublished: '2023-12-15',
+          serviceName: 'Services de Scraping et Automatisation'
+        }} 
+      />
       <main className="flex-auto min-w-0 mt-6 flex flex-col mb-0">
       <section aria-label="Présentation">
         <div>
@@ -626,12 +657,12 @@ export default function Home({ posts }) {
                   {project.link && project.id && (
                     <ProjectClickCounter projectId={project.id} />
                   )}
-                  {project.link && (
+                {project.link && (
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
                       <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                     </svg>
                   )}
-                </div>
+                  </div>
               </Component>
             )
           })}
