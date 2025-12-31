@@ -14,7 +14,16 @@ const nextConfig = {
       'images.unsplash.com',
       'i.scdn.co' // CDN Spotify pour les images d'albums
     ],
-  }
+  },
+  async redirects() {
+    return [
+      {
+        source: '/donnees-publiques',
+        destination: '/objectifs',
+        permanent: true, // 308 redirect pour préserver le SEO
+      },
+    ]
+  },
 }
 
 module.exports = nextConfig 

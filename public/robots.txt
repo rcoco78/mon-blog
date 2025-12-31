@@ -33,7 +33,7 @@ Allow: /blog/
 Allow: /a-propos
 Allow: /outils
 Allow: /outils/
-Allow: /donnees-publiques
+Allow: /objectifs
 Allow: /spotify
 
 # Dynamic pages

@@ -85,12 +85,11 @@ export default function Layout({ children }) {
             </Link>
             <Link 
               className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 sm:px-3 rounded-md ${
-                router.pathname === '/donnees-publiques' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
+                router.pathname === '/objectifs' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
               }`} 
-              href="/donnees-publiques"
+              href="/objectifs"
             >
-              <span className="hidden sm:inline">données publiques</span>
-              <span className="sm:hidden">données</span>
+              objectifs
             </Link>
           </div>
           <div className="flex justify-end items-center gap-0.5 max-[480px]:hidden">

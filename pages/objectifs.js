@@ -10,7 +10,7 @@ export default function DonneesPubliques() {
   const pageSEO = generatePageSEO({
     title: siteConfig.seo.pages.donneesPubliques.title,
     description: siteConfig.seo.pages.donneesPubliques.description,
-    path: '/donnees-publiques',
+    path: '/objectifs',
     keywords: siteConfig.seo.pages.donneesPubliques.keywords
   })
 
@@ -749,15 +749,15 @@ export default function DonneesPubliques() {
           {
             '@type': 'ListItem',
             position: 2,
-            name: 'Données publiques',
-            item: `${siteConfig.url}/donnees-publiques`
+            name: 'Objectifs',
+            item: `${siteConfig.url}/objectifs`
           }
         ]
       }} />
       <StructuredData type="Dataset" data={{
         name: 'Objectifs 2026 et Progression Business',
-        description: 'Données publiques sur mes objectifs business, métriques de croissance et progression des projets freelance.',
-        url: `${siteConfig.url}/donnees-publiques`,
+        description: 'Objectifs business, métriques de croissance et progression des projets freelance.',
+        url: `${siteConfig.url}/objectifs`,
         datePublished: new Date().toISOString(),
         dateModified: new Date().toISOString(),
         keywords: ['objectifs business', 'métriques', 'progression', 'key results']
@@ -1091,7 +1091,7 @@ export default function DonneesPubliques() {
                       </Link>
                     ) : isLogementAtypiqueCategory ? (
                       <Link 
-                        href="https://logement-atypique.fr/?utm_source=corentinrobert&utm_medium=website&utm_campaign=donnees-publiques" 
+                        href="https://logement-atypique.fr/?utm_source=corentinrobert&utm_medium=website&utm_campaign=objectifs" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors"
@@ -1617,7 +1617,7 @@ export default function DonneesPubliques() {
           <FAQ
             items={[
               {
-                question: "Pourquoi ces données publiques ?",
+                question: "Pourquoi partager ces objectifs ?",
                 answer: (
                   <>
                     <p className="mb-3">

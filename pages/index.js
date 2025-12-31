@@ -424,7 +424,7 @@ export default function Home({ posts }) {
           </div>
           <div className="text-center">
             <Link 
-              href="/donnees-publiques"
+              href="/objectifs"
               className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
             >
               Voir toutes les données publiques

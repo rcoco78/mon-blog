@@ -143,7 +143,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           '@type': 'Dataset',
           name: data.name || 'Objectifs 2026 et Progression Business',
           description: data.description || 'Données publiques sur mes objectifs business, métriques de croissance et progression des projets.',
-          url: data.url || `${siteConfig.url}/donnees-publiques`,
+          url: data.url || `${siteConfig.url}/objectifs`,
           creator: {
             '@type': 'Person',
             name: siteConfig.author,

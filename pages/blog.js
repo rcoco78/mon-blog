@@ -489,7 +489,7 @@ export default function Blog({ posts }) {
                 Explorez mes outils gratuits
               </Link>
               {' • '}
-              <Link href="/donnees-publiques" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+              <Link href="/objectifs" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
                 Suivez mes objectifs 2026
               </Link>
             </p>
