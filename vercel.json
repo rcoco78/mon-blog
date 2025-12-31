@@ -15,6 +15,11 @@
   ],
   "redirects": [
     {
+      "source": "/donnees-publiques",
+      "destination": "/objectifs",
+      "permanent": true
+    },
+    {
       "source": "/(.*)",
       "has": [
         {
@@ -57,4 +62,3 @@
     }
   ]
 }
-
