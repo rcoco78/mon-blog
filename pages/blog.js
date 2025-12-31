@@ -259,12 +259,9 @@ export default function Blog({ posts }) {
           <h1 className="font-semibold text-2xl mb-8 tracking-tighter">
             Blog
           </h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-0 tracking-tight">
+          <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
             Je vis des trucs, j'aime bien les exprimer et je trouve ça intéressant de m'améliorer en rédaction. Ici je vais m'efforcer de partager uniquement sur des sujets <strong className="text-neutral-900 dark:text-neutral-100">entrepreneuriaux</strong>, plus spécifiquement sur mon métier autour du <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et de l'<strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> et m'étayer sur des articles plus <strong className="text-neutral-900 dark:text-neutral-100">voyage</strong> et pertinents. Ça évolue au fil des années aussi, c'est l'idée.
           </p>
-        </section>
-
-        <section className="mb-12">
         <SearchBar 
           tags={allTags}
           selectedTag={selectedTag}
@@ -343,10 +340,12 @@ export default function Blog({ posts }) {
               <span className="flex items-center gap-1.5 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
                 {filteredPosts.length} {filteredPosts.length === 1 ? 'article' : 'articles'}
                 <span className="w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 flex-shrink-0"></span>
-                {Object.keys(allViews).length > 0 
-                  ? filteredPosts.reduce((sum, post) => sum + (allViews[post.slug] || 0), 0)
-                  : filteredPosts.reduce((sum, post) => sum + (post.views || 0), 0)
-                } lectures
+                {(() => {
+                  const totalViews = Object.keys(allViews).length > 0 
+                    ? filteredPosts.reduce((sum, post) => sum + (allViews[post.slug] || 0), 0)
+                    : filteredPosts.reduce((sum, post) => sum + (post.views || 0), 0)
+                  return `${totalViews} ${totalViews === 1 ? 'vue' : 'vues'}`
+                })()}
               </span>
             </div>
             {selectedTag && filteredPosts.length > 0 && (

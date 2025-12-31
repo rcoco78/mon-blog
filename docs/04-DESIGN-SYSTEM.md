@@ -559,6 +559,156 @@ className="flex flex-col space-y-4"
 ```
 - Layout vertical avec espacement entre éléments
 
+### Carousel Horizontal avec Scroll Natif (Mobile)
+
+Pattern standard pour les carrousels horizontaux défilables avec le doigt sur mobile, avec indicateurs de navigation synchronisés.
+
+#### Structure de Base
+```jsx
+<div className="relative overflow-hidden">
+  <div 
+    ref={scrollContainerRef}
+    className="flex gap-3 sm:transition-transform sm:duration-500 sm:ease-in-out 
+               overflow-x-auto sm:overflow-x-hidden 
+               scroll-smooth snap-x snap-mandatory sm:snap-none 
+               -mx-4 px-4 sm:mx-0 sm:px-0
+               [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+    style={{ 
+      transform: mounted && !isMobile ? `translateX(-${index * (100 / itemsPerView)}%)` : 'none'
+    }}
+  >
+    {/* Éléments du carousel */}
+    <div className="flex-shrink-0 w-3/5 sm:w-1/3 snap-start">
+      {/* Contenu */}
+    </div>
+  </div>
+  
+  {/* Indicateurs de navigation */}
+  <div className="flex justify-center gap-2 mt-4">
+    {items.map((_, index) => (
+      <button
+        key={index}
+        onClick={() => {
+          if (isMobile && scrollContainerRef.current) {
+            const container = scrollContainerRef.current
+            const containerWidth = container.clientWidth
+            const itemWidth = containerWidth * 0.6 // Ajuster selon w-*
+            const gap = 12 // gap-3
+            const scrollPosition = index * (itemWidth + gap)
+            container.scrollTo({ left: scrollPosition, behavior: 'smooth' })
+          } else {
+            setIndex(index)
+          }
+        }}
+        className={`h-1.5 rounded-full transition-all ${
+          currentIndex === index
+            ? 'w-6 bg-neutral-900 dark:bg-neutral-100'
+            : 'w-1.5 bg-neutral-300 dark:bg-neutral-700'
+        }`}
+      />
+    ))}
+  </div>
+</div>
+```
+
+#### Classes CSS Clés
+
+**Conteneur de scroll** :
+- `overflow-x-auto` : Active le scroll horizontal sur mobile
+- `sm:overflow-x-hidden` : Désactive le scroll sur desktop (utilise transform)
+- `scroll-smooth` : Scroll fluide
+- `snap-x snap-mandatory` : Snap horizontal obligatoire sur mobile
+- `sm:snap-none` : Pas de snap sur desktop
+- `[&::-webkit-scrollbar]:hidden` : Masque la scrollbar WebKit
+- `[-ms-overflow-style:none]` : Masque la scrollbar IE/Edge
+- `[scrollbar-width:none]` : Masque la scrollbar Firefox
+
+**Éléments du carousel** :
+- `flex-shrink-0` : Empêche la réduction de taille
+- `snap-start` : Point de snap au début de l'élément
+- Largeur responsive : `w-3/5 sm:w-1/3` (exemple)
+
+#### Gestion du Scroll avec React
+
+```jsx
+const [isMobile, setIsMobile] = useState(false)
+const [currentScrollIndex, setCurrentScrollIndex] = useState(0)
+const scrollContainerRef = useRef(null)
+
+// Détecter mobile
+useEffect(() => {
+  const updateIsMobile = () => {
+    setIsMobile(window.innerWidth < 640)
+  }
+  updateIsMobile()
+  window.addEventListener('resize', updateIsMobile)
+  return () => window.removeEventListener('resize', updateIsMobile)
+}, [])
+
+// Gérer le scroll et mettre à jour les indicateurs
+useEffect(() => {
+  if (!isMobile || !scrollContainerRef.current) return
+
+  const container = scrollContainerRef.current
+  
+  const handleScroll = () => {
+    const scrollLeft = container.scrollLeft
+    const containerWidth = container.clientWidth
+    const itemWidth = containerWidth * 0.6 // Ajuster selon la largeur réelle
+    const gap = 12 // gap-3
+    
+    const index = Math.round(scrollLeft / (itemWidth + gap))
+    const maxIndex = Math.ceil(totalItems / itemsPerView) - 1
+    
+    setCurrentScrollIndex(Math.min(Math.max(0, index), maxIndex))
+  }
+
+  const timeout = setTimeout(handleScroll, 100)
+  container.addEventListener('scroll', handleScroll, { passive: true })
+  window.addEventListener('resize', handleScroll)
+  
+  return () => {
+    clearTimeout(timeout)
+    container.removeEventListener('scroll', handleScroll)
+    window.removeEventListener('resize', handleScroll)
+  }
+}, [isMobile, totalItems])
+```
+
+#### Indicateurs de Navigation
+
+**Style standard** :
+```jsx
+className="flex justify-center gap-2 mt-4"
+```
+
+**Point actif** :
+```jsx
+className="w-6 bg-neutral-900 dark:bg-neutral-100"
+```
+
+**Point inactif** :
+```jsx
+className="w-1.5 bg-neutral-300 dark:bg-neutral-700"
+```
+
+**Taille** :
+- `h-1.5` : Hauteur fixe (0.375rem / 6px)
+- `rounded-full` : Forme circulaire
+
+#### Comportement
+
+- **Mobile** : Scroll horizontal natif avec le doigt, indicateurs synchronisés
+- **Desktop** : Transform CSS avec auto-rotation optionnelle, indicateurs cliquables
+- **Scrollbar** : Masquée sur tous les navigateurs
+- **Snap** : Active uniquement sur mobile pour un scroll fluide
+
+#### Exemples d'Usage
+
+- Section photos/vidéos (page À propos)
+- Carousel de témoignages (page d'accueil)
+- Carousel de photos par mois (page Photos)
+
 ---
 
 ## 🎭 États et Interactions

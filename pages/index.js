@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { getAllPosts } from '../lib/notion'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { siteConfig } from '../lib/config'
 import { getRecentTools } from '../lib/tools'
 import SEOHead from '../components/seo/SEOHead'
@@ -17,6 +17,9 @@ export default function Home({ posts }) {
   const [testimonialIndex, setTestimonialIndex] = useState(0)
   const [keyResults, setKeyResults] = useState([])
   const [keyResultsLoading, setKeyResultsLoading] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
+  const [currentTestimonialScrollIndex, setCurrentTestimonialScrollIndex] = useState(0)
+  const testimonialScrollRef = useRef(null)
 
   useEffect(() => {
     const fetchViews = async () => {
@@ -200,14 +203,52 @@ export default function Home({ posts }) {
     fetchMetricsAndEnrich()
   }, [])
 
-  // Auto-rotation du carousel de témoignages
+  // Détecter si on est sur mobile
   useEffect(() => {
+    const updateIsMobile = () => {
+      setIsMobile(window.innerWidth < 640)
+    }
+    updateIsMobile()
+    window.addEventListener('resize', updateIsMobile)
+    return () => window.removeEventListener('resize', updateIsMobile)
+  }, [])
+
+  // Auto-rotation du carousel de témoignages (uniquement sur desktop)
+  useEffect(() => {
+    if (isMobile) return
     const interval = setInterval(() => {
       setTestimonialIndex((prev) => (prev + 1) % 3)
     }, 5000) // Change toutes les 5 secondes
 
     return () => clearInterval(interval)
-  }, [])
+  }, [isMobile])
+
+  // Gérer le scroll et mettre à jour les indicateurs sur mobile pour témoignages
+  useEffect(() => {
+    if (!isMobile || !testimonialScrollRef.current) return
+
+    const container = testimonialScrollRef.current
+    
+    const handleScroll = () => {
+      const scrollLeft = container.scrollLeft
+      const containerWidth = container.clientWidth
+      const itemWidth = containerWidth // min-w-full = 100% de la largeur
+      
+      // Calculer l'index actuel basé sur la position du scroll
+      const index = Math.round(scrollLeft / itemWidth)
+      setCurrentTestimonialScrollIndex(Math.min(Math.max(0, index), 2))
+    }
+
+    const timeout = setTimeout(handleScroll, 100)
+    container.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleScroll)
+    
+    return () => {
+      clearTimeout(timeout)
+      container.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleScroll)
+    }
+  }, [isMobile])
 
   // Charger les scripts Calendly
   useEffect(() => {
@@ -318,7 +359,7 @@ export default function Home({ posts }) {
                       {metric.label === 'abonnés' && metric.source === 'Logement Atypique' && (
                         <a 
                           href="https://www.instagram.com/logement.atypique" 
-                          target="_blank"
+                          target="_blank" 
                           rel="noopener noreferrer"
                           className="inline-flex items-center hover:opacity-70 transition-opacity text-neutral-400 dark:text-neutral-500"
                           aria-label="Instagram Logement Atypique"
@@ -367,11 +408,14 @@ export default function Home({ posts }) {
         <section className="mb-16 relative" aria-label="Témoignages clients">
           <div className="relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-live="polite" aria-atomic="true">
             <div 
-              className="flex transition-transform duration-500 ease-in-out"
-              style={{ transform: `translateX(-${testimonialIndex * 100}%)` }}
+              ref={testimonialScrollRef}
+              className="flex sm:transition-transform sm:duration-500 sm:ease-in-out overflow-x-auto sm:overflow-x-hidden scroll-smooth snap-x snap-mandatory sm:snap-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+              style={{ 
+                transform: !isMobile ? `translateX(-${testimonialIndex * 100}%)` : 'none'
+              }}
             >
               {/* Témoignage LinkedIn */}
-              <div className="min-w-full p-4 flex flex-col min-h-[180px]">
+              <div className="min-w-full p-4 flex flex-col min-h-[180px] snap-start">
                 <div className="mb-3">
                   <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Automatisation • Compréhension immédiate • Valeur apportée dès le départ</p>
                 </div>
@@ -388,7 +432,7 @@ export default function Home({ posts }) {
               </div>
               
               {/* Témoignage Malt */}
-              <div className="min-w-full p-4 flex flex-col min-h-[180px]">
+              <div className="min-w-full p-4 flex flex-col min-h-[180px] snap-start">
                 <div className="mb-3">
                   <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Délais respectés • Clarté dès le départ • Professionnalisme</p>
                 </div>
@@ -405,7 +449,7 @@ export default function Home({ posts }) {
               </div>
               
               {/* Témoignage Fiverr */}
-              <div className="min-w-full p-4 flex flex-col min-h-[180px]">
+              <div className="min-w-full p-4 flex flex-col min-h-[180px] snap-start">
                 <div className="mb-3">
                   <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Projet complexe • Révisions rapides • 100% satisfait</p>
                 </div>
@@ -425,18 +469,30 @@ export default function Home({ posts }) {
           
           {/* Indicateurs de navigation */}
           <div className="flex justify-center gap-2 mt-4">
-            {[0, 1, 2].map((index) => (
+            {[0, 1, 2].map((index) => {
+              const isActive = isMobile ? currentTestimonialScrollIndex === index : testimonialIndex === index
+              return (
               <button
                 key={index}
-                onClick={() => setTestimonialIndex(index)}
+                  onClick={() => {
+                    if (isMobile && testimonialScrollRef.current) {
+                      const container = testimonialScrollRef.current
+                      const containerWidth = container.clientWidth
+                      const scrollPosition = index * containerWidth
+                      container.scrollTo({ left: scrollPosition, behavior: 'smooth' })
+                    } else {
+                      setTestimonialIndex(index)
+                    }
+                  }}
                 className={`h-1.5 rounded-full transition-all ${
-                  testimonialIndex === index
+                    isActive
                     ? 'w-6 bg-neutral-900 dark:bg-neutral-100'
                     : 'w-1.5 bg-neutral-300 dark:bg-neutral-700'
                 }`}
                 aria-label={`Aller au témoignage ${index + 1}`}
               />
-            ))}
+              )
+            })}
           </div>
           
           {/* Lien vers la page complète */}
@@ -549,9 +605,16 @@ export default function Home({ posts }) {
                         </span>
                       )}
                     </div>
-                    <p className={`text-sm ${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} line-clamp-2`}>
-                      {project.description}
-                    </p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className={`text-sm ${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} line-clamp-2 flex-1`}>
+                        {project.description}
+                      </p>
+                      {project.link && (
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0 mt-0.5 sm:hidden">
+                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                        </svg>
+                      )}
+                    </div>
                     {project.link && project.id && (
                       <div className="sm:hidden mt-2">
                         <ProjectClickCounter projectId={project.id} />
@@ -644,16 +707,21 @@ export default function Home({ posts }) {
                       {tool.name}
                     </h2>
                   </div>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
-                    {tool.description}
-                  </p>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2 flex-1">
+                      {tool.description}
+                    </p>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0 mt-0.5 sm:hidden">
+                      <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                    </svg>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-3 flex-shrink-0">
                 <div className="hidden sm:block">
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
-                    <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                  </svg>
+                  <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                </svg>
                 </div>
               </div>
             </Link>

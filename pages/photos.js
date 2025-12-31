@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import SEOHead from '../components/seo/SEOHead'
 import { generatePageSEO } from '../lib/seo'
 import { getPhotosByMonth } from '../lib/photos'
@@ -7,24 +7,47 @@ import { getPhotosByMonth } from '../lib/photos'
 export default function Photos() {
   const [selectedPhoto, setSelectedPhoto] = useState(null)
   const [monthIndices, setMonthIndices] = useState({})
+  const [currentScrollIndices, setCurrentScrollIndices] = useState({})
   const photosByMonth = getPhotosByMonth()
+  const scrollRefs = useRef({})
   
-  // Auto-rotation du carousel par mois en mobile
+  // Auto-rotation du carousel par mois (désactivée, on utilise le scroll natif)
+  // Le scroll natif avec snap remplace l'auto-rotation
+
+  // Gérer le scroll et mettre à jour les indicateurs sur mobile
   useEffect(() => {
-    const intervals = photosByMonth.map((monthGroup) => {
+    const cleanupFunctions = []
+
+    photosByMonth.forEach((monthGroup) => {
       const monthKey = `${monthGroup.year}-${monthGroup.monthNumber}`
-      if (monthGroup.photos.length <= 1) return null
-      
-      return setInterval(() => {
-        setMonthIndices((prev) => ({
+      const container = scrollRefs.current[monthKey]
+      if (!container || monthGroup.photos.length <= 1) return
+
+      const handleScroll = () => {
+        const scrollLeft = container.scrollLeft
+        const containerWidth = container.clientWidth
+        const itemWidth = containerWidth // w-full = 100% de la largeur
+        
+        const index = Math.round(scrollLeft / itemWidth)
+        setCurrentScrollIndices((prev) => ({
           ...prev,
-          [monthKey]: ((prev[monthKey] || 0) + 1) % monthGroup.photos.length
+          [monthKey]: Math.min(Math.max(0, index), monthGroup.photos.length - 1)
         }))
-      }, 4000) // Change toutes les 4 secondes
+      }
+
+      const timeout = setTimeout(handleScroll, 100)
+      container.addEventListener('scroll', handleScroll, { passive: true })
+      window.addEventListener('resize', handleScroll)
+      
+      cleanupFunctions.push(() => {
+        clearTimeout(timeout)
+        container.removeEventListener('scroll', handleScroll)
+        window.removeEventListener('resize', handleScroll)
+      })
     })
 
     return () => {
-      intervals.forEach(interval => interval && clearInterval(interval))
+      cleanupFunctions.forEach(cleanup => cleanup())
     }
   }, [photosByMonth])
   
@@ -77,14 +100,16 @@ export default function Photos() {
                 <div className="block sm:hidden">
                   <div className="relative overflow-hidden rounded-lg">
                     <div 
-                      className="flex transition-transform duration-500 ease-in-out"
-                      style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+                      ref={(el) => {
+                        if (el) scrollRefs.current[monthKey] = el
+                      }}
+                      className="flex overflow-x-auto scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                     >
                       {monthGroup.photos.map((photo, index) => (
                         <button
                           key={index}
                           onClick={() => setSelectedPhoto(photo)}
-                          className="relative flex-shrink-0 w-full aspect-[3/4] overflow-hidden"
+                          className="relative flex-shrink-0 w-full aspect-[3/4] overflow-hidden snap-start"
                         >
                           <Image
                             src={photo.src}
@@ -105,18 +130,28 @@ export default function Photos() {
                     {/* Indicateurs de navigation */}
                     {monthGroup.photos.length > 1 && (
                       <div className="flex justify-center gap-2 mt-4">
-                        {monthGroup.photos.map((_, index) => (
-                          <button
-                            key={index}
-                            onClick={() => setMonthIndices(prev => ({ ...prev, [monthKey]: index }))}
-                            className={`h-1.5 rounded-full transition-all ${
-                              currentIndex === index
-                                ? 'w-6 bg-neutral-900 dark:bg-neutral-100'
-                                : 'w-1.5 bg-neutral-300 dark:bg-neutral-700'
-                            }`}
-                            aria-label={`Aller à la photo ${index + 1}`}
-                          />
-                        ))}
+                        {monthGroup.photos.map((_, index) => {
+                          const currentIndex = currentScrollIndices[monthKey] ?? 0
+                          return (
+                            <button
+                              key={index}
+                              onClick={() => {
+                                const container = scrollRefs.current[monthKey]
+                                if (container) {
+                                  const containerWidth = container.clientWidth
+                                  const scrollPosition = index * containerWidth
+                                  container.scrollTo({ left: scrollPosition, behavior: 'smooth' })
+                                }
+                              }}
+                              className={`h-1.5 rounded-full transition-all ${
+                                currentIndex === index
+                                  ? 'w-6 bg-neutral-900 dark:bg-neutral-100'
+                                  : 'w-1.5 bg-neutral-300 dark:bg-neutral-700'
+                              }`}
+                              aria-label={`Aller à la photo ${index + 1}`}
+                            />
+                          )
+                        })}
                       </div>
                     )}
                   </div>

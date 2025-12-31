@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
@@ -16,18 +16,22 @@ const lessonsArticles = {
 }
 
 export default function About() {
-  const [showStoppedProjects, setShowStoppedProjects] = useState(true)
   const [photoIndex, setPhotoIndex] = useState(0)
   const [mounted, setMounted] = useState(false)
   const [itemsPerView, setItemsPerView] = useState(3)
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const scrollContainerRef = useRef(null)
+  const [currentScrollIndex, setCurrentScrollIndex] = useState(0)
   
   useEffect(() => {
     setMounted(true)
     
     // Calculer itemsPerView selon la taille de l'écran
     const updateItemsPerView = () => {
-      setItemsPerView(window.innerWidth >= 640 ? 3 : 1.5)
+      const mobile = window.innerWidth < 640
+      setIsMobile(mobile)
+      setItemsPerView(mobile ? 1.5 : 3)
     }
     
     updateItemsPerView()
@@ -73,17 +77,58 @@ export default function About() {
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 8) // Plus de photos pour permettre le scroll
   
-  // Auto-rotation du carousel de photos
+  // Auto-rotation du carousel de photos (uniquement sur desktop)
   useEffect(() => {
     const totalItems = recentPhotos.length + 1 // +1 pour la vidéo
     if (totalItems <= itemsPerView) return
+    if (isMobile) return // Pas d'auto-rotation sur mobile
     
     const interval = setInterval(() => {
       setPhotoIndex((prev) => (prev + 1) % Math.ceil(totalItems / itemsPerView))
     }, 5000) // Change toutes les 5 secondes
 
     return () => clearInterval(interval)
-  }, [recentPhotos.length, itemsPerView])
+  }, [recentPhotos.length, itemsPerView, isMobile])
+
+  // Gérer le scroll et mettre à jour les indicateurs sur mobile
+  useEffect(() => {
+    if (!isMobile || !scrollContainerRef.current) return
+
+    const container = scrollContainerRef.current
+    const totalItems = recentPhotos.length + 1 // +1 pour la vidéo
+    
+    const handleScroll = () => {
+      const scrollLeft = container.scrollLeft
+      const containerWidth = container.clientWidth
+      // Sur mobile, chaque élément fait w-3/5 = 60% de la largeur du conteneur
+      // Mais avec padding -mx-4 px-4, la largeur réelle est différente
+      // On calcule en fonction de la largeur visible réelle
+      const scrollableWidth = container.scrollWidth - containerWidth
+      const itemWidth = containerWidth * 0.6 // Approximation pour w-3/5
+      const gap = 12 // gap-3 = 12px
+      const itemWithGap = itemWidth + gap
+      
+      // Calculer l'index actuel basé sur la position du scroll
+      // On arrondit pour correspondre au snap
+      const index = Math.round(scrollLeft / itemWithGap)
+      const maxIndex = Math.ceil(totalItems / 1.5) - 1 // itemsPerView = 1.5 sur mobile
+      
+      setCurrentScrollIndex(Math.min(Math.max(0, index), maxIndex))
+    }
+
+    // Vérifier l'état initial après un court délai pour que le DOM soit prêt
+    const timeout = setTimeout(handleScroll, 100)
+    
+    container.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleScroll)
+    
+    return () => {
+      clearTimeout(timeout)
+      container.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleScroll)
+    }
+  }, [isMobile, recentPhotos.length])
+
   
   const pageSEO = generatePageSEO({
     title: siteConfig.seo.pages.aPropos.title,
@@ -179,11 +224,14 @@ export default function About() {
           </div>
           <div className="relative overflow-hidden">
             <div 
-              className="flex gap-3 transition-transform duration-500 ease-in-out"
-              style={{ transform: `translateX(-${photoIndex * (100 / itemsPerView)}%)` }}
+              ref={scrollContainerRef}
+              className="flex gap-3 sm:transition-transform sm:duration-500 sm:ease-in-out overflow-x-auto sm:overflow-x-hidden scroll-smooth snap-x snap-mandatory sm:snap-none -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+              style={{ 
+                transform: mounted && !isMobile ? `translateX(-${photoIndex * (100 / itemsPerView)}%)` : 'none'
+              }}
             >
               {/* Vidéo YouTube en première position */}
-              <div className="relative flex-shrink-0 w-3/5 sm:w-1/3 aspect-[9/16] overflow-hidden rounded-lg">
+              <div className="relative flex-shrink-0 w-3/5 sm:w-1/3 aspect-[9/16] overflow-hidden rounded-lg snap-start">
                 <iframe
                   src="https://www.youtube.com/embed/53pisKcp9Vc?rel=0&modestbranding=1"
                   title="Présentation de Corentin Robert - Freelance Scraping et Automatisation"
@@ -199,7 +247,7 @@ export default function About() {
                 <Link
                   key={index}
                   href="/photos"
-                  className="group relative flex-shrink-0 w-3/5 sm:w-1/3 aspect-[9/16] overflow-hidden rounded-lg"
+                  className="group relative flex-shrink-0 w-3/5 sm:w-1/3 aspect-[9/16] overflow-hidden rounded-lg snap-start"
                   aria-label={photo.alt || `Photo ${index + 1} - ${photo.location || 'Moment capturé'}`}
                 >
                   <Image
@@ -216,18 +264,32 @@ export default function About() {
             {/* Indicateurs de navigation */}
             {(recentPhotos.length + 1) > itemsPerView && (
               <div className="flex justify-center gap-2 mt-4">
-                {Array.from({ length: Math.ceil((recentPhotos.length + 1) / itemsPerView) }).map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setPhotoIndex(index)}
-                    className={`h-1.5 rounded-full transition-all ${
-                      photoIndex === index
-                        ? 'w-6 bg-neutral-900 dark:bg-neutral-100'
-                        : 'w-1.5 bg-neutral-300 dark:bg-neutral-700'
-                    }`}
-                    aria-label={`Aller aux photos ${index + 1}`}
-                  />
-                ))}
+                {Array.from({ length: Math.ceil((recentPhotos.length + 1) / itemsPerView) }).map((_, index) => {
+                  const isActive = isMobile ? currentScrollIndex === index : photoIndex === index
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        if (isMobile && scrollContainerRef.current) {
+                          const container = scrollContainerRef.current
+                          const containerWidth = container.clientWidth
+                          const itemWidth = containerWidth * 0.6
+                          const gap = 12
+                          const scrollPosition = index * (itemWidth + gap)
+                          container.scrollTo({ left: scrollPosition, behavior: 'smooth' })
+                        } else {
+                          setPhotoIndex(index)
+                        }
+                      }}
+                      className={`h-1.5 rounded-full transition-all ${
+                        isActive
+                          ? 'w-6 bg-neutral-900 dark:bg-neutral-100'
+                          : 'w-1.5 bg-neutral-300 dark:bg-neutral-700'
+                      }`}
+                      aria-label={`Aller aux photos ${index + 1}`}
+                    />
+                  )
+                })}
               </div>
             )}
           </div>
@@ -362,34 +424,9 @@ export default function About() {
 
       {/* Section Projets */}
       <section className="mb-16" aria-label="Projets clés">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="font-semibold text-xl tracking-tighter">Mes Projets Clés</h2>
-          <button
-            onClick={() => setShowStoppedProjects(!showStoppedProjects)}
-            className={`flex items-center gap-2 text-sm transition-colors ${
-              showStoppedProjects
-                ? 'text-neutral-900 dark:text-neutral-100'
-                : 'text-neutral-500 dark:text-neutral-400'
-            } hover:text-neutral-900 dark:hover:text-neutral-100`}
-            aria-label={showStoppedProjects ? 'Masquer les projets arrêtés' : 'Afficher les projets arrêtés'}
-          >
-            <span>Projets arrêtés</span>
-            <div className="relative w-8 h-4">
-              <div className={`absolute inset-0 rounded-full transition-colors duration-200 ${
-                showStoppedProjects 
-                  ? 'bg-neutral-900 dark:bg-neutral-100' 
-                  : 'bg-neutral-200 dark:bg-neutral-800'
-              }`} />
-              <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white dark:bg-neutral-900 shadow-sm transition-all duration-200 ${
-                showStoppedProjects ? 'translate-x-[18px]' : 'translate-x-0.5'
-              }`} />
-            </div>
-          </button>
-        </div>
+        <h2 className="font-semibold text-xl tracking-tighter mb-6">Mes Projets Clés</h2>
         <div className="flex flex-col space-y-4">
-          {siteConfig.projects
-            .filter(project => showStoppedProjects || project.status !== 'stopped')
-            .map((project, index) => {
+          {siteConfig.projects.map((project, index) => {
             const isActive = project.status === 'active'
             const Component = project.link ? 'a' : 'div'
             
@@ -480,9 +517,16 @@ export default function About() {
                         </span>
                       )}
                     </div>
-                    <p className={`text-sm ${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} line-clamp-2`}>
-                      {project.description}
-                    </p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className={`text-sm ${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} line-clamp-2 flex-1`}>
+                        {project.description}
+                      </p>
+                      {project.link && (
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0 mt-0.5 sm:hidden">
+                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                        </svg>
+                      )}
+                    </div>
                     {project.link && project.id && (
                       <div className="sm:hidden mt-2">
                         <ProjectClickCounter projectId={project.id} />

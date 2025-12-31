@@ -1,6 +1,6 @@
 export default function SearchBar({ tags = [], selectedTag, onTagSelect }) {
   return (
-    <div className="flex flex-nowrap gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+    <div className="flex flex-nowrap gap-2 overflow-x-auto pb-1.5 scrollbar-hide">
           <button 
             onClick={() => onTagSelect(null)}
         className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 border ${
