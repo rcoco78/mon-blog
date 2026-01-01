@@ -26,22 +26,22 @@ export default function BreadcrumbTools({ toolName, toolPath }) {
 
   return (
     <nav className="mb-6" aria-label="Fil d'Ariane">
-      <ol className="flex items-center space-x-2 text-sm text-neutral-500 dark:text-neutral-500">
-        <li>
-          <Link href="/" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+      <ol className="flex items-center flex-wrap gap-x-1.5 sm:gap-x-2 gap-y-1 text-xs sm:text-sm text-neutral-500 dark:text-neutral-500">
+        <li className="flex items-center">
+          <Link href="/" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors whitespace-nowrap">
             Accueil
           </Link>
         </li>
-        <li className="flex items-center space-x-2">
-          <span className="mx-1">/</span>
-          <Link href="/marketplace" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+        <li className="flex items-center gap-x-1.5 sm:gap-x-2">
+          <span className="text-neutral-400 dark:text-neutral-600">/</span>
+          <Link href="/marketplace" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors whitespace-nowrap">
             Marketplace
           </Link>
         </li>
         {toolName && (
-          <li className="flex items-center space-x-2">
-            <span className="mx-1">/</span>
-            <span className="text-neutral-900 dark:text-neutral-100 font-medium">
+          <li className="flex items-center gap-x-1.5 sm:gap-x-2 min-w-0">
+            <span className="text-neutral-400 dark:text-neutral-600">/</span>
+            <span className="text-neutral-900 dark:text-neutral-100 font-medium truncate max-w-[200px] sm:max-w-none">
               {toolName}
             </span>
           </li>
