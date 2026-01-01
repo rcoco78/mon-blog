@@ -29,6 +29,7 @@ async function sendTelegramNotification(data) {
     const toolLabel = toolLabels[data.tool] || data.tool || 'Outil inconnu';
     
     let telegramMessage = `📥 *Nouveau téléchargement d'outil !*\n\n`;
+    telegramMessage += `🌐 *Site :* corentinrobert.fr\n`;
     telegramMessage += `📊 *Informations :*\n`;
     telegramMessage += `• Date : ${dateStr}\n`;
     telegramMessage += `• Outil : ${toolLabel}\n`;
