@@ -132,7 +132,7 @@ export default function Marketplace() {
             Marketplace
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
-            Outils et bases de données développés pour automatiser vos processus business, générer des leads et optimiser votre productivité. Une sélection d'<strong className="text-neutral-900 dark:text-neutral-100">outils scraping et automatisation</strong> ainsi que de <strong className="text-neutral-900 dark:text-neutral-100">bases de données</strong> développés pour répondre à des besoins business concrets.
+            Outils et bases de données développés pour automatiser vos processus business, générer des leads et optimiser votre productivité. Une sélection d'<strong className="text-neutral-900 dark:text-neutral-100">outils scraping et automatisation</strong> ainsi que de <strong className="text-neutral-900 dark:text-neutral-100">bases de données</strong> prêtes pour des analyses métiers ou de la prospection.
           </p>
 
           {/* Filtres */}
