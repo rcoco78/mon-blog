@@ -420,7 +420,7 @@ export default function Home({ posts }) {
           <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Corentin Robert</h1>
         </div>
         <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          J'aide les dirigeants à automatiser leurs processus et gagner du temps. Expert en <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong>, je crée des outils sur-mesure pour extraire, structurer et exploiter vos données — livraison en moins d'une semaine. Le week-end, je développe <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère — on parcourt la France pour mettre en avant des logements d'exception.
+          Je transforme vos processus manuels en automatisations opérationnelles en moins d'une semaine. Expert <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> pour dirigeants qui veulent des résultats rapides, pas des promesses à long terme. Le week-end, je développe <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère — on parcourt la France pour mettre en avant des logements d'exception.
         </p>
         
         {/* Métriques de confiance - Déplacées plus tôt sur mobile */}
@@ -491,17 +491,6 @@ export default function Home({ posts }) {
               </div>
             ))
           )}
-          </div>
-          <div className="text-center">
-            <Link 
-              href="/objectifs"
-              className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
-            >
-              Voir toutes les données publiques
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-              </svg>
-            </Link>
           </div>
         </div>
         
@@ -749,11 +738,11 @@ export default function Home({ posts }) {
         </div>
       </section>
       
-      {/* Section Outils récents */}
-      <section className="mt-12" aria-label="Outils récents">
-        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Outils récents</h2>
+      {/* Section Marketplace */}
+      <section className="mt-12" aria-label="Marketplace">
+        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Marketplace</h2>
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Outils gratuits que j'ai développés et que je mets à disposition — générateurs, extracteurs et templates pour vous aider dans votre quotidien.
+          Ressources gratuites que j'ai développées et que je mets à disposition — générateurs, extracteurs, templates et bases de données pour vous aider dans votre quotidien.
         </p>
         <div className="flex flex-col space-y-4">
           {getRecentTools(3).map((tool) => (
@@ -832,7 +821,7 @@ export default function Home({ posts }) {
             href="/marketplace"
             className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
           >
-            Voir tous les outils
+            Découvrir la marketplace
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
             </svg>

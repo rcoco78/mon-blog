@@ -260,7 +260,7 @@ export default function Blog({ posts }) {
             Blog
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
-            Je vis des trucs, j'aime bien les exprimer et je trouve ça intéressant de m'améliorer en rédaction. Ici je vais m'efforcer de partager uniquement sur des sujets <strong className="text-neutral-900 dark:text-neutral-100">entrepreneuriaux</strong>, plus spécifiquement sur mon métier autour du <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et de l'<strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> et m'étayer sur des articles plus <strong className="text-neutral-900 dark:text-neutral-100">voyage</strong> et pertinents. Ça évolue au fil des années aussi, c'est l'idée.
+            Réflexions sur le <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong>, l'<strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> et l'<strong className="text-neutral-900 dark:text-neutral-100">entrepreneuriat</strong>. Cas d'usage business, retours d'expérience et partage de bonnes pratiques pour automatiser vos processus.
           </p>
         <SearchBar 
           tags={allTags}
