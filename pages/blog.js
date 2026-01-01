@@ -430,7 +430,7 @@ export default function Blog({ posts }) {
           )}
         </section>
 
-        <section className="mb-12 md:mb-16 p-4 md:p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+        <section className="mb-16">
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">Questions fréquentes</h2>
           <FAQ
             items={[

@@ -1,8 +1,36 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
+
+// Fonction helper pour obtenir le logo d'une entreprise
+const getCompanyLogo = (companyName) => {
+  if (!companyName) return null
+  const nameLower = companyName.toLowerCase()
+  
+  // Mapping des entreprises aux logos disponibles
+  const logoMap = {
+    'ngi': '/images/logos/ngi.png',
+    'inovesta': '/images/logos/vibe-2025-07-01.webp', // À ajuster si tu as le logo Inovesta
+    'kent': '/images/logos/lloyd & davis.png', // À ajuster si tu as le logo Kent
+    'assursafe': '/images/logos/assursafe.jpeg',
+    'parallel': '/images/logos/vibe-2025-07-01.webp', // À ajuster si tu as le logo Parallel
+    'canopée': '/images/logos/vibe-2025-07-01.webp', // À ajuster si tu as le logo Canopée
+    'inxpress': '/images/logos/vibe-2025-07-01.webp', // À ajuster si tu as le logo InXpress
+    'biche-renard': '/images/logos/vibe-2025-07-01.webp', // À ajuster si tu as le logo La Biche-Renard
+  }
+  
+  // Chercher une correspondance partielle
+  for (const [key, logo] of Object.entries(logoMap)) {
+    if (nameLower.includes(key)) {
+      return logo
+    }
+  }
+  
+  return null
+}
 
 export default function Temoignages() {
   const pageSEO = generatePageSEO({
@@ -160,7 +188,18 @@ export default function Temoignages() {
               <div className="flex items-center gap-4">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Adnane Amahou</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Responsable CX @ NGI</p>
+                  <div className="flex items-center gap-1.5">
+                    {getCompanyLogo('NGI') && (
+                      <Image
+                        src={getCompanyLogo('NGI')}
+                        alt="NGI"
+                        width={16}
+                        height={16}
+                        className="rounded object-contain"
+                      />
+                    )}
+                    <p className="text-sm text-neutral-500 dark:text-neutral-500">Responsable CX @ NGI</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -196,7 +235,18 @@ export default function Temoignages() {
               <div className="flex items-center gap-4">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Mohamed-Amine Zaghdoud</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Fondateur Kent</p>
+                  <div className="flex items-center gap-1.5">
+                    {getCompanyLogo('Kent') && (
+                      <Image
+                        src={getCompanyLogo('Kent')}
+                        alt="Kent"
+                        width={16}
+                        height={16}
+                        className="rounded object-contain"
+                      />
+                    )}
+                    <p className="text-sm text-neutral-500 dark:text-neutral-500">Fondateur Kent</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -214,7 +264,18 @@ export default function Temoignages() {
               <div className="flex items-center gap-4">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Denis</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Inovesta</p>
+                  <div className="flex items-center gap-1.5">
+                    {getCompanyLogo('Inovesta') && (
+                      <Image
+                        src={getCompanyLogo('Inovesta')}
+                        alt="Inovesta"
+                        width={16}
+                        height={16}
+                        className="rounded object-contain"
+                      />
+                    )}
+                    <p className="text-sm text-neutral-500 dark:text-neutral-500">Inovesta</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -232,7 +293,18 @@ export default function Temoignages() {
               <div className="flex items-center gap-4">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Hugues Chavrier</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
+                  <div className="flex items-center gap-1.5">
+                    {getCompanyLogo('Assursafe') && (
+                      <Image
+                        src={getCompanyLogo('Assursafe')}
+                        alt="Assursafe"
+                        width={16}
+                        height={16}
+                        className="rounded object-contain"
+                      />
+                    )}
+                    <p className="text-sm text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -268,7 +340,18 @@ export default function Temoignages() {
               <div className="flex items-center gap-4">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Chris Rydahl</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Cofounder & CTO @ Parallel</p>
+                  <div className="flex items-center gap-1.5">
+                    {getCompanyLogo('Parallel') && (
+                      <Image
+                        src={getCompanyLogo('Parallel')}
+                        alt="Parallel"
+                        width={16}
+                        height={16}
+                        className="rounded object-contain"
+                      />
+                    )}
+                    <p className="text-sm text-neutral-500 dark:text-neutral-500">Cofounder & CTO @ Parallel</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -304,7 +387,18 @@ export default function Temoignages() {
               <div className="flex items-center gap-4">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Charlotte</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Agence Canopée</p>
+                  <div className="flex items-center gap-1.5">
+                    {getCompanyLogo('Canopée') && (
+                      <Image
+                        src={getCompanyLogo('Canopée')}
+                        alt="Canopée"
+                        width={16}
+                        height={16}
+                        className="rounded object-contain"
+                      />
+                    )}
+                    <p className="text-sm text-neutral-500 dark:text-neutral-500">Agence Canopée</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -322,7 +416,18 @@ export default function Temoignages() {
               <div className="flex items-center gap-4">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Julien Vabre</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Dirigeant InXpress Gironde</p>
+                  <div className="flex items-center gap-1.5">
+                    {getCompanyLogo('InXpress') && (
+                      <Image
+                        src={getCompanyLogo('InXpress')}
+                        alt="InXpress"
+                        width={16}
+                        height={16}
+                        className="rounded object-contain"
+                      />
+                    )}
+                    <p className="text-sm text-neutral-500 dark:text-neutral-500">Dirigeant InXpress Gironde</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -358,7 +463,18 @@ export default function Temoignages() {
               <div className="flex items-center gap-4">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Arthur Dalaise</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Co-fondateur @ La Biche-Renard</p>
+                  <div className="flex items-center gap-1.5">
+                    {getCompanyLogo('La Biche-Renard') && (
+                      <Image
+                        src={getCompanyLogo('La Biche-Renard')}
+                        alt="La Biche-Renard"
+                        width={16}
+                        height={16}
+                        className="rounded object-contain"
+                      />
+                    )}
+                    <p className="text-sm text-neutral-500 dark:text-neutral-500">Co-fondateur @ La Biche-Renard</p>
+                  </div>
                 </div>
               </div>
             </div>

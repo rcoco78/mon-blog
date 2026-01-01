@@ -207,7 +207,7 @@ export default function Outils() {
         </div>
       </section>
 
-        <section className="mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+        <section className="mb-16">
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">Questions fréquentes</h2>
           <FAQ
             items={[

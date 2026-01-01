@@ -868,69 +868,73 @@ export default function DonneesPubliques() {
                     // Calculer le CA total objectif depuis les Key Results
                     // Chercher spécifiquement les Key Results de CA principal par catégorie
                     
-                    // CA Freelance : chercher le Key Result principal (le plus grand)
-                    const caFreelanceKRs = keyResults
-                      .filter(kr => {
-                        const categoryLower = (kr.category || '').toLowerCase()
-                        const nameLower = (kr.name || '').toLowerCase()
-                        // Chercher uniquement le CA principal freelance (pas les revenus d'affiliation, pas les totaux)
-                        return (categoryLower.includes('freelance') || categoryLower.includes('freelancing')) &&
-                               (nameLower.includes('ca') || nameLower.includes('chiffre')) &&
-                               !nameLower.includes('affiliation') &&
-                               !nameLower.includes('apify') &&
-                               !nameLower.includes('lemlist') &&
-                               !nameLower.includes('zapmail') &&
-                               !nameLower.includes('total')
-                      })
-                    const caFreelance = caFreelanceKRs.length > 0 
-                      ? Math.max(...caFreelanceKRs.map(kr => kr.targetResult || 0))
-                      : 0
+                    // CA Freelance : chercher le KR principal (le plus grand ou celui avec "total")
+                    const caFreelanceKRs = keyResults.filter(kr => {
+                      const categoryLower = (kr.category || '').toLowerCase()
+                      const nameLower = (kr.name || '').toLowerCase()
+                      return (categoryLower.includes('freelance') || categoryLower.includes('freelancing')) &&
+                             (nameLower.includes('ca') || nameLower.includes('chiffre')) &&
+                             !nameLower.includes('affiliation')
+                    })
                     
-                    // CA Affiliation : chercher le Key Result principal "CA" ou "Chiffre d'affaires" dans la catégorie Affiliation
-                    // Si pas trouvé, chercher un Key Result "Revenus d'affiliation" principal (le plus grand)
-                    const caAffiliationKRs = keyResults
-                      .filter(kr => {
-                        const categoryLower = (kr.category || '').toLowerCase()
-                        const nameLower = (kr.name || '').toLowerCase()
-                        // Chercher un CA principal dans la catégorie affiliation (pas les totaux)
-                        return (categoryLower.includes('affiliation') || categoryLower.includes('partenariats')) &&
-                               (nameLower.includes('ca') || nameLower.includes('chiffre')) &&
-                               !nameLower.includes('total')
-                      })
+                    // Prendre le KR avec "total" s'il existe, sinon le plus grand
+                    const caFreelanceTotalKR = caFreelanceKRs.find(kr => {
+                      const nameLower = (kr.name || '').toLowerCase()
+                      return nameLower.includes('total')
+                    })
                     
-                    let caAffiliation = 0
-                    if (caAffiliationKRs.length > 0) {
-                      // Prendre le CA principal s'il existe
-                      caAffiliation = Math.max(...caAffiliationKRs.map(kr => kr.targetResult || 0))
-                    } else {
-                      // Sinon, chercher les revenus d'affiliation et prendre le plus grand (pas la somme)
-                      const revenusAffiliationKRs = keyResults
-                        .filter(kr => {
-                          const categoryLower = (kr.category || '').toLowerCase()
-                          const nameLower = (kr.name || '').toLowerCase()
-                          return (categoryLower.includes('affiliation') || categoryLower.includes('partenariats')) &&
-                                 (nameLower.includes('affiliation') || nameLower.includes('revenus')) &&
-                                 !nameLower.includes('total')
-                        })
-                      if (revenusAffiliationKRs.length > 0) {
-                        caAffiliation = Math.max(...revenusAffiliationKRs.map(kr => kr.targetResult || 0))
-                      }
+                    let caFreelance = 0
+                    if (caFreelanceTotalKR) {
+                      caFreelance = caFreelanceTotalKR.targetResult || 0
+                    } else if (caFreelanceKRs.length > 0) {
+                      // Prendre le plus grand si pas de "total"
+                      caFreelance = Math.max(...caFreelanceKRs.map(kr => kr.targetResult || 0))
                     }
                     
-                    // CA Logement Atypique : chercher le Key Result principal
-                    const caLogementAtypiqueKRs = keyResults
-                      .filter(kr => {
-                        const categoryLower = (kr.category || '').toLowerCase()
-                        const nameLower = (kr.name || '').toLowerCase()
-                        // Chercher uniquement le CA Logement Atypique (pas les totaux)
-                        return (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial')) &&
-                               (nameLower.includes('ca') || nameLower.includes('chiffre')) &&
-                               nameLower.includes('logement') &&
-                               !nameLower.includes('total')
-                      })
-                    const caLogementAtypique = caLogementAtypiqueKRs.length > 0
-                      ? Math.max(...caLogementAtypiqueKRs.map(kr => kr.targetResult || 0))
-                      : 0
+                    // CA Affiliation : chercher le KR principal (le plus grand ou celui avec "total")
+                    const caAffiliationKRs = keyResults.filter(kr => {
+                      const categoryLower = (kr.category || '').toLowerCase()
+                      const nameLower = (kr.name || '').toLowerCase()
+                      return (categoryLower.includes('affiliation') || categoryLower.includes('partenariats')) &&
+                             (nameLower.includes('ca') || nameLower.includes('chiffre') || nameLower.includes('revenus'))
+                    })
+                    
+                    // Prendre le KR avec "total" s'il existe, sinon additionner tous les revenus d'affiliation
+                    const caAffiliationTotalKR = caAffiliationKRs.find(kr => {
+                      const nameLower = (kr.name || '').toLowerCase()
+                      return nameLower.includes('total')
+                    })
+                    
+                    let caAffiliation = 0
+                    if (caAffiliationTotalKR) {
+                      caAffiliation = caAffiliationTotalKR.targetResult || 0
+                    } else if (caAffiliationKRs.length > 0) {
+                      // Additionner tous les revenus d'affiliation (Apify, Lemlist, Zapmail, etc.)
+                      caAffiliation = caAffiliationKRs.reduce((sum, kr) => sum + (kr.targetResult || 0), 0)
+                    }
+                    
+                    // CA Logement Atypique : chercher le KR avec "ARR" (Annual Recurring Revenue)
+                    const caLogementAtypiqueKRs = keyResults.filter(kr => {
+                      const categoryLower = (kr.category || '').toLowerCase()
+                      const nameLower = (kr.name || '').toLowerCase()
+                      return (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial')) &&
+                             (nameLower.includes('arr') || nameLower.includes('ca') || nameLower.includes('chiffre')) &&
+                             nameLower.includes('logement')
+                    })
+                    
+                    // Prendre le KR avec "ARR" s'il existe, sinon le plus grand
+                    const caLogementAtypiqueTotalKR = caLogementAtypiqueKRs.find(kr => {
+                      const nameLower = (kr.name || '').toLowerCase()
+                      return nameLower.includes('arr')
+                    })
+                    
+                    let caLogementAtypique = 0
+                    if (caLogementAtypiqueTotalKR) {
+                      caLogementAtypique = caLogementAtypiqueTotalKR.targetResult || 0
+                    } else if (caLogementAtypiqueKRs.length > 0) {
+                      // Prendre le plus grand si pas d'ARR
+                      caLogementAtypique = Math.max(...caLogementAtypiqueKRs.map(kr => kr.targetResult || 0))
+                    }
                     
                     const totalCA = caFreelance + caAffiliation + caLogementAtypique
                     
@@ -1224,8 +1228,8 @@ export default function DonneesPubliques() {
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
+                            <div className="flex items-start sm:items-center gap-2 mb-1 flex-wrap sm:flex-nowrap">
+                              <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 flex-1 min-w-0 sm:flex-initial">
                                 {(() => {
                                   const title = improveTitle(kr.name, kr.category)
                                   const nameLower = (kr.name || '').toLowerCase()
@@ -1241,14 +1245,14 @@ export default function DonneesPubliques() {
                                         rel="noopener noreferrer"
                                         className="flex items-center gap-1.5 hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors group/link"
                                       >
-                                        {title}
-                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5">
+                                        <span className="break-words">{title}</span>
+                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 flex-shrink-0">
                                           <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                                         </svg>
                                       </Link>
                                     )
                                   }
-                                  return title
+                                  return <span className="break-words">{title}</span>
                                 })()}
                               </h2>
                               {kr.status?.toLowerCase() === 'done' && (
@@ -1259,12 +1263,12 @@ export default function DonneesPubliques() {
                               {kr.status?.toLowerCase() !== 'done' && kr.status?.toLowerCase() !== 'not started' && (
                                 <>
                                   {kr.progress > 100 ? (
-                                    <span className="relative flex h-2 w-2" title="Objectif dépassé">
+                                    <span className="relative flex h-2 w-2 flex-shrink-0 mt-1 sm:mt-0" title="Objectif dépassé">
                                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                                       <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-600 dark:bg-orange-500"></span>
                                     </span>
                                   ) : (
-                                    <span className="relative flex h-2 w-2" title="En cours">
+                                    <span className="relative flex h-2 w-2 flex-shrink-0 mt-1 sm:mt-0" title="En cours">
                                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                                       <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600 dark:bg-blue-500"></span>
                                     </span>
@@ -1661,7 +1665,7 @@ export default function DonneesPubliques() {
 
 
         {/* FAQ */}
-        <section className="mb-16 p-4 md:p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+        <section className="mb-16">
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">Questions fréquentes</h2>
           <FAQ
             items={[

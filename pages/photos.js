@@ -92,9 +92,9 @@ export default function Photos() {
             
             return (
               <div key={monthKey}>
-                <h2 className="font-medium text-sm text-neutral-500 dark:text-neutral-400 mb-6 tracking-tighter">
-                  {monthGroup.month.charAt(0).toUpperCase() + monthGroup.month.slice(1)}
-                </h2>
+              <h2 className="font-medium text-sm text-neutral-500 dark:text-neutral-400 mb-6 tracking-tighter">
+                {monthGroup.month.charAt(0).toUpperCase() + monthGroup.month.slice(1)}
+              </h2>
                 
                 {/* Vue mobile : Carousel horizontal par mois */}
                 <div className="block sm:hidden">
@@ -159,28 +159,28 @@ export default function Photos() {
 
                 {/* Vue desktop : Grille */}
                 <div className="hidden sm:grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {monthGroup.photos.map((photo, photoIndex) => (
-                    <button
-                      key={photoIndex}
-                      onClick={() => setSelectedPhoto(photo)}
-                      className="group relative aspect-[3/4] overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all"
-                    >
-                      <Image
-                        src={photo.src}
-                        alt={photo.alt || 'Photo'}
-                        fill
-                        className="object-cover transition-transform group-hover:scale-105"
-                        loading="lazy"
-                      />
-                      {photo.location && (
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <p className="text-white text-xs">{photo.location}</p>
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
+                {monthGroup.photos.map((photo, photoIndex) => (
+                  <button
+                    key={photoIndex}
+                    onClick={() => setSelectedPhoto(photo)}
+                    className="group relative aspect-[3/4] overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all"
+                  >
+                    <Image
+                      src={photo.src}
+                      alt={photo.alt || 'Photo'}
+                      fill
+                      className="object-cover transition-transform group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    {photo.location && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <p className="text-white text-xs">{photo.location}</p>
+                      </div>
+                    )}
+                  </button>
+                ))}
               </div>
+            </div>
             )
           })}
         </div>

@@ -9,6 +9,29 @@ import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import ProjectClickCounter from '../components/ProjectClickCounter'
 
+// Fonction helper pour obtenir le logo d'une entreprise
+const getCompanyLogo = (companyName) => {
+  if (!companyName) return null
+  const nameLower = companyName.toLowerCase()
+  
+  // Mapping des entreprises aux logos disponibles
+  const logoMap = {
+    'ngi': '/images/logos/ngi.png',
+    'inovesta': '/images/logos/vibe-2025-07-01.webp', // À ajuster si tu as le logo Inovesta
+    'kent': '/images/logos/lloyd & davis.png', // À ajuster si tu as le logo Kent
+    'assursafe': '/images/logos/assursafe.jpeg',
+  }
+  
+  // Chercher une correspondance partielle
+  for (const [key, logo] of Object.entries(logoMap)) {
+    if (nameLower.includes(key)) {
+      return logo
+    }
+  }
+  
+  return null
+}
+
 export default function Home({ posts }) {
   const [topPosts, setTopPosts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -91,40 +114,88 @@ export default function Home({ posts }) {
           setKeyResults(keyResultsData)
           
           // Calculer le CA total
+          // Chercher le KR principal de chaque catégorie (celui qui représente le CA total)
+          
+          // CA Freelance : chercher le KR principal (le plus grand ou celui avec "total")
           const caFreelanceKRs = keyResultsData.filter(kr => {
             const categoryLower = (kr.category || '').toLowerCase()
             const nameLower = (kr.name || '').toLowerCase()
             return (categoryLower.includes('freelance') || categoryLower.includes('freelancing')) &&
                    (nameLower.includes('ca') || nameLower.includes('chiffre')) &&
-                   !nameLower.includes('affiliation') && !nameLower.includes('total')
+                   !nameLower.includes('affiliation')
           })
-          const caFreelance = caFreelanceKRs.length > 0 
-            ? Math.max(...caFreelanceKRs.map(kr => kr.targetResult || 0))
-            : 0
           
+          // Prendre le KR avec "total" s'il existe, sinon le plus grand
+          const caFreelanceTotalKR = caFreelanceKRs.find(kr => {
+            const nameLower = (kr.name || '').toLowerCase()
+            return nameLower.includes('total')
+          })
+          
+          let caFreelance = 0
+          if (caFreelanceTotalKR) {
+            caFreelance = caFreelanceTotalKR.targetResult || 0
+          } else if (caFreelanceKRs.length > 0) {
+            // Prendre le plus grand si pas de "total"
+            caFreelance = Math.max(...caFreelanceKRs.map(kr => kr.targetResult || 0))
+          }
+          
+          // CA Affiliation : chercher le KR principal (le plus grand ou celui avec "total")
           const caAffiliationKRs = keyResultsData.filter(kr => {
             const categoryLower = (kr.category || '').toLowerCase()
             const nameLower = (kr.name || '').toLowerCase()
             return (categoryLower.includes('affiliation') || categoryLower.includes('partenariats')) &&
-                   (nameLower.includes('ca') || nameLower.includes('chiffre')) &&
-                   !nameLower.includes('total')
+                   (nameLower.includes('ca') || nameLower.includes('chiffre') || nameLower.includes('revenus'))
           })
-          const caAffiliation = caAffiliationKRs.length > 0
-            ? Math.max(...caAffiliationKRs.map(kr => kr.targetResult || 0))
-            : 0
           
+          // Prendre le KR avec "total" s'il existe, sinon additionner tous les revenus d'affiliation
+          const caAffiliationTotalKR = caAffiliationKRs.find(kr => {
+            const nameLower = (kr.name || '').toLowerCase()
+            return nameLower.includes('total')
+          })
+          
+          let caAffiliation = 0
+          if (caAffiliationTotalKR) {
+            caAffiliation = caAffiliationTotalKR.targetResult || 0
+          } else if (caAffiliationKRs.length > 0) {
+            // Additionner tous les revenus d'affiliation (Apify, Lemlist, Zapmail, etc.)
+            caAffiliation = caAffiliationKRs.reduce((sum, kr) => sum + (kr.targetResult || 0), 0)
+          }
+          
+          // CA Logement Atypique : chercher le KR avec "ARR" (Annual Recurring Revenue)
           const caLogementAtypiqueKRs = keyResultsData.filter(kr => {
             const categoryLower = (kr.category || '').toLowerCase()
             const nameLower = (kr.name || '').toLowerCase()
             return (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial')) &&
-                   (nameLower.includes('ca') || nameLower.includes('chiffre')) &&
-                   nameLower.includes('logement') && !nameLower.includes('total')
+                   (nameLower.includes('arr') || nameLower.includes('ca') || nameLower.includes('chiffre')) &&
+                   nameLower.includes('logement')
           })
-          const caLogementAtypique = caLogementAtypiqueKRs.length > 0
-            ? Math.max(...caLogementAtypiqueKRs.map(kr => kr.targetResult || 0))
-            : 0
+          
+          // Prendre le KR avec "ARR" s'il existe, sinon le plus grand
+          const caLogementAtypiqueTotalKR = caLogementAtypiqueKRs.find(kr => {
+            const nameLower = (kr.name || '').toLowerCase()
+            return nameLower.includes('arr')
+          })
+          
+          let caLogementAtypique = 0
+          if (caLogementAtypiqueTotalKR) {
+            caLogementAtypique = caLogementAtypiqueTotalKR.targetResult || 0
+          } else if (caLogementAtypiqueKRs.length > 0) {
+            // Prendre le plus grand si pas d'ARR
+            caLogementAtypique = Math.max(...caLogementAtypiqueKRs.map(kr => kr.targetResult || 0))
+          }
           
           const totalCA = caFreelance + caAffiliation + caLogementAtypique
+          
+          // Debug pour vérifier les valeurs
+          console.log('🔍 Debug CA Total:', {
+            caFreelance,
+            caAffiliation,
+            caLogementAtypique,
+            totalCA,
+            caFreelanceKRs: caFreelanceKRs.map(kr => ({ name: kr.name, target: kr.targetResult })),
+            caAffiliationKRs: caAffiliationKRs.map(kr => ({ name: kr.name, target: kr.targetResult })),
+            caLogementAtypiqueKRs: caLogementAtypiqueKRs.map(kr => ({ name: kr.name, target: kr.targetResult }))
+          })
           
           // Calculer la progression globale
           const totalKeyResults = keyResultsData.length
@@ -349,7 +420,7 @@ export default function Home({ posts }) {
           <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Corentin Robert</h1>
         </div>
         <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          J'aide les dirigeants de TPE-PME à automatiser leurs processus et gagner du temps. Expert en <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong>, je crée des outils sur-mesure pour extraire, structurer et exploiter vos données — livraison en moins d'une semaine. Le week-end, je développe <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère — on parcourt la France pour mettre en avant des logements d'exception.
+          J'aide les dirigeants à automatiser leurs processus et gagner du temps. Expert en <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong>, je crée des outils sur-mesure pour extraire, structurer et exploiter vos données — livraison en moins d'une semaine. Le week-end, je développe <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère — on parcourt la France pour mettre en avant des logements d'exception.
         </p>
         
         {/* Métriques de confiance - Déplacées plus tôt sur mobile */}
@@ -450,28 +521,54 @@ export default function Home({ posts }) {
                   "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ."
                 </p>
                 <div className="flex items-center justify-between mt-auto">
+                  <div className="flex items-center gap-2">
                   <div>
                     <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Adnane Amahou</p>
+                      <div className="flex items-center gap-1.5">
+                        {getCompanyLogo('NGI') && (
+                          <Image
+                            src={getCompanyLogo('NGI')}
+                            alt="NGI"
+                            width={16}
+                            height={16}
+                            className="rounded object-contain"
+                          />
+                        )}
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">Responsable CX @ NGI</p>
+                      </div>
+                    </div>
                   </div>
                   <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">LinkedIn</span>
                 </div>
               </div>
               
-              {/* Témoignage Malt */}
+              {/* Témoignage LinkedIn - Assursafe */}
               <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
                 <div className="mb-3">
-                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Délais respectés • Clarté dès le départ • Professionnalisme</p>
+                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Plusieurs missions • Professionnel • À l'écoute</p>
                 </div>
                 <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
-                  "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
+                  "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !"
                 </p>
                 <div className="flex items-center justify-between mt-auto">
+                  <div className="flex items-center gap-2">
                   <div>
-                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Denis</p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500">Inovesta</p>
+                      <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Hugues Chavrier</p>
+                      <div className="flex items-center gap-1.5">
+                        {getCompanyLogo('Assursafe') && (
+                          <Image
+                            src={getCompanyLogo('Assursafe')}
+                            alt="Assursafe"
+                            width={16}
+                            height={16}
+                            className="rounded object-contain"
+                          />
+                        )}
+                        <p className="text-xs text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
+                      </div>
+                    </div>
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400">Malt</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">LinkedIn</span>
                 </div>
               </div>
               
