@@ -20,11 +20,12 @@ async function sendTelegramNotification(data) {
       minute: '2-digit'
     });
 
-    const toolLabels = {
-      'notion-dashboard': '📊 Dashboard Notion pour Agents',
-      'email-generator': '✉️ Générateur de Templates d\'Emails',
-      'real-estate-generator': '🏠 Générateur Immobilier'
-    };
+                const toolLabels = {
+                  'notion-dashboard': '📊 Dashboard Notion pour Agents',
+                  'email-generator': '✉️ Générateur de Templates d\'Emails',
+                  'real-estate-generator': '🏠 Générateur de Descriptions Immobilières',
+                  'linkedin-extractor': '🔍 Extracteur LinkedIn'
+                };
 
     const toolLabel = toolLabels[data.tool] || data.tool || 'Outil inconnu';
     
@@ -225,6 +226,43 @@ export default async function handler(req, res) {
       email,
       tool: tool || 'notion-dashboard'
     });
+
+    // Tracker le téléchargement (uniquement pour les nouveaux emails)
+    if (!emailExists) {
+      try {
+        const DOWNLOADS_FILENAME = 'tools-downloads.json';
+        
+        // Récupérer les téléchargements existants
+        let downloads = {};
+        try {
+          const { blobs } = await list({ prefix: DOWNLOADS_FILENAME });
+          if (blobs.length > 0) {
+            const sortedBlobs = blobs.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+            const latestBlob = sortedBlobs[0];
+            const response = await fetch(latestBlob.url);
+            downloads = await response.json();
+          }
+        } catch (error) {
+          console.log('Aucun fichier de téléchargements existant');
+        }
+        
+        // Incrémenter le compteur
+        const toolId = tool || 'notion-dashboard';
+        downloads[toolId] = (downloads[toolId] || 0) + 1;
+        downloads._lastUpdate = new Date().toISOString();
+        
+        // Sauvegarder
+        await put(DOWNLOADS_FILENAME, JSON.stringify(downloads, null, 2), {
+          access: 'public',
+          contentType: 'application/json',
+          allowOverwrite: true,
+          token: process.env.BLOB_READ_WRITE_TOKEN
+        });
+      } catch (error) {
+        console.error('Erreur lors du tracking:', error);
+        // Ne pas bloquer la réponse si le tracking échoue
+      }
+    }
 
     res.status(200).json({ 
       success: true, 

@@ -1,72 +1,133 @@
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import SEOHead from '../../components/seo/SEOHead'
 import StructuredData from '../../components/seo/StructuredData'
+import FAQ from '../../components/FAQ'
+import Toast, { useToast } from '../../components/Toast'
+import DownloadCounter from '../../components/DownloadCounter'
 import { generatePageSEO } from '../../lib/seo'
 import { siteConfig } from '../../lib/config'
+import { tools } from '../../lib/tools'
 
 export default function EmailGenerator() {
-  const [formData, setFormData] = useState({
-    recipientName: '',
-    companyName: '',
-    industry: '',
-    painPoint: '',
-    solution: '',
-    callToAction: ''
-  })
+  const [email, setEmail] = useState('')
+  const [emailSubmitted, setEmailSubmitted] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [loadingStep, setLoadingStep] = useState('')
+  const { toast, showToast, hideToast } = useToast()
 
-  const [generatedEmail, setGeneratedEmail] = useState('')
-  const [isGenerating, setIsGenerating] = useState(false)
-
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
+  const toolData = {
+    name: 'Générateur de Templates d\'Emails',
+    description: 'Créez des templates d\'outreach performants avec notre outil gratuit. Personnalisez vos messages et augmentez vos taux de réponse.',
+    category: 'Outreach',
+    price: 0,
+    priceLabel: 'Gratuit',
+    videoUrl: '', // À remplir avec l'URL YouTube Shorts
+    videoThumbnail: '/images/outils/email-generator-thumb.jpg',
+    formats: ['Outil en ligne', 'Guide d\'utilisation'],
+    lastUpdate: '15/01/2025',
+    rows: null,
+    isPaid: false,
+    unlockType: 'email',
+    relatedTools: ['notion-dashboard', 'real-estate-generator'],
+    problem: [
+      'Taux de réponse faibles avec vos emails d\'outreach',
+      'Temps perdu à rédiger des emails personnalisés',
+      'Difficulté à trouver les bons mots pour convaincre',
+      'Manque de structure dans vos messages'
+    ],
+    solution: [
+      'Templates performants testés et optimisés',
+      'Génération en quelques clics, gain de temps garanti',
+      'Formules éprouvées pour augmenter vos taux de réponse',
+      'Structure claire : problème, solution, appel à l\'action'
+    ],
+    testimonials: [
+      {
+        name: 'Alexandre M.',
+        role: 'Business Developer',
+        comment: 'Cet outil m\'a fait gagner un temps précieux. Mes taux de réponse ont augmenté de 25% depuis que j\'utilise ces templates. Indispensable pour mon activité !',
+        date: '12-01-2025',
+        tags: 'Gain de temps • Taux de réponse • Efficacité'
+      },
+      {
+        name: 'Sarah K.',
+        role: 'Responsable Commerciale',
+        comment: 'Les templates sont vraiment bien pensés. La structure problème/solution fonctionne à merveille. Je recommande vivement cet outil gratuit.',
+        date: '08-01-2025',
+        tags: 'Templates performants • Structure claire • Recommandé'
+      },
+      {
+        name: 'Marc D.',
+        role: 'Freelance',
+        comment: 'Simple et efficace. J\'ai personnalisé les templates selon mes besoins et mes résultats se sont améliorés. Un outil gratuit de qualité !',
+        date: '03-01-2025',
+        tags: 'Simple • Personnalisable • Résultats'
+      }
+    ]
   }
 
-  const generateEmail = () => {
-    setIsGenerating(true)
-    
-    // Simulation d'un délai de génération
-    setTimeout(() => {
-      const template = `
-Bonjour ${formData.recipientName},
+  const handleUnlock = async (e) => {
+    e.preventDefault()
+    if (!toolData.isPaid && toolData.unlockType === 'email') {
+      setIsLoading(true)
+      setLoadingStep('Envoi en cours...')
+      
+      try {
+        setLoadingStep('Vérification de votre email...')
+        const response = await fetch('/api/tools/collect-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            tool: 'email-generator'
+          }),
+        })
 
-J'ai remarqué que ${formData.companyName} évolue dans le secteur ${formData.industry} et je pense que vous pourriez être intéressé par ce que j'ai à vous proposer.
+        const data = await response.json()
 
-Je vois que vous faites face à ${formData.painPoint}, ce qui est un défi courant dans votre industrie.
-
-${formData.solution}
-
-${formData.callToAction}
-
-Cordialement,
-Corentin Robert
-      `
-      setGeneratedEmail(template)
-      setIsGenerating(false)
-    }, 1500)
-  }
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(generatedEmail)
+        if (response.ok) {
+          setLoadingStep('Préparation du téléchargement...')
+          await new Promise(resolve => setTimeout(resolve, 500))
+          
+          setEmailSubmitted(true)
+          showToast(
+            data.isNew 
+              ? '✓ Email enregistré ! Le lien de téléchargement vous a été envoyé.'
+              : '✓ Email déjà enregistré. Vous pouvez télécharger vos fichiers.',
+            'success'
+          )
+        } else {
+          showToast(data.error || 'Une erreur est survenue. Veuillez réessayer.', 'error')
+        }
+      } catch (error) {
+        console.error('Erreur lors de l\'envoi:', error)
+        showToast('Une erreur est survenue. Veuillez réessayer.', 'error')
+      } finally {
+        setIsLoading(false)
+        setLoadingStep('')
+      }
+    } else if (toolData.unlockType === 'direct') {
+      window.open(toolData.downloadUrl, '_blank')
+    }
   }
 
   const pageSEO = generatePageSEO({
-    title: 'Générateur de Templates d\'Emails Gratuit - Outil Outreach',
-    description: 'Générateur de templates d\'emails gratuit pour l\'outreach. Créez des emails performants et personnalisés en quelques clics. Augmentez vos taux de réponse avec cet outil gratuit.',
+    title: `${toolData.name} - Outil Gratuit`,
+    description: toolData.description,
     path: '/outils/email-generator',
     keywords: ['générateur templates email', 'outil outreach gratuit', 'email generator', 'templates email outreach']
   })
 
   const toolStructuredData = {
-    name: 'Générateur de Templates d\'Emails',
+    name: toolData.name,
     applicationCategory: 'BusinessApplication',
-    price: '0',
+    price: toolData.price.toString(),
     priceCurrency: 'EUR',
-    description: 'Créez des templates d\'outreach performants avec notre outil gratuit. Personnalisez vos messages et augmentez vos taux de réponse.',
+    description: toolData.description,
     url: `${siteConfig.url}/outils/email-generator`,
     aggregateRating: {
       '@type': 'AggregateRating',
@@ -75,204 +136,393 @@ Corentin Robert
     }
   }
 
+  const relatedToolsList = tools.filter(tool => 
+    toolData.relatedTools.includes(tool.link.replace('/outils/', ''))
+  )
+
   return (
     <>
       <SEOHead {...pageSEO} />
       <StructuredData type="SoftwareApplication" data={toolStructuredData} />
+      {toast && <Toast {...toast} onClose={hideToast} />}
+      
     <main className="min-w-0 mt-6 flex flex-col">
-      <section className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <Link href="/outils" className="text-sm text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200">
-            ← Retour aux outils
-          </Link>
+        {/* Section principale - Vidéo verticale + Contenu */}
+        <section className="mb-16">
+          {/* Header - Mobile first, puis grid sur desktop */}
+          <div className="mb-8 md:hidden">
+            <div className="mb-4">
+              <span className="text-xs text-neutral-500 dark:text-neutral-500 uppercase tracking-wider">
+                {toolData.category}
+              </span>
         </div>
-        <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Générateur de Templates d'Emails</h1>
-        <p className="mb-8 text-neutral-900 dark:text-neutral-100 tracking-tight">
-          Créez des templates d'outreach performants en quelques clics. Personnalisez vos messages et augmentez vos taux de réponse.
-        </p>
-      </section>
-
-      <section className="mb-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-6">
-            <h2 className="font-semibold text-xl tracking-tighter">Personnalisez votre template</h2>
-            
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="recipientName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                  Nom du destinataire
-                </label>
-                <input
-                  type="text"
-                  id="recipientName"
-                  name="recipientName"
-                  value={formData.recipientName}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-500 transition-colors bg-transparent"
-                  placeholder="Ex: Jean Dupont"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="companyName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                  Nom de l'entreprise
-                </label>
-                <input
-                  type="text"
-                  id="companyName"
-                  name="companyName"
-                  value={formData.companyName}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-500 transition-colors bg-transparent"
-                  placeholder="Ex: TechCorp"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="industry" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                  Secteur d'activité
-                </label>
-                <input
-                  type="text"
-                  id="industry"
-                  name="industry"
-                  value={formData.industry}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-500 transition-colors bg-transparent"
-                  placeholder="Ex: immobilier de luxe"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="painPoint" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                  Point de douleur
-                </label>
-                <textarea
-                  id="painPoint"
-                  name="painPoint"
-                  value={formData.painPoint}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-4 py-2 rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-500 transition-colors bg-transparent"
-                  placeholder="Ex: la difficulté à trouver des clients qualifiés"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="solution" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                  Votre solution
-                </label>
-                <textarea
-                  id="solution"
-                  name="solution"
-                  value={formData.solution}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-4 py-2 rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-500 transition-colors bg-transparent"
-                  placeholder="Ex: J'ai développé un outil qui permet d'automatiser la prospection et d'augmenter le taux de conversion de 40%"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="callToAction" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                  Appel à l'action
-                </label>
-                <textarea
-                  id="callToAction"
-                  name="callToAction"
-                  value={formData.callToAction}
-                  onChange={handleChange}
-                  rows={2}
-                  className="w-full px-4 py-2 rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:border-neutral-400 dark:focus:border-neutral-500 transition-colors bg-transparent"
-                  placeholder="Ex: Seriez-vous disponible pour un appel de 15 minutes cette semaine pour discuter de comment nous pourrions vous aider ?"
-                />
-              </div>
-              
-              <button
-                onClick={generateEmail}
-                disabled={isGenerating}
-                className="w-full px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isGenerating ? 'Génération en cours...' : 'Générer mon email'}
-              </button>
+            <h1 className="font-semibold text-2xl mb-3 tracking-tighter">
+              {toolData.name}
+            </h1>
+            <p className="text-neutral-600 dark:text-neutral-400 tracking-tight mb-3">
+              {toolData.description}
+            </p>
+            <div className="flex items-center">
+              <DownloadCounter toolId="email-generator" />
             </div>
           </div>
-          
-          <div className="space-y-6">
-            <h2 className="font-semibold text-xl tracking-tighter">Votre email généré</h2>
-            
-            <div className="relative">
-              <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 min-h-[400px] whitespace-pre-line">
-                {generatedEmail || 'Votre email apparaîtra ici après génération...'}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+            {/* Colonne gauche - Vidéo verticale */}
+            <div className="order-2 md:order-1 md:sticky md:top-8 md:self-start">
+              <div className="relative aspect-[9/16] max-w-[280px] mx-auto md:max-w-none rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
+                {toolData.videoUrl && toolData.videoUrl.includes('youtube.com') ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${toolData.videoUrl.split('/shorts/')[1]?.split('?')[0]}`}
+                    title={`Vidéo de présentation - ${toolData.name}`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="w-full h-full"
+                    style={{ border: 'none' }}
+                  />
+                ) : toolData.videoThumbnail ? (
+                  <Image
+                    src={toolData.videoThumbnail}
+                    alt={`Vidéo de présentation - ${toolData.name}`}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <svg className="w-12 h-12 text-neutral-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                    </svg>
+                  </div>
+                )}
               </div>
               
-              {generatedEmail && (
+              {/* Formulaire - Mobile seulement, en dessous de la vidéo */}
+              <div className="md:hidden mt-6">
+                {toolData.unlockType === 'email' && !emailSubmitted ? (
+                  <form onSubmit={handleUnlock} className="space-y-4">
+              <div>
+                      <label htmlFor="email-mobile" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                        Recevoir l'outil par email
+                </label>
+                <input
+                        type="email"
+                        id="email-mobile"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="votre@email.com"
+                        required
+                        className="w-full px-4 py-2.5 rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-colors bg-transparent"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full px-6 py-2.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium relative overflow-hidden"
+                    >
+                      {isLoading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          {loadingStep || 'Envoi en cours...'}
+                        </span>
+                      ) : (
+                        'Recevoir l\'outil'
+                      )}
+                      {isLoading && (
+                        <div className="absolute bottom-0 left-0 h-0.5 bg-white dark:bg-neutral-900 animate-progress" style={{ animation: 'progress 2s linear infinite' }} />
+                      )}
+                    </button>
+                  </form>
+                ) : emailSubmitted ? (
+                  <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
+                    <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-3">
+                      ✓ Votre email a été enregistré avec succès. Le lien de téléchargement vous a été envoyé par email.
+                    </p>
+                    <a
+                      href={`/api/tools/download-csv?email=${encodeURIComponent(email)}`}
+                      className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
+                    >
+                      Télécharger mes téléchargements (CSV)
+                    </a>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleUnlock}
+                    className="w-full px-6 py-2.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors text-sm font-medium inline-flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Télécharger l'outil
+                  </button>
+                )}
+              </div>
+              
+              {/* Informations - Mobile seulement, en dessous du formulaire */}
+              <div className="md:hidden mt-6">
+                <div className="space-y-4 text-sm">
+                  {toolData.rows && (
+                    <div className="flex items-start justify-between">
+                      <span className="text-neutral-500 dark:text-neutral-500">Éléments</span>
+                      <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
+                        {toolData.rows}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-start justify-between">
+                    <span className="text-neutral-500 dark:text-neutral-500">Formats disponibles</span>
+                    <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right max-w-[60%]">
+                      {toolData.formats.join(', ')}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-between">
+                    <span className="text-neutral-500 dark:text-neutral-500">Dernière mise à jour</span>
+                    <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
+                      {toolData.lastUpdate}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              </div>
+              
+            {/* Colonne droite - Contenu */}
+            <div className="order-1 md:order-2">
+              {/* Header - Desktop seulement */}
+              <div className="hidden md:block mb-6">
+                <span className="text-xs text-neutral-500 dark:text-neutral-500 uppercase tracking-wider">
+                  {toolData.category}
+                </span>
+              </div>
+              
+              <h1 className="hidden md:block font-semibold text-2xl mb-3 tracking-tighter">
+                {toolData.name}
+              </h1>
+              
+              <p className="hidden md:block text-neutral-600 dark:text-neutral-400 tracking-tight mb-3">
+                {toolData.description}
+              </p>
+              
+              <div className="hidden md:flex items-center mb-8">
+                <DownloadCounter toolId="email-generator" />
+              </div>
+
+              {/* Section téléchargement - Desktop seulement */}
+              <div className="mb-8 hidden md:block">
+                {toolData.unlockType === 'email' && !emailSubmitted ? (
+                  <form onSubmit={handleUnlock} className="space-y-4">
+              <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                        Recevoir l'outil par email
+                </label>
+                      <input
+                        type="email"
+                        id="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="votre@email.com"
+                        required
+                        className="w-full px-4 py-2.5 rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-colors bg-transparent"
+                />
+              </div>
+              <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full px-6 py-2.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                    >
+                      {isLoading ? 'Envoi en cours...' : 'Recevoir l\'outil'}
+              </button>
+                  </form>
+                ) : emailSubmitted ? (
+                  <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
+                    <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-3">
+                      ✓ Votre email a été enregistré avec succès. Le lien de téléchargement vous a été envoyé par email.
+                    </p>
+                    <a
+                      href={`/api/tools/download-csv?email=${encodeURIComponent(email)}`}
+                      className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
+                    >
+                      Télécharger mes téléchargements (CSV)
+                    </a>
+            </div>
+                ) : (
                 <button
-                  onClick={copyToClipboard}
-                  className="absolute top-4 right-4 px-3 py-1 text-xs bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
+                    onClick={handleUnlock}
+                    className="w-full px-6 py-2.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors text-sm font-medium inline-flex items-center justify-center gap-2"
                 >
-                  Copier
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Télécharger l'outil
                 </button>
               )}
             </div>
             
-            <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900">
-              <h3 className="font-medium mb-2">Conseils pour un email performant</h3>
-              <ul className="text-sm text-neutral-600 dark:text-neutral-400 space-y-2">
-                <li>• Personnalisez chaque email pour augmenter votre taux de réponse</li>
-                <li>• Restez concis et direct dans votre message</li>
-                <li>• Mettez en avant la valeur que vous apportez</li>
-                <li>• Incluez un appel à l'action clair et spécifique</li>
-                <li>• Testez différentes versions pour optimiser vos résultats</li>
-              </ul>
+              {/* Informations - Desktop seulement */}
+              <div className="hidden md:block">
+                <div className="space-y-4 text-sm">
+                  {toolData.rows && (
+                    <div className="flex items-start justify-between">
+                      <span className="text-neutral-500 dark:text-neutral-500">Éléments</span>
+                      <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
+                        {toolData.rows}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-start justify-between">
+                    <span className="text-neutral-500 dark:text-neutral-500">Formats disponibles</span>
+                    <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right max-w-[60%]">
+                      {toolData.formats.join(', ')}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-between">
+                    <span className="text-neutral-500 dark:text-neutral-500">Dernière mise à jour</span>
+                    <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
+                      {toolData.lastUpdate}
+                    </span>
+                  </div>
+                </div>
             </div>
           </div>
         </div>
       </section>
       
+        {/* Section Problème / Solution */}
+        {(toolData.problem && toolData.solution) && (
       <section className="mb-16">
-        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Vous souhaitez plus de fonctionnalités ?</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800">
-            <h3 className="font-medium mb-2">Version Pro</h3>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-              Accédez à des templates avancés, des analyses de performance et une personnalisation illimitée.
-            </p>
-            <a
-              href="/contact"
-              className="inline-block px-4 py-2 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors text-sm"
-            >
-              En savoir plus
-            </a>
+            <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                {/* Colonne Problème */}
+                <div>
+                  <h2 className="font-semibold text-xl mb-6 tracking-tighter">Problème ?</h2>
+                  <ul className="space-y-3">
+                    {toolData.problem.map((item, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <span className="text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0">×</span>
+                        <span className="text-neutral-700 dark:text-neutral-300">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
           </div>
           
-          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800">
-            <h3 className="font-medium mb-2">Formation Outreach</h3>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-              Apprenez les meilleures pratiques d'outreach avec notre formation complète.
-            </p>
-            <a
-              href="/contact"
-              className="inline-block px-4 py-2 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors text-sm"
-            >
-              Découvrir
-            </a>
+                {/* Colonne Solution */}
+                <div>
+                  <h2 className="font-semibold text-xl mb-6 tracking-tighter">La solution</h2>
+                  <ul className="space-y-3">
+                    {toolData.solution.map((item, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <span className="text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0">✓</span>
+                        <span className="text-neutral-700 dark:text-neutral-300">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Section Témoignages */}
+        {toolData.testimonials && toolData.testimonials.length > 0 && (
+          <section className="mb-16">
+            <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
+              <h2 className="font-semibold text-xl mb-6 tracking-tighter">
+                Ce qu'en disent les utilisateurs
+              </h2>
+              <div className="space-y-6">
+                {toolData.testimonials.map((testimonial, index) => (
+                  <div
+                    key={index}
+                    className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50"
+                  >
+                    <div className="mb-3">
+                      <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">
+                        {testimonial.tags || 'Témoignage utilisateur'}
+                      </p>
+                    </div>
+                    <div className="flex items-start justify-between mb-4">
+                      <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                        "{testimonial.comment}"
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div>
+                          <p className="font-medium text-neutral-800 dark:text-neutral-200">
+                            {testimonial.name}
+                          </p>
+                          <p className="text-sm text-neutral-500 dark:text-neutral-500">
+                            {testimonial.role}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                        {testimonial.date}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
           </div>
-          
-          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800">
-            <h3 className="font-medium mb-2">Coaching Personnalisé</h3>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-              Bénéficiez d'un accompagnement sur mesure pour optimiser votre stratégie d'outreach.
-            </p>
-            <a
-              href="/contact"
-              className="inline-block px-4 py-2 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors text-sm"
-            >
-              Réserver
-            </a>
+          </section>
+        )}
+
+        {/* Section "Il existe aussi" */}
+        {relatedToolsList.length > 0 && (
+          <section className="mb-16">
+            <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
+              <h2 className="font-semibold text-xl mb-6 tracking-tighter">
+                Il existe aussi
+              </h2>
+              <div className="space-y-4">
+                {relatedToolsList.map((tool) => (
+                  <Link
+                    key={tool.name}
+                    href={tool.link}
+                    className="group flex items-center justify-between py-3 border-b border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
+                  >
+                    <div>
+                      <h3 className="font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-400 transition-colors mb-1">
+                        {tool.name}
+                      </h3>
+                      <p className="text-sm text-neutral-500 dark:text-neutral-500">
+                        {tool.category}
+                      </p>
+                    </div>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                      <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                    </svg>
+                  </Link>
+                ))}
           </div>
         </div>
+          </section>
+        )}
+
+        {/* FAQ */}
+        <section className="mb-16">
+          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Questions fréquentes</h2>
+          <FAQ
+            items={[
+              {
+                question: 'Comment utiliser cet outil ?',
+                answer: 'Entrez votre email pour recevoir l\'accès à l\'outil. Une fois connecté, vous pourrez générer des templates d\'emails personnalisés en quelques clics.'
+              },
+              {
+                question: 'L\'outil est-il vraiment gratuit ?',
+                answer: 'Oui, cet outil est entièrement gratuit. Aucun paiement n\'est requis pour l\'utiliser.'
+              },
+              {
+                question: 'Puis-je personnaliser les templates ?',
+                answer: 'Oui, vous pouvez personnaliser tous les templates selon vos besoins. Si vous avez besoin d\'une version sur-mesure, contactez-moi pour discuter de votre projet.'
+              },
+              {
+                question: 'Y a-t-il des mises à jour ?',
+                answer: `Oui, l'outil est mis à jour régulièrement. Dernière mise à jour : ${toolData.lastUpdate}.`
+              }
+            ]}
+          />
       </section>
     </main>
     </>

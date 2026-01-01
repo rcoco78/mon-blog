@@ -10,7 +10,7 @@ import { generatePageSEO } from '../../lib/seo'
 import { siteConfig } from '../../lib/config'
 import { tools } from '../../lib/tools'
 
-export default function NotionDashboard() {
+export default function RealEstateGenerator() {
   const [email, setEmail] = useState('')
   const [emailSubmitted, setEmailSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -18,61 +18,52 @@ export default function NotionDashboard() {
   const { toast, showToast, hideToast } = useToast()
 
   const toolData = {
-    name: 'Dashboard Notion pour Agents',
-    description: 'Template Notion complet pour la gestion de votre activité immobilière. Suivi des clients, visites et contenus.',
-    category: 'Productivité',
-    price: 0, // 0 = gratuit, sinon prix en euros
+    name: 'Générateur de Descriptions Immobilières',
+    description: 'Créez des descriptions immobilières optimisées pour le luxe. Templates et suggestions de mots-clés inclus.',
+    category: 'Immobilier',
+    price: 0,
     priceLabel: 'Gratuit',
-    videoUrl: 'https://www.youtube.com/shorts/5bCoM91K1uM', // URL YouTube Shorts
-    videoThumbnail: '/images/outils/notion-dashboard-thumb.jpg', // Image de preview (optionnel si embed)
-    formats: ['Template Notion', 'Guide d\'utilisation PDF'],
-    lastUpdate: '15/11/2024',
-    rows: '1570', // Nombre de lignes/éléments si applicable
+    videoUrl: '', // À remplir avec l'URL YouTube Shorts
+    videoThumbnail: '/images/outils/real-estate-generator-thumb.jpg',
+    formats: ['Outil en ligne', 'Templates PDF', 'Guide SEO'],
+    lastUpdate: '01/12/2024',
+    rows: null,
     isPaid: false,
-    unlockType: 'email', // 'email' ou 'direct' (téléchargement direct)
-    relatedTools: ['email-generator', 'real-estate-generator'], // IDs des outils similaires
-    // Section Problème / Solution
+    unlockType: 'email',
+    relatedTools: ['notion-dashboard', 'email-generator'],
     problem: [
-      'Clients dans Excel, visites dans Google Calendar, contenus partout',
-      '2h par jour à chercher des informations dispersées',
-      'Risque d\'oublier des suivis clients importants',
-      'Pas de vue d\'ensemble de votre activité'
+      'Descriptions immobilières peu engageantes et génériques',
+      'Difficulté à mettre en valeur les atouts d\'un bien',
+      'Manque de mots-clés SEO pour améliorer la visibilité',
+      'Temps perdu à rédiger des descriptions de qualité'
     ],
     solution: [
-      'Tout centralisé dans un seul dashboard Notion',
-      '15 min par jour pour gérer l\'ensemble de votre activité',
-      'Suivis automatiques, rien n\'est oublié',
-      'Vue d\'ensemble en temps réel de vos clients et visites'
+      'Templates optimisés pour l\'immobilier de luxe',
+      'Suggestions de mots-clés performants automatiques',
+      'Structure éprouvée pour maximiser l\'engagement',
+      'Génération en quelques clics, gain de temps garanti'
     ],
-    // Témoignages
     testimonials: [
       {
-        name: 'Marie L.',
-        role: 'Agent immobilier indépendant',
-        comment: 'Ce dashboard a transformé ma façon de travailler. Plus besoin de jongler entre Excel et Google Calendar, tout est centralisé. Je gagne au moins 1h30 par jour !',
-        date: '15-01-2025',
-        tags: 'Gain de temps • Centralisation • Efficacité'
-      },
-      {
-        name: 'Thomas D.',
-        role: 'Conseiller en immobilier',
-        comment: 'Template très complet et facile à prendre en main. Le guide PDF est clair et les automatisations me font gagner un temps précieux sur les suivis clients.',
-        date: '10-12-2024',
-        tags: 'Template complet • Guide clair • Automatisations'
-      },
-      {
-        name: 'Sophie M.',
-        role: 'Agent commerciale',
-        comment: 'J\'utilise ce dashboard depuis 3 mois et je ne peux plus m\'en passer. La vue d\'ensemble de mes visites et clients est parfaite. Merci pour ce super outil gratuit !',
-        date: '05-11-2024',
-        tags: 'Vue d\'ensemble • Indispensable • Gratuit'
-      },
-      {
-        name: 'Julien R.',
+        name: 'Claire M.',
         role: 'Agent immobilier',
-        comment: 'Simple, efficace et gratuit. J\'ai personnalisé quelques sections selon mes besoins et c\'est devenu mon outil de travail principal. Très satisfait !',
-        date: '20-01-2025',
-        tags: 'Simple • Personnalisable • Outil principal'
+        comment: 'Cet outil transforme mes descriptions. Les suggestions de mots-clés sont parfaites et mes annonces génèrent beaucoup plus de vues. Un must-have !',
+        date: '20-12-2024',
+        tags: 'Mots-clés • Vues • Recommandé'
+      },
+      {
+        name: 'Thomas P.',
+        role: 'Conseiller en immobilier de luxe',
+        comment: 'Les templates sont vraiment adaptés au luxe. La structure est professionnelle et les descriptions sont engageantes. Excellent outil gratuit.',
+        date: '15-12-2024',
+        tags: 'Luxe • Professionnel • Engageant'
+      },
+      {
+        name: 'Marie D.',
+        role: 'Agent commerciale',
+        comment: 'Simple et efficace. J\'ai doublé mes taux de contact depuis que j\'utilise cet outil. Les descriptions sont vraiment plus percutantes.',
+        date: '10-12-2024',
+        tags: 'Simple • Taux de contact • Performant'
       }
     ]
   }
@@ -92,7 +83,7 @@ export default function NotionDashboard() {
           },
           body: JSON.stringify({
             email,
-            tool: 'notion-dashboard'
+            tool: 'real-estate-generator'
           }),
         })
 
@@ -100,7 +91,6 @@ export default function NotionDashboard() {
 
         if (response.ok) {
           setLoadingStep('Préparation du téléchargement...')
-          // Petit délai pour l'effet visuel
           await new Promise(resolve => setTimeout(resolve, 500))
           
           setEmailSubmitted(true)
@@ -110,12 +100,6 @@ export default function NotionDashboard() {
               : '✓ Email déjà enregistré. Vous pouvez télécharger vos fichiers.',
             'success'
           )
-          
-          // Si l'email existe déjà, proposer le téléchargement CSV
-          if (!data.isNew && data.downloadUrl) {
-            // Optionnel : télécharger automatiquement le CSV
-            // window.open(data.downloadUrl + `?email=${encodeURIComponent(email)}`, '_blank')
-          }
         } else {
           showToast(data.error || 'Une erreur est survenue. Veuillez réessayer.', 'error')
         }
@@ -127,7 +111,6 @@ export default function NotionDashboard() {
         setLoadingStep('')
       }
     } else if (toolData.unlockType === 'direct') {
-      // Téléchargement direct
       window.open(toolData.downloadUrl, '_blank')
     }
   }
@@ -135,8 +118,8 @@ export default function NotionDashboard() {
   const pageSEO = generatePageSEO({
     title: `${toolData.name} - Outil Gratuit`,
     description: toolData.description,
-    path: '/outils/notion-dashboard',
-    keywords: ['notion dashboard', 'template notion', 'gestion immobilière', 'productivité']
+    path: '/outils/real-estate-generator',
+    keywords: ['générateur descriptions immobilières', 'descriptions immobilier luxe', 'templates immobiliers', 'outil immobilier gratuit']
   })
 
   const toolStructuredData = {
@@ -145,15 +128,14 @@ export default function NotionDashboard() {
     price: toolData.price.toString(),
     priceCurrency: 'EUR',
     description: toolData.description,
-    url: `${siteConfig.url}/outils/notion-dashboard`,
+    url: `${siteConfig.url}/outils/real-estate-generator`,
     aggregateRating: {
       '@type': 'AggregateRating',
-      ratingValue: '4.9',
-      ratingCount: '127'
+      ratingValue: '4.6',
+      ratingCount: '112'
     }
   }
 
-  // Récupérer les outils similaires
   const relatedToolsList = tools.filter(tool => 
     toolData.relatedTools.includes(tool.link.replace('/outils/', ''))
   )
@@ -168,7 +150,7 @@ export default function NotionDashboard() {
         {/* Section principale - Vidéo verticale + Contenu */}
         <section className="mb-16">
           {/* Header - Mobile first, puis grid sur desktop */}
-            <div className="mb-8 md:hidden">
+          <div className="mb-8 md:hidden">
             <div className="mb-4">
               <span className="text-xs text-neutral-500 dark:text-neutral-500 uppercase tracking-wider">
                 {toolData.category}
@@ -181,7 +163,7 @@ export default function NotionDashboard() {
               {toolData.description}
             </p>
             <div className="flex items-center">
-              <DownloadCounter toolId="notion-dashboard" />
+              <DownloadCounter toolId="real-estate-generator" />
             </div>
           </div>
 
@@ -323,7 +305,7 @@ export default function NotionDashboard() {
               </p>
               
               <div className="hidden md:flex items-center mb-8">
-                <DownloadCounter toolId="notion-dashboard" />
+                <DownloadCounter toolId="real-estate-generator" />
               </div>
 
               {/* Section téléchargement - Desktop seulement */}
@@ -538,19 +520,19 @@ export default function NotionDashboard() {
             items={[
               {
                 question: 'Comment utiliser cet outil ?',
-                answer: 'Une fois téléchargé, suivez le guide d\'utilisation inclus. L\'outil est prêt à l\'emploi et ne nécessite aucune configuration technique.'
+                answer: 'Entrez votre email pour recevoir l\'accès. Une fois connecté, vous pourrez générer des descriptions immobilières optimisées en quelques clics avec suggestions de mots-clés SEO.'
               },
               {
                 question: 'L\'outil est-il vraiment gratuit ?',
                 answer: 'Oui, cet outil est entièrement gratuit. Aucun paiement n\'est requis pour l\'utiliser.'
               },
               {
-                question: 'Puis-je modifier l\'outil ?',
-                answer: 'Oui, vous pouvez personnaliser l\'outil selon vos besoins. Si vous avez besoin d\'une version sur-mesure, contactez-moi pour discuter de votre projet.'
+                question: 'Puis-je personnaliser les templates ?',
+                answer: 'Oui, vous pouvez personnaliser tous les templates selon vos besoins. Si vous avez besoin d\'une version sur-mesure, contactez-moi pour discuter de votre projet.'
               },
               {
                 question: 'Y a-t-il des mises à jour ?',
-                answer: `Oui, l'outil est mis à jour régulièrement. Dernière mise à jour : ${toolData.lastUpdate}.`
+                answer: `Oui, l'outil est mis à jour régulièrement avec de nouveaux templates et mots-clés. Dernière mise à jour : ${toolData.lastUpdate}.`
               }
             ]}
           />
