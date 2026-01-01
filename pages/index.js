@@ -506,7 +506,7 @@ export default function Home({ posts }) {
         </div>
         
         {/* Carousel de témoignages */}
-        <section className="mb-8 md:mb-16 relative" aria-label="Témoignages clients">
+        <section className="mb-8 relative" aria-label="Témoignages clients">
           <div className="relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-live="polite" aria-atomic="true">
             <div 
               ref={testimonialScrollRef}
@@ -609,7 +609,7 @@ export default function Home({ posts }) {
           </div>
         </section>
       </section>
-      <section className="mt-4 md:mt-8" aria-label="Projets">
+      <section className="mt-4" aria-label="Projets">
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Projets</h2>
         <div className="flex flex-col space-y-4">
           {siteConfig.projects.filter(project => project.status === 'active').map((project, index) => {
