@@ -357,7 +357,7 @@ export default function DonneesPubliques() {
     const orderMap = {
       'Apify': [
         'Nombre de scrapers disponibles',
-        'Utilisateurs total',
+        'Utilisateurs total Apify',
         'Utilisateurs mensuels',
         'Utilisateurs mensuels Apify',
         'Chiffre d\'affaires Apify',
@@ -366,7 +366,7 @@ export default function DonneesPubliques() {
       ],
       'Apify & Scraping': [
         'Nombre de scrapers disponibles',
-        'Utilisateurs total',
+        'Utilisateurs total Apify',
         'Utilisateurs mensuels',
         'Utilisateurs mensuels Apify',
         'Chiffre d\'affaires Apify',
@@ -505,9 +505,9 @@ export default function DonneesPubliques() {
     const improvements = {
       // Apify / Scrapers
       'Total Actors publiés': 'Nombre de scrapers disponibles',
-      'Total users Apify': 'Utilisateurs Apify',
-      'Utilisateurs total': 'Utilisateurs Apify',
-      'Utilisateurs total Apify': 'Utilisateurs Apify',
+      'Total users Apify': 'Utilisateurs total Apify',
+      'Utilisateurs total': 'Utilisateurs total Apify',
+      'Utilisateurs total Apify': 'Utilisateurs total Apify',
       'Actors publiés': 'Scrapers publics',
       'Total monthly users': 'Utilisateurs mensuels Apify',
       'Total monthly users (Apify)': 'Utilisateurs mensuels Apify',
