@@ -40,7 +40,10 @@ STRIPE_WEBHOOK_SECRET=VOTRE_WEBHOOK_SECRET
 2. Cliquez sur **Add endpoint**
 3. URL de l'endpoint : `https://votredomaine.com/api/tools/stripe-webhook`
 4. Sélectionnez les événements à écouter :
-   - `checkout.session.completed` (obligatoire)
+   - `checkout.session.completed` (obligatoire - pour les paiements uniques et abonnements)
+   - `customer.subscription.created` (pour les nouveaux abonnements)
+   - `customer.subscription.updated` (pour les mises à jour d'abonnement)
+   - `invoice.payment_succeeded` (pour les renouvellements d'abonnement annuels)
 
 ### 2. Tester le webhook en local
 
@@ -67,14 +70,21 @@ Les prix sont définis dans `/pages/api/tools/create-checkout.js` :
 const toolPrices = {
   'dentistes-parisiens': {
     name: 'Base de données - Dentistes Parisiens',
-    price: 49, // Prix en euros
-    description: 'Base de données complète des dentistes à Paris (500+ entrées)'
+    price: 49, // Prix en euros (achat unique)
+    annualPrice: 49, // Prix annuel (abonnement avec mises à jour)
+    description: 'Base de données complète des dentistes à Paris (500+ entrées)',
+    features: [...], // Fonctionnalités pour l'achat unique
+    annualFeatures: [...], // Fonctionnalités pour l'abonnement (avec mises à jour)
   }
 }
 ```
 
+**Options de paiement :**
+- **Achat unique** : Accès immédiat, pas de renouvellement
+- **Abonnement annuel** : Mises à jour incluses pendant 1 an, renouvellement automatique
+
 Pour ajouter un nouvel outil payant :
-1. Ajoutez l'entrée dans `toolPrices`
+1. Ajoutez l'entrée dans `toolPrices` avec `price` et `annualPrice`
 2. Mettez à jour `lib/tools.js` avec `isPaid: true` et `price: X`
 3. Mettez à jour la page de l'outil avec `unlockType: 'payment'`
 
@@ -94,11 +104,21 @@ Pour ajouter un nouvel outil payant :
 
 ## 📝 Flux de Paiement
 
-1. **Utilisateur clique sur "Acheter"** → Redirection vers Stripe Checkout
+### Achat Unique
+1. **Utilisateur clique sur "Acheter une fois"** → Redirection vers Stripe Checkout
 2. **Paiement sur Stripe** → L'utilisateur paie via Stripe
 3. **Redirection après paiement** → Retour sur `/outils/dentistes-parisiens?payment=success&session_id=...`
 4. **Vérification du paiement** → L'API `/api/tools/verify-payment` vérifie le statut
 5. **Déblocage du téléchargement** → L'utilisateur peut télécharger la base de données
+
+### Abonnement Annuel
+1. **Utilisateur clique sur "Abonnement annuel"** → Redirection vers Stripe Checkout (mode subscription)
+2. **Paiement sur Stripe** → L'utilisateur paie l'abonnement annuel
+3. **Redirection après paiement** → Retour sur `/outils/dentistes-parisiens?payment=success&session_id=...&type=subscription`
+4. **Vérification du paiement** → L'API vérifie le statut
+5. **Déblocage du téléchargement** → L'utilisateur peut télécharger la base de données
+6. **Renouvellement automatique** → Chaque année, Stripe facture automatiquement et envoie un webhook `invoice.payment_succeeded`
+7. **Envoi des mises à jour** → Tu peux envoyer automatiquement les nouvelles données aux abonnés
 
 ## 🔍 Dépannage
 

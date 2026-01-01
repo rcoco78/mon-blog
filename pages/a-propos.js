@@ -470,14 +470,14 @@ export default function About() {
               target: '_blank',
               rel: 'noopener noreferrer',
               onClick: handleClick,
-              className: 'relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]'
+              className: 'relative flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group'
             } : {
-              className: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 min-h-[96px]'
+              className: 'flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50'
             }
 
             return (
               <Component key={index} {...props}>
-                <div className="flex items-start gap-3 flex-1 min-w-0">
+                <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
                   {project.image ? (
                     <div className="flex-shrink-0 w-6 h-6">
                       <Image
@@ -526,33 +526,31 @@ export default function About() {
                         </span>
                       )}
                     </div>
-                    <div className="flex items-start justify-between gap-2">
-                      <p className={`text-sm ${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} line-clamp-2 flex-1`}>
-                        {project.description}
-                      </p>
-                      {project.link && (
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0 mt-0.5 sm:hidden">
-                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                        </svg>
-                      )}
-                    </div>
-                    {project.link && project.id && (
-                      <div className="sm:hidden mt-2">
-                        <ProjectClickCounter projectId={project.id} />
-                      </div>
-                    )}
+                    <p className={`text-sm ${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} line-clamp-2`}>
+                      {project.description}
+                    </p>
                   </div>
                 </div>
-                <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
-                  {project.link && project.id && (
-                    <ProjectClickCounter projectId={project.id} />
-                  )}
-                  {project.link && (
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
-                      <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                    </svg>
-                  )}
-                </div>
+                
+                {/* Séparateur fin et compteur de clics */}
+                {project.link && (
+                  <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
+                    <div className="flex items-center gap-3">
+                      {/* Espaceur pour aligner avec l'icône */}
+                      <div className="flex-shrink-0 w-6 h-6"></div>
+                      <div className="flex-1 min-w-0 flex items-center gap-2">
+                        {project.id ? (
+                          <ProjectClickCounter projectId={project.id} />
+                        ) : (
+                          <span></span>
+                        )}
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
+                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </Component>
             )
           })}

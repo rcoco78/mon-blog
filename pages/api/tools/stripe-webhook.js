@@ -43,6 +43,21 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: `Webhook Error: ${err.message}` })
   }
 
+  // Gérer les événements d'abonnement
+  if (event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated') {
+    const subscription = event.data.object
+    console.log(`Abonnement ${event.type === 'created' ? 'créé' : 'mis à jour'}: ${subscription.id}`)
+    // Ici tu peux gérer la création/mise à jour d'abonnement
+  }
+
+  if (event.type === 'invoice.payment_succeeded') {
+    const invoice = event.data.object
+    if (invoice.subscription) {
+      console.log(`Paiement d'abonnement réussi pour la subscription: ${invoice.subscription}`)
+      // Ici tu peux envoyer les mises à jour annuelles
+    }
+  }
+
   // Gérer l'événement checkout.session.completed
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object
@@ -50,6 +65,10 @@ export default async function handler(req, res) {
     if (session.payment_status === 'paid') {
       const toolId = session.metadata?.toolId
       const email = session.customer_email || session.metadata?.email
+      
+      // Récupérer les champs personnalisés (format préféré, etc.)
+      const customFields = session.custom_fields || []
+      const formatPreference = customFields.find(field => field.key === 'format_preference')?.value || 'all'
 
       // Ici tu peux :
       // 1. Envoyer l'email avec le lien de téléchargement
@@ -57,6 +76,12 @@ export default async function handler(req, res) {
       // 3. Envoyer une notification Telegram
       
       console.log(`Paiement confirmé pour ${toolId} par ${email}`)
+      console.log(`Format préféré: ${formatPreference}`)
+      console.log(`Type: ${subscriptionType}${isSubscription ? ' (abonnement)' : ' (achat unique)'}`)
+      
+      // Récupérer le type de paiement (one-time ou annual)
+      const subscriptionType = session.metadata?.subscriptionType || 'one-time'
+      const isSubscription = session.mode === 'subscription'
       
       // Exemple : Enregistrer l'achat dans Vercel Blob
       try {
@@ -66,6 +91,10 @@ export default async function handler(req, res) {
           sessionId: session.id,
           amount: session.amount_total / 100, // Convertir centimes en euros
           currency: session.currency,
+          formatPreference: formatPreference, // Format sélectionné par l'utilisateur
+          subscriptionType: subscriptionType, // 'one-time' ou 'annual'
+          isSubscription: isSubscription,
+          subscriptionId: session.subscription || null, // ID de l'abonnement si applicable
           timestamp: new Date().toISOString(),
         }
 

@@ -13,6 +13,7 @@ export default function Marketplace() {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedType, setSelectedType] = useState(null) // 'outil' | 'database' | null
   const [selectedPricing, setSelectedPricing] = useState(null) // 'gratuit' | 'payant' | null
+  const [searchQuery, setSearchQuery] = useState('') // Recherche textuelle
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
 
   const categories = ['Outreach', 'Scraping', 'Immobilier', 'Productivité']
@@ -25,7 +26,11 @@ export default function Marketplace() {
     const matchesPricing = selectedPricing === null || 
       (selectedPricing === 'gratuit' && !tool.isPaid) ||
       (selectedPricing === 'payant' && tool.isPaid)
-    return matchesCategory && matchesType && matchesPricing
+    const matchesSearch = searchQuery === '' || 
+      tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tool.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tool.category.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesCategory && matchesType && matchesPricing && matchesSearch
   })
 
   const openCalendly = () => {
@@ -75,7 +80,7 @@ export default function Marketplace() {
         applicationCategory: 'BusinessApplication',
         offers: {
           '@type': 'Offer',
-          price: tool.isPaid ? tool.price.toString() : '0',
+          price: tool.isPaid ? (tool.annualPrice || tool.price || 0).toString() : '0',
           priceCurrency: 'EUR',
           availability: tool.isPaid ? 'https://schema.org/InStock' : 'https://schema.org/InStock'
         },
@@ -93,6 +98,14 @@ export default function Marketplace() {
         acceptedAnswer: {
           '@type': 'Answer',
           text: 'La plupart des outils et bases de données sont gratuits. Je les développe pour partager mon expertise et aider la communauté. Certains outils peuvent avoir des limites d\'utilisation (comme l\'extracteur LinkedIn limité à 50 profils par jour). Certains produits premium sont disponibles en version payante.'
+        }
+      },
+      {
+        '@type': 'Question',
+        name: 'Quelle est la différence entre l\'achat unique et l\'abonnement annuel ?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'L\'achat unique vous donne un accès immédiat à la base de données sans renouvellement. L\'abonnement annuel, au même prix, inclut une mise à jour annuelle du fichier : vous recevrez automatiquement la version actualisée de la base de données chaque année. Les deux options sont au même prix, l\'abonnement est recommandé si vous souhaitez garder vos données à jour sur le long terme.'
         }
       },
       {
@@ -134,6 +147,17 @@ export default function Marketplace() {
           <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
             Outils et bases de données développés pour automatiser vos processus business, générer des leads et optimiser votre productivité. Une sélection d'<strong className="text-neutral-900 dark:text-neutral-100">outils scraping et automatisation</strong> ainsi que de <strong className="text-neutral-900 dark:text-neutral-100">bases de données</strong> prêtes pour des analyses métiers ou de la prospection.
           </p>
+
+          {/* Recherche textuelle */}
+          <div className="mb-6">
+            <input
+              type="text"
+              placeholder="Rechercher un outil ou une base de données..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 dark:placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-colors"
+            />
+          </div>
 
           {/* Filtres */}
           <div className="space-y-4 mb-8">
@@ -240,6 +264,7 @@ export default function Marketplace() {
                   setSelectedCategory(null)
                   setSelectedType(null)
                   setSelectedPricing(null)
+                  setSearchQuery('')
                 }}
                 className="text-sm text-neutral-900 dark:text-neutral-100 underline hover:no-underline"
               >
@@ -252,9 +277,9 @@ export default function Marketplace() {
                 <Link
                   key={tool.name}
                   href={tool.link}
-                  className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]"
+                  className="relative flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
                 >
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
                     {tool.iconSvg ? (
                       <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-600 dark:text-neutral-400">
                         {tool.iconSvg === 'email' && (
@@ -299,21 +324,25 @@ export default function Marketplace() {
                           {tool.name}
                         </h2>
                       </div>
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2 flex-1">
-                          {tool.description}
-                        </p>
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0 mt-0.5 sm:hidden">
+                      <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
+                        {tool.description}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Séparateur fin et prix */}
+                  <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
+                    <div className="flex items-center gap-3">
+                      {/* Espaceur pour aligner avec l'icône */}
+                      <div className="flex-shrink-0 w-6 h-6"></div>
+                      <div className="flex-1 min-w-0 flex items-center gap-2">
+                        <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                          {tool.isPaid ? `À partir de ${tool.annualPrice || tool.price || 0}€` : 'Gratuit'}
+                        </span>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
                           <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                         </svg>
                       </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <div className="hidden sm:block">
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
-                        <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                      </svg>
                     </div>
                   </div>
                 </Link>
@@ -349,6 +378,10 @@ export default function Marketplace() {
               {
                 question: "Les outils et bases de données sont-ils gratuits ?",
                 answer: "La plupart des outils et bases de données sont gratuits. Je les développe pour partager mon expertise et aider la communauté. Certains outils peuvent avoir des limites d'utilisation (comme l'extracteur LinkedIn limité à 50 profils par jour). Certains produits premium sont disponibles en version payante."
+              },
+              {
+                question: "Quelle est la différence entre l'achat unique et l'abonnement annuel ?",
+                answer: "L'achat unique vous donne un accès immédiat à la base de données sans renouvellement. L'abonnement annuel, au même prix, inclut une mise à jour annuelle du fichier : vous recevrez automatiquement la version actualisée de la base de données chaque année. Les deux options sont au même prix, l'abonnement est recommandé si vous souhaitez garder vos données à jour sur le long terme."
               },
               {
                 question: "Comment utiliser ces outils ?",

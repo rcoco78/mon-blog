@@ -15,6 +15,7 @@ export default function DentistesParisiens() {
   const [emailSubmitted, setEmailSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [loadingStep, setLoadingStep] = useState('')
+  const [subscriptionType, setSubscriptionType] = useState('annual') // 'one-time' ou 'annual' (par défaut: annual recommandé)
   const [paymentVerified, setPaymentVerified] = useState(false)
   const { toast, showToast, hideToast } = useToast()
 
@@ -102,8 +103,14 @@ export default function DentistesParisiens() {
     name: 'Base de données - Dentistes Parisiens',
     description: 'Base de données complète des dentistes à Paris avec coordonnées, spécialités et informations de contact. Idéal pour la prospection et l\'analyse du marché dentaire parisien.',
     category: 'Scraping',
-    price: 49,
-    priceLabel: '49 €',
+    price: 79, // Prix TTC en euros (achat unique)
+    priceHT: 65.83, // Prix HT (TVA 20%)
+    priceLabel: '79 € TTC',
+    priceLabelHT: '65,83 € HT',
+    annualPrice: 59, // Prix annuel TTC
+    annualPriceHT: 49.17, // Prix annuel HT
+    annualPriceLabel: '59 € TTC',
+    annualPriceLabelHT: '49,17 € HT',
     videoUrl: '',
     videoThumbnail: '/images/outils/dentistes-parisiens-thumb.jpg',
     formats: ['CSV', 'Excel', 'JSON'],
@@ -173,7 +180,7 @@ export default function DentistesParisiens() {
     if (toolData.isPaid && toolData.unlockType === 'payment') {
       // Paiement Stripe
       setIsLoading(true)
-      setLoadingStep('Redirection vers le paiement...')
+      setLoadingStep(subscriptionType === 'annual' ? 'Redirection vers l\'abonnement...' : 'Redirection vers le paiement...')
       
       try {
         const response = await fetch('/api/tools/create-checkout', {
@@ -183,7 +190,8 @@ export default function DentistesParisiens() {
           },
           body: JSON.stringify({
             toolId: 'dentistes-parisiens',
-            email: email || undefined
+            subscriptionType: subscriptionType // 'one-time' ou 'annual'
+            // Note: Stripe collecte automatiquement l'email du client lors du checkout
           }),
         })
 
@@ -269,6 +277,10 @@ export default function DentistesParisiens() {
     {
       question: 'Combien de dentistes sont inclus ?',
       answer: `La base de données contient ${toolData.rows} dentistes parisiens avec leurs coordonnées complètes, spécialités et informations de contact.`
+    },
+    {
+      question: 'Quelle est la différence entre l\'achat unique et l\'abonnement annuel ?',
+      answer: 'L\'achat unique vous donne un accès immédiat à la base de données sans renouvellement. L\'abonnement annuel, au même prix, inclut une mise à jour annuelle du fichier : vous recevrez automatiquement la version actualisée de la base de données chaque année. Les deux options sont au même prix, l\'abonnement est recommandé si vous souhaitez garder vos données à jour sur le long terme.'
     }
   ]
 
@@ -392,24 +404,40 @@ export default function DentistesParisiens() {
                       </a>
                     </div>
                   ) : (
-                    <form onSubmit={handleUnlock} className="space-y-4">
-                      <div>
-                        <label htmlFor="email-mobile" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                          Email pour la facture (optionnel)
-                        </label>
-                        <input
-                          type="email"
-                          id="email-mobile"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="votre@email.com"
-                          className="w-full px-4 py-2.5 rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-colors bg-transparent"
-                        />
+                    <div className="space-y-4">
+                      {/* Toggle pour choisir le type */}
+                      <div className="flex items-center justify-between p-1 bg-neutral-100 dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                        <button
+                          type="button"
+                          onClick={() => setSubscriptionType('one-time')}
+                          disabled={isLoading}
+                          className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                            subscriptionType === 'one-time'
+                              ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                              : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'
+                          } disabled:opacity-50`}
+                        >
+                          Achat unique
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSubscriptionType('annual')}
+                          disabled={isLoading}
+                          className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                            subscriptionType === 'annual'
+                              ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                              : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'
+                          } disabled:opacity-50`}
+                        >
+                          Abonnement annuel
+                        </button>
                       </div>
+
+                      {/* Bouton unique qui varie selon le choix */}
                       <button
-                        type="submit"
+                        onClick={handleUnlock}
                         disabled={isLoading}
-                        className="w-full px-6 py-2.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium relative overflow-hidden"
+                        className="w-full px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium relative overflow-hidden"
                       >
                         {isLoading ? (
                           <span className="flex items-center justify-center gap-2">
@@ -420,13 +448,35 @@ export default function DentistesParisiens() {
                             {loadingStep || 'Redirection...'}
                           </span>
                         ) : (
-                          `Acheter pour ${toolData.priceLabel}`
+                          <div className="text-center">
+                            <div className="font-semibold">
+                              {subscriptionType === 'annual' ? `${toolData.annualPriceLabel.replace(' TTC', '')}/an` : toolData.priceLabel.replace(' TTC', '')}
+                            </div>
+                            <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
+                              {subscriptionType === 'annual' ? 'Mise à jour annuelle incluse' : 'Achat unique'}
+                            </div>
+                          </div>
                         )}
                         {isLoading && (
                           <div className="absolute bottom-0 left-0 h-0.5 bg-white dark:bg-neutral-900 animate-progress" style={{ animation: 'progress 2s linear infinite' }} />
                         )}
                       </button>
-                    </form>
+
+                      {/* Texte descriptif selon le choix */}
+                      <div className="text-xs text-neutral-600 dark:text-neutral-400">
+                        {subscriptionType === 'annual' ? (
+                          <div className="flex items-start gap-2">
+                            <span className="text-neutral-400 dark:text-neutral-600 mt-0.5">•</span>
+                            <span><strong className="text-neutral-700 dark:text-neutral-300">Abonnement annuel :</strong> Même prix, avec mise à jour annuelle du fichier incluse.</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-start gap-2">
+                            <span className="text-neutral-400 dark:text-neutral-600 mt-0.5">•</span>
+                            <span><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Accès immédiat à la base de données, sans renouvellement.</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   )
                 ) : toolData.unlockType === 'email' && !emailSubmitted ? (
                   <form onSubmit={handleUnlock} className="space-y-4">
@@ -494,11 +544,21 @@ export default function DentistesParisiens() {
               <div className="md:hidden mt-6">
                 <div className="space-y-4 text-sm">
                   {toolData.isPaid && (
-                    <div className="flex items-start justify-between">
-                      <span className="text-neutral-500 dark:text-neutral-500">Prix</span>
-                      <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
-                        {toolData.priceLabel}
-                      </span>
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between">
+                        <span className="text-neutral-500 dark:text-neutral-500">Achat unique</span>
+                        <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
+                          <div>{toolData.priceLabel}</div>
+                          <div className="text-xs text-neutral-500 dark:text-neutral-500">{toolData.priceLabelHT}</div>
+                        </span>
+                      </div>
+                      <div className="flex items-start justify-between">
+                        <span className="text-neutral-500 dark:text-neutral-500">Abonnement annuel</span>
+                        <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
+                          <div>{toolData.annualPriceLabel}/an</div>
+                          <div className="text-xs text-neutral-500 dark:text-neutral-500">{toolData.annualPriceLabelHT}/an</div>
+                        </span>
+                      </div>
                     </div>
                   )}
                   <div className="flex items-start justify-between">
@@ -554,28 +614,79 @@ export default function DentistesParisiens() {
                       </a>
                     </div>
                   ) : (
-                    <form onSubmit={handleUnlock} className="space-y-4">
-                      <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                          Email pour la facture (optionnel)
-                        </label>
-                        <input
-                          type="email"
-                          id="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="votre@email.com"
-                          className="w-full px-4 py-2.5 rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-colors bg-transparent"
-                        />
+                    <div className="space-y-4">
+                      {/* Toggle pour choisir le type */}
+                      <div className="flex items-center justify-between p-1 bg-neutral-100 dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                        <button
+                          type="button"
+                          onClick={() => setSubscriptionType('one-time')}
+                          disabled={isLoading}
+                          className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                            subscriptionType === 'one-time'
+                              ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                              : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'
+                          } disabled:opacity-50`}
+                        >
+                          Achat unique
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSubscriptionType('annual')}
+                          disabled={isLoading}
+                          className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                            subscriptionType === 'annual'
+                              ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                              : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'
+                          } disabled:opacity-50`}
+                        >
+                          Abonnement annuel
+                        </button>
                       </div>
+
+                      {/* Bouton unique qui varie selon le choix */}
                       <button
-                        type="submit"
+                        onClick={handleUnlock}
                         disabled={isLoading}
-                        className="w-full px-6 py-2.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                        className="w-full px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium relative overflow-hidden"
                       >
-                        {isLoading ? loadingStep || 'Redirection...' : `Acheter pour ${toolData.priceLabel}`}
+                        {isLoading ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            {loadingStep || 'Redirection...'}
+                          </span>
+                        ) : (
+                          <div className="text-center">
+                            <div className="font-semibold">
+                              {subscriptionType === 'annual' ? `${toolData.annualPriceLabel.replace(' TTC', '')}/an` : toolData.priceLabel.replace(' TTC', '')}
+                            </div>
+                            <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
+                              {subscriptionType === 'annual' ? 'Mise à jour annuelle incluse' : 'Achat unique'}
+                            </div>
+                          </div>
+                        )}
+                        {isLoading && (
+                          <div className="absolute bottom-0 left-0 h-0.5 bg-white dark:bg-neutral-900 animate-progress" style={{ animation: 'progress 2s linear infinite' }} />
+                        )}
                       </button>
-                    </form>
+
+                      {/* Texte descriptif selon le choix */}
+                      <div className="text-xs text-neutral-600 dark:text-neutral-400">
+                        {subscriptionType === 'annual' ? (
+                          <div className="flex items-start gap-2">
+                            <span className="text-neutral-400 dark:text-neutral-600 mt-0.5">•</span>
+                            <span><strong className="text-neutral-700 dark:text-neutral-300">Abonnement annuel :</strong> Même prix, avec mise à jour annuelle du fichier incluse.</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-start gap-2">
+                            <span className="text-neutral-400 dark:text-neutral-600 mt-0.5">•</span>
+                            <span><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Accès immédiat à la base de données, sans renouvellement.</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   )
                 ) : toolData.unlockType === 'email' && !emailSubmitted ? (
                   <form onSubmit={handleUnlock} className="space-y-4">
@@ -624,17 +735,30 @@ export default function DentistesParisiens() {
                     Télécharger la base de données
                   </button>
                 )}
+                
+                {/* Séparateur fin */}
+                <hr className="my-4 border-0 border-t border-dashed border-neutral-200 dark:border-neutral-800" />
               </div>
             
               {/* Informations - Desktop seulement */}
               <div className="hidden md:block">
                 <div className="space-y-4 text-sm">
                   {toolData.isPaid && (
-                    <div className="flex items-start justify-between">
-                      <span className="text-neutral-500 dark:text-neutral-500">Prix</span>
-                      <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
-                        {toolData.priceLabel}
-                      </span>
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between">
+                        <span className="text-neutral-500 dark:text-neutral-500">Achat unique</span>
+                        <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
+                          <div>{toolData.priceLabel}</div>
+                          <div className="text-xs text-neutral-500 dark:text-neutral-500">{toolData.priceLabelHT}</div>
+                        </span>
+                      </div>
+                      <div className="flex items-start justify-between">
+                        <span className="text-neutral-500 dark:text-neutral-500">Abonnement annuel</span>
+                        <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
+                          <div>{toolData.annualPriceLabel}/an</div>
+                          <div className="text-xs text-neutral-500 dark:text-neutral-500">{toolData.annualPriceLabelHT}/an</div>
+                        </span>
+                      </div>
                     </div>
                   )}
                   <div className="flex items-start justify-between">
