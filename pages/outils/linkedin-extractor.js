@@ -6,6 +6,7 @@ import StructuredData from '../../components/seo/StructuredData'
 import FAQ from '../../components/FAQ'
 import Toast, { useToast } from '../../components/Toast'
 import DownloadCounter from '../../components/DownloadCounter'
+import BreadcrumbTools from '../../components/BreadcrumbTools'
 import { generatePageSEO } from '../../lib/seo'
 import { siteConfig } from '../../lib/config'
 import { tools } from '../../lib/tools'
@@ -42,6 +43,25 @@ export default function LinkedInExtractor() {
       'Export direct en CSV pour analyse immédiate',
       'Respect des limites et bonnes pratiques LinkedIn',
       '50 profils par jour gratuitement, plus avec version pro'
+    ],
+    // Guide d'utilisation pour HowTo Schema
+    howToSteps: [
+      {
+        name: 'Télécharger l\'outil',
+        text: 'Entrez votre email pour recevoir l\'accès à l\'extracteur LinkedIn par email.'
+      },
+      {
+        name: 'Se connecter à l\'outil',
+        text: 'Utilisez les identifiants reçus par email pour accéder à la plateforme d\'extraction.'
+      },
+      {
+        name: 'Configurer l\'extraction',
+        text: 'Définissez vos critères de recherche (mots-clés, localisation, secteur) et lancez l\'extraction.'
+      },
+      {
+        name: 'Exporter les données',
+        text: 'Téléchargez les profils extraits au format CSV pour les intégrer dans votre CRM ou outil de suivi.'
+      }
     ],
     testimonials: [
       {
@@ -115,6 +135,25 @@ export default function LinkedInExtractor() {
     }
   }
 
+  const faqItems = [
+    {
+      question: 'Comment utiliser cet outil ?',
+      answer: 'Entrez votre email pour recevoir l\'accès à l\'outil. Une fois connecté, configurez vos critères de recherche et lancez l\'extraction. Les données sont exportables en CSV.'
+    },
+    {
+      question: 'L\'outil est-il vraiment gratuit ?',
+      answer: 'Oui, cet outil est entièrement gratuit avec une limite de 50 profils par jour. Aucun paiement n\'est requis pour l\'utiliser.'
+    },
+    {
+      question: 'Est-ce légal d\'extraire des données LinkedIn ?',
+      answer: 'Oui, notre outil respecte les conditions d\'utilisation de LinkedIn et les bonnes pratiques. L\'extraction est limitée et éthique.'
+    },
+    {
+      question: 'Y a-t-il des mises à jour ?',
+      answer: `Oui, l'outil est mis à jour régulièrement. Dernière mise à jour : ${toolData.lastUpdate}.`
+    }
+  ]
+
   const pageSEO = generatePageSEO({
     title: `${toolData.name} - Outil Gratuit`,
     description: toolData.description,
@@ -129,6 +168,8 @@ export default function LinkedInExtractor() {
     priceCurrency: 'EUR',
     description: toolData.description,
     url: `${siteConfig.url}/outils/linkedin-extractor`,
+    screenshot: toolData.videoThumbnail || `${siteConfig.url}/images/og-default.jpg`,
+    featureList: toolData.formats || [],
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: '4.7',
@@ -142,11 +183,40 @@ export default function LinkedInExtractor() {
 
   return (
     <>
-      <SEOHead {...pageSEO} />
+      <SEOHead 
+        {...pageSEO} 
+        ogType="product"
+        ogImage={toolData.videoThumbnail || undefined}
+      />
       <StructuredData type="SoftwareApplication" data={toolStructuredData} />
+      {toolData.videoUrl && toolData.videoUrl.includes('youtube.com') && (
+        <StructuredData
+          type="VideoObject"
+          data={{
+            name: `Présentation - ${toolData.name}`,
+            description: toolData.description,
+            thumbnailUrl: toolData.videoThumbnail || `https://img.youtube.com/vi/${toolData.videoUrl.split('/shorts/')[1]?.split('?')[0]}/maxresdefault.jpg`,
+            uploadDate: toolData.lastUpdate ? new Date(toolData.lastUpdate.split('/').reverse().join('-')).toISOString() : new Date().toISOString(),
+            contentUrl: toolData.videoUrl,
+            embedUrl: `https://www.youtube.com/embed/${toolData.videoUrl.split('/shorts/')[1]?.split('?')[0]}`
+          }}
+        />
+      )}
+      {toolData.howToSteps && toolData.howToSteps.length > 0 && (
+        <StructuredData
+          type="HowTo"
+          data={{
+            name: `Comment utiliser ${toolData.name}`,
+            description: `Guide d'utilisation étape par étape pour ${toolData.name}`,
+            steps: toolData.howToSteps
+          }}
+        />
+      )}
       {toast && <Toast {...toast} onClose={hideToast} />}
       
       <main className="min-w-0 mt-6 flex flex-col">
+        {/* Breadcrumb */}
+        <BreadcrumbTools toolName={toolData.name} toolPath="/outils/linkedin-extractor" />
         {/* Section principale - Vidéo verticale + Contenu */}
         <section className="mb-16">
           {/* Header - Mobile first, puis grid sur desktop */}
@@ -445,35 +515,50 @@ export default function LinkedInExtractor() {
               </h2>
               <div className="space-y-6">
                 {toolData.testimonials.map((testimonial, index) => (
-                  <div
-                    key={index}
-                    className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50"
-                  >
-                    <div className="mb-3">
-                      <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">
-                        {testimonial.tags || 'Témoignage utilisateur'}
-                      </p>
-                    </div>
-                    <div className="flex items-start justify-between mb-4">
-                      <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
-                        "{testimonial.comment}"
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div>
-                          <p className="font-medium text-neutral-800 dark:text-neutral-200">
-                            {testimonial.name}
-                          </p>
-                          <p className="text-sm text-neutral-500 dark:text-neutral-500">
-                            {testimonial.role}
-                          </p>
-                        </div>
+                  <div key={index}>
+                    <div
+                      className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50"
+                    >
+                      <div className="mb-3">
+                        <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">
+                          {testimonial.tags || 'Témoignage utilisateur'}
+                        </p>
                       </div>
-                      <span className="text-xs text-neutral-500 dark:text-neutral-500">
-                        {testimonial.date}
-                      </span>
+                      <div className="flex items-start justify-between mb-4">
+                        <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                          "{testimonial.comment}"
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div>
+                            <p className="font-medium text-neutral-800 dark:text-neutral-200">
+                              {testimonial.name}
+                            </p>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-500">
+                              {testimonial.role}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                          {testimonial.date}
+                        </span>
+                      </div>
                     </div>
+                    <StructuredData
+                      type="Review"
+                      data={{
+                        authorName: testimonial.name,
+                        datePublished: testimonial.date.split('-').reverse().join('-'),
+                        reviewBody: testimonial.comment,
+                        ratingValue: '5',
+                        itemReviewed: {
+                          '@type': 'SoftwareApplication',
+                          name: toolData.name,
+                          url: `${siteConfig.url}/outils/linkedin-extractor`
+                        }
+                      }}
+                    />
                   </div>
                 ))}
               </div>
@@ -516,25 +601,10 @@ export default function LinkedInExtractor() {
         {/* FAQ */}
         <section className="mb-16">
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">Questions fréquentes</h2>
-          <FAQ
-            items={[
-              {
-                question: 'Comment utiliser cet outil ?',
-                answer: 'Entrez votre email pour recevoir l\'accès. Une fois connecté, vous pourrez extraire jusqu\'à 50 profils LinkedIn par jour et exporter les données en CSV.'
-              },
-              {
-                question: 'L\'outil est-il vraiment gratuit ?',
-                answer: 'Oui, la version gratuite permet d\'extraire 50 profils par jour. Pour des besoins plus importants, contactez-moi pour discuter d\'une version personnalisée.'
-              },
-              {
-                question: 'Est-ce conforme aux règles LinkedIn ?',
-                answer: 'Oui, l\'outil respecte les limites et bonnes pratiques de LinkedIn. Nous n\'utilisons pas de techniques de scraping agressives.'
-              },
-              {
-                question: 'Y a-t-il des mises à jour ?',
-                answer: `Oui, l'outil est mis à jour régulièrement pour s'adapter aux évolutions de LinkedIn. Dernière mise à jour : ${toolData.lastUpdate}.`
-              }
-            ]}
+          <FAQ items={faqItems} />
+          <StructuredData
+            type="FAQPage"
+            data={{ questions: faqItems }}
           />
         </section>
       </main>

@@ -189,7 +189,9 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           offers: {
             '@type': 'Offer',
             price: data.price || '0',
-            priceCurrency: data.priceCurrency || 'EUR'
+            priceCurrency: data.priceCurrency || 'EUR',
+            availability: data.availability || 'https://schema.org/InStock',
+            url: data.downloadUrl || data.url
           },
           aggregateRating: data.aggregateRating || {
             '@type': 'AggregateRating',
@@ -198,6 +200,8 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           },
           description: data.description,
           url: data.url,
+          screenshot: data.screenshot,
+          featureList: data.featureList,
           author: {
             '@type': 'Person',
             name: siteConfig.author,
@@ -219,7 +223,14 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         return {
           '@context': 'https://schema.org',
           '@type': 'FAQPage',
-          mainEntity: data.questions || []
+          mainEntity: (data.questions || []).map(q => ({
+            '@type': 'Question',
+            name: q.question || q.name,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: q.answer || q.text
+            }
+          }))
         };
 
       case 'Review':
@@ -238,7 +249,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
             bestRating: '5',
             worstRating: '1'
           },
-          itemReviewed: {
+          itemReviewed: data.itemReviewed || {
             '@type': 'Service',
             name: data.serviceName || 'Services de Scraping et Automatisation',
             provider: {
@@ -247,6 +258,22 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
               url: siteConfig.url
             }
           }
+        };
+
+      case 'HowTo':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'HowTo',
+          name: data.name || 'Guide d\'utilisation',
+          description: data.description || 'Comment utiliser cet outil',
+          step: (data.steps || []).map((step, index) => ({
+            '@type': 'HowToStep',
+            position: index + 1,
+            name: step.name || step.title,
+            text: step.text || step.description,
+            image: step.image,
+            url: step.url
+          }))
         };
       
       default:

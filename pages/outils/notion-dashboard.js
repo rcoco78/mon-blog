@@ -6,6 +6,7 @@ import StructuredData from '../../components/seo/StructuredData'
 import FAQ from '../../components/FAQ'
 import Toast, { useToast } from '../../components/Toast'
 import DownloadCounter from '../../components/DownloadCounter'
+import BreadcrumbTools from '../../components/BreadcrumbTools'
 import { generatePageSEO } from '../../lib/seo'
 import { siteConfig } from '../../lib/config'
 import { tools } from '../../lib/tools'
@@ -139,6 +140,25 @@ export default function NotionDashboard() {
     keywords: ['notion dashboard', 'template notion', 'gestion immobilière', 'productivité']
   })
 
+  const faqItems = [
+    {
+      question: 'Comment utiliser cet outil ?',
+      answer: 'Une fois téléchargé, suivez le guide d\'utilisation inclus. L\'outil est prêt à l\'emploi et ne nécessite aucune configuration technique.'
+    },
+    {
+      question: 'L\'outil est-il vraiment gratuit ?',
+      answer: 'Oui, cet outil est entièrement gratuit. Aucun paiement n\'est requis pour l\'utiliser.'
+    },
+    {
+      question: 'Puis-je modifier l\'outil ?',
+      answer: 'Oui, vous pouvez personnaliser l\'outil selon vos besoins. Si vous avez besoin d\'une version sur-mesure, contactez-moi pour discuter de votre projet.'
+    },
+    {
+      question: 'Y a-t-il des mises à jour ?',
+      answer: `Oui, l'outil est mis à jour régulièrement. Dernière mise à jour : ${toolData.lastUpdate}.`
+    }
+  ]
+
   const toolStructuredData = {
     name: toolData.name,
     applicationCategory: 'BusinessApplication',
@@ -146,6 +166,8 @@ export default function NotionDashboard() {
     priceCurrency: 'EUR',
     description: toolData.description,
     url: `${siteConfig.url}/outils/notion-dashboard`,
+    screenshot: toolData.videoThumbnail || `${siteConfig.url}/images/og-default.jpg`,
+    featureList: toolData.formats || [],
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: '4.9',
@@ -160,11 +182,41 @@ export default function NotionDashboard() {
 
   return (
     <>
-      <SEOHead {...pageSEO} />
+      <SEOHead 
+        {...pageSEO} 
+        ogType="product"
+        ogImage={toolData.videoThumbnail || undefined}
+      />
       <StructuredData type="SoftwareApplication" data={toolStructuredData} />
+      {toolData.videoUrl && toolData.videoUrl.includes('youtube.com') && (
+        <StructuredData
+          type="VideoObject"
+          data={{
+            name: `Présentation - ${toolData.name}`,
+            description: toolData.description,
+            thumbnailUrl: toolData.videoThumbnail || `https://img.youtube.com/vi/${toolData.videoUrl.split('/shorts/')[1]?.split('?')[0]}/maxresdefault.jpg`,
+            uploadDate: toolData.lastUpdate ? new Date(toolData.lastUpdate.split('/').reverse().join('-')).toISOString() : new Date().toISOString(),
+            contentUrl: toolData.videoUrl,
+            embedUrl: `https://www.youtube.com/embed/${toolData.videoUrl.split('/shorts/')[1]?.split('?')[0]}`
+          }}
+        />
+      )}
+      {toolData.howToSteps && toolData.howToSteps.length > 0 && (
+        <StructuredData
+          type="HowTo"
+          data={{
+            name: `Comment utiliser ${toolData.name}`,
+            description: `Guide d'utilisation étape par étape pour ${toolData.name}`,
+            steps: toolData.howToSteps
+          }}
+        />
+      )}
       {toast && <Toast {...toast} onClose={hideToast} />}
       
       <main className="min-w-0 mt-6 flex flex-col">
+        {/* Breadcrumb */}
+        <BreadcrumbTools toolName={toolData.name} toolPath="/outils/notion-dashboard" />
+        
         {/* Section principale - Vidéo verticale + Contenu */}
         <section className="mb-16">
           {/* Header - Mobile first, puis grid sur desktop */}
@@ -463,35 +515,50 @@ export default function NotionDashboard() {
               </h2>
               <div className="space-y-6">
                 {toolData.testimonials.map((testimonial, index) => (
-                  <div
-                    key={index}
-                    className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50"
-                  >
-                    <div className="mb-3">
-                      <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">
-                        {testimonial.tags || 'Témoignage utilisateur'}
-                      </p>
-                    </div>
-                    <div className="flex items-start justify-between mb-4">
-                      <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
-                        "{testimonial.comment}"
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div>
-                          <p className="font-medium text-neutral-800 dark:text-neutral-200">
-                            {testimonial.name}
-                          </p>
-                          <p className="text-sm text-neutral-500 dark:text-neutral-500">
-                            {testimonial.role}
-                          </p>
-                        </div>
+                  <div key={index}>
+                    <div
+                      className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50"
+                    >
+                      <div className="mb-3">
+                        <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">
+                          {testimonial.tags || 'Témoignage utilisateur'}
+                        </p>
                       </div>
-                      <span className="text-xs text-neutral-500 dark:text-neutral-500">
-                        {testimonial.date}
-                      </span>
+                      <div className="flex items-start justify-between mb-4">
+                        <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+                          "{testimonial.comment}"
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div>
+                            <p className="font-medium text-neutral-800 dark:text-neutral-200">
+                              {testimonial.name}
+                            </p>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-500">
+                              {testimonial.role}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                          {testimonial.date}
+                        </span>
+                      </div>
                     </div>
+                    <StructuredData
+                      type="Review"
+                      data={{
+                        authorName: testimonial.name,
+                        datePublished: testimonial.date.split('-').reverse().join('-'),
+                        reviewBody: testimonial.comment,
+                        ratingValue: '5',
+                        itemReviewed: {
+                          '@type': 'SoftwareApplication',
+                          name: toolData.name,
+                          url: `${siteConfig.url}/outils/notion-dashboard`
+                        }
+                      }}
+                    />
                   </div>
                 ))}
               </div>
@@ -534,25 +601,10 @@ export default function NotionDashboard() {
         {/* FAQ */}
         <section className="mb-16">
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">Questions fréquentes</h2>
-          <FAQ
-            items={[
-              {
-                question: 'Comment utiliser cet outil ?',
-                answer: 'Une fois téléchargé, suivez le guide d\'utilisation inclus. L\'outil est prêt à l\'emploi et ne nécessite aucune configuration technique.'
-              },
-              {
-                question: 'L\'outil est-il vraiment gratuit ?',
-                answer: 'Oui, cet outil est entièrement gratuit. Aucun paiement n\'est requis pour l\'utiliser.'
-              },
-              {
-                question: 'Puis-je modifier l\'outil ?',
-                answer: 'Oui, vous pouvez personnaliser l\'outil selon vos besoins. Si vous avez besoin d\'une version sur-mesure, contactez-moi pour discuter de votre projet.'
-              },
-              {
-                question: 'Y a-t-il des mises à jour ?',
-                answer: `Oui, l'outil est mis à jour régulièrement. Dernière mise à jour : ${toolData.lastUpdate}.`
-              }
-            ]}
+          <FAQ items={faqItems} />
+          <StructuredData
+            type="FAQPage"
+            data={{ questions: faqItems }}
           />
         </section>
       </main>
