@@ -521,24 +521,10 @@ export default function Home({ posts }) {
                   "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ."
                 </p>
                 <div className="flex items-center justify-between mt-auto">
-                  <div className="flex items-center gap-2">
                   <div>
                     <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Adnane Amahou</p>
-                      <div className="flex items-center gap-1.5">
-                        {getCompanyLogo('NGI') && (
-                          <Image
-                            src={getCompanyLogo('NGI')}
-                            alt="NGI"
-                            width={16}
-                            height={16}
-                            className="rounded object-contain"
-                          />
-                        )}
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">Responsable CX @ NGI</p>
-                      </div>
-                    </div>
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">LinkedIn</span>
                 </div>
               </div>
               
@@ -551,24 +537,10 @@ export default function Home({ posts }) {
                   "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !"
                 </p>
                 <div className="flex items-center justify-between mt-auto">
-                  <div className="flex items-center gap-2">
                   <div>
-                      <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Hugues Chavrier</p>
-                      <div className="flex items-center gap-1.5">
-                        {getCompanyLogo('Assursafe') && (
-                          <Image
-                            src={getCompanyLogo('Assursafe')}
-                            alt="Assursafe"
-                            width={16}
-                            height={16}
-                            className="rounded object-contain"
-                          />
-                        )}
-                        <p className="text-xs text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
-                      </div>
-                    </div>
+                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Hugues Chavrier</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">LinkedIn</span>
                 </div>
               </div>
               
@@ -585,7 +557,6 @@ export default function Home({ posts }) {
                     <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">lampro74</p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">Belgique</p>
                   </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">Fiverr</span>
                 </div>
               </div>
             </div>

@@ -662,11 +662,11 @@ export default function DonneesPubliques() {
         ) : history.length === 0 ? (
           <p className="text-neutral-600 dark:text-neutral-400">Aucune donnée disponible pour le moment.</p>
         ) : (
-          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 overflow-x-hidden">
             <div className="sr-only">
               <p>Graphique en barres représentant l'évolution de {title.toLowerCase()}. Les données sont affichées chronologiquement de gauche à droite.</p>
             </div>
-            <div className="flex items-end justify-between gap-1 md:gap-2 h-64 relative" role="img" aria-label={`Graphique de ${title.toLowerCase()}`}>
+            <div className="flex items-end justify-between gap-1 md:gap-2 h-64 relative overflow-x-hidden" role="img" aria-label={`Graphique de ${title.toLowerCase()}`}>
               {/* Ligne d'objectif si targetValue est fourni */}
               {targetValue && (() => {
                 const maxValue = Math.max(...history.map(h => h.valeur), targetValue || 0)
@@ -677,7 +677,7 @@ export default function DonneesPubliques() {
                     style={{ bottom: `${targetHeight}%` }}
                     title={`Objectif: ${formatNumber(targetValue)}`}
                   >
-                    <div className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-0 md:translate-x-full ml-0 md:ml-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap -mr-2 md:mr-0">
+                    <div className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-0 md:translate-x-full ml-0 md:ml-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap -mr-2 md:mr-0 max-w-[calc(100vw-2rem)] md:max-w-none">
                       Objectif: {formatNumber(targetValue)}
                     </div>
                   </div>
@@ -786,7 +786,7 @@ export default function DonneesPubliques() {
         dateModified: new Date().toISOString(),
         keywords: ['objectifs business', 'métriques', 'progression', 'key results']
       }} />
-      <main className="flex-auto min-w-0 mt-6 flex flex-col">
+      <main className="flex-auto min-w-0 mt-6 flex flex-col overflow-x-hidden">
         <section className="mb-8">
           <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Objectifs 2026</h1>
           <p className="text-neutral-600 dark:text-neutral-400 mb-0 tracking-tight">

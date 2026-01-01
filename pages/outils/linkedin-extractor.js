@@ -6,7 +6,6 @@ import StructuredData from '../../components/seo/StructuredData'
 import FAQ from '../../components/FAQ'
 import Toast, { useToast } from '../../components/Toast'
 import DownloadCounter from '../../components/DownloadCounter'
-import BreadcrumbTools from '../../components/BreadcrumbTools'
 import { generatePageSEO } from '../../lib/seo'
 import { siteConfig } from '../../lib/config'
 import { tools } from '../../lib/tools'
@@ -215,17 +214,10 @@ export default function LinkedInExtractor() {
       {toast && <Toast {...toast} onClose={hideToast} />}
       
       <main className="min-w-0 mt-6 flex flex-col">
-        {/* Breadcrumb */}
-        <BreadcrumbTools toolName={toolData.name} toolPath="/outils/linkedin-extractor" />
         {/* Section principale - Vidéo verticale + Contenu */}
         <section className="mb-16">
           {/* Header - Mobile first, puis grid sur desktop */}
           <div className="mb-8 md:hidden">
-            <div className="mb-4">
-              <span className="text-xs text-neutral-500 dark:text-neutral-500 uppercase tracking-wider">
-                {toolData.category}
-              </span>
-            </div>
             <h1 className="font-semibold text-2xl mb-3 tracking-tighter">
               {toolData.name}
             </h1>
@@ -360,12 +352,6 @@ export default function LinkedInExtractor() {
             {/* Colonne droite - Contenu */}
             <div className="order-1 md:order-2">
               {/* Header - Desktop seulement */}
-              <div className="hidden md:block mb-6">
-                <span className="text-xs text-neutral-500 dark:text-neutral-500 uppercase tracking-wider">
-                  {toolData.category}
-                </span>
-              </div>
-              
               <h1 className="hidden md:block font-semibold text-2xl mb-3 tracking-tighter">
                 {toolData.name}
               </h1>

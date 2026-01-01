@@ -179,27 +179,15 @@ export default function Temoignages() {
               <div className="mb-3">
                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Automatisation • Compréhension immédiate • Valeur apportée dès le départ</p>
               </div>
-              <div className="flex items-start justify-between mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
                   "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ."
                 </p>
-                <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
               </div>
               <div className="flex items-center gap-4">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Adnane Amahou</p>
-                  <div className="flex items-center gap-1.5">
-                    {getCompanyLogo('NGI') && (
-                      <Image
-                        src={getCompanyLogo('NGI')}
-                        alt="NGI"
-                        width={16}
-                        height={16}
-                        className="rounded object-contain"
-                      />
-                    )}
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Responsable CX @ NGI</p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -208,11 +196,10 @@ export default function Temoignages() {
               <div className="mb-3">
                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Projet complexe • Révisions rapides • 100% satisfait</p>
               </div>
-              <div className="flex items-start justify-between mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
                   "Corentin did an excellent job and my cooperation with him was smooth and easy. He delivered what he promised, he was very open and quick to discuss revisions and delivered even them in no time. My project was not a simple one, as it required collecting information from different places. I'm 100% satisfied with the result."
                 </p>
-                <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 whitespace-nowrap">Fiverr</span>
               </div>
               <div className="flex items-center gap-4">
                 <div>
@@ -226,27 +213,15 @@ export default function Temoignages() {
               <div className="mb-3">
                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Délais respectés • Données exploitables immédiatement • Communication fluide</p>
               </div>
-              <div className="flex items-start justify-between mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
                   "Prestation de scraping impeccable : compréhension rapide du besoin, extraction propre et structurée, délais respectés. Les données livrées sont exploitables immédiatement (format clair, colonnes cohérentes, pas de doublons). Communication fluide et réactif tout au long du projet."
                 </p>
-                <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
               </div>
               <div className="flex items-center gap-4">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Mohamed-Amine Zaghdoud</p>
-                  <div className="flex items-center gap-1.5">
-                    {getCompanyLogo('Kent') && (
-                      <Image
-                        src={getCompanyLogo('Kent')}
-                        alt="Kent"
-                        width={16}
-                        height={16}
-                        className="rounded object-contain"
-                      />
-                    )}
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Fondateur Kent</p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -255,27 +230,15 @@ export default function Temoignages() {
               <div className="mb-3">
                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Délais respectés • Clarté dès le départ • Professionnalisme</p>
               </div>
-              <div className="flex items-start justify-between mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
                   "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
                 </p>
-                <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400 whitespace-nowrap">Malt</span>
               </div>
               <div className="flex items-center gap-4">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Denis</p>
-                  <div className="flex items-center gap-1.5">
-                    {getCompanyLogo('Inovesta') && (
-                      <Image
-                        src={getCompanyLogo('Inovesta')}
-                        alt="Inovesta"
-                        width={16}
-                        height={16}
-                        className="rounded object-contain"
-                      />
-                    )}
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Inovesta</p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -284,27 +247,15 @@ export default function Temoignages() {
               <div className="mb-3">
                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Plusieurs missions • Professionnel • À l'écoute</p>
               </div>
-              <div className="flex items-start justify-between mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
                   "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !"
                 </p>
-                <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
               </div>
               <div className="flex items-center gap-4">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Hugues Chavrier</p>
-                  <div className="flex items-center gap-1.5">
-                    {getCompanyLogo('Assursafe') && (
-                      <Image
-                        src={getCompanyLogo('Assursafe')}
-                        alt="Assursafe"
-                        width={16}
-                        height={16}
-                        className="rounded object-contain"
-                      />
-                    )}
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -313,11 +264,10 @@ export default function Temoignages() {
               <div className="mb-3">
                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Livraison exceptionnellement rapide • Grande expertise</p>
               </div>
-              <div className="flex items-start justify-between mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
                   "Corentin has been exceptionally fast at delivering that order. Great level of expertise! Kudos Corentin."
                 </p>
-                <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 whitespace-nowrap">Fiverr</span>
               </div>
               <div className="flex items-center gap-4">
                 <div>
@@ -331,27 +281,15 @@ export default function Temoignages() {
               <div className="mb-3">
                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">2 missions • Réactivité • Accompagnement exemplaire</p>
               </div>
-              <div className="flex items-start justify-between mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
                   "Je recommande vivement Corentin pour sa réactivité et son professionnalisme. J'ai eu la chance de faire appel à lui à deux reprises, et à chaque fois, son accompagnement a été exemplaire."
                 </p>
-                <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
               </div>
               <div className="flex items-center gap-4">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Chris Rydahl</p>
-                  <div className="flex items-center gap-1.5">
-                    {getCompanyLogo('Parallel') && (
-                      <Image
-                        src={getCompanyLogo('Parallel')}
-                        alt="Parallel"
-                        width={16}
-                        height={16}
-                        className="rounded object-contain"
-                      />
-                    )}
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Cofounder & CTO @ Parallel</p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -378,27 +316,15 @@ export default function Temoignages() {
               <div className="mb-3">
                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Expertise • Conseils • Force de proposition</p>
               </div>
-              <div className="flex items-start justify-between mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
                   "Corentin est très pro. Il connait son métier, est de très bon conseils, et force de proposition."
                 </p>
-                <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400 whitespace-nowrap">Malt</span>
               </div>
               <div className="flex items-center gap-4">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Charlotte</p>
-                  <div className="flex items-center gap-1.5">
-                    {getCompanyLogo('Canopée') && (
-                      <Image
-                        src={getCompanyLogo('Canopée')}
-                        alt="Canopée"
-                        width={16}
-                        height={16}
-                        className="rounded object-contain"
-                      />
-                    )}
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Agence Canopée</p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -407,27 +333,15 @@ export default function Temoignages() {
               <div className="mb-3">
                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">3+ ans de collaboration • Conseils • Réactivité</p>
               </div>
-              <div className="flex items-start justify-between mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
                   "Nous travaillons avec Corentin depuis plus de 3 ans. Il a toujours été de très bons conseils, réactif et appliqué. Je recommande à 💯 % !"
                 </p>
-                <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
               </div>
               <div className="flex items-center gap-4">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Julien Vabre</p>
-                  <div className="flex items-center gap-1.5">
-                    {getCompanyLogo('InXpress') && (
-                      <Image
-                        src={getCompanyLogo('InXpress')}
-                        alt="InXpress"
-                        width={16}
-                        height={16}
-                        className="rounded object-contain"
-                      />
-                    )}
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Dirigeant InXpress Gironde</p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -436,11 +350,10 @@ export default function Temoignages() {
               <div className="mb-3">
                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Résultat dépasse attentes • Communication fluide • Professionnalisme</p>
               </div>
-              <div className="flex items-start justify-between mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
                   "Nous sommes extrêmement satisfaits du travail réalisé. Corentin a fait preuve d'un grand professionnalisme, d'une excellente réactivité et d'un sens du détail remarquable. La communication a toujours été fluide et agréable, et le résultat final dépasse largement nos attentes."
                 </p>
-                <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 whitespace-nowrap">Fiverr</span>
               </div>
               <div className="flex items-center gap-4">
                 <div>
@@ -454,27 +367,15 @@ export default function Temoignages() {
               <div className="mb-3">
                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Efficacité • Compréhension rapide • Travail rapide</p>
               </div>
-              <div className="flex items-start justify-between mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
                   "Corentin est redoutablement efficace, il comprend vite et travaille vite. Un plaisir."
                 </p>
-                <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 whitespace-nowrap">LinkedIn</span>
               </div>
               <div className="flex items-center gap-4">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Arthur Dalaise</p>
-                  <div className="flex items-center gap-1.5">
-                    {getCompanyLogo('La Biche-Renard') && (
-                      <Image
-                        src={getCompanyLogo('La Biche-Renard')}
-                        alt="La Biche-Renard"
-                        width={16}
-                        height={16}
-                        className="rounded object-contain"
-                      />
-                    )}
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Co-fondateur @ La Biche-Renard</p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -483,11 +384,10 @@ export default function Temoignages() {
               <div className="mb-3">
                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">400K entreprises scrapées • Site complexe • Expertise scraping</p>
               </div>
-              <div className="flex items-start justify-between mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic flex-1">
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
                   "For any scraping needs, he is amazing, was able to scrape 400K companies from a complex site."
                 </p>
-                <span className="ml-4 text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 whitespace-nowrap">Fiverr</span>
               </div>
               <div className="flex items-center gap-4">
                 <div>
