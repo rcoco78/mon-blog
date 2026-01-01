@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import SEOHead from '../../components/seo/SEOHead'
@@ -15,7 +15,44 @@ export default function DentistesParisiens() {
   const [emailSubmitted, setEmailSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [loadingStep, setLoadingStep] = useState('')
+  const [paymentVerified, setPaymentVerified] = useState(false)
   const { toast, showToast, hideToast } = useToast()
+
+  // Vérifier le paiement au chargement de la page (si retour de Stripe)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const paymentStatus = urlParams.get('payment')
+    const sessionId = urlParams.get('session_id')
+
+    if (paymentStatus === 'success' && sessionId) {
+      // Vérifier le paiement
+      verifyPayment(sessionId)
+      // Nettoyer l'URL
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
+
+  const verifyPayment = async (sessionId) => {
+    try {
+      const response = await fetch('/api/tools/verify-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sessionId }),
+      })
+
+      const data = await response.json()
+
+      if (data.paid) {
+        setPaymentVerified(true)
+        setEmail(data.email || '')
+        showToast('✓ Paiement confirmé ! Vous pouvez maintenant télécharger la base de données.', 'success')
+      }
+    } catch (error) {
+      console.error('Erreur vérification paiement:', error)
+    }
+  }
 
   // Exemple de données pour la preview
   const sampleData = [
@@ -65,15 +102,15 @@ export default function DentistesParisiens() {
     name: 'Base de données - Dentistes Parisiens',
     description: 'Base de données complète des dentistes à Paris avec coordonnées, spécialités et informations de contact. Idéal pour la prospection et l\'analyse du marché dentaire parisien.',
     category: 'Scraping',
-    price: 0,
-    priceLabel: 'Gratuit',
+    price: 49,
+    priceLabel: '49 €',
     videoUrl: '',
     videoThumbnail: '/images/outils/dentistes-parisiens-thumb.jpg',
     formats: ['CSV', 'Excel', 'JSON'],
     lastUpdate: '20/01/2025',
     rows: '500+ dentistes',
-    isPaid: false,
-    unlockType: 'email',
+    isPaid: true,
+    unlockType: 'payment',
     relatedTools: ['linkedin-extractor', 'email-generator'],
     problem: [
       'Difficulté à trouver les coordonnées complètes des dentistes parisiens',
@@ -132,7 +169,42 @@ export default function DentistesParisiens() {
 
   const handleUnlock = async (e) => {
     e.preventDefault()
-    if (!toolData.isPaid && toolData.unlockType === 'email') {
+    
+    if (toolData.isPaid && toolData.unlockType === 'payment') {
+      // Paiement Stripe
+      setIsLoading(true)
+      setLoadingStep('Redirection vers le paiement...')
+      
+      try {
+        const response = await fetch('/api/tools/create-checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            toolId: 'dentistes-parisiens',
+            email: email || undefined
+          }),
+        })
+
+        const data = await response.json()
+
+        if (response.ok && data.url) {
+          // Rediriger vers Stripe Checkout
+          window.location.href = data.url
+        } else {
+          showToast(data.error || 'Une erreur est survenue. Veuillez réessayer.', 'error')
+          setIsLoading(false)
+          setLoadingStep('')
+        }
+      } catch (error) {
+        console.error('Erreur lors de la création du paiement:', error)
+        showToast('Une erreur est survenue. Veuillez réessayer.', 'error')
+        setIsLoading(false)
+        setLoadingStep('')
+      }
+    } else if (!toolData.isPaid && toolData.unlockType === 'email') {
+      // Gratuit avec email
       setIsLoading(true)
       setLoadingStep('Envoi en cours...')
       
@@ -306,7 +378,57 @@ export default function DentistesParisiens() {
 
               {/* Formulaire - Mobile seulement */}
               <div className="md:hidden mt-6">
-                {toolData.unlockType === 'email' && !emailSubmitted ? (
+                {toolData.isPaid && toolData.unlockType === 'payment' ? (
+                  paymentVerified ? (
+                    <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
+                      <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-3">
+                        ✓ Paiement confirmé ! Vous pouvez maintenant télécharger la base de données.
+                      </p>
+                      <a
+                        href={`/api/tools/download-csv?email=${encodeURIComponent(email)}&tool=dentistes-parisiens`}
+                        className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
+                      >
+                        Télécharger la base de données (CSV)
+                      </a>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleUnlock} className="space-y-4">
+                      <div>
+                        <label htmlFor="email-mobile" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                          Email pour la facture (optionnel)
+                        </label>
+                        <input
+                          type="email"
+                          id="email-mobile"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="votre@email.com"
+                          className="w-full px-4 py-2.5 rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-colors bg-transparent"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full px-6 py-2.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium relative overflow-hidden"
+                      >
+                        {isLoading ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            {loadingStep || 'Redirection...'}
+                          </span>
+                        ) : (
+                          `Acheter pour ${toolData.priceLabel}`
+                        )}
+                        {isLoading && (
+                          <div className="absolute bottom-0 left-0 h-0.5 bg-white dark:bg-neutral-900 animate-progress" style={{ animation: 'progress 2s linear infinite' }} />
+                        )}
+                      </button>
+                    </form>
+                  )
+                ) : toolData.unlockType === 'email' && !emailSubmitted ? (
                   <form onSubmit={handleUnlock} className="space-y-4">
                     <div>
                       <label htmlFor="email-mobile" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
@@ -371,6 +493,14 @@ export default function DentistesParisiens() {
               {/* Informations - Mobile seulement */}
               <div className="md:hidden mt-6">
                 <div className="space-y-4 text-sm">
+                  {toolData.isPaid && (
+                    <div className="flex items-start justify-between">
+                      <span className="text-neutral-500 dark:text-neutral-500">Prix</span>
+                      <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
+                        {toolData.priceLabel}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-start justify-between">
                     <span className="text-neutral-500 dark:text-neutral-500">Éléments</span>
                     <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
@@ -410,7 +540,44 @@ export default function DentistesParisiens() {
               
               {/* Section téléchargement - Desktop seulement */}
               <div className="mb-8 hidden md:block">
-                {toolData.unlockType === 'email' && !emailSubmitted ? (
+                {toolData.isPaid && toolData.unlockType === 'payment' ? (
+                  paymentVerified ? (
+                    <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
+                      <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-3">
+                        ✓ Paiement confirmé ! Vous pouvez maintenant télécharger la base de données.
+                      </p>
+                      <a
+                        href={`/api/tools/download-csv?email=${encodeURIComponent(email)}&tool=dentistes-parisiens`}
+                        className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
+                      >
+                        Télécharger la base de données (CSV)
+                      </a>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleUnlock} className="space-y-4">
+                      <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                          Email pour la facture (optionnel)
+                        </label>
+                        <input
+                          type="email"
+                          id="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="votre@email.com"
+                          className="w-full px-4 py-2.5 rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-colors bg-transparent"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full px-6 py-2.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                      >
+                        {isLoading ? loadingStep || 'Redirection...' : `Acheter pour ${toolData.priceLabel}`}
+                      </button>
+                    </form>
+                  )
+                ) : toolData.unlockType === 'email' && !emailSubmitted ? (
                   <form onSubmit={handleUnlock} className="space-y-4">
                     <div>
                       <label htmlFor="email" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
@@ -462,6 +629,14 @@ export default function DentistesParisiens() {
               {/* Informations - Desktop seulement */}
               <div className="hidden md:block">
                 <div className="space-y-4 text-sm">
+                  {toolData.isPaid && (
+                    <div className="flex items-start justify-between">
+                      <span className="text-neutral-500 dark:text-neutral-500">Prix</span>
+                      <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
+                        {toolData.priceLabel}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-start justify-between">
                     <span className="text-neutral-500 dark:text-neutral-500">Éléments</span>
                     <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
