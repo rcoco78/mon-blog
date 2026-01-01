@@ -432,7 +432,7 @@ export default function DonneesPubliques() {
     const categoryMap = {
       'Affiliation': 'Affiliation',
       'Meetings Call': 'Relation client',
-      'Logement Atypique': 'Projet entrepreneurial',
+      'Logement Atypique': 'Logement Atypique',
       'Apify': 'Scrapers publics',
       'Apify & Scraping': 'Scrapers publics',
       'Freelance': 'Activité freelance',
@@ -445,6 +445,21 @@ export default function DonneesPubliques() {
       return categoryMap[category] || 'Scrapers publics'
     }
     return categoryMap[category] || category
+  }
+  
+  // Fonction pour obtenir le lien d'affiliation selon le service
+  const getAffiliationLink = (title) => {
+    const titleLower = title.toLowerCase()
+    if (titleLower.includes('lemlist')) {
+      return 'https://get.lemlist.com/glt9nlkvruwf'
+    }
+    if (titleLower.includes('apify')) {
+      return 'https://apify.com?fpr=0n7ukq'
+    }
+    if (titleLower.includes('zapier') || titleLower.includes('zapmail')) {
+      return 'https://zapmail.ai?via=corentin'
+    }
+    return null
   }
 
   // Fonction pour améliorer et simplifier les titres des Key Results
@@ -492,6 +507,7 @@ export default function DonneesPubliques() {
       'Total Actors publiés': 'Nombre de scrapers disponibles',
       'Total users Apify': 'Utilisateurs Apify',
       'Utilisateurs total': 'Utilisateurs Apify',
+      'Utilisateurs total Apify': 'Utilisateurs Apify',
       'Actors publiés': 'Scrapers publics',
       'Total monthly users': 'Utilisateurs mensuels Apify',
       'Total monthly users (Apify)': 'Utilisateurs mensuels Apify',
@@ -507,14 +523,14 @@ export default function DonneesPubliques() {
       'Revenus d\'affiliation Lemlist': 'Revenus d\'affiliation Lemlist',
       'CA affiliation': 'Revenus d\'affiliation',
       'Chiffre d\'affaires affiliation (€)': 'Revenus d\'affiliation',
-      'Zapmail affiliation': 'Revenus d\'affiliation Zapier',
+      'Zapmail affiliation': 'Revenus d\'affiliation Zapmail',
       'Apify affiliation': 'Revenus d\'affiliation Apify',
       
-      // Logement Atypique
-      'CA Logement Atypique': 'Chiffre d\'affaires Logement Atypique',
-      'CA Logement Atypique (€)': 'Chiffre d\'affaires Logement Atypique',
-      'Abonnés': category?.toLowerCase().includes('logement') ? 'Abonnés Instagram Logement Atypique' : 'Abonnés',
-      'Vidéos publiées': category?.toLowerCase().includes('logement') ? 'Vidéos publiées Logement Atypique' : 'Vidéos publiées',
+      // Logement Atypique (retirer "Logement Atypique" car déjà dans le titre de catégorie)
+      'CA Logement Atypique': 'Chiffre d\'affaires',
+      'CA Logement Atypique (€)': 'Chiffre d\'affaires',
+      'Abonnés': category?.toLowerCase().includes('logement') ? 'Abonnés Instagram' : 'Abonnés',
+      'Vidéos publiées': category?.toLowerCase().includes('logement') ? 'Vidéos publiées' : 'Vidéos publiées',
       
       // Meetings / Appels
       'Meetings Call': 'Rendez-vous et appels clients',
@@ -527,8 +543,8 @@ export default function DonneesPubliques() {
       'Meetings Call - Duration Avg': 'Durée moyenne des rendez-vous',
       'Rendez-vous Appels - Duration Avg (min)': 'Moyenne de durée d\'un appel',
       'Meetings Call - Duration Avg (min)': 'Moyenne de durée d\'un appel',
-      'Rendez-vous Appels - Monthly Moyenne': 'Moyenne mensuelle des rendez-vous',
-      'Rendez-vous Appels - Weekly Moyenne': 'Moyenne hebdomadaire des rendez-vous',
+      'Rendez-vous Appels - Monthly Moyenne': 'Moyenne mensuelle des appels',
+      'Rendez-vous Appels - Weekly Moyenne': 'Moyenne hebdomadaire des appels',
       
       // Freelance
       'Mission Malt': 'Projets réalisés sur Malt',
@@ -548,7 +564,8 @@ export default function DonneesPubliques() {
       'Visiteurs totaux': 'Visiteurs blog',
       'Impression Google blog': 'Impressions Google',
       'Impression Google': 'Impressions Google',
-      'Rendez-vous par blog': 'Échanges blog',
+      'Rendez-vous par blog': 'Échanges grâce au blog',
+      'Échanges blog': 'Échanges grâce au blog',
       
       // Général
       'CA': 'Chiffre d\'affaires',
@@ -594,6 +611,13 @@ export default function DonneesPubliques() {
           }
         }
       }
+    }
+    
+    // Retirer "Logement Atypique" des titres si on est dans la catégorie Logement Atypique
+    const categoryLower = category?.toLowerCase() || ''
+    if (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial')) {
+      improved = improved.replace(/\s*Logement\s+Atypique\s*/gi, ' ').trim()
+      improved = improved.replace(/\s+/g, ' ').trim()
     }
     
     // Nettoyer les espaces multiples
@@ -1096,7 +1120,7 @@ export default function DonneesPubliques() {
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors"
                       >
-                        {translatedCategory}
+                        Logement Atypique
                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
                           <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                         </svg>
@@ -1201,7 +1225,32 @@ export default function DonneesPubliques() {
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">{improveTitle(kr.name, kr.category)}</h2>
+                              <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
+                                {(() => {
+                                  const title = improveTitle(kr.name, kr.category)
+                                  const nameLower = (kr.name || '').toLowerCase()
+                                  const categoryLower = (kr.category || '').toLowerCase()
+                                  const isAffiliationKR = isAffiliationRevenue(kr)
+                                  const affiliationLink = isAffiliationKR ? getAffiliationLink(kr.name) : null
+                                  
+                                  if (affiliationLink) {
+                                    return (
+                                      <Link 
+                                        href={affiliationLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-1.5 hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors group/link"
+                                      >
+                                        {title}
+                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5">
+                                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                                        </svg>
+                                      </Link>
+                                    )
+                                  }
+                                  return title
+                                })()}
+                              </h2>
                               {kr.status?.toLowerCase() === 'done' && (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 bg-green-600 dark:bg-green-500 text-white">
                                   Terminé
