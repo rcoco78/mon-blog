@@ -13,8 +13,8 @@ export default function BreadcrumbTools({ toolName, toolPath }) {
     {
       '@type': 'ListItem',
       position: 2,
-      name: 'Outils',
-      item: `${siteConfig.url}/outils`
+      name: 'Marketplace',
+      item: `${siteConfig.url}/marketplace`
     },
     {
       '@type': 'ListItem',
@@ -34,8 +34,8 @@ export default function BreadcrumbTools({ toolName, toolPath }) {
         </li>
         <li className="flex items-center space-x-2">
           <span className="mx-1">/</span>
-          <Link href="/outils" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
-            Outils
+          <Link href="/marketplace" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+            Marketplace
           </Link>
         </li>
         {toolName && (

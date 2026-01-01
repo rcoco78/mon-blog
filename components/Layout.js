@@ -50,9 +50,9 @@ export default function Layout({ children }) {
     <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col min-h-screen mt-8 sm:mt-8">
         <nav className="flex flex-row items-center justify-between relative px-0 pb-8 fade md:overflow-auto scroll-pr-6 md:relative" id="nav">
-          <div className="flex flex-row items-center space-x-1 sm:space-x-2 flex-wrap">
+          <div className="flex flex-row items-start sm:items-center flex-wrap gap-x-1 sm:gap-x-2 gap-y-1">
             <Link 
-              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
+              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 sm:px-3 rounded-md ${
                 router.pathname === '/' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
               }`} 
               href="/"
@@ -77,11 +77,11 @@ export default function Layout({ children }) {
             </Link>
             <Link 
               className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 sm:px-3 rounded-md ${
-                router.pathname === '/outils' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
+                router.pathname === '/marketplace' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
               }`} 
-              href="/outils"
+              href="/marketplace"
             >
-              outils
+              marketplace
             </Link>
             <Link 
               className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 sm:px-3 rounded-md ${

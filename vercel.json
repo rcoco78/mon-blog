@@ -15,6 +15,11 @@
   ],
   "redirects": [
     {
+      "source": "/outils",
+      "destination": "/marketplace",
+      "permanent": true
+    },
+    {
       "source": "/donnees-publiques",
       "destination": "/objectifs",
       "permanent": true

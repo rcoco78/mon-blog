@@ -28,7 +28,7 @@ export default function Sitemap({ posts }) {
               </Link>
             </li>
             <li>
-              <Link href="/outils" className="text-blue-600 hover:text-blue-800">
+              <Link href="/marketplace" className="text-blue-600 hover:text-blue-800">
                 Outils gratuits
               </Link>
             </li>

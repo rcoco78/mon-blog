@@ -198,7 +198,7 @@ export default function Temoignages() {
                         className="rounded object-contain"
                       />
                     )}
-                    <p className="text-sm text-neutral-500 dark:text-neutral-500">Responsable CX @ NGI</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Responsable CX @ NGI</p>
                   </div>
                 </div>
               </div>
@@ -245,7 +245,7 @@ export default function Temoignages() {
                         className="rounded object-contain"
                       />
                     )}
-                    <p className="text-sm text-neutral-500 dark:text-neutral-500">Fondateur Kent</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Fondateur Kent</p>
                   </div>
                 </div>
               </div>
@@ -274,7 +274,7 @@ export default function Temoignages() {
                         className="rounded object-contain"
                       />
                     )}
-                    <p className="text-sm text-neutral-500 dark:text-neutral-500">Inovesta</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Inovesta</p>
                   </div>
                 </div>
               </div>
@@ -303,7 +303,7 @@ export default function Temoignages() {
                         className="rounded object-contain"
                       />
                     )}
-                    <p className="text-sm text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
                   </div>
                 </div>
               </div>
@@ -350,7 +350,7 @@ export default function Temoignages() {
                         className="rounded object-contain"
                       />
                     )}
-                    <p className="text-sm text-neutral-500 dark:text-neutral-500">Cofounder & CTO @ Parallel</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Cofounder & CTO @ Parallel</p>
                   </div>
                 </div>
               </div>
@@ -397,7 +397,7 @@ export default function Temoignages() {
                         className="rounded object-contain"
                       />
                     )}
-                    <p className="text-sm text-neutral-500 dark:text-neutral-500">Agence Canopée</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Agence Canopée</p>
                   </div>
                 </div>
               </div>
@@ -426,7 +426,7 @@ export default function Temoignages() {
                         className="rounded object-contain"
                       />
                     )}
-                    <p className="text-sm text-neutral-500 dark:text-neutral-500">Dirigeant InXpress Gironde</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Dirigeant InXpress Gironde</p>
                   </div>
                 </div>
               </div>
@@ -473,7 +473,7 @@ export default function Temoignages() {
                         className="rounded object-contain"
                       />
                     )}
-                    <p className="text-sm text-neutral-500 dark:text-neutral-500">Co-fondateur @ La Biche-Renard</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Co-fondateur @ La Biche-Renard</p>
                   </div>
                 </div>
               </div>

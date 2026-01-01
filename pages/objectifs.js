@@ -1784,7 +1784,7 @@ export default function DonneesPubliques() {
               <p className="text-neutral-600 dark:text-neutral-400 text-sm">Réflexions sur le scraping, l'automatisation, l'entrepreneuriat et le voyage.</p>
             </Link>
             <Link
-              href="/outils"
+              href="/marketplace"
               className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
               aria-label="Découvrir mes outils"
             >

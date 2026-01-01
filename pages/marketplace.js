@@ -9,7 +9,7 @@ import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { tools } from '../lib/tools'
 
-export default function Outils() {
+export default function Marketplace() {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedType, setSelectedType] = useState(null) // 'outil' | 'database' | null
   const [selectedPricing, setSelectedPricing] = useState(null) // 'gratuit' | 'payant' | null
@@ -117,7 +117,7 @@ export default function Outils() {
   const pageSEO = generatePageSEO({
     title: siteConfig.seo.pages.outils.title,
     description: siteConfig.seo.pages.outils.description,
-    path: '/outils',
+    path: '/marketplace',
     keywords: siteConfig.seo.pages.outils.keywords
   })
 
@@ -406,4 +406,5 @@ export default function Outils() {
     </main>
     </>
   )
-} 
+}
+

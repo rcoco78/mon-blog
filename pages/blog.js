@@ -485,7 +485,7 @@ export default function Blog({ posts }) {
                 Découvrez mon parcours
               </Link>
               {' • '}
-              <Link href="/outils" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+              <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
                 Explorez mes outils gratuits
               </Link>
               {' • '}
