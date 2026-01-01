@@ -13,10 +13,12 @@ Ajoutez les variables suivantes dans votre fichier `.env.local` (local) et dans 
 
 ```bash
 # Clé secrète Stripe (commence par sk_)
-STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# Remplacez VOTRE_CLE_SECRETE par votre vraie clé depuis le Dashboard Stripe
+STRIPE_SECRET_KEY=VOTRE_CLE_SECRETE
 
 # Secret du webhook Stripe (commence par whsec_)
-STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# Remplacez VOTRE_WEBHOOK_SECRET par votre vrai secret depuis le Dashboard Stripe
+STRIPE_WEBHOOK_SECRET=VOTRE_WEBHOOK_SECRET
 ```
 
 ### Où trouver ces clés ?
