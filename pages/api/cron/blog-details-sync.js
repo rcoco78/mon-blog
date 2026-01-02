@@ -23,15 +23,15 @@ async function getFullPost(post) {
     // Convertir en markdown avec notion-to-md
     // Utiliser require() pour éviter les problèmes d'import ES6 dans l'environnement de build
     const notionToMd = require('notion-to-md')
-    // Gérer les différents formats d'export (default, named, ou module complet)
-    const NotionToMarkdownClass = notionToMd.default || notionToMd.NotionToMarkdown || notionToMd
+    // La version alpha utilise NotionConverter au lieu de NotionToMarkdown
+    const NotionConverterClass = notionToMd.default || notionToMd.NotionConverter || notionToMd.NotionToMarkdown || notionToMd
     
-    if (typeof NotionToMarkdownClass !== 'function') {
-      console.error('[blog-details-sync] NotionToMarkdown n\'est pas un constructeur:', typeof NotionToMarkdownClass, Object.keys(notionToMd))
-      throw new Error('NotionToMarkdown n\'est pas un constructeur valide')
+    if (typeof NotionConverterClass !== 'function') {
+      console.error('[blog-details-sync] NotionConverter n\'est pas un constructeur:', typeof NotionConverterClass, Object.keys(notionToMd))
+      throw new Error('NotionConverter n\'est pas un constructeur valide')
     }
 
-    const n2m = new NotionToMarkdownClass({ notionClient: notion })
+    const n2m = new NotionConverterClass({ notionClient: notion })
     const mdBlocks = await n2m.pageToMarkdown(post.id)
     const mdString = n2m.toMarkdownString(mdBlocks)
 
