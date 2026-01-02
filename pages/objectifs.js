@@ -1560,7 +1560,7 @@ export default function DonneesPubliques() {
                                     : isInstagramKR
                                     ? 'https://www.instagram.com/logement.atypique'
                                     : isStravaKR
-                                    ? 'https://www.strava.com/athletes/corentinrobert'
+                                    ? 'https://www.strava.com/athletes/47201230'
                                     : null
                                   
                                   if (affiliationLink) {
