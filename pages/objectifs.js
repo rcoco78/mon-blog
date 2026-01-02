@@ -1377,10 +1377,12 @@ export default function DonneesPubliques() {
                 })
                 .map(([category, results]) => {
                 const translatedCategory = translateCategory(category)
-                const isApifyCategory = category.toLowerCase().includes('apify')
-                const isLogementAtypiqueCategory = category.toLowerCase().includes('logement')
-                const isFreelanceCategory = category.toLowerCase().includes('freelance') || category.toLowerCase().includes('freelancing')
-                const isLoisirCategory = category.toLowerCase().includes('santé') || category.toLowerCase().includes('loisir') || category.toLowerCase().includes('bien-être')
+                const categoryLower = category.toLowerCase()
+                const translatedLower = translatedCategory.toLowerCase()
+                const isApifyCategory = categoryLower.includes('apify') || translatedLower.includes('scrapers publics')
+                const isLogementAtypiqueCategory = categoryLower.includes('logement')
+                const isFreelanceCategory = categoryLower.includes('freelance') || categoryLower.includes('freelancing')
+                const isLoisirCategory = categoryLower.includes('santé') || categoryLower.includes('loisir') || categoryLower.includes('bien-être')
                 
                 // Ajouter les Key Results d'échecs virtuels si on est dans la catégorie Loisir
                 let resultsToDisplay = [...results]
