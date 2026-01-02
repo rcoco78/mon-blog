@@ -13,7 +13,6 @@ export default function Marketplace() {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedType, setSelectedType] = useState(null) // 'outil' | 'database' | null
   const [selectedPricing, setSelectedPricing] = useState(null) // 'gratuit' | 'payant' | null
-  const [searchQuery, setSearchQuery] = useState('') // Recherche textuelle
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
 
   const categories = ['Outreach', 'Scraping', 'Immobilier', 'Productivité']
@@ -26,11 +25,7 @@ export default function Marketplace() {
     const matchesPricing = selectedPricing === null || 
       (selectedPricing === 'gratuit' && !tool.isPaid) ||
       (selectedPricing === 'payant' && tool.isPaid)
-    const matchesSearch = searchQuery === '' || 
-      tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tool.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tool.category.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesCategory && matchesType && matchesPricing && matchesSearch
+    return matchesCategory && matchesType && matchesPricing
   })
 
   const openCalendly = () => {
@@ -171,17 +166,6 @@ export default function Marketplace() {
           <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
             Outils et bases de données développés pour automatiser vos processus business, générer des leads et optimiser votre productivité. Une sélection d'<strong className="text-neutral-900 dark:text-neutral-100">outils scraping et automatisation</strong> ainsi que de <strong className="text-neutral-900 dark:text-neutral-100">bases de données</strong> prêtes pour des analyses métiers ou de la prospection.
           </p>
-
-          {/* Recherche textuelle */}
-          <div className="mb-6">
-            <input
-              type="text"
-              placeholder="Rechercher un outil ou une base de données..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 dark:placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-colors"
-            />
-          </div>
 
           {/* Filtres */}
           <div className="space-y-4 mb-8">
