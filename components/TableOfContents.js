@@ -2,25 +2,28 @@ import { useMemo } from 'react'
 
 export default function TableOfContents({ markdown }) {
   const headings = useMemo(() => {
-    // Extraire le contenu markdown selon la structure (comme dans MarkdownRenderer)
-    let markdownContent = markdown
     if (!markdown) return []
     
-    if (typeof markdown !== 'string') {
-      // Si c'est un objet avec une propriété parent (structure notion-to-md)
-      if (typeof markdown === 'object' && markdown.parent) {
-        markdownContent = markdown.parent
-      } else if (typeof markdown === 'object') {
-        // Si c'est un objet, chercher une propriété string
-        const stringProps = Object.values(markdown).find((v) => typeof v === 'string')
-        markdownContent = stringProps || ''
-      } else {
-        return []
-      }
+    // Extraire le contenu markdown selon la structure (comme dans MarkdownRenderer et logement-atypique)
+    let markdownContent = null
+    
+    // Si c'est une chaîne, l'utiliser directement
+    if (typeof markdown === 'string') {
+      markdownContent = markdown
+    }
+    // Si c'est un objet avec une propriété 'parent', l'utiliser
+    else if (typeof markdown === 'object' && markdown && markdown.parent) {
+      markdownContent = markdown.parent
+    }
+    // Si c'est un objet, chercher une propriété string
+    else if (typeof markdown === 'object' && markdown) {
+      const stringProps = Object.values(markdown).find((v) => typeof v === 'string')
+      markdownContent = stringProps || null
     }
     
     if (!markdownContent || typeof markdownContent !== 'string') return []
 
+    // Utiliser la même fonction extractHeadings que logement-atypique
     const headingRegex = /^(#{1,4})\s+(.+)$/gm
     const headings = []
     let match
@@ -31,7 +34,6 @@ export default function TableOfContents({ markdown }) {
       
       // Nettoyer le texte des astérisques markdown (**texte** -> texte)
       text = text.replace(/\*\*(.*?)\*\*/g, '$1')
-      text = text.replace(/\*(.*?)\*/g, '$1')
       
       // Utiliser la même logique de génération d'ID que MarkdownRenderer
       const id = text
@@ -45,7 +47,7 @@ export default function TableOfContents({ markdown }) {
     }
 
     return headings
-  }, [markdownContent])
+  }, [markdown])
 
   if (headings.length === 0) return null
 
