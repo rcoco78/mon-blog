@@ -3,6 +3,7 @@
 
 import { Client } from '@notionhq/client'
 import { put, list } from '@vercel/blob'
+import { NotionToMarkdown } from 'notion-to-md'
 
 const notion = new Client({
   auth: process.env.NOTION_TOKEN,
@@ -20,18 +21,8 @@ async function getFullPost(post) {
       page_size: 100,
     })
 
-    // Convertir en markdown avec notion-to-md
-    // Utiliser require() pour éviter les problèmes d'import ES6 dans l'environnement de build
-    const notionToMd = require('notion-to-md')
-    // La version alpha utilise NotionConverter au lieu de NotionToMarkdown
-    const NotionConverterClass = notionToMd.default || notionToMd.NotionConverter || notionToMd.NotionToMarkdown || notionToMd
-    
-    if (typeof NotionConverterClass !== 'function') {
-      console.error('[blog-details-sync] NotionConverter n\'est pas un constructeur:', typeof NotionConverterClass, Object.keys(notionToMd))
-      throw new Error('NotionConverter n\'est pas un constructeur valide')
-    }
-
-    const n2m = new NotionConverterClass({ notionClient: notion })
+    // Convertir en markdown avec notion-to-md (comme dans logement-atypique)
+    const n2m = new NotionToMarkdown({ notionClient: notion })
     const mdBlocks = await n2m.pageToMarkdown(post.id)
     const mdString = n2m.toMarkdownString(mdBlocks)
 
