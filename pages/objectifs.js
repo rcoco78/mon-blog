@@ -2140,47 +2140,90 @@ export default function DonneesPubliques() {
                 )
               },
               {
-                question: "Quel est l'impact pour mes clients ?",
+                question: "Quel est votre délai de livraison réel ?",
                 answer: (
                   <>
                     <p className="mb-3">
-                      <strong>Réactivité extrême :</strong> Livraison en moins d'une semaine. Je privilégie la rapidité d'exécution pour que vous puissiez exploiter vos données rapidement.
+                      Livraison en moins d'une semaine pour 90% des projets. Concrètement : un scraping simple (1 site, données structurées) : <strong>2-3 jours</strong>, un scraping complexe (multi-sites, anti-bot) : <strong>5-7 jours</strong>, une automatisation complète : <strong>5-7 jours</strong>.
                     </p>
                     <p>
-                      <strong>Systèmes longue durée :</strong> Je construis des solutions pérennes — comme les scrapers Apify — qui fonctionnent dans le temps. 
-                      Vous gagnez un temps considérable en automatisant des processus répétitifs, et le système continue de tourner même après la livraison.
+                      Si votre projet est urgent (livraison en 48h), c'est possible selon ma disponibilité. On en discute lors de l'appel initial. Je privilégie la rapidité sans compromettre la qualité : vous avez vos données rapidement pour pouvoir les exploiter sans attendre.
                     </p>
                   </>
                 )
               },
               {
-                question: "Quelle est votre capacité et disponibilité ?",
+                question: "Comment garantissez-vous la pérennité de vos solutions ?",
                 answer: (
                   <>
                     <p className="mb-3">
-                      <strong>Volume de projets :</strong> Je traite jusqu'à <strong>20 à 30 projets par mois</strong>, 
-                      avec un suivi rigoureux de chaque mission.
-                    </p>
-                    <p className="mb-3">
-                      <strong>Disponibilité pour échanger :</strong> Jusqu'à <strong>4 appels de 20 minutes par jour</strong> pour discuter de votre projet. 
-                      <button onClick={openCalendly} className="underline hover:text-neutral-900 dark:hover:text-neutral-100 ml-1">Réservez un créneau via Calendly</button>.
+                      Je construis des solutions robustes qui fonctionnent dans le temps : 1) Code maintenable et documenté, 2) Gestion des erreurs et cas limites, 3) Solutions hébergées sur Apify (pour les scrapers publics) qui gèrent l'infrastructure, 4) Documentation complète pour que vous puissiez comprendre et maintenir si besoin.
                     </p>
                     <p>
-                      <strong>Secteurs d'expertise :</strong> J'ai une expérience particulière dans <strong>l'immobilier</strong> et 
-                      le <strong>secteur de la santé</strong>, mais je travaille avec des entreprises de tous secteurs.
+                      Pour les projets sur-mesure, je propose des options de maintenance (corrections si le site source change, évolutions, support). La plupart des solutions tournent des années sans intervention. Exemple : mes scrapers Apify fonctionnent depuis 2+ ans avec 150+ utilisateurs actifs.
                     </p>
                   </>
                 )
               },
               {
-                question: "Comment travaillez-vous ?",
+                question: "Quelle est votre capacité et disponibilité pour prendre de nouveaux projets ?",
                 answer: (
                   <>
-                    <p className="mb-2"><strong>1. Appel de 20 minutes</strong> pour comprendre vos besoins et votre contexte.</p>
-                    <p className="mb-2"><strong>2. Proposition</strong> détaillée avec approche technique et délais.</p>
-                    <p className="mb-2"><strong>3. Validation</strong> de votre côté, puis démarrage du projet.</p>
-                    <p className="mb-2"><strong>4. Livraison</strong> en moins d'une semaine, avec aller-retour si nécessaire.</p>
-                    <p><strong>5. Suivi</strong> — on se reparle si besoin d'ajustements ou d'évolutions.</p>
+                    <p className="mb-3">
+                      Je traite <strong>20-30 projets par mois</strong> avec un suivi rigoureux de chaque mission. Disponibilité : jusqu'à <strong>4 appels de 20 minutes par jour</strong> pour discuter de nouveaux projets (<button onClick={openCalendly} className="underline hover:text-neutral-900 dark:hover:text-neutral-100">réservez via Calendly</button>).
+                    </p>
+                    <p>
+                      Secteurs d'expertise : j'ai une expérience particulière dans <strong>l'immobilier</strong> et la <strong>santé</strong>, mais je travaille avec des entreprises de tous secteurs (e-commerce, SaaS, services, etc.). Si votre projet est urgent, on peut s'organiser. Si je suis à capacité, je vous indique un délai réaliste dès le départ. Transparence totale sur les disponibilités.
+                    </p>
+                  </>
+                )
+              },
+              {
+                question: "Comment se déroule un projet de A à Z ?",
+                answer: (
+                  <>
+                    <p className="mb-2"><strong>1. Appel de 20 minutes (gratuit)</strong> : on discute de votre besoin, votre contexte, vos contraintes. Je pose des questions pour bien comprendre.</p>
+                    <p className="mb-2"><strong>2. Proposition détaillée</strong> : sous 24-48h, je vous envoie une proposition avec approche technique, délais, prix, format de livraison.</p>
+                    <p className="mb-2"><strong>3. Validation</strong> : vous validez la proposition, on signe (ou pas, selon votre préférence), je démarre.</p>
+                    <p className="mb-2"><strong>4. Développement</strong> : je code, je teste, je vous tiens informé de l'avancement.</p>
+                    <p><strong>5. Livraison</strong> : vous recevez les données/outil + documentation. On fait un point pour s'assurer que tout correspond à vos attentes. Ajustements si nécessaire (inclus).</p>
+                  </>
+                )
+              },
+              {
+                question: "Quel est l'impact concret pour mes clients ?",
+                answer: (
+                  <>
+                    <p className="mb-3">
+                      <strong>Réactivité :</strong> vous avez vos données en moins d'une semaine vs 1-2 mois avec une agence. Vous pouvez prendre des décisions rapidement, réagir aux opportunités, lancer vos campagnes sans attendre.
+                    </p>
+                    <p>
+                      <strong>Systèmes pérennes :</strong> je construis des solutions qui tournent dans le temps. Exemple : un scraper qui collecte les prix concurrents quotidiennement. Une fois livré, il continue de tourner automatiquement. Vous gagnez du temps chaque jour, pas juste une fois. Les solutions Apify que je développe sont utilisées par 150+ personnes, preuve de leur robustesse.
+                    </p>
+                  </>
+                )
+              },
+              {
+                question: "Proposez-vous un support après la livraison ?",
+                answer: (
+                  <>
+                    <p className="mb-3">
+                      Oui, le support post-livraison est inclus : 1) <strong>Ajustements mineurs</strong> (corrections, petits changements) : inclus pendant 1 mois après livraison, 2) <strong>Support technique</strong> : si vous avez des questions sur l'utilisation, je réponds sous 24h, 3) <strong>Maintenance optionnelle</strong> : si le site source change et casse le scraper, je peux le corriger (tarif selon la complexité).
+                    </p>
+                    <p>
+                      Pour les projets complexes, je propose des packages de maintenance mensuels. L'objectif : que vous soyez autonome, mais je reste disponible si besoin.
+                    </p>
+                  </>
+                )
+              },
+              {
+                question: "Comment garantissez-vous la confidentialité de mes données ?",
+                answer: (
+                  <>
+                    <p className="mb-2"><strong>Confidentialité totale :</strong> 1) Pas de partage : vos données ne sont jamais partagées, vendues ou utilisées à d'autres fins, 2) Sécurité : accès sécurisé aux données, pas de stockage inutile, suppression après livraison si vous le souhaitez, 3) RGPD : respect strict du RGPD pour les données personnelles, 4) Transparence : je vous explique exactement ce que je fais avec vos données.</p>
+                    <p>
+                      Pour les projets sensibles, on peut signer un NDA. Votre business reste votre business, je suis juste l'outil technique.
+                    </p>
                   </>
                 )
               },

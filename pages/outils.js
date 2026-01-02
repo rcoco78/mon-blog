@@ -327,36 +327,20 @@ export default function Outils() {
           <FAQ
             items={[
               {
-                question: "Pourquoi ces outils gratuits ?",
-                answer: (
-                  <>
-                    <p className="mb-3">
-                      Ces outils gratuits sont nés d'une <strong>philosophie du partage</strong>. 
-                      En tant que freelance scraping, je crois en la création de valeur pour la communauté. 
-                      Ces outils permettent de <strong>démontrer mon expertise pratique</strong> tout en aidant ceux qui en ont besoin.
-                    </p>
-                    <p className="mb-3">
-                      Chaque outil répond à un <strong>besoin business concret</strong> que j'ai rencontré dans mes projets. 
-                      En les partageant gratuitement, je contribue à la communauté tout en montrant ce que je sais faire. 
-                      C'est aussi une façon de créer du lien et de générer de la confiance.
-                    </p>
-                    <p>
-                      Si vous avez besoin d'un <strong>outil sur-mesure</strong> pour votre business, je peux développer une solution adaptée à vos besoins spécifiques.
-                    </p>
-                  </>
-                )
+                question: "Comment utiliser concrètement vos outils gratuits ?",
+                answer: "C'est très simple : 1) Cliquez sur l'outil qui vous intéresse dans la marketplace, 2) Sur la page de l'outil, entrez votre email pour recevoir l'accès (gratuit, sans engagement), 3) Une fois connecté, vous accédez à l'interface de l'outil avec des instructions claires, 4) Utilisez l'outil directement dans votre navigateur, sans installation. Par exemple, le Générateur de Templates d'Emails : vous sélectionnez le type de message (outreach, follow-up, etc.), vous personnalisez le contenu, et vous copiez-collez le template généré. L'Extracteur LinkedIn : vous entrez vos critères de recherche, vous lancez l'extraction, et vous téléchargez les résultats en CSV. Aucune compétence technique requise."
               },
               {
-                question: "Les outils et bases de données sont-ils gratuits ?",
-                answer: "La plupart des outils et bases de données sont gratuits. Je les développe pour partager mon expertise et aider la communauté. Certains outils peuvent avoir des limites d'utilisation (comme l'extracteur LinkedIn limité à 50 profils par jour). Certains produits premium sont disponibles en version payante."
+                question: "Les outils sont-ils vraiment gratuits ? Y a-t-il des limites ?",
+                answer: "Oui, la plupart des outils sont 100% gratuits, sans limite de temps ni de nombre d'utilisations. Certains outils ont des limites raisonnables pour éviter les abus : l'Extracteur LinkedIn est limité à 50 profils par jour (gratuit), ce qui couvre largement les besoins de prospection d'une TPE-PME. Si vous avez besoin de volumes plus importants, je peux développer une version sur-mesure. Les bases de données payantes (comme Dentistes Parisiens) sont clairement indiquées avec leurs prix. Aucun piège, tout est transparent."
               },
               {
-                question: "Comment utiliser ces outils ?",
-                answer: "Chaque outil dispose de sa propre page avec des instructions d'utilisation. Cliquez sur un outil pour accéder à sa page dédiée et commencer à l'utiliser immédiatement, sans inscription nécessaire."
+                question: "Puis-je avoir un outil sur-mesure adapté à mon business ?",
+                answer: "Absolument ! Si vos besoins sont spécifiques, je développe des outils sur-mesure. Exemples : un extracteur adapté à votre secteur d'activité, un générateur de contenu pour votre industrie, une automatisation de votre workflow spécifique. Le processus : 1) On discute de votre besoin (appel de 20 min gratuit), 2) Je vous propose une solution technique avec devis et délais, 3) Développement et livraison en moins d'une semaine, 4) Formation et support inclus. Tarifs : à partir de 2000€ selon la complexité. Contactez-moi pour discuter de votre projet."
               },
               {
-                question: "Puis-je avoir un outil sur-mesure ?",
-                answer: "Absolument ! Si vous avez besoin d'un outil personnalisé pour votre business, je peux développer une solution sur-mesure adaptée à vos besoins spécifiques. Contactez-moi pour discuter de votre projet."
+                question: "Puis-je intégrer vos outils avec mes outils existants (CRM, Excel, etc.) ?",
+                answer: "Oui, la plupart des outils exportent en formats standards (CSV, Excel, JSON) que vous pouvez importer dans n'importe quel CRM (HubSpot, Salesforce, Pipedrive), Excel, Google Sheets, ou base de données. Pour des intégrations automatiques (API, webhooks, Zapier), je peux développer une version sur-mesure qui se connecte directement à vos outils. Exemple : un scraper qui alimente automatiquement votre CRM toutes les semaines, ou un outil qui synchronise avec votre Google Sheets en temps réel. On discute de votre stack technique et je propose la meilleure solution d'intégration."
               }
             ]}
           />
