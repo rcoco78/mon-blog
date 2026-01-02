@@ -55,16 +55,36 @@ export default async function handler(req, res) {
     // On limite à 30 jours pour éviter trop d'appels API
     const historyPromises = keyResults
       .filter(kr => kr.id && kr.id !== 'chess-rapid-virtual')
-      .slice(0, 50) // Limiter à 50 Key Results pour éviter les timeouts
+      // Pas de limite : on traite tous les Key Results
       .map(async (kr) => {
         try {
           const history = await getKeyResultHistory(kr.id, 30)
-          if (history.length > 0) {
+          // Sauvegarder même si l'historique est vide pour éviter les fallbacks inutiles
+          const historyData = {
+            keyResultId: kr.id,
+            keyResultName: kr.name,
+            history: history || [],
+            lastUpdated: new Date().toISOString()
+          }
+          
+          const filename = `${HISTORY_PREFIX}${kr.id}.json`
+          await put(filename, JSON.stringify(historyData, null, 2), {
+            access: 'public',
+            contentType: 'application/json',
+            allowOverwrite: true,
+          })
+          
+          return { keyResultId: kr.id, historyCount: history.length, success: true }
+        } catch (error) {
+          console.error(`❌ Erreur pour Key Result ${kr.id} (${kr.name}):`, error.message)
+          // En cas d'erreur, sauvegarder quand même un fichier vide pour éviter les fallbacks
+          try {
             const historyData = {
               keyResultId: kr.id,
               keyResultName: kr.name,
-              history,
-              lastUpdated: new Date().toISOString()
+              history: [],
+              lastUpdated: new Date().toISOString(),
+              error: error.message
             }
             
             const filename = `${HISTORY_PREFIX}${kr.id}.json`
@@ -73,13 +93,11 @@ export default async function handler(req, res) {
               contentType: 'application/json',
               allowOverwrite: true,
             })
-            
-            return { keyResultId: kr.id, historyCount: history.length, success: true }
+            return { keyResultId: kr.id, historyCount: 0, success: true, error: error.message }
+          } catch (saveError) {
+            console.error(`❌ Impossible de sauvegarder le fichier vide pour ${kr.id}:`, saveError.message)
+            return { keyResultId: kr.id, success: false, error: error.message }
           }
-          return { keyResultId: kr.id, historyCount: 0, success: true }
-        } catch (error) {
-          console.error(`❌ Erreur pour Key Result ${kr.id} (${kr.name}):`, error.message)
-          return { keyResultId: kr.id, success: false, error: error.message }
         }
       })
 

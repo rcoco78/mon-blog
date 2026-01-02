@@ -761,6 +761,29 @@ export default function DonneesPubliques() {
     return improved
   }
 
+  // Composant Skeleton avec effet shimmer
+  const SkeletonCard = ({ className = '' }) => {
+    return (
+      <div className={`p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 relative overflow-hidden ${className}`}>
+        {/* Effet shimmer */}
+        <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent"></div>
+        <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4 mb-2"></div>
+        <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-full mb-2"></div>
+        <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-2/3"></div>
+      </div>
+    )
+  }
+
+  const SkeletonMetric = ({ className = '' }) => {
+    return (
+      <div className={`p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 relative overflow-hidden ${className}`}>
+        <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent"></div>
+        <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4 mb-2"></div>
+        <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2"></div>
+      </div>
+    )
+  }
+
   // Composant mini-graphique pour les cartes individuelles
   const MiniGrowthChart = ({ history, height = 40, color = 'blue' }) => {
     if (!history || history.length === 0) return null
@@ -777,19 +800,39 @@ export default function DonneesPubliques() {
     const range = maxValue - minValue || 1
     
     return (
-      <div className="flex items-end justify-between gap-0.5 h-10 mt-2" style={{ height: `${height}px` }}>
+      <div className="flex items-end justify-between gap-0.5 h-10 mt-2 relative" style={{ height: `${height}px` }}>
         {history.slice(-7).map((item, index) => {
           const normalizedHeight = range > 0 ? ((item.valeur - minValue) / range) * 100 : 50
+          // Formater la date pour l'affichage
+          let dateDisplay = item.date
+          try {
+            const date = new Date(item.date)
+            if (!isNaN(date.getTime())) {
+              dateDisplay = date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
+            }
+          } catch (e) {
+            // Garder la date originale si le parsing échoue
+          }
+          
           return (
             <div
               key={item.id || index}
-              className={`flex-1 ${colorClass} rounded-t opacity-70 hover:opacity-100 transition-opacity`}
+              className={`flex-1 ${colorClass} rounded-t opacity-70 hover:opacity-100 transition-opacity relative group/bar`}
               style={{ 
                 height: `${Math.max(normalizedHeight, 10)}%`,
                 minHeight: '2px'
               }}
-              title={`${item.date}: ${formatNumber(item.valeur)}`}
-            />
+            >
+              {/* Tooltip au survol */}
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap opacity-0 group-hover/bar:opacity-100 transition-opacity pointer-events-none z-10">
+                <div className="font-medium">{formatNumber(item.valeur)}</div>
+                <div className="text-[10px] opacity-80">{dateDisplay}</div>
+                {/* Flèche du tooltip */}
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                  <div className="w-2 h-2 bg-neutral-900 dark:bg-neutral-100 rotate-45"></div>
+                </div>
+              </div>
+            </div>
           )
         })}
       </div>
@@ -824,7 +867,8 @@ export default function DonneesPubliques() {
         </p>
         
         {loading ? (
-          <div className="h-64 bg-neutral-100 dark:bg-neutral-900 rounded-lg animate-pulse flex items-end justify-around p-4">
+          <div className="h-64 bg-neutral-100 dark:bg-neutral-900 rounded-lg relative overflow-hidden flex items-end justify-around p-4">
+            <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent"></div>
             {[...Array(6)].map((_, i) => (
               <div key={i} className="w-8 bg-neutral-300 dark:bg-neutral-700 rounded-t" style={{ height: `${Math.random() * 60 + 20}%` }}></div>
             ))}
@@ -1018,24 +1062,44 @@ export default function DonneesPubliques() {
         <section className="mb-16" aria-label="Détail des objectifs par catégorie">
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">Détail des objectifs</h2>
           
-          {/* Métriques business intégrées */}
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 animate-pulse">
-                  <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4 mb-3"></div>
-                  <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2 mb-2"></div>
-                  <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-full"></div>
+          {/* Vue d'ensemble - Objectifs et résultats */}
+          <div className="mb-8">
+            <h2 className="font-semibold text-xl mb-6 tracking-tighter">Vue d'ensemble</h2>
+            
+            {loading ? (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                  {[...Array(1)].map((_, i) => (
+                    <div key={i} className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 relative overflow-hidden">
+                      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent"></div>
+                      <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4 mb-3"></div>
+                      <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2 mb-2"></div>
+                      <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-full"></div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              {/* CA/Turnover */}
-              <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-                <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2">Chiffre d'affaires</h3>
-                <p className="text-3xl font-semibold mb-2 text-neutral-900 dark:text-neutral-100">
-                  {(() => {
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[...Array(2)].map((_, i) => (
+                    <div key={i} className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 relative overflow-hidden">
+                      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent"></div>
+                      <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4 mb-3"></div>
+                      <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2 mb-2"></div>
+                      <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-full"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Objectifs globaux */}
+                <div>
+                  <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-3">Objectifs 2026</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                    {/* CA/Turnover */}
+                    <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+                      <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2">Chiffre d'affaires</h3>
+                      <p className="text-3xl font-semibold mb-2 text-neutral-900 dark:text-neutral-100">
+                        {(() => {
                     // Calculer le CA total objectif depuis les Key Results
                     // Chercher spécifiquement les Key Results de CA principal par catégorie
                     
@@ -1127,41 +1191,50 @@ export default function DonneesPubliques() {
                   Objectif 2026 (Freelance + Affiliation + Logement Atypique)
                 </p>
               </div>
+                  </div>
+                </div>
 
-              {/* Délai moyen de livraison */}
-              <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-                <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2">Délai moyen de livraison</h3>
-                <p className="text-3xl font-semibold mb-2 text-neutral-900 dark:text-neutral-100">7 jours</p>
-                <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                  Temps moyen pour livrer un projet
-                </p>
-              </div>
-
-              {/* Taux de réussite */}
-              <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-                <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-4">Taux de réussite</h3>
-                <div className="flex flex-col md:flex-row md:gap-4 space-y-3 md:space-y-0">
-                  <div className="flex-1">
-                    <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">5/5</p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Malt</p>
-                      <p className="text-sm text-neutral-600 dark:text-neutral-400">sur 160 missions</p>
+                {/* Performance */}
+                <div>
+                  <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-3">Performance</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Délai moyen de livraison */}
+                    <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+                      <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2">Délai moyen de livraison</h3>
+                      <p className="text-3xl font-semibold mb-2 text-neutral-900 dark:text-neutral-100">7 jours</p>
+                      <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                        Temps moyen pour livrer un projet
+                      </p>
                     </div>
-                  <div className="flex-1">
-                    <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">4,9/5</p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Fiverr</p>
-                      <p className="text-sm text-neutral-600 dark:text-neutral-400">sur 250 missions</p>
+
+                    {/* Taux de réussite */}
+                    <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+                      <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-4">Taux de réussite</h3>
+                      <div className="flex flex-col md:flex-row md:gap-4 space-y-3 md:space-y-0">
+                        <div className="flex-1">
+                          <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">5/5</p>
+                          <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Malt</p>
+                          <p className="text-sm text-neutral-600 dark:text-neutral-400">sur 160 missions</p>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">4,9/5</p>
+                          <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Fiverr</p>
+                          <p className="text-sm text-neutral-600 dark:text-neutral-400">sur 250 missions</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Séparateur */}
           <div className="my-8 border-t border-neutral-200 dark:border-neutral-800"></div>
           
-          {/* Vue d'ensemble des Key Results */}
+          {/* Vue détaillée des Key Results */}
           <div className="mb-8">
-          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Objectifs 2026 — Vue d'ensemble</h2>
+          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Objectifs 2026 — Détail</h2>
           
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -1237,13 +1310,12 @@ export default function DonneesPubliques() {
             <div className="space-y-8">
               {[...Array(3)].map((_, i) => (
                 <div key={i}>
-                  <div className="h-6 bg-neutral-200 dark:bg-neutral-700 rounded w-1/3 mb-4 animate-pulse"></div>
+                  <div className="h-6 bg-neutral-200 dark:bg-neutral-700 rounded w-1/3 mb-4 relative overflow-hidden">
+                    <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent"></div>
+                  </div>
                   <div className="space-y-4">
                     {[...Array(3)].map((_, j) => (
-                      <div key={j} className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 animate-pulse">
-                        <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2 mb-2"></div>
-                        <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-full"></div>
-                      </div>
+                      <SkeletonCard key={j} />
                     ))}
                   </div>
                 </div>
@@ -1439,6 +1511,18 @@ export default function DonneesPubliques() {
                                   const isAffiliationKR = isAffiliationRevenue(kr)
                                   const affiliationLink = isAffiliationKR ? getAffiliationLink(kr.name) : null
                                   
+                                  // Détecter les liens externes spécifiques
+                                  const isChessKR = (nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess')) && 
+                                                   (title.includes('Classement échecs') || title.includes('échecs chess.com'))
+                                  const isInstagramKR = (nameLower.includes('abonnés') || nameLower.includes('abonne')) && 
+                                                       (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial'))
+                                  
+                                  const externalLink = isChessKR 
+                                    ? 'https://link.chess.com/friend/GYjATb'
+                                    : isInstagramKR
+                                    ? 'https://www.instagram.com/logement.atypique'
+                                    : null
+                                  
                                   if (affiliationLink) {
                                     return (
                                       <Link 
@@ -1454,6 +1538,32 @@ export default function DonneesPubliques() {
                                       </Link>
                                     )
                                   }
+                                  
+                                  if (externalLink) {
+                                    // Utiliser l'icône Instagram pour les liens Instagram, sinon la flèche externe
+                                    const isInstagram = isInstagramKR
+                                    
+                                    return (
+                                      <Link 
+                                        href={externalLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-1.5 hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors group/link"
+                                      >
+                                        <span className="break-words">{title}</span>
+                                        {isInstagram ? (
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" className="flex-shrink-0">
+                                            <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"/>
+                                          </svg>
+                                        ) : (
+                                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 flex-shrink-0">
+                                            <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                                          </svg>
+                                        )}
+                                      </Link>
+                                    )
+                                  }
+                                  
                                   return <span className="break-words">{title}</span>
                                 })()}
                               </h2>
@@ -1703,32 +1813,54 @@ export default function DonneesPubliques() {
                           </div>
                         </div>
                         
-                        {/* Mini-graphique de croissance pour "Projets réalisés sur Malt" et "Classement échecs chess.com" */}
+                        {/* Mini-graphique de croissance pour plusieurs Key Results */}
                         {(() => {
                           const nameLower = (kr.name || '').toLowerCase()
                           const title = improveTitle(kr.name, kr.category)
+                          const categoryLower = (kr.category || '').toLowerCase()
+                          
+                          // Détecter les différents types de Key Results
                           const isMaltKR = nameLower.includes('mission malt') || title.includes('Projets réalisés sur Malt')
                           const isChessKR = (nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess')) && 
                                            (title.includes('Classement échecs') || title.includes('échecs chess.com'))
+                          const isMeetingsKR = title.includes('Rendez-vous et appels clients') || 
+                                               (categoryLower.includes('relation client') && (nameLower.includes('rendez-vous') || nameLower.includes('meeting')))
+                          const isInstagramKR = (nameLower.includes('abonnés') || nameLower.includes('abonne')) && 
+                                               (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial'))
+                          // Détecter uniquement "Utilisateurs total Apify", pas les mensuels
+                          const isApifyKR = (nameLower.includes('utilisateurs total') || nameLower.includes('total users') || nameLower.includes('total utilisateurs')) && 
+                                           (nameLower.includes('apify') || categoryLower.includes('apify') || categoryLower.includes('scraping')) &&
+                                           !nameLower.includes('mensuel') && !nameLower.includes('monthly')
                           
                           // Récupérer l'historique pour ce Key Result
                           let history = []
-                          if (isMaltKR || isChessKR) {
+                          let color = 'blue'
+                          
+                          if (isMaltKR) {
                             history = keyResultsHistory[kr.id] || []
-                            
+                            color = 'blue'
+                          } else if (isChessKR) {
                             // Pour Chess, utiliser l'historique Chess.com si disponible
-                            if (isChessKR && chessHistory.length > 0) {
-                              history = chessHistory
-                            }
+                            history = chessHistory.length > 0 ? chessHistory : (keyResultsHistory[kr.id] || [])
+                            color = 'green'
+                          } else if (isMeetingsKR) {
+                            history = meetingsHistory
+                            color = 'blue'
+                          } else if (isInstagramKR) {
+                            history = abonnesHistory
+                            color = 'green'
+                          } else if (isApifyKR) {
+                            history = apifyUsersHistory
+                            color = 'purple'
                           }
                           
-                          if ((isMaltKR || isChessKR) && history.length > 0) {
+                          if ((isMaltKR || isChessKR || isMeetingsKR || isInstagramKR || isApifyKR) && history.length > 0) {
                             return (
                               <div className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-800">
                                 <MiniGrowthChart 
                                   history={history} 
                                   height={32}
-                                  color={isMaltKR ? 'blue' : 'green'}
+                                  color={color}
                                 />
                               </div>
                             )
