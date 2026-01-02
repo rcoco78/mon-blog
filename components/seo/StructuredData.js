@@ -219,6 +219,40 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           itemListElement: data.items || []
         };
 
+      case 'MusicRecording':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'MusicRecording',
+          name: data.name,
+          byArtist: data.byArtist || (data.artists ? {
+            '@type': 'MusicGroup',
+            name: data.artists.map(a => a.name).join(', ')
+          } : undefined),
+          duration: data.duration ? `PT${Math.floor(data.duration / 1000)}S` : undefined,
+          inAlbum: data.inAlbum ? {
+            '@type': 'MusicAlbum',
+            name: data.inAlbum.name,
+            image: data.inAlbum.images?.[0]?.url
+          } : undefined,
+          url: data.url,
+          image: data.image,
+          audio: data.audio ? {
+            '@type': 'AudioObject',
+            contentUrl: data.audio
+          } : undefined
+        };
+
+      case 'MusicGroup':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'MusicGroup',
+          name: data.name,
+          image: data.image,
+          genre: data.genres || [],
+          url: data.url,
+          sameAs: data.sameAs || []
+        };
+
       case 'FAQPage':
         return {
           '@context': 'https://schema.org',

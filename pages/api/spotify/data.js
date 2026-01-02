@@ -14,15 +14,23 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Impossible d\'obtenir un token d\'accès Spotify' })
     }
 
+    // Récupérer le time_range depuis les query params (par défaut: short_term)
+    const timeRange = req.query.time_range || 'short_term' // short_term, medium_term, long_term
+
     // Récupérer les données en parallèle
-    const [currentlyPlaying, topTracks] = await Promise.all([
+    const [currentlyPlaying, topTracks, topArtists, recentlyPlayed] = await Promise.all([
       getCurrentlyPlaying(accessToken),
-      getTopTracks(accessToken)
+      getTopTracks(accessToken, timeRange),
+      getTopArtists(accessToken, timeRange),
+      getRecentlyPlayed(accessToken)
     ])
 
     res.status(200).json({
       currentlyPlaying,
-      topTracks: topTracks.slice(0, 5) // Top 5 seulement
+      topTracks: topTracks.slice(0, 5), // Top 5 seulement
+      topArtists: topArtists.slice(0, 5), // Top 5 seulement
+      recentlyPlayed: recentlyPlayed.slice(0, 10), // 10 dernières musiques
+      timeRange
     })
   } catch (error) {
     console.error('Error fetching Spotify data:', error)
@@ -125,11 +133,13 @@ async function getCurrentlyPlaying(accessToken) {
 }
 
 /**
- * Récupère le top des musiques (4 semaines)
+ * Récupère le top des musiques
+ * @param {string} accessToken - Token d'accès Spotify
+ * @param {string} timeRange - short_term (4 semaines), medium_term (6 mois), long_term (toute la vie)
  */
-async function getTopTracks(accessToken) {
+async function getTopTracks(accessToken, timeRange = 'short_term') {
   try {
-    const response = await fetch('https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=5', {
+    const response = await fetch(`https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&limit=20`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`
       }
@@ -143,6 +153,55 @@ async function getTopTracks(accessToken) {
     return data.items || []
   } catch (error) {
     console.error('Error fetching top tracks:', error)
+    return []
+  }
+}
+
+/**
+ * Récupère le top des artistes
+ * @param {string} accessToken - Token d'accès Spotify
+ * @param {string} timeRange - short_term (4 semaines), medium_term (6 mois), long_term (toute la vie)
+ */
+async function getTopArtists(accessToken, timeRange = 'short_term') {
+  try {
+    const response = await fetch(`https://api.spotify.com/v1/me/top/artists?time_range=${timeRange}&limit=20`, {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    })
+
+    if (!response.ok) {
+      return []
+    }
+
+    const data = await response.json()
+    return data.items || []
+  } catch (error) {
+    console.error('Error fetching top artists:', error)
+    return []
+  }
+}
+
+/**
+ * Récupère les dernières musiques écoutées
+ */
+async function getRecentlyPlayed(accessToken) {
+  try {
+    const response = await fetch('https://api.spotify.com/v1/me/player/recently-played?limit=20', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    })
+
+    if (!response.ok) {
+      return []
+    }
+
+    const data = await response.json()
+    // Transformer les données pour avoir le même format que les tracks
+    return (data.items || []).map(item => item.track)
+  } catch (error) {
+    console.error('Error fetching recently played:', error)
     return []
   }
 }
