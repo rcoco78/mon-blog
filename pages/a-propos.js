@@ -465,12 +465,26 @@ export default function About() {
           {/* Formation */}
           <div>
             <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-4 uppercase tracking-wide">Formation</h3>
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:gap-6">
-                <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2020-2021</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium mb-1">HETIC</h3>
-                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Formation en développement web et entrepreneuriat</p>
+            <div className="relative pl-4 sm:pl-6">
+              {/* Ligne verticale en pointillés */}
+              <div className="absolute left-0 top-0 bottom-0 w-[1px]" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0, transparent 4px, rgb(212 212 212) 4px, rgb(212 212 212) 8px)' }}></div>
+              <div className="absolute left-0 top-0 bottom-0 w-[1px] hidden dark:block" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0, transparent 4px, rgb(64 64 64) 4px, rgb(64 64 64) 8px)' }}></div>
+              <div className="space-y-6">
+                <div className="relative flex flex-col sm:flex-row sm:gap-4">
+                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
+                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2020-2021</div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium mb-1">HETIC</h3>
+                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Développement web, marketing digital et UX design</p>
+                  </div>
+                </div>
+                <div className="relative flex flex-col sm:flex-row sm:gap-4">
+                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
+                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2015-2018</div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium mb-1">EDC Paris Business School</h3>
+                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">École de commerce post-bac</p>
+                  </div>
                 </div>
               </div>
             </div>
