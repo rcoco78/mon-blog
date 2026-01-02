@@ -830,7 +830,7 @@ export default function Home({ posts }) {
               
               {/* Séparateur fin et prix */}
               <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between gap-3">
                   {/* Espaceur pour aligner avec l'icône */}
                   <div className="flex-shrink-0 w-6 h-6"></div>
                   <div className="flex-1 min-w-0 flex items-center gap-2">
@@ -841,6 +841,11 @@ export default function Home({ posts }) {
                       <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                     </svg>
                   </div>
+                  {tool.date && (
+                    <span className="text-xs text-neutral-500 dark:text-neutral-500 flex-shrink-0">
+                      {new Date(tool.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                    </span>
+                  )}
                 </div>
               </div>
             </Link>
