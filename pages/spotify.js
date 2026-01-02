@@ -361,16 +361,11 @@ export default function Spotify() {
                           <p className="text-sm text-neutral-600 dark:text-neutral-400 truncate">
                             {track.artists?.map(a => a.name).join(', ')}
                           </p>
-                          <div className="flex items-center gap-3 mt-1">
-                            {track.duration_ms && (
-                              <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                                {formatDuration(track.duration_ms)}
-                              </p>
-                            )}
-                            <span className="text-xs text-neutral-500 dark:text-neutral-500">
-                              • #{index + 1} dans mon top {getTimeRangeLabel(timeRange)}
-                            </span>
-                          </div>
+                          {track.duration_ms && (
+                            <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
+                              {formatDuration(track.duration_ms)}
+                            </p>
+                          )}
                         </div>
                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
                           <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
