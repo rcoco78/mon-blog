@@ -1,7 +1,6 @@
-// API pour gérer les vues d'articles - Stocke dans Blob Storage avec système d'événements pour éviter les race conditions
+// API pour gérer les vues d'articles - Stocke dans Blob Storage avec système d'événements (source de vérité unique)
 import { put, list } from '@vercel/blob'
 
-const VIEWS_FILENAME = 'blog-views.json'
 const VIEWS_EVENTS_FILENAME = 'blog-views-events.json'
 
 // Récupérer les événements de vues (source de vérité)
@@ -34,31 +33,20 @@ async function getViewEvents() {
   }
 }
 
-// Récupérer les compteurs de vues (cache pour performance)
-async function getViews() {
+// Calculer les vues depuis les événements (source de vérité unique)
+async function calculateViewsFromEvents() {
   try {
-    const blobs = await list({ prefix: VIEWS_FILENAME })
-    const existingBlob = blobs.blobs.find((blob) => blob.pathname === VIEWS_FILENAME)
-
-    if (existingBlob) {
-      const cacheBuster = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-      const response = await fetch(`${existingBlob.url}?t=${cacheBuster}`, {
-        method: 'GET',
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-          Pragma: 'no-cache',
-        },
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        return data.views || {}
+    const events = await getViewEvents()
+    const views = {}
+    events.forEach(event => {
+      if (!views[event.slug]) {
+        views[event.slug] = 0
       }
-    }
-    return {}
+      views[event.slug]++
+    })
+    return views
   } catch (error) {
-    console.warn('Erreur lors de la récupération des vues:', error)
+    console.warn('Erreur lors du calcul des vues depuis les événements:', error)
     return {}
   }
 }
@@ -101,16 +89,6 @@ async function incrementView(slug) {
       views[event.slug]++
     })
     
-    // Mettre à jour le fichier de compteurs pour performance
-    await put(
-      VIEWS_FILENAME,
-      JSON.stringify({
-        views,
-        _lastUpdate: new Date().toISOString()
-      }, null, 2),
-      { access: 'public', allowOverwrite: true }
-    )
-    
     return views[slug] || 0
   } catch (error) {
     console.error('Erreur lors de l\'incrémentation des vues:', error)
@@ -149,9 +127,9 @@ export default async function handler(req, res) {
     }
   } catch (error) {
     console.error('Error fetching/incrementing views:', error)
-    // En cas d'erreur, essayer de récupérer les vues existantes sans incrémenter
+    // En cas d'erreur, essayer de calculer depuis les événements
     try {
-      const viewsData = await getViews()
+      const viewsData = await calculateViewsFromEvents()
       const views = viewsData[cleanSlug] || 0
       res.status(200).json({ views })
     } catch (fallbackError) {
