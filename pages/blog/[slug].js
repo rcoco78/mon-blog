@@ -8,6 +8,7 @@ import MarkdownRenderer from '../../components/MarkdownRenderer'
 import NewsletterForm from '../../components/NewsletterForm'
 import Tag from '../../components/Tag'
 import RelatedPosts from '../../components/RelatedPosts'
+import TableOfContents from '../../components/TableOfContents'
 import Link from 'next/link'
 import ReadingProgress from '../../components/ReadingProgress'
 import ShareButtons from '../../components/ShareButtons'
@@ -294,6 +295,11 @@ export default function Post({ post, allPosts }) {
         
         {/* Contenu principal en pleine largeur */}
         <div className="mt-8">
+            {/* Sommaire */}
+            {!loadingMarkdown && contentMarkdown && (
+              <TableOfContents markdown={contentMarkdown} />
+            )}
+
             {loadingMarkdown ? (
               <div className="space-y-4">
                 {[...Array(5)].map((_, i) => (

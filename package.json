@@ -32,6 +32,7 @@
     "react-dom": "^18.2.0",
     "react-markdown": "^10.1.0",
     "react-notion-x": "^4.4.0",
+    "remark-gfm": "^4.0.1",
     "stripe": "^20.1.0"
   },
   "devDependencies": {
