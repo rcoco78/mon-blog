@@ -172,32 +172,6 @@ export default function Spotify() {
             Découvrez ce que j'écoute en ce moment et mes musiques préférées.
           </p>
 
-          {/* Sélecteur de période */}
-          <div className="mb-8">
-            <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Période
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { value: 'short_term', label: '4 semaines' },
-                { value: 'medium_term', label: '6 mois' },
-                { value: 'long_term', label: 'Toute la vie' }
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setTimeRange(option.value)}
-                  className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
-                    timeRange === option.value
-                      ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
-                      : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {loading ? (
             // Skeleton pour Spotify avec effet shimmer
             <div className="space-y-12">
@@ -326,6 +300,32 @@ export default function Spotify() {
                   </div>
                 </div>
               )}
+
+              {/* Sélecteur de période */}
+              <div className="mb-8">
+                <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                  Période
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { value: 'short_term', label: '4 semaines' },
+                    { value: 'medium_term', label: '6 mois' },
+                    { value: 'long_term', label: 'Toute la vie' }
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => setTimeRange(option.value)}
+                      className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
+                        timeRange === option.value
+                          ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
+                          : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               {/* Top Tracks */}
               {topTracks.length > 0 && (
