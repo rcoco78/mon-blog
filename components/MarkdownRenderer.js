@@ -297,36 +297,36 @@ export default function MarkdownRenderer({ children }) {
           hr: ({ node, ...props }) => (
             <hr className="my-8 border-neutral-200 dark:border-neutral-800" {...props} />
           ),
-          // Tableaux
+          // Tableaux - style amélioré avec coins arrondis et design system
           table: ({ node, children, ...props }) => (
-            <div className="overflow-x-auto my-6">
-              <table className="min-w-full border-collapse border border-neutral-300 dark:border-neutral-700" {...props}>
+            <div className="overflow-x-auto my-6 rounded-lg border border-neutral-200 dark:border-neutral-800 shadow-sm">
+              <table className="min-w-full border-collapse" {...props}>
                 {children}
               </table>
             </div>
           ),
           thead: ({ node, children, ...props }) => (
-            <thead className="bg-neutral-100 dark:bg-neutral-800" {...props}>
+            <thead className="bg-neutral-50 dark:bg-neutral-900/50" {...props}>
               {children}
             </thead>
           ),
           tbody: ({ node, children, ...props }) => (
-            <tbody {...props}>
+            <tbody className="bg-white dark:bg-neutral-950" {...props}>
               {children}
             </tbody>
           ),
           tr: ({ node, children, ...props }) => (
-            <tr className="border-b border-neutral-200 dark:border-neutral-700" {...props}>
+            <tr className="border-b border-neutral-200 dark:border-neutral-800 last:border-b-0 hover:bg-neutral-50 dark:hover:bg-neutral-900/30 transition-colors" {...props}>
               {children}
             </tr>
           ),
           th: ({ node, children, ...props }) => (
-            <th className="border border-neutral-300 dark:border-neutral-700 px-4 py-2 text-left font-semibold text-neutral-900 dark:text-neutral-100" {...props}>
+            <th className="px-4 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100 first:rounded-tl-lg last:rounded-tr-lg" {...props}>
               {children}
             </th>
           ),
           td: ({ node, children, ...props }) => (
-            <td className="border border-neutral-300 dark:border-neutral-700 px-4 py-2 text-neutral-700 dark:text-neutral-300" {...props}>
+            <td className="px-4 py-3 text-sm text-neutral-700 dark:text-neutral-300" {...props}>
               {children}
             </td>
           ),
