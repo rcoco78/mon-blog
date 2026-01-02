@@ -1,0 +1,61 @@
+# 🚀 Documentation SEO
+
+**Tous les documents relatifs à l'optimisation SEO du site**
+
+---
+
+## 📚 Documents Disponibles
+
+### 📊 [Apprentissages SEO](./APPRENTISSAGES-SEO.md)
+**Tous les enseignements SEO acquis lors du développement**
+- Review Schema & Ratings
+- Meta tags optimisés
+- Structured Data (Schema.org)
+- Optimisations articles de blog
+- Checklist SEO par page
+- Outils de validation
+
+### 📝 [SEO Articles de Blog](./SEO-ARTICLES-BLOG.md)
+**Optimisation SEO complète pour les articles de blog**
+- Meta tags essentiels
+- Open Graph & Twitter Cards
+- Structured Data BlogPosting
+- Optimisations spécifiques
+
+### 🎯 [SEO Application 3 Pages](./SEO-APPLICATION-3-PAGES.md)
+**Application des optimisations SEO sur 3 pages clés**
+- Homepage
+- À propos
+- Témoignages
+
+### 🔍 [SEO Analyse Outils](./SEO-ANALYSE-OUTILS.md)
+**Analyse SEO des pages d'outils**
+- SoftwareApplication Schema
+- Dataset Schema
+- Optimisations spécifiques
+
+### 📖 [Guide SEO Principal](../03-SEO.md)
+**Guide SEO complet et système centralisé**
+- Système SEO centralisé
+- Configuration par page
+- Composants SEO
+- Bonnes pratiques
+
+---
+
+## 🎯 Quick Start
+
+### Pour optimiser une nouvelle page
+1. Lire [Apprentissages SEO](./APPRENTISSAGES-SEO.md) pour comprendre les principes
+2. Consulter [Guide SEO Principal](../03-SEO.md) pour la configuration
+3. Suivre la checklist dans [Apprentissages SEO](./APPRENTISSAGES-SEO.md)
+
+### Pour optimiser un article de blog
+1. Consulter [SEO Articles de Blog](./SEO-ARTICLES-BLOG.md)
+2. Vérifier que tous les meta tags sont présents
+3. Valider avec Google Rich Results Test
+
+---
+
+**Dernière mise à jour** : Janvier 2025
+

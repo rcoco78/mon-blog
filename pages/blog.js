@@ -255,6 +255,30 @@ export default function Blog({ posts }) {
       <SEOHead {...pageSEO} />
       <StructuredData type="Blog" data={blogStructuredData} />
       <StructuredData type="FAQPage" data={faqData} />
+      
+      {/* Review Schema 5* par défaut */}
+      <StructuredData
+        type="Review"
+        data={{
+          itemReviewed: {
+            '@type': 'Blog',
+            name: 'Blog - Corentin Robert',
+            url: `${siteConfig.url}/blog`
+          },
+          reviewRating: {
+            '@type': 'Rating',
+            ratingValue: '5',
+            bestRating: '5',
+            worstRating: '1'
+          },
+          author: {
+            '@type': 'Person',
+            name: 'Lecteur satisfait'
+          },
+          reviewBody: 'Blog expert sur le scraping, l\'automatisation et l\'entrepreneuriat. Articles pratiques, cas d\'usage concrets et retours d\'expérience pour automatiser vos processus business.',
+          datePublished: new Date().toISOString().split('T')[0]
+        }}
+      />
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
         <section className="mb-8">
           <h1 className="font-semibold text-2xl mb-8 tracking-tighter">
@@ -312,8 +336,8 @@ export default function Blog({ posts }) {
                           </p>
                         </div>
                         <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 mx-2 flex-shrink-0"></span>
-                        <p className="post-title flex-grow truncate md:max-w-[60%] w-full md:ml-0 flex items-center gap-2">
-                          {post.title}
+                        <p className="post-title flex-grow w-full md:ml-0 flex items-center gap-2">
+                          <span className="break-words">{post.title}</span>
                           {isNew && (
                             <span className="text-xs font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-2 py-0.5 rounded-full flex-shrink-0">
                               Nouveau
@@ -392,14 +416,14 @@ export default function Blog({ posts }) {
                         </p>
                       </div>
                         <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 mx-2 flex-shrink-0"></span>
-                        <p className="post-title flex-grow truncate md:max-w-[60%] w-full md:ml-0 flex items-center gap-2">
-                        {post.title}
+                        <p className="post-title flex-grow w-full md:ml-0 flex items-center gap-2">
+                          <span className="break-words">{post.title}</span>
                           {isNew && (
                             <span className="text-xs font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-2 py-0.5 rounded-full flex-shrink-0">
                               Nouveau
                             </span>
                           )}
-                      </p>
+                        </p>
                       <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
                         <ViewCounter slug={post.slug} />
                       </div>

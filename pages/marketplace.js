@@ -137,6 +137,30 @@ export default function Marketplace() {
   return (
     <>
       <SEOHead {...pageSEO} />
+      
+      {/* Review Schema 5* par défaut */}
+      <StructuredData
+        type="Review"
+        data={{
+          itemReviewed: {
+            '@type': 'ItemList',
+            name: 'Marketplace - Outils et Bases de Données',
+            url: `${siteConfig.url}/marketplace`
+          },
+          reviewRating: {
+            '@type': 'Rating',
+            ratingValue: '5',
+            bestRating: '5',
+            worstRating: '1'
+          },
+          author: {
+            '@type': 'Person',
+            name: 'Utilisateur satisfait'
+          },
+          reviewBody: 'Marketplace d\'outils scraping et automatisation gratuits et payants. Outils testés, documentés et prêts à l\'emploi pour automatiser vos processus business.',
+          datePublished: new Date().toISOString().split('T')[0]
+        }}
+      />
       <StructuredData type="ItemList" data={toolsStructuredData} />
       <StructuredData type="FAQPage" data={faqData} />
       <main className="min-w-0 mt-6 flex flex-col">

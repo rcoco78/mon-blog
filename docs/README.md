@@ -6,6 +6,17 @@ Documentation complète et organisée pour comprendre, maintenir et faire évolu
 
 ## 🗂️ Structure de la Documentation
 
+> 📁 Pour une vue complète de l'organisation, voir [STRUCTURE.md](./STRUCTURE.md)
+
+### 📚 [Apprentissages & Enseignements](./APPRENTISSAGES-GENERAUX.md)
+**Tous les apprentissages techniques et architecturaux**
+- Architecture & structure
+- Design system
+- Gestion des données
+- Intégrations externes
+- Performance & optimisation
+- Développement & bonnes pratiques
+
 ### 🎯 [01 - Vision & Objectifs](./01-VISION.md)
 **Vision stratégique et objectifs du site**
 - Objectif principal et positionnement
@@ -28,6 +39,15 @@ Documentation complète et organisée pour comprendre, maintenir et faire évolu
 - Configuration par page
 - Optimisations performance
 - Guide de validation SEO
+
+### 📊 [Apprentissages SEO](./SEO/APPRENTISSAGES-SEO.md)
+**Tous les enseignements SEO acquis**
+- Review Schema & Ratings
+- Meta tags optimisés
+- Structured Data (Schema.org)
+- Optimisations articles de blog
+- Checklist SEO par page
+- Outils de validation
 
 ### 🎨 [04 - Design System](./04-DESIGN-SYSTEM.md)
 **Documentation complète du design system**
@@ -118,6 +138,11 @@ mon-blog/
 
 ## 🔗 Liens Rapides
 
+### 📚 Apprentissages
+- [Apprentissages Généraux](./APPRENTISSAGES-GENERAUX.md) - Architecture, design, développement
+- [Apprentissages SEO](./SEO/APPRENTISSAGES-SEO.md) - Tous les enseignements SEO
+
+### 📖 Documentation Principale
 - [Vision & Objectifs](./01-VISION.md)
 - [Architecture du Code](./02-ARCHITECTURE.md)
 - [Guide SEO Complet](./03-SEO.md)
@@ -125,6 +150,13 @@ mon-blog/
 - [Audit & Recommandations](./05-AUDIT.md)
 - [Configuration Technique](./06-CONFIGURATION.md)
 - [Changelog](./07-CHANGELOG.md)
+
+### 📝 Guides Pratiques
+- [Création de Contenu](./CREATION-CONTENU.md)
+- [Guide Rapide Articles](./GUIDE-RAPIDE-ARTICLES.md)
+- [Template Article Notion](./TEMPLATE-ARTICLE-NOTION.md)
+- [Ajouter Produit Payant](./AJOUTER-PRODUIT-PAYANT.md)
+- [Configuration Stripe](./STRIPE-CONFIGURATION.md)
 
 ---
 

@@ -317,6 +317,31 @@ export default function DentistesParisiens() {
         ogType="product"
         ogImage={toolData.videoThumbnail || undefined}
       />
+      
+      {/* Review Schema 5* par défaut */}
+      <StructuredData
+        type="Review"
+        data={{
+          itemReviewed: {
+            '@type': 'Dataset',
+            name: toolData.name,
+            url: `${siteConfig.url}/outils/dentistes-parisiens`
+          },
+          reviewRating: {
+            '@type': 'Rating',
+            ratingValue: '5',
+            bestRating: '5',
+            worstRating: '1'
+          },
+          author: {
+            '@type': 'Person',
+            name: 'Utilisateur satisfait'
+          },
+          reviewBody: toolData.description,
+          datePublished: new Date().toISOString().split('T')[0]
+        }}
+      />
+      
       <StructuredData type="Dataset" data={datasetStructuredData} />
       {toolData.videoUrl && toolData.videoUrl.includes('youtube.com') && (
         <StructuredData

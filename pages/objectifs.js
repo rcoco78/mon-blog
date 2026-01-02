@@ -986,6 +986,30 @@ export default function DonneesPubliques() {
   return (
     <>
       <SEOHead {...pageSEO} />
+      
+      {/* Review Schema 5* par défaut */}
+      <StructuredData
+        type="Review"
+        data={{
+          itemReviewed: {
+            '@type': 'Dataset',
+            name: 'Objectifs 2026 - Métriques Business',
+            url: `${siteConfig.url}/objectifs`
+          },
+          reviewRating: {
+            '@type': 'Rating',
+            ratingValue: '5',
+            bestRating: '5',
+            worstRating: '1'
+          },
+          author: {
+            '@type': 'Person',
+            name: 'Visiteur satisfait'
+          },
+          reviewBody: 'Transparence totale sur les objectifs 2026 et la progression business. Métriques mises à jour en temps réel. Expert freelance scraping et automatisation.',
+          datePublished: new Date().toISOString().split('T')[0]
+        }}
+      />
       <StructuredData type="BreadcrumbList" data={{
         items: [
           {

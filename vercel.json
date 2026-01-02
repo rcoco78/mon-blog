@@ -18,11 +18,11 @@
     },
     {
       "path": "/api/cron/blog-sync",
-      "schedule": "0 */1 * * *"
+      "schedule": "0 8,14,20 * * *"
     },
     {
       "path": "/api/cron/blog-details-sync",
-      "schedule": "0 */2 * * *"
+      "schedule": "0 9,15,21 * * *"
     }
   ],
   "redirects": [

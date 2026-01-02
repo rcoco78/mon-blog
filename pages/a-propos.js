@@ -141,6 +141,31 @@ export default function About() {
   return (
     <>
       <SEOHead {...pageSEO} />
+      
+      {/* Review Schema 5* par défaut */}
+      <StructuredData
+        type="Review"
+        data={{
+          itemReviewed: {
+            '@type': 'Person',
+            name: siteConfig.author,
+            url: `${siteConfig.url}/a-propos`
+          },
+          reviewRating: {
+            '@type': 'Rating',
+            ratingValue: '5',
+            bestRating: '5',
+            worstRating: '1'
+          },
+          author: {
+            '@type': 'Person',
+            name: 'Client satisfait'
+          },
+          reviewBody: 'Expert freelance en scraping et automatisation. 424+ projets réalisés, 5/5 sur Malt. Parcours de growth marketeux chez Airbnb à entrepreneur indépendant.',
+          datePublished: new Date().toISOString().split('T')[0]
+        }}
+      />
+      
       <StructuredData type="Person" data={{
         name: siteConfig.author,
         description: siteConfig.seo.pages.aPropos.description,

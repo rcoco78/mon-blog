@@ -320,31 +320,42 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         };
 
       case 'Review':
-        return {
+        const review = {
           '@context': 'https://schema.org',
           '@type': 'Review',
-          author: {
+          author: data.author || (data.authorName ? {
             '@type': 'Person',
-            name: data.authorName || 'Client'
-          },
+            name: data.authorName
+          } : {
+            '@type': 'Person',
+            name: 'Client'
+          }),
           datePublished: data.datePublished || new Date().toISOString().split('T')[0],
           reviewBody: data.reviewBody || '',
           reviewRating: {
             '@type': 'Rating',
-            ratingValue: data.ratingValue || '5',
+            ratingValue: data.ratingValue || (data.reviewRating?.ratingValue) || '5',
             bestRating: '5',
             worstRating: '1'
-          },
-          itemReviewed: data.itemReviewed || {
+          }
+        };
+        
+        // Ajouter itemReviewed si fourni
+        if (data.itemReviewed) {
+          review.itemReviewed = data.itemReviewed;
+        } else if (data.serviceName) {
+          review.itemReviewed = {
             '@type': 'Service',
-            name: data.serviceName || 'Services de Scraping et Automatisation',
+            name: data.serviceName,
             provider: {
               '@type': 'Person',
               name: siteConfig.author,
               url: siteConfig.url
             }
-          }
-        };
+          };
+        }
+        
+        return review;
 
       case 'HowTo':
         return {

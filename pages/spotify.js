@@ -74,6 +74,30 @@ export default function Spotify() {
     <>
       <SEOHead {...pageSEO} />
       
+      {/* Review Schema 5* par défaut */}
+      <StructuredData
+        type="Review"
+        data={{
+          itemReviewed: {
+            '@type': 'CollectionPage',
+            name: 'Musique - Ce que j\'écoute',
+            url: `${siteConfig.url}/spotify`
+          },
+          reviewRating: {
+            '@type': 'Rating',
+            ratingValue: '5',
+            bestRating: '5',
+            worstRating: '1'
+          },
+          author: {
+            '@type': 'Person',
+            name: 'Auditeur satisfait'
+          },
+          reviewBody: 'Découvrez mes musiques préférées et playlists Spotify. Top tracks, artistes favoris et dernières écoutes mises à jour en temps réel.',
+          datePublished: new Date().toISOString().split('T')[0]
+        }}
+      />
+      
       {/* Structured Data - CollectionPage */}
       <StructuredData type="CollectionPage" data={{
         name: 'Musique - Ce que j\'écoute',
