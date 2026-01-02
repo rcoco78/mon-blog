@@ -2,13 +2,30 @@ import { useMemo } from 'react'
 
 export default function TableOfContents({ markdown }) {
   const headings = useMemo(() => {
-    if (!markdown || typeof markdown !== 'string') return []
+    // Extraire le contenu markdown selon la structure (comme dans MarkdownRenderer)
+    let markdownContent = markdown
+    if (!markdown) return []
+    
+    if (typeof markdown !== 'string') {
+      // Si c'est un objet avec une propriété parent (structure notion-to-md)
+      if (typeof markdown === 'object' && markdown.parent) {
+        markdownContent = markdown.parent
+      } else if (typeof markdown === 'object') {
+        // Si c'est un objet, chercher une propriété string
+        const stringProps = Object.values(markdown).find((v) => typeof v === 'string')
+        markdownContent = stringProps || ''
+      } else {
+        return []
+      }
+    }
+    
+    if (!markdownContent || typeof markdownContent !== 'string') return []
 
     const headingRegex = /^(#{1,4})\s+(.+)$/gm
     const headings = []
     let match
 
-    while ((match = headingRegex.exec(markdown)) !== null) {
+    while ((match = headingRegex.exec(markdownContent)) !== null) {
       const level = match[1].length
       let text = match[2].trim()
       
@@ -28,7 +45,7 @@ export default function TableOfContents({ markdown }) {
     }
 
     return headings
-  }, [markdown])
+  }, [markdownContent])
 
   if (headings.length === 0) return null
 
