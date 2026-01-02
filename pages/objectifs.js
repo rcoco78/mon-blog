@@ -1379,7 +1379,7 @@ export default function DonneesPubliques() {
                 const translatedCategory = translateCategory(category)
                 const categoryLower = category.toLowerCase()
                 const translatedLower = translatedCategory.toLowerCase()
-                const isApifyCategory = categoryLower.includes('apify') || translatedLower.includes('scrapers publics')
+                const isApifyCategory = categoryLower.includes('apify') || translatedCategory === 'Scrapers publics'
                 const isLogementAtypiqueCategory = categoryLower.includes('logement')
                 const isFreelanceCategory = categoryLower.includes('freelance') || categoryLower.includes('freelancing')
                 const isLoisirCategory = categoryLower.includes('santé') || categoryLower.includes('loisir') || categoryLower.includes('bien-être')
