@@ -352,9 +352,9 @@ export default function About() {
               <div className="space-y-6">
                 <div className="relative flex flex-col sm:flex-row sm:gap-4">
                   {/* Point sur la ligne - vert pour projet actif */}
-                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full border-2 border-white dark:border-neutral-900 z-10" title="Projet actif">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" style={{ left: '-50%', top: '-50%' }}></span>
-                    <span className="relative inline-flex rounded-full h-full w-full bg-green-500"></span>
+                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 z-10" title="Projet actif">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping"></span>
+                    <span className="relative inline-flex rounded-full h-full w-full bg-green-500 border-2 border-white dark:border-neutral-900"></span>
                   </div>
                   <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2025–Présent</div>
                   <div className="flex-1 min-w-0">
@@ -378,9 +378,9 @@ export default function About() {
                 </div>
                 <div className="relative flex flex-col sm:flex-row sm:gap-4">
                   {/* Point sur la ligne - vert pour projet actif */}
-                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full border-2 border-white dark:border-neutral-900 z-10" title="Projet actif">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" style={{ left: '-50%', top: '-50%' }}></span>
-                    <span className="relative inline-flex rounded-full h-full w-full bg-green-500"></span>
+                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 z-10" title="Projet actif">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping"></span>
+                    <span className="relative inline-flex rounded-full h-full w-full bg-green-500 border-2 border-white dark:border-neutral-900"></span>
                   </div>
                   <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2023–Présent</div>
                   <div className="flex-1 min-w-0">
