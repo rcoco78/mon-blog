@@ -15,6 +15,14 @@
     {
       "path": "/api/cron/key-results-sync",
       "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/blog-sync",
+      "schedule": "0 */1 * * *"
+    },
+    {
+      "path": "/api/cron/blog-details-sync",
+      "schedule": "0 */2 * * *"
     }
   ],
   "redirects": [

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { getAllPosts } from '../lib/notion'
+import { list } from '@vercel/blob'
 import ViewCounter from '../components/ViewCounter'
 import Tag from '../components/Tag'
 import { useState, useEffect } from 'react'
@@ -509,7 +510,40 @@ export default function Blog({ posts }) {
 }
 
 export async function getStaticProps() {
-  const posts = await getAllPosts()
+  // Essayer de récupérer depuis Blob Storage directement, sinon fallback vers Notion
+  let posts = []
+  
+  try {
+    const blobs = await list({ prefix: 'blog-posts.json' })
+    const existingBlob = blobs.blobs.find((blob) => blob.pathname === 'blog-posts.json')
+
+    if (existingBlob) {
+      const cacheBuster = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      const response = await fetch(`${existingBlob.url}?t=${cacheBuster}`, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          Pragma: 'no-cache',
+        },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.posts && Array.isArray(data.posts)) {
+          posts = data.posts
+        }
+      }
+    }
+  } catch (error) {
+    console.warn('Erreur lors de la récupération depuis Blob Storage, fallback vers Notion:', error)
+  }
+
+  // Fallback vers Notion si Blob Storage n'est pas disponible
+  if (posts.length === 0) {
+    posts = await getAllPosts()
+  }
+
   return {
     props: {
       posts,

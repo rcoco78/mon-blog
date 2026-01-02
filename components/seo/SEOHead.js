@@ -105,7 +105,9 @@ export default function SEOHead({
             <meta property="article:modified_time" content={new Date(modifiedTime).toISOString()} />
           )}
           <meta property="article:author" content={siteConfig.author} />
-          <meta property="article:section" content="Blog" />
+          <meta property="article:author:url" content={siteConfig.url} />
+          <meta property="article:section" content={tags?.[0] || "Blog"} />
+          <meta property="article:locale" content="fr_FR" />
           {tags && Array.isArray(tags) && tags.filter(Boolean).map((tag, index) => (
             <meta key={index} property="article:tag" content={String(tag)} />
           ))}
@@ -116,6 +118,22 @@ export default function SEOHead({
       <meta name="theme-color" content="#000000" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      
+      {/* Article-specific SEO */}
+      {article && (
+        <>
+          <meta name="news_keywords" content={keywords || ''} />
+          <meta name="article:publisher" content={siteConfig.url} />
+        </>
+      )}
+      
+      {/* Rich Snippets support */}
+      <meta name="application-name" content={siteConfig.name} />
+      <meta name="msapplication-TileColor" content="#000000" />
+      
+      {/* Language alternates */}
+      <link rel="alternate" hrefLang="fr" href={canonicalUrl} />
+      <link rel="alternate" hrefLang="x-default" href={canonicalUrl} />
     </Head>
   );
 }

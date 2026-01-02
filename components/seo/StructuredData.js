@@ -33,32 +33,84 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         };
       
       case 'BlogPosting':
-        return {
+        const blogPosting = {
           '@context': 'https://schema.org',
           '@type': 'BlogPosting',
           headline: data.title,
           description: data.description,
-          image: data.image || siteConfig.ogImage,
+          image: Array.isArray(data.image) ? data.image : [data.image || siteConfig.ogImage],
           datePublished: data.datePublished,
           dateModified: data.dateModified || data.datePublished,
           author: {
             '@type': 'Person',
             name: siteConfig.author,
-            url: siteConfig.url
+            url: siteConfig.url,
+            sameAs: [
+              siteConfig.social.linkedin,
+              siteConfig.social.malt,
+              'https://github.com/rcoco78'
+            ]
           },
           publisher: {
             '@type': 'Organization',
             name: siteConfig.name,
             logo: {
               '@type': 'ImageObject',
-              url: siteConfig.ogLogo
+              url: siteConfig.ogLogo,
+              width: 512,
+              height: 512
             }
           },
           mainEntityOfPage: {
             '@type': 'WebPage',
             '@id': data.url
+          },
+          url: data.url,
+          inLanguage: 'fr-FR',
+          isAccessibleForFree: true,
+          isPartOf: {
+            '@type': 'Blog',
+            name: 'Blog - Corentin Robert',
+            url: `${siteConfig.url}/blog`
           }
-        };
+        }
+
+        // Ajouter articleBody si disponible
+        if (data.articleBody) {
+          blogPosting.articleBody = data.articleBody
+        }
+
+        // Ajouter wordCount si disponible
+        if (data.wordCount) {
+          blogPosting.wordCount = data.wordCount
+        }
+
+        // Ajouter timeRequired si disponible
+        if (data.timeRequired) {
+          blogPosting.timeRequired = data.timeRequired
+        }
+
+        // Ajouter keywords si disponible
+        if (data.keywords) {
+          blogPosting.keywords = Array.isArray(data.keywords) 
+            ? data.keywords.join(', ') 
+            : data.keywords
+        }
+
+        // Ajouter articleSection si disponible
+        if (data.articleSection) {
+          blogPosting.articleSection = data.articleSection
+        }
+
+        // Ajouter speakable si disponible (pour Google Assistant)
+        if (data.speakable) {
+          blogPosting.speakable = {
+            '@type': 'SpeakableSpecification',
+            cssSelector: data.speakable.cssSelector || ['h1', 'h2']
+          }
+        }
+
+        return blogPosting
       
       case 'Person':
         return {
