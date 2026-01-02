@@ -111,8 +111,8 @@ export default function DentistesParisiens() {
     annualPriceHT: 49.17, // Prix annuel HT
     annualPriceLabel: '59 € TTC',
     annualPriceLabelHT: '49,17 € HT',
-    videoUrl: '',
-    videoThumbnail: '/images/outils/dentistes-parisiens-thumb.jpg',
+    videoUrl: 'https://www.youtube.com/shorts/5bCoM91K1uM', // URL YouTube Shorts
+    videoThumbnail: '/images/outils/dentistes-parisiens-thumb.jpg', // Image de preview (optionnel si embed)
     formats: ['CSV', 'Excel', 'JSON'],
     lastUpdate: '20/01/2025',
     rows: '500+ dentistes',
