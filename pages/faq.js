@@ -73,11 +73,23 @@ export default function FAQPage() {
       },
       {
         question: "Quelle est votre capacité et disponibilité ?",
-        answer: "Volume de projets : Je traite jusqu'à 20 à 30 projets par mois, avec un suivi rigoureux de chaque mission. Disponibilité : Je suis disponible pour des missions urgentes et peux adapter mon planning selon vos besoins. Contactez-moi pour discuter de votre projet et de mes disponibilités."
+        answer: "Volume de projets : Je traite jusqu'à 20 à 30 projets par mois, avec un suivi rigoureux de chaque mission. Disponibilité pour échanger : Jusqu'à 4 appels de 20 minutes par jour pour discuter de votre projet. Secteurs d'expertise : J'ai une expérience particulière dans l'immobilier et le secteur de la santé, mais je travaille avec des entreprises de tous secteurs."
       },
       {
-        question: "Quelle est votre méthode de travail ?",
-        answer: "Compréhension du besoin : J'analyse en profondeur votre besoin pour proposer la solution la plus adaptée. Développement rapide : Je privilégie la rapidité d'exécution sans compromettre la qualité. Livraison et suivi : Je livre des solutions fonctionnelles et assure un suivi post-livraison pour garantir votre satisfaction."
+        question: "Comment travaillez-vous ?",
+        answer: "1. Appel de 20 minutes pour comprendre vos besoins et votre contexte. 2. Proposition détaillée avec approche technique et délais. 3. Validation de votre côté, puis démarrage du projet. 4. Livraison en moins d'une semaine, avec aller-retour si nécessaire. 5. Suivi — on se reparle si besoin d'ajustements ou d'évolutions."
+      },
+      {
+        question: "Est-ce légal d'extraire des données LinkedIn ?",
+        answer: "Oui, notre outil respecte les conditions d'utilisation de LinkedIn et les bonnes pratiques. L'extraction est limitée et éthique."
+      },
+      {
+        question: "Quels formats sont disponibles pour les bases de données ?",
+        answer: "Les bases de données sont disponibles en CSV (pour Excel), Excel (.xlsx) et JSON. Choisissez le format qui correspond à vos besoins."
+      },
+      {
+        question: "Les données sont-elles à jour ?",
+        answer: "Oui, les bases de données sont mises à jour régulièrement pour garantir la fraîcheur des informations."
       }
     ]
   }
@@ -90,16 +102,18 @@ export default function FAQPage() {
     ? allFAQs[selectedCategory] || []
     : allQuestions
 
-  // Conversion pour le Schema.org FAQPage
+  // Conversion pour le Schema.org FAQPage (uniquement les questions avec réponses string)
   const faqData = {
-    questions: filteredQuestions.map(q => ({
-      '@type': 'Question',
-      name: q.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: typeof q.answer === 'string' ? q.answer : q.answer.toString()
-      }
-    }))
+    questions: filteredQuestions
+      .filter(q => typeof q.answer === 'string')
+      .map(q => ({
+        '@type': 'Question',
+        name: q.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: q.answer
+        }
+      }))
   }
 
   const categories = [
