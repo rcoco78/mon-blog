@@ -138,7 +138,7 @@ export default function Post({ post, allPosts }) {
         title={post.title}
         description={metaDescription}
         canonical={articleUrl}
-        ogImage={post.coverImage || siteConfig.ogImage}
+        ogImage={post.coverImage || siteConfig.ogImage || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'}
         ogType="article"
         keywords={post.tags?.join(', ')}
         publishedTime={post.date}

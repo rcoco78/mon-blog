@@ -67,7 +67,7 @@ export default function SEOHead({
       <meta name="geo.region" content="FR" />
       <meta name="geo.placename" content="Paris" />
       
-      {/* Open Graph / Facebook */}
+      {/* Open Graph / Facebook - Complet comme logement-atypique */}
       <meta property="og:type" content={ogType} />
       <meta property="og:title" content={finalTitle} />
       <meta property="og:description" content={finalDescription} />
@@ -81,6 +81,10 @@ export default function SEOHead({
       <meta property="og:site_name" content={siteConfig.name} />
       <meta property="og:locale" content="fr_FR" />
       <meta property="og:locale:alternate" content="en_US" />
+      {/* Logo du site (comme logement-atypique) */}
+      {siteConfig.ogLogo && (
+        <meta property="og:logo" content={siteConfig.ogLogo} />
+      )}
       
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />
