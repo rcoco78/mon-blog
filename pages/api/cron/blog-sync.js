@@ -43,22 +43,21 @@ async function fetchAndSavePosts() {
     console.log(`[blog-sync] Récupéré ${response.results.length} articles (total: ${allPosts.length})`)
   }
 
-  // Transformer les articles
-  const posts = allPosts.map((page) => {
+  // Transformer les articles (filtrer les null)
+  const posts = allPosts
+    .map((page) => {
     const title = page.properties.Title?.title?.[0]?.plain_text?.trim() || ''
     const date = page.properties.Date?.date?.start || ''
     const tags = page.properties.Tags?.multi_select?.map((tag) => tag.name.trim()) || []
     const metaDescription = page.properties['Meta Description']?.rich_text?.[0]?.plain_text?.trim() || ''
 
-    // Générer un slug à partir du titre si le slug n'est pas défini dans Notion
-    let slug = page.properties.Slug?.rich_text?.[0]?.plain_text?.trim() || ''
-    if (!slug && title) {
-      slug = title
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '') // Supprimer les accents
-        .replace(/[^a-z0-9]+/g, '-') // Remplacer les caractères spéciaux par des tirets
-        .replace(/^-+|-+$/g, '') // Supprimer les tirets en début/fin
+    // Récupérer le slug depuis Notion (propriété "/slug")
+    const slug = page.properties['/slug']?.rich_text?.[0]?.plain_text?.trim() || ''
+    
+    // Si pas de slug, on ne peut pas continuer (slug obligatoire)
+    if (!slug) {
+      console.warn(`[blog-sync] Article sans slug ignoré: ${title} (id: ${page.id})`)
+      return null
     }
 
     // Vérification et formatage de la date
@@ -85,7 +84,8 @@ async function fetchAndSavePosts() {
         : null,
       lastEdited: page.last_edited_time,
     }
-  })
+    })
+    .filter(post => post !== null) // Filtrer les articles sans slug
 
   // Sauvegarder dans Blob Storage
   await put(

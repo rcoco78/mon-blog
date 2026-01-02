@@ -65,25 +65,26 @@ async function fetchAndSavePostDetails() {
         page_size: 10,
       })
 
-      const posts = response.results.map((page) => {
-        const title = page.properties.Title?.title?.[0]?.plain_text?.trim() || ''
-        let slug = page.properties.Slug?.rich_text?.[0]?.plain_text?.trim() || ''
-        if (!slug && title) {
-          slug = title
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-+|-+$/g, '')
-        }
+      const posts = response.results
+        .map((page) => {
+          const title = page.properties.Title?.title?.[0]?.plain_text?.trim() || ''
+          // Récupérer le slug depuis Notion (propriété "/slug")
+          const slug = page.properties['/slug']?.rich_text?.[0]?.plain_text?.trim() || ''
+          
+          // Si pas de slug, on ne peut pas continuer (slug obligatoire)
+          if (!slug) {
+            console.warn(`[blog-details-sync] Article sans slug ignoré: ${title} (id: ${page.id})`)
+            return null
+          }
 
-        return {
-          id: page.id,
-          title,
-          slug,
-          date: page.properties.Date?.date?.start || new Date().toISOString(),
-        }
-      })
+          return {
+            id: page.id,
+            title,
+            slug,
+            date: page.properties.Date?.date?.start || new Date().toISOString(),
+          }
+        })
+        .filter(post => post !== null) // Filtrer les articles sans slug
 
       // Traiter les 10 derniers articles
       const postsToProcess = posts.slice(0, 10)
