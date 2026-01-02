@@ -89,26 +89,26 @@ export default function Outils() {
     questions: [
       {
         '@type': 'Question',
-        name: 'Les outils et bases de données sont-ils gratuits ?',
+        name: 'Comment utiliser concrètement vos outils gratuits ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'La plupart des outils et bases de données sont gratuits. Je les développe pour partager mon expertise et aider la communauté. Certains outils peuvent avoir des limites d\'utilisation (comme l\'extracteur LinkedIn limité à 50 profils par jour). Certains produits premium sont disponibles en version payante.'
+          text: 'C\'est très simple : 1) Cliquez sur l\'outil qui vous intéresse dans la marketplace, 2) Sur la page de l\'outil, entrez votre email pour recevoir l\'accès (gratuit, sans engagement), 3) Une fois connecté, vous accédez à l\'interface de l\'outil avec des instructions claires, 4) Utilisez l\'outil directement dans votre navigateur, sans installation. Par exemple, le Générateur de Templates d\'Emails : vous sélectionnez le type de message (outreach, follow-up, etc.), vous personnalisez le contenu, et vous copiez-collez le template généré. L\'Extracteur LinkedIn : vous entrez vos critères de recherche, vous lancez l\'extraction, et vous téléchargez les résultats en CSV. Aucune compétence technique requise.'
         }
       },
       {
         '@type': 'Question',
-        name: 'Comment utiliser ces outils ?',
+        name: 'Les outils sont-ils vraiment gratuits ? Y a-t-il des limites ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Chaque outil dispose de sa propre page avec des instructions d\'utilisation. Cliquez sur un outil pour accéder à sa page dédiée et commencer à l\'utiliser immédiatement, sans inscription nécessaire.'
+          text: 'Oui, la plupart des outils sont 100% gratuits, sans limite de temps ni de nombre d\'utilisations. Certains outils ont des limites raisonnables pour éviter les abus : l\'Extracteur LinkedIn est limité à 50 profils par jour (gratuit), ce qui couvre largement les besoins de prospection d\'une TPE-PME. Si vous avez besoin de volumes plus importants, je peux développer une version sur-mesure. Les bases de données payantes (comme Dentistes Parisiens) sont clairement indiquées avec leurs prix. Aucun piège, tout est transparent.'
         }
       },
       {
         '@type': 'Question',
-        name: 'Puis-je avoir un outil sur-mesure ?',
+        name: 'Puis-je avoir un outil sur-mesure adapté à mon business ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Absolument ! Si vous avez besoin d\'un outil personnalisé pour votre business, je peux développer une solution sur-mesure adaptée à vos besoins spécifiques. Contactez-moi pour discuter de votre projet.'
+          text: 'Absolument ! Si vos besoins sont spécifiques, je développe des outils sur-mesure. Exemples : un extracteur adapté à votre secteur d\'activité, un générateur de contenu pour votre industrie, une automatisation de votre workflow spécifique. Le processus : 1) On discute de votre besoin (appel de 20 min gratuit), 2) Je vous propose une solution technique avec devis et délais, 3) Développement et livraison en moins d\'une semaine, 4) Formation et support inclus. Tarifs : à partir de 2000€ selon la complexité. Contactez-moi pour discuter de votre projet.'
         }
       }
     ]

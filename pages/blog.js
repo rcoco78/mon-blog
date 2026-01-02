@@ -212,26 +212,34 @@ export default function Blog({ posts }) {
     questions: [
       {
         '@type': 'Question',
-        name: 'Qu\'est-ce que le scraping ?',
+        name: 'Qu\'est-ce que le scraping et comment ça peut aider mon business ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Le scraping (ou web scraping) est une technique qui permet d\'extraire automatiquement des données depuis des sites web. C\'est utile pour collecter des informations, analyser des tendances, ou automatiser des processus de collecte de données.'
+          text: 'Le scraping (ou web scraping) est une technique qui permet d\'extraire automatiquement des données depuis des sites web. Concrètement, cela vous permet de : collecter des données concurrentielles (prix, produits, avis), générer des leads qualifiés (contacts, profils LinkedIn), automatiser votre veille marché, enrichir vos bases de données existantes. Par exemple, un agent immobilier peut extraire tous les biens disponibles dans une zone, un e-commerçant peut suivre les prix de ses concurrents, un growth marketeux peut construire des listes de prospects ciblés. L\'objectif : transformer des tâches manuelles chronophages en processus automatisés qui tournent 24/7.'
         }
       },
       {
         '@type': 'Question',
-        name: 'Comment automatiser mes processus business ?',
+        name: 'Quel est le ROI réel de l\'automatisation pour mon entreprise ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'L\'automatisation business passe par l\'identification des tâches répétitives, la création de scripts ou d\'outils automatisés, et l\'intégration de ces solutions dans vos workflows. Je partage des cas d\'usage concrets et des tutoriels dans mes articles.'
+          text: 'L\'automatisation génère du ROI de plusieurs façons : 1) Gain de temps : libérer 10-20h/semaine de tâches répétitives pour vous concentrer sur la stratégie, 2) Réduction d\'erreurs : éliminer les erreurs humaines dans la saisie ou la collecte de données, 3) Scalabilité : traiter 100x plus de données sans augmenter les coûts, 4) Décisions rapides : avoir des données à jour en temps réel pour prendre des décisions éclairées. Exemple concret : un scraper qui collecte les prix concurrents quotidiennement vous fait gagner 5h/semaine et vous permet d\'ajuster vos prix en temps réel. Sur un an, c\'est 260h économisées + meilleure compétitivité.'
         }
       },
       {
         '@type': 'Question',
-        name: 'Pourquoi choisir un freelance scraping ?',
+        name: 'Pourquoi choisir un freelance plutôt qu\'une agence ou un dev interne ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Un freelance spécialisé en scraping apporte expertise technique, flexibilité et coûts maîtrisés. Avec 424+ projets réalisés, je développe des solutions sur-mesure adaptées à vos besoins business spécifiques.'
+          text: '3 avantages clés : 1) Rapidité : livraison en moins d\'une semaine vs 1-2 mois pour une agence, 2) Coûts maîtrisés : pas de frais de structure, tarifs transparents, pas de coûts récurrents si vous n\'avez pas besoin de maintenance, 3) Expertise ciblée : 424+ projets en scraping/automatisation vs un dev interne qui doit tout apprendre. Un freelance spécialisé apporte aussi flexibilité : vous payez uniquement pour ce dont vous avez besoin, sans engagement long terme. Parfait pour tester une idée rapidement ou traiter un besoin ponctuel.'
+        }
+      },
+      {
+        '@type': 'Question',
+        name: 'Est-ce légal de scraper des sites web ?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Oui, le scraping est légal dans la plupart des cas, à condition de respecter : 1) Les robots.txt et conditions d\'utilisation du site, 2) Le RGPD si vous collectez des données personnelles, 3) Les bonnes pratiques (ne pas surcharger les serveurs, respecter les limites de taux). Je m\'assure toujours que vos projets respectent la légalité. Pour les données publiques (prix, produits, annonces), c\'est généralement autorisé. Pour les données personnelles (emails, profils privés), il faut un consentement ou une base légale. On en discute ensemble pour garantir la conformité de votre projet.'
         }
       }
     ]
@@ -460,20 +468,20 @@ export default function Blog({ posts }) {
           <FAQ
             items={[
               {
+                question: "Qu'est-ce que le scraping et comment ça peut aider mon business ?",
+                answer: "Le scraping (ou web scraping) est une technique qui permet d'extraire automatiquement des données depuis des sites web. Concrètement, cela vous permet de : collecter des données concurrentielles (prix, produits, avis), générer des leads qualifiés (contacts, profils LinkedIn), automatiser votre veille marché, enrichir vos bases de données existantes. Par exemple, un agent immobilier peut extraire tous les biens disponibles dans une zone, un e-commerçant peut suivre les prix de ses concurrents, un growth marketeux peut construire des listes de prospects ciblés. L'objectif : transformer des tâches manuelles chronophages en processus automatisés qui tournent 24/7."
+              },
+              {
+                question: "Quel est le ROI réel de l'automatisation pour mon entreprise ?",
+                answer: "L'automatisation génère du ROI de plusieurs façons : 1) Gain de temps : libérer 10-20h/semaine de tâches répétitives pour vous concentrer sur la stratégie, 2) Réduction d'erreurs : éliminer les erreurs humaines dans la saisie ou la collecte de données, 3) Scalabilité : traiter 100x plus de données sans augmenter les coûts, 4) Décisions rapides : avoir des données à jour en temps réel pour prendre des décisions éclairées. Exemple concret : un scraper qui collecte les prix concurrents quotidiennement vous fait gagner 5h/semaine et vous permet d'ajuster vos prix en temps réel. Sur un an, c'est 260h économisées + meilleure compétitivité."
+              },
+              {
+                question: "Pourquoi choisir un freelance plutôt qu'une agence ou un dev interne ?",
+                answer: "3 avantages clés : 1) Rapidité : livraison en moins d'une semaine vs 1-2 mois pour une agence, 2) Coûts maîtrisés : pas de frais de structure, tarifs transparents, pas de coûts récurrents si vous n'avez pas besoin de maintenance, 3) Expertise ciblée : 424+ projets en scraping/automatisation vs un dev interne qui doit tout apprendre. Un freelance spécialisé apporte aussi flexibilité : vous payez uniquement pour ce dont vous avez besoin, sans engagement long terme. Parfait pour tester une idée rapidement ou traiter un besoin ponctuel."
+              },
+              {
                 question: "Pourquoi ce blog ?",
                 answer: "Ce blog est né d'une volonté de partager mes réflexions sur le scraping, l'automatisation et l'entrepreneuriat. Pas seulement des tutoriels techniques, mais aussi des cas d'usage business, des réflexions sur le métier de freelance, et des retours d'expérience sur mes projets. Vous y trouverez des articles variés : scraping, automatisation, entrepreneuriat, voyage, et bien d'autres sujets qui me passionnent. L'objectif : créer du lien, partager mes apprentissages, et révéler ma personnalité au-delà du simple prestataire."
-              },
-              {
-                question: "Qu'est-ce que le scraping ?",
-                answer: "Le scraping (ou web scraping) est une technique qui permet d'extraire automatiquement des données depuis des sites web. C'est utile pour collecter des informations, analyser des tendances, ou automatiser des processus de collecte de données."
-              },
-              {
-                question: "Comment automatiser mes processus business ?",
-                answer: "L'automatisation business passe par l'identification des tâches répétitives, la création de scripts ou d'outils automatisés, et l'intégration de ces solutions dans vos workflows. Je partage des cas d'usage concrets et des tutoriels dans mes articles."
-              },
-              {
-                question: "Pourquoi choisir un freelance scraping ?",
-                answer: "Un freelance spécialisé en scraping apporte expertise technique, flexibilité et coûts maîtrisés. Avec 424+ projets réalisés, je développe des solutions sur-mesure adaptées à vos besoins business spécifiques."
               }
             ]}
           />
