@@ -1415,19 +1415,17 @@ export default function DonneesPubliques() {
                 <div key={category}>
                   <h3 className="font-semibold text-lg mb-4 tracking-tighter flex items-center gap-2 group">
                     {isApifyCategory ? (
-                      <>
+                      <Link 
+                        href="https://apify.com?fpr=0n7ukq" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors"
+                      >
                         {translatedCategory}
-                        <Link 
-                          href="https://apify.com?fpr=0n7ukq" 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors group/link"
-                        >
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 flex-shrink-0">
-                            <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                          </svg>
-                        </Link>
-                      </>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                        </svg>
+                      </Link>
                     ) : isLogementAtypiqueCategory ? (
                       <Link 
                         href="https://logement-atypique.fr/?utm_source=corentinrobert&utm_medium=website&utm_campaign=objectifs" 
