@@ -21,36 +21,22 @@ export default function Post({ post, allPosts }) {
   const [contentMarkdown, setContentMarkdown] = useState(null)
   const [blocks, setBlocks] = useState(null)
   const [loadingMarkdown, setLoadingMarkdown] = useState(false)
-  const [viewIncremented, setViewIncremented] = useState(false)
 
-  // Incrémenter la vue une seule fois par session (cache avec sessionStorage)
+  // Incrémenter la vue à chaque chargement de page (sans cache)
   useEffect(() => {
-    if (post?.slug && !viewIncremented) {
-      // Vérifier dans le cache sessionStorage si on a déjà incrémenté pour cet article
-      const cacheKey = `view_incremented_${post.slug}`
-      const alreadyIncremented = typeof window !== 'undefined' && sessionStorage.getItem(cacheKey)
-      
-      if (!alreadyIncremented) {
-        // Incrémenter la vue en arrière-plan (ne pas attendre la réponse)
-        fetch(`/api/views/${post.slug}?increment=true`)
-          .then(res => res.json())
-          .then(data => {
-            setViewIncremented(true)
-            // Mettre en cache dans sessionStorage pour éviter les rechargements multiples
-            if (typeof window !== 'undefined') {
-              sessionStorage.setItem(cacheKey, 'true')
-            }
-          })
-          .catch(error => {
-            console.warn('Erreur lors de l\'incrémentation des vues:', error)
-            // Ne pas bloquer si l'incrémentation échoue
-          })
-      } else {
-        // Déjà incrémenté dans cette session, juste marquer comme fait
-        setViewIncremented(true)
-      }
+    if (post?.slug) {
+      // Incrémenter la vue en arrière-plan (ne pas attendre la réponse)
+      fetch(`/api/views/${post.slug}?increment=true`)
+        .then(res => res.json())
+        .then(data => {
+          // Vue incrémentée avec succès
+        })
+        .catch(error => {
+          console.warn('Erreur lors de l\'incrémentation des vues:', error)
+          // Ne pas bloquer si l'incrémentation échoue
+        })
     }
-  }, [post?.slug, viewIncremented])
+  }, [post?.slug])
 
   // Charger le markdown/blocks côté client pour réduire la taille des props
   useEffect(() => {
