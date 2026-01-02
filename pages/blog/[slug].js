@@ -85,8 +85,9 @@ export default function Post({ post, allPosts }) {
   }
 
   // Calculer le temps de lecture (200 mots par minute)
+  // Si le contenu n'est pas encore chargé, on ne peut pas calculer le temps de lecture
   const wordCount = content.trim().split(/\s+/).filter(word => word.length > 0).length
-  const readingTime = Math.ceil(wordCount / 200)
+  const readingTime = loadingMarkdown ? null : Math.ceil(wordCount / 200)
 
   const articleUrl = `${siteConfig.url}/blog/${post.slug}`;
   
@@ -219,9 +220,13 @@ export default function Post({ post, allPosts }) {
                 <ViewCounter slug={post.slug} />
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                  {readingTime} min de lecture
-                </span>
+                {loadingMarkdown ? (
+                  <div className="h-5 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+                ) : (
+                  <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                    {readingTime} min de lecture
+                  </span>
+                )}
                 {post.tags && post.tags.length > 0 && (
                   <>
                     <span className="text-neutral-400">•</span>
@@ -262,9 +267,13 @@ export default function Post({ post, allPosts }) {
                 <span className="text-neutral-400">•</span>
                 <ViewCounter slug={post.slug} />
                 <span className="text-neutral-400">•</span>
-                <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                  {readingTime} min de lecture
-                </span>
+                {loadingMarkdown ? (
+                  <div className="h-5 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+                ) : (
+                  <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                    {readingTime} min de lecture
+                  </span>
+                )}
                 {post.tags && post.tags.length > 0 && (
                   <>
                     <span className="text-neutral-400">•</span>
@@ -295,14 +304,23 @@ export default function Post({ post, allPosts }) {
         
         {/* Contenu principal en pleine largeur */}
         <div className="mt-8">
-            {/* Sommaire */}
-            {!loadingMarkdown && contentMarkdown && (
+            {/* Sommaire - Skeleton pendant le chargement */}
+            {loadingMarkdown ? (
+              <div className="mb-8 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 animate-pulse">
+                <div className="h-6 w-24 bg-neutral-200 dark:bg-neutral-800 rounded mb-4"></div>
+                <div className="space-y-2">
+                  <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded"></div>
+                  <div className="h-4 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
+                  <div className="h-4 w-5/6 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
+                </div>
+              </div>
+            ) : contentMarkdown ? (
               <TableOfContents markdown={contentMarkdown} />
-            )}
+            ) : null}
 
             {loadingMarkdown ? (
               <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
+                {[...Array(8)].map((_, i) => (
                   <div key={i} className="animate-pulse">
                     <div className="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-full mb-2"></div>
                     <div className="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-5/6"></div>
