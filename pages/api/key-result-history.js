@@ -43,13 +43,44 @@ export default async function handler(req, res) {
             const requestedDays = parseInt(days)
             const cutoffDate = new Date()
             cutoffDate.setDate(cutoffDate.getDate() - requestedDays)
+            cutoffDate.setHours(0, 0, 0, 0) // Réinitialiser à minuit pour une comparaison précise
             
-            const filteredHistory = data.history.filter(item => {
-              const itemDate = new Date(item.date || item.timestamp)
-              return itemDate >= cutoffDate
-            })
+            const filteredHistory = data.history
+              .map(item => {
+                // Normaliser la date : peut être une string ISO, un timestamp, ou un objet Date
+                let itemDate
+                if (item.date) {
+                  itemDate = new Date(item.date)
+                } else if (item.timestamp) {
+                  itemDate = new Date(item.timestamp)
+                } else {
+                  return null // Ignorer les items sans date
+                }
+                
+                // Vérifier que la date est valide
+                if (isNaN(itemDate.getTime())) {
+                  return null
+                }
+                
+                return {
+                  ...item,
+                  date: item.date || itemDate.toISOString(),
+                  timestamp: item.timestamp || itemDate.getTime()
+                }
+              })
+              .filter(item => {
+                if (!item) return false
+                const itemDate = new Date(item.date || item.timestamp)
+                return itemDate >= cutoffDate
+              })
+              .sort((a, b) => {
+                // Trier par date croissante (plus ancien en premier)
+                const dateA = new Date(a.date || a.timestamp).getTime()
+                const dateB = new Date(b.date || b.timestamp).getTime()
+                return dateA - dateB
+              })
             
-            console.log(`✅ Historique récupéré depuis Blob Storage pour ${keyResultId} (${filteredHistory.length} entrées sur ${requestedDays} jours)`)
+            console.log(`✅ Historique récupéré depuis Blob Storage pour ${keyResultId} (${filteredHistory.length}/${data.history.length} entrées sur ${requestedDays} jours)`)
             return res.status(200).json(filteredHistory)
           }
         }

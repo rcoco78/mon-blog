@@ -225,7 +225,23 @@ export default function DonneesPubliques() {
 
   // Fonction pour calculer l'évolution d'un Key Result
   const calculateEvolution = (kr) => {
-    const history = keyResultsHistory[kr.id] || []
+    const nameLower = (kr.name || '').toLowerCase()
+    const title = improveTitle(kr.name, kr.category)
+    const categoryLower = (kr.category || '').toLowerCase()
+    
+    // Pour "Classement échecs chess.com", utiliser l'historique Chess.com
+    const isChessKR = (nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess')) && 
+                     (title.includes('Classement échecs') || title.includes('échecs chess.com'))
+    
+    let history = []
+    if (isChessKR && chessHistory.length > 0) {
+      // Utiliser l'historique Chess.com
+      history = chessHistory
+    } else {
+      // Utiliser l'historique Notion standard
+      history = keyResultsHistory[kr.id] || []
+    }
+    
     if (history.length === 0) return null
 
     const currentValue = kr.currentResult || 0
@@ -1533,6 +1549,21 @@ export default function DonneesPubliques() {
                                         <span>{evolution.isPositive ? '+' : ''}{evolution.percentage}%</span>
                                       </span>
                                     )
+                                  }
+                                  // Debug: vérifier pourquoi l'évolution n'est pas calculée
+                                  const nameLower = (kr.name || '').toLowerCase()
+                                  const title = improveTitle(kr.name, kr.category)
+                                  const isMaltKR = nameLower.includes('mission malt') || title.includes('Projets réalisés sur Malt')
+                                  const isChessKR = (nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess')) && 
+                                                   (title.includes('Classement échecs') || title.includes('échecs chess.com'))
+                                  if (isMaltKR || isChessKR) {
+                                    const history = isChessKR && chessHistory.length > 0 
+                                      ? chessHistory 
+                                      : keyResultsHistory[kr.id] || []
+                                    if (history.length === 0) {
+                                      // Log silencieux pour debug (peut être retiré en production)
+                                      // console.log(`⚠️ Pas d'historique pour ${kr.name} (${kr.id})`)
+                                    }
                                   }
                                   return null
                                 })()}
