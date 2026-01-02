@@ -36,10 +36,31 @@ export default function MarkdownRenderer({ children }) {
     <div className="prose prose-neutral dark:prose-invert max-w-none">
       <ReactMarkdown
         components={{
-          // Images avec Next.js Image
+          // Images avec Next.js Image - toujours avec alt-text (comme logement-atypique)
           img: ({ node, ...props }) => {
-            const { src, alt } = props
+            const { src, alt, title } = props
             if (!src) return null
+
+            // Générer un alt-text automatique si pas fourni (comme logement-atypique)
+            let altText = alt || title || ''
+            
+            // Si pas d'alt-text, essayer de l'extraire du nom de fichier
+            if (!altText && src) {
+              const fileName = src.split('/').pop()?.split('?')[0] || ''
+              if (fileName) {
+                // Nettoyer le nom de fichier pour créer un alt-text descriptif
+                altText = fileName
+                  .replace(/\.(jpg|jpeg|png|gif|webp|svg)$/i, '') // Enlever l'extension
+                  .replace(/[-_]/g, ' ') // Remplacer tirets et underscores par espaces
+                  .replace(/\b\w/g, l => l.toUpperCase()) // Capitaliser chaque mot
+                  .trim()
+              }
+            }
+            
+            // Fallback si toujours pas d'alt-text
+            if (!altText) {
+              altText = 'Image illustrative de l\'article'
+            }
 
             // Si c'est une URL externe, utiliser img normal
             if (src.startsWith('http://') || src.startsWith('https://')) {
@@ -47,7 +68,7 @@ export default function MarkdownRenderer({ children }) {
                 <span className="block my-6">
                   <img
                     src={src}
-                    alt={alt || ''}
+                    alt={altText}
                     className="rounded-lg w-full h-auto"
                     loading="lazy"
                   />
@@ -60,7 +81,7 @@ export default function MarkdownRenderer({ children }) {
               <span className="block my-6">
                 <Image
                   src={src}
-                  alt={alt || ''}
+                  alt={altText}
                   width={800}
                   height={600}
                   className="rounded-lg w-full h-auto"
