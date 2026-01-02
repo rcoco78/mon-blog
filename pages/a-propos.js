@@ -226,7 +226,7 @@ export default function About() {
           
           <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
             <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-              Pour aller plus loin : <Link href="/blog" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">mes articles</Link>, <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">la marketplace</Link> ou <Link href="/temoignages" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">les témoignages clients</Link>.
+              Pour aller plus loin : <Link href="/blog" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">mes articles</Link>, <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">la marketplace</Link>, <Link href="/temoignages" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">les témoignages clients</Link> ou <Link href="/faq" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">la FAQ</Link>.
             </p>
             <p className="text-sm text-neutral-600 dark:text-neutral-400">
               Curieux de savoir ce que j'écoute ? <Link href="/spotify" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors inline-flex items-center gap-1.5 group/link">
