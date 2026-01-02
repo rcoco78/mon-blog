@@ -21,6 +21,23 @@ export default function Post({ post, allPosts }) {
   const [contentMarkdown, setContentMarkdown] = useState(null)
   const [blocks, setBlocks] = useState(null)
   const [loadingMarkdown, setLoadingMarkdown] = useState(false)
+  const [viewIncremented, setViewIncremented] = useState(false)
+
+  // Incrémenter la vue une seule fois lors du chargement de la page
+  useEffect(() => {
+    if (post?.slug && !viewIncremented) {
+      // Incrémenter la vue en arrière-plan (ne pas attendre la réponse)
+      fetch(`/api/views/${post.slug}?increment=true`)
+        .then(res => res.json())
+        .then(data => {
+          setViewIncremented(true)
+        })
+        .catch(error => {
+          console.warn('Erreur lors de l\'incrémentation des vues:', error)
+          // Ne pas bloquer si l'incrémentation échoue
+        })
+    }
+  }, [post?.slug, viewIncremented])
 
   // Charger le markdown/blocks côté client pour réduire la taille des props
   useEffect(() => {
@@ -217,7 +234,7 @@ export default function Post({ post, allPosts }) {
                   })}
                 </time>
                 <span className="text-neutral-400">•</span>
-                <ViewCounter slug={post.slug} increment={true} />
+                <ViewCounter slug={post.slug} />
               </div>
               <div className="flex items-center space-x-2">
                 {loadingMarkdown ? (
@@ -265,7 +282,7 @@ export default function Post({ post, allPosts }) {
                   })}
                 </time>
                 <span className="text-neutral-400">•</span>
-                <ViewCounter slug={post.slug} increment={true} />
+                <ViewCounter slug={post.slug} />
                 <span className="text-neutral-400">•</span>
                 {loadingMarkdown ? (
                   <div className="h-5 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
