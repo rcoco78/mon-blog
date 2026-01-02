@@ -353,7 +353,7 @@ export default function About() {
                 <div className="relative flex flex-col sm:flex-row sm:gap-4">
                   {/* Point sur la ligne - vert pour projet actif */}
                   <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-green-500 border-2 border-white dark:border-neutral-900 z-10" title="Projet actif">
-                    <span className="absolute -inset-1 inline-flex rounded-full bg-green-400 opacity-75 animate-ping"></span>
+                    <span className="absolute -inset-0.5 inline-flex rounded-full bg-green-400 opacity-40 animate-ping"></span>
                   </div>
                   <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2025–Présent</div>
                   <div className="flex-1 min-w-0">
@@ -378,7 +378,7 @@ export default function About() {
                 <div className="relative flex flex-col sm:flex-row sm:gap-4">
                   {/* Point sur la ligne - vert pour projet actif */}
                   <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-green-500 border-2 border-white dark:border-neutral-900 z-10" title="Projet actif">
-                    <span className="absolute -inset-1 inline-flex rounded-full bg-green-400 opacity-75 animate-ping"></span>
+                    <span className="absolute -inset-0.5 inline-flex rounded-full bg-green-400 opacity-40 animate-ping"></span>
                   </div>
                   <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2023–Présent</div>
                   <div className="flex-1 min-w-0">
