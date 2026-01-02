@@ -161,17 +161,129 @@ export default function MarkdownRenderer({ children }) {
             </pre>
           ),
           // Liens
-          a: ({ node, children, href, ...props }) => (
-            <a
-              href={href}
-              className="text-neutral-900 dark:text-neutral-100 underline hover:text-neutral-600 dark:hover:text-neutral-400"
-              target={href?.startsWith('http') ? '_blank' : undefined}
-              rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-              {...props}
-            >
-              {children}
-            </a>
-          ),
+          a: ({ node, children, href, ...props }) => {
+            // Détection des vidéos YouTube (comme dans logement-atypique)
+            if (href && (href.includes('youtube.com/embed/') || href.includes('youtu.be/') || href.includes('youtube.com/watch?v='))) {
+              let videoId = ''
+              
+              // Extraire l'ID de la vidéo selon le format de l'URL
+              if (href.includes('youtube.com/embed/')) {
+                videoId = href.split('youtube.com/embed/')[1]?.split('?')[0]
+              } else if (href.includes('youtu.be/')) {
+                videoId = href.split('youtu.be/')[1]?.split('?')[0]
+              } else if (href.includes('youtube.com/watch?v=')) {
+                videoId = href.split('v=')[1]?.split('&')[0]
+              }
+              
+              if (videoId) {
+                return (
+                  <div className="my-6">
+                    <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                      <iframe
+                        src={`https://www.youtube.com/embed/${videoId}`}
+                        title="YouTube video player"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="absolute top-0 left-0 w-full h-full rounded-lg"
+                        loading="lazy"
+                      />
+                    </div>
+                  </div>
+                )
+              }
+            }
+            
+            // Lien ancre interne
+            if (href && href.startsWith('#')) {
+              return (
+                <a
+                  href={href}
+                  className="text-neutral-900 dark:text-neutral-100 underline hover:text-neutral-600 dark:hover:text-neutral-400"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    const element = document.getElementById(href.substring(1))
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    }
+                  }}
+                  {...props}
+                >
+                  {children}
+                </a>
+              )
+            }
+            
+            // Lien externe normal
+            return (
+              <a
+                href={href}
+                className="text-neutral-900 dark:text-neutral-100 underline hover:text-neutral-600 dark:hover:text-neutral-400"
+                target={href?.startsWith('http') ? '_blank' : undefined}
+                rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+                {...props}
+              >
+                {children}
+              </a>
+            )
+          },
+          // Paragraphes - détecter les URLs YouTube brutes
+          p: ({ node, children, ...props }) => {
+            // Si le contenu est une URL YouTube, la convertir en iframe
+            // Vérifier si children est une string ou un array avec une seule string
+            let text = ''
+            if (typeof children === 'string') {
+              text = children
+            } else if (Array.isArray(children) && children.length === 1 && typeof children[0] === 'string') {
+              text = children[0]
+            } else if (children && typeof children.toString === 'function') {
+              text = children.toString()
+            }
+            
+            const trimmedText = text.trim()
+            
+            // Détecter les URLs YouTube (embed, youtu.be, ou watch)
+            if (trimmedText && (
+              trimmedText.includes('youtube.com/embed/') || 
+              trimmedText.includes('youtu.be/') || 
+              trimmedText.includes('youtube.com/watch?v=')
+            )) {
+              let videoId = ''
+              
+              if (trimmedText.includes('youtube.com/embed/')) {
+                videoId = trimmedText.split('youtube.com/embed/')[1]?.split('?')[0]?.split('&')[0]
+              } else if (trimmedText.includes('youtu.be/')) {
+                videoId = trimmedText.split('youtu.be/')[1]?.split('?')[0]?.split('&')[0]
+              } else if (trimmedText.includes('youtube.com/watch?v=')) {
+                videoId = trimmedText.split('v=')[1]?.split('&')[0]
+              }
+              
+              if (videoId) {
+                return (
+                  <div className="my-6">
+                    <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                      <iframe
+                        src={`https://www.youtube.com/embed/${videoId}`}
+                        title="YouTube video player"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="absolute top-0 left-0 w-full h-full rounded-lg"
+                        loading="lazy"
+                      />
+                    </div>
+                  </div>
+                )
+              }
+            }
+            
+            // Paragraphe normal
+            return (
+              <p className="mb-4 leading-relaxed" {...props}>
+                {children}
+              </p>
+            )
+          },
           // Blockquote
           blockquote: ({ node, children, ...props }) => (
             <blockquote
