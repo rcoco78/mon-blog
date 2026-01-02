@@ -454,6 +454,10 @@ export default function Marketplace() {
               <Link href="/spotify" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
                 Découvrez mes playlists et artistes favoris
               </Link>
+              {' • '}
+              <Link href="/faq" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Consultez la FAQ
+              </Link>
             </p>
           </div>
       </section>

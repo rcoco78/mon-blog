@@ -400,6 +400,10 @@ export default function Outils() {
               <Link href="/objectifs" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
                 Suivez mes objectifs 2026
               </Link>
+              {' • '}
+              <Link href="/faq" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Consultez la FAQ
+              </Link>
             </p>
           </div>
       </section>
