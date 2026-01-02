@@ -486,11 +486,19 @@ export default function Blog({ posts }) {
               </Link>
               {' • '}
               <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Explorez mes outils gratuits
+                Découvrez la marketplace
+              </Link>
+              {' • '}
+              <Link href="/temoignages" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Lisez les témoignages clients
               </Link>
               {' • '}
               <Link href="/objectifs" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
                 Suivez mes objectifs 2026
+              </Link>
+              {' • '}
+              <Link href="/spotify" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Découvrez mes playlists et artistes favoris
               </Link>
             </p>
         </div>

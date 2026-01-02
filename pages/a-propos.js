@@ -201,7 +201,7 @@ export default function About() {
           
           <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
             <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-              Pour aller plus loin : <Link href="/blog" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">mes articles</Link>, <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">mes outils gratuits</Link> ou <Link href="/temoignages" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">les témoignages clients</Link>.
+              Pour aller plus loin : <Link href="/blog" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">mes articles</Link>, <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">la marketplace</Link> ou <Link href="/temoignages" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">les témoignages clients</Link>.
             </p>
             <p className="text-sm text-neutral-600 dark:text-neutral-400">
               Curieux de savoir ce que j'écoute ? <Link href="/spotify" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors inline-flex items-center gap-1.5 group/link">
@@ -320,69 +320,99 @@ export default function About() {
           {/* Projets entrepreneuriaux */}
           <div>
             <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-4 uppercase tracking-wide">Projets entrepreneuriaux</h3>
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:gap-6">
-                <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2025–Présent</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium mb-1 flex items-center gap-2">
-                    Logement Atypique
-                    <span className="relative flex h-2 w-2" title="Projet actif">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                    </span>
-                  </h3>
-                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
-                    On met en avant +2000 logements atypiques — tiny houses, villas d'architecte, châteaux...
-                  </p>
+            <div className="relative pl-4 sm:pl-6">
+              {/* Ligne verticale en pointillés */}
+              <div className="absolute left-0 top-0 bottom-0 w-[1px]" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0, transparent 4px, rgb(212 212 212) 4px, rgb(212 212 212) 8px)' }}></div>
+              <div className="absolute left-0 top-0 bottom-0 w-[1px] hidden dark:block" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0, transparent 4px, rgb(64 64 64) 4px, rgb(64 64 64) 8px)' }}></div>
+              <div className="space-y-6">
+                <div className="relative flex flex-col sm:flex-row sm:gap-4">
+                  {/* Point sur la ligne - positionné par rapport au conteneur parent avec padding */}
+                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
+                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2025–Présent</div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium mb-1 flex items-center gap-2">
+                      <Link 
+                        href="https://logement-atypique.fr"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors group/link"
+                      >
+                        <span>Logement Atypique</span>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 flex-shrink-0">
+                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                        </svg>
+                      </Link>
+                      <span className="relative flex h-2 w-2" title="Projet actif">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                      </span>
+                    </h3>
+                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
+                      On met en avant +2000 logements atypiques — tiny houses, villas d'architecte, châteaux...
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col sm:flex-row sm:gap-6">
-                <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2023–Présent</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium mb-1 flex items-center gap-2">
-                    Freelance en scraping et automatisation
-                    <span className="relative flex h-2 w-2" title="Projet actif">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                    </span>
-                  </h3>
-                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
-                    160+ missions Malt finalisées • +250 missions Fiverr finalisées • +300 clients accompagnés
-                  </p>
+                <div className="relative flex flex-col sm:flex-row sm:gap-4">
+                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
+                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2023–Présent</div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium mb-1 flex items-center gap-2">
+                      <Link 
+                        href={siteConfig.social.malt}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors group/link"
+                      >
+                        <span>Freelance en scraping et automatisation</span>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 flex-shrink-0">
+                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                        </svg>
+                      </Link>
+                      <span className="relative flex h-2 w-2" title="Projet actif">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                      </span>
+                    </h3>
+                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
+                      160+ missions Malt finalisées • +250 missions Fiverr finalisées • +300 clients accompagnés
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col sm:flex-row sm:gap-6">
-                <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2022</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium mb-1">Rare Item Club</h3>
-                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed mb-1">
-                    Achat-revente de sneakers "rares" via Vinted, Leboncoin, Ebay
-                  </p>
-                  {lessonsArticles.rareItemClub && (
-                    <Link 
-                      href={`/blog/${lessonsArticles.rareItemClub}`} 
-                      className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
-                    >
-                      Leçons apprises
-                    </Link>
-                  )}
+                <div className="relative flex flex-col sm:flex-row sm:gap-4">
+                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
+                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2022</div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium mb-1">Rare Item Club</h3>
+                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed mb-1">
+                      Achat-revente de sneakers "rares" via Vinted, Leboncoin, Ebay
+                    </p>
+                    {lessonsArticles.rareItemClub && (
+                      <Link 
+                        href={`/blog/${lessonsArticles.rareItemClub}`} 
+                        className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
+                      >
+                        Leçons apprises
+                      </Link>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col sm:flex-row sm:gap-6">
-                <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2018-2019</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium mb-1">InstaNinja</h3>
-                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed mb-1">
-                    Automatisation de compte Instagram — +400 clients total, 10K€ MRR
-                  </p>
-                  {lessonsArticles.instaninja && (
-                    <Link 
-                      href={`/blog/${lessonsArticles.instaninja}`} 
-                      className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
-                    >
-                      Leçons apprises
-                    </Link>
-                  )}
+                <div className="relative flex flex-col sm:flex-row sm:gap-4">
+                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
+                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2018-2019</div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium mb-1">InstaNinja</h3>
+                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed mb-1">
+                      Automatisation de compte Instagram — +400 clients total, 10K€ MRR
+                    </p>
+                    {lessonsArticles.instaninja && (
+                      <Link 
+                        href={`/blog/${lessonsArticles.instaninja}`} 
+                        className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
+                      >
+                        Leçons apprises
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -391,33 +421,42 @@ export default function About() {
           {/* Expériences salariées */}
           <div>
             <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-4 uppercase tracking-wide">Expériences salariées</h3>
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:gap-6">
-                <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2023</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium mb-1">White Bird</h3>
-                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Growth, pilotage du marketing pour le développement de réseau de franchises</p>
+            <div className="relative pl-4 sm:pl-6">
+              {/* Ligne verticale en pointillés */}
+              <div className="absolute left-0 top-0 bottom-0 w-[1px]" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0, transparent 4px, rgb(212 212 212) 4px, rgb(212 212 212) 8px)' }}></div>
+              <div className="absolute left-0 top-0 bottom-0 w-[1px] hidden dark:block" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0, transparent 4px, rgb(64 64 64) 4px, rgb(64 64 64) 8px)' }}></div>
+              <div className="space-y-6">
+                <div className="relative flex flex-col sm:flex-row sm:gap-4">
+                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
+                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2023</div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium mb-1">White Bird</h3>
+                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Growth, pilotage du marketing pour le développement de réseau de franchises</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col sm:flex-row sm:gap-6">
-                <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2021</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium mb-1">Shine</h3>
-                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Déploiement de dashboards et projets pour intégrer Legalplace au sein de Shine, permettant aux équipes Sales et Support d'avoir l'ensemble des données au bon endroit</p>
+                <div className="relative flex flex-col sm:flex-row sm:gap-4">
+                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
+                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2021</div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium mb-1">Shine</h3>
+                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Déploiement de dashboards et projets pour intégrer Legalplace au sein de Shine, permettant aux équipes Sales et Support d'avoir l'ensemble des données au bon endroit</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col sm:flex-row sm:gap-6">
-                <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2020</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium mb-1">Pappernest</h3>
-                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Growth Analyst — analyse et amélioration des publicités Facebook Ads</p>
+                <div className="relative flex flex-col sm:flex-row sm:gap-4">
+                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
+                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2020</div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium mb-1">Pappernest</h3>
+                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Growth Analyst — analyse et amélioration des publicités Facebook Ads</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col sm:flex-row sm:gap-6">
-                <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0">2017</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium mb-1">Airbnb</h3>
-                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">En charge du développement d'Airbnb Experiences pour la France et Middle East & Africa</p>
+                <div className="relative flex flex-col sm:flex-row sm:gap-4">
+                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
+                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2017</div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium mb-1">Airbnb</h3>
+                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">En charge du développement d'Airbnb Experiences pour la France et Middle East & Africa</p>
+                  </div>
                 </div>
               </div>
             </div>

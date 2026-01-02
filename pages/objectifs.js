@@ -30,6 +30,7 @@ export default function DonneesPubliques() {
   const [selectedCategory, setSelectedCategory] = useState(null) // Filtre par catégorie
   const [selectedPeriod, setSelectedPeriod] = useState(7) // Période d'évolution : 3, 7 ou 30 jours
   const [keyResultsHistory, setKeyResultsHistory] = useState({}) // Historique par Key Result ID
+  const [historyLoading, setHistoryLoading] = useState(true) // État de chargement de l'historique
 
   useEffect(() => {
     const fetchKeyResults = async () => {
@@ -176,6 +177,7 @@ export default function DonneesPubliques() {
   // Récupérer l'historique pour chaque Key Result selon la période sélectionnée
   useEffect(() => {
     const fetchAllKeyResultsHistory = async () => {
+      setHistoryLoading(true)
       console.log(`🔄 Récupération de l'historique pour ${keyResults.length} Key Results sur ${selectedPeriod} jours...`)
       const historyPromises = keyResults
         .filter(kr => kr.id && kr.id !== 'chess-rapid-virtual') // Exclure les Key Results virtuels
@@ -216,10 +218,13 @@ export default function DonneesPubliques() {
       })
       console.log(`✅ Historique récupéré: ${totalWithHistory}/${results.length} Key Results ont un historique`)
       setKeyResultsHistory(historyMap)
+      setHistoryLoading(false)
     }
 
     if (keyResults.length > 0 && selectedPeriod) {
       fetchAllKeyResultsHistory()
+    } else {
+      setHistoryLoading(false)
     }
   }, [keyResults, selectedPeriod])
 
@@ -891,7 +896,12 @@ export default function DonneesPubliques() {
                     style={{ bottom: `${targetHeight}%` }}
                     title={`Objectif: ${formatNumber(targetValue)}`}
                   >
-                    <div className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-0 md:translate-x-full ml-0 md:ml-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap -mr-2 md:mr-0 max-w-[calc(100vw-2rem)] md:max-w-none">
+                    {/* Label desktop : à droite de la ligne */}
+                    <div className="hidden md:block absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-full ml-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap shadow-lg">
+                      Objectif: {formatNumber(targetValue)}
+                    </div>
+                    {/* Label mobile : au-dessus de la ligne à gauche */}
+                    <div className="md:hidden absolute left-0 top-0 transform -translate-y-full -mt-1 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap shadow-lg z-20">
                       Objectif: {formatNumber(targetValue)}
                     </div>
                   </div>
@@ -1639,6 +1649,16 @@ export default function DonneesPubliques() {
                                 </span>
                                 {/* Indicateur d'évolution - avec fond coloré pour plus de visibilité */}
                                 {(() => {
+                                  // Afficher un skeleton pendant le chargement de l'historique
+                                  if (historyLoading) {
+                                    return (
+                                      <span className="inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 relative overflow-hidden">
+                                        <span className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent"></span>
+                                        <span className="w-8 h-3"></span>
+                                      </span>
+                                    )
+                                  }
+                                  
                                   const evolution = calculateEvolution(kr)
                                   if (evolution) {
                                     return (
@@ -2171,41 +2191,30 @@ export default function DonneesPubliques() {
         </section>
 
         {/* Section liens internes */}
-        <section className="mb-16 pt-8 border-t border-neutral-200 dark:border-neutral-800" aria-label="Pour aller plus loin">
+        <section className="mb-16" aria-label="Pour aller plus loin">
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">Pour aller plus loin</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Link
-              href="/a-propos"
-              className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-              aria-label="Découvrir mon parcours"
-            >
-              <h3 className="font-medium mb-1">Mon Parcours</h3>
-              <p className="text-neutral-600 dark:text-neutral-400 text-sm">Découvrez mon parcours professionnel et mes projets entrepreneuriaux.</p>
-            </Link>
-            <Link
-              href="/blog"
-              className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-              aria-label="Lire mes articles"
-            >
-              <h3 className="font-medium mb-1">Mon Blog</h3>
-              <p className="text-neutral-600 dark:text-neutral-400 text-sm">Réflexions sur le scraping, l'automatisation, l'entrepreneuriat et le voyage.</p>
-            </Link>
-            <Link
-              href="/marketplace"
-              className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-              aria-label="Découvrir mes outils"
-            >
-              <h3 className="font-medium mb-1">Mes Outils Gratuits</h3>
-              <p className="text-neutral-600 dark:text-neutral-400 text-sm">Générateurs, extracteurs et templates pour vous aider dans votre quotidien.</p>
-            </Link>
-            <Link
-              href="/temoignages"
-              className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-              aria-label="Lire les témoignages"
-            >
-              <h3 className="font-medium mb-1">Témoignages Clients</h3>
-              <p className="text-neutral-600 dark:text-neutral-400 text-sm">Découvrez ce que mes clients disent de mes services.</p>
-            </Link>
+          <div className="space-y-2 text-neutral-600 dark:text-neutral-400">
+            <p>
+              <Link href="/a-propos" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Découvrez mon parcours
+              </Link>
+              {' • '}
+              <Link href="/blog" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Lisez mes articles
+              </Link>
+              {' • '}
+              <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Découvrez la marketplace
+              </Link>
+              {' • '}
+              <Link href="/temoignages" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Lisez les témoignages clients
+              </Link>
+              {' • '}
+              <Link href="/spotify" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Découvrez mes playlists et artistes favoris
+              </Link>
+            </p>
           </div>
         </section>
 
