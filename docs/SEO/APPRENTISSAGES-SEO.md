@@ -165,6 +165,8 @@ description: 'Expert freelance scraping et automatisation à Paris. 424+ projets
 
 **Enseignement clé** : Chaque article doit être optimisé individuellement avec ses propres meta tags et structured data.
 
+**Référence** : Pour s'inspirer du format des articles ultra-optimisés de Logement Atypique, consulter [ANALYSE-ARTICLES-LOGEMENT-ATYPIQUE.md](./ANALYSE-ARTICLES-LOGEMENT-ATYPIQUE.md)
+
 **Implémentation** :
 - ✅ Meta description depuis Notion (ou générée automatiquement)
 - ✅ Tags comme keywords

@@ -2,7 +2,6 @@
 // Traite les 10 derniers articles publiés pour éviter les rate limits
 
 import { Client } from '@notionhq/client'
-import { NotionToMarkdown } from 'notion-to-md'
 import { put, list } from '@vercel/blob'
 
 const notion = new Client({
@@ -22,7 +21,17 @@ async function getFullPost(post) {
     })
 
     // Convertir en markdown avec notion-to-md
-    const n2m = new NotionToMarkdown({ notionClient: notion })
+    // Utiliser require() pour éviter les problèmes d'import ES6 dans l'environnement de build
+    const notionToMd = require('notion-to-md')
+    // Gérer les différents formats d'export (default, named, ou module complet)
+    const NotionToMarkdownClass = notionToMd.default || notionToMd.NotionToMarkdown || notionToMd
+    
+    if (typeof NotionToMarkdownClass !== 'function') {
+      console.error('[blog-details-sync] NotionToMarkdown n\'est pas un constructeur:', typeof NotionToMarkdownClass, Object.keys(notionToMd))
+      throw new Error('NotionToMarkdown n\'est pas un constructeur valide')
+    }
+
+    const n2m = new NotionToMarkdownClass({ notionClient: notion })
     const mdBlocks = await n2m.pageToMarkdown(post.id)
     const mdString = n2m.toMarkdownString(mdBlocks)
 

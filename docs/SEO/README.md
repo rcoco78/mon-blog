@@ -41,6 +41,21 @@
 - Composants SEO
 - Bonnes pratiques
 
+### 📊 [Analyse Articles Logement Atypique](./ANALYSE-ARTICLES-LOGEMENT-ATYPIQUE.md)
+**Analyse et enseignements des articles Logement Atypique**
+- Checklist d'analyse
+- Enseignements format & structure
+- Optimisations SEO techniques
+- Template d'analyse
+- Articles analysés
+
+### 🔄 [Processus d'Analyse d'Article](./PROCESSUS-ANALYSE-ARTICLE.md)
+**Guide pour analyser un article et en extraire les enseignements**
+- Étapes du processus
+- Outils d'analyse
+- Template d'analyse rapide
+- Workflow complet
+
 ---
 
 ## 🎯 Quick Start
