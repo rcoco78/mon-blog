@@ -10,7 +10,21 @@ export default async function handler(req, res) {
     res.status(200).json(history)
   } catch (error) {
     console.error('Erreur API abonnes-history:', error)
-    res.status(500).json({ error: 'Erreur lors de la récupération de l\'historique des abonnés' })
+    
+    // Si c'est un rate limit, retourner un tableau vide plutôt qu'une erreur
+    const isRateLimit = error.message?.includes('rate_limited') || 
+                       error.message?.includes('429') || 
+                       error.status === 429 ||
+                       error.code === 'rate_limited' ||
+                       error.code === 'rate_limit_exceeded'
+    
+    if (isRateLimit) {
+      console.warn('⚠️ Rate limit détecté, retour d\'un historique vide pour abonnés')
+      return res.status(200).json([])
+    }
+    
+    // Pour les autres erreurs, retourner aussi un tableau vide
+    return res.status(200).json([])
   }
 }
 

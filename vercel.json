@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/metrics-sync",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/key-results-sync",
+      "schedule": "0 */6 * * *"
     }
   ],
   "redirects": [

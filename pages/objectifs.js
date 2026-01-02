@@ -27,6 +27,9 @@ export default function DonneesPubliques() {
   const [chessHistory, setChessHistory] = useState([])
   const [chessHistoryLoading, setChessHistoryLoading] = useState(true)
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState(null) // Filtre par catégorie
+  const [selectedPeriod, setSelectedPeriod] = useState(7) // Période d'évolution : 3, 7 ou 30 jours
+  const [keyResultsHistory, setKeyResultsHistory] = useState({}) // Historique par Key Result ID
 
   useEffect(() => {
     const fetchKeyResults = async () => {
@@ -38,9 +41,15 @@ export default function DonneesPubliques() {
           const uniqueStatuses = [...new Set(data.map(kr => kr.status))]
           console.log('Statuts uniques des Key Results:', uniqueStatuses)
           setKeyResults(data)
+        } else {
+          // Même en cas d'erreur HTTP, on peut avoir reçu un tableau vide
+          const data = await response.json().catch(() => [])
+          setKeyResults(Array.isArray(data) ? data : [])
         }
       } catch (error) {
         console.error('Erreur lors de la récupération des Key Results:', error)
+        // En cas d'erreur, utiliser un tableau vide pour que l'interface reste fonctionnelle
+        setKeyResults([])
       } finally {
         setLoading(false)
       }
@@ -56,10 +65,15 @@ export default function DonneesPubliques() {
         const response = await fetch('/api/meetings-history')
         if (response.ok) {
           const data = await response.json()
-          setMeetingsHistory(data)
+          setMeetingsHistory(Array.isArray(data) ? data : [])
+        } else {
+          // Même en cas d'erreur HTTP, on peut avoir reçu un tableau vide
+          const data = await response.json().catch(() => [])
+          setMeetingsHistory(Array.isArray(data) ? data : [])
         }
       } catch (error) {
         console.error('Erreur lors de la récupération de l\'historique des meetings:', error)
+        setMeetingsHistory([])
       } finally {
         setMeetingsLoading(false)
       }
@@ -75,10 +89,15 @@ export default function DonneesPubliques() {
         const response = await fetch('/api/abonnes-history')
         if (response.ok) {
           const data = await response.json()
-          setAbonnesHistory(data)
+          setAbonnesHistory(Array.isArray(data) ? data : [])
+        } else {
+          // Même en cas d'erreur HTTP, on peut avoir reçu un tableau vide
+          const data = await response.json().catch(() => [])
+          setAbonnesHistory(Array.isArray(data) ? data : [])
         }
       } catch (error) {
         console.error('Erreur lors de la récupération de l\'historique des abonnés:', error)
+        setAbonnesHistory([])
       } finally {
         setAbonnesLoading(false)
       }
@@ -94,10 +113,15 @@ export default function DonneesPubliques() {
         const response = await fetch('/api/apify-users-history')
         if (response.ok) {
           const data = await response.json()
-          setApifyUsersHistory(data)
+          setApifyUsersHistory(Array.isArray(data) ? data : [])
+        } else {
+          // Même en cas d'erreur HTTP, on peut avoir reçu un tableau vide
+          const data = await response.json().catch(() => [])
+          setApifyUsersHistory(Array.isArray(data) ? data : [])
         }
       } catch (error) {
         console.error('Erreur lors de la récupération de l\'historique des utilisateurs Apify:', error)
+        setApifyUsersHistory([])
       } finally {
         setApifyUsersLoading(false)
       }
@@ -132,10 +156,15 @@ export default function DonneesPubliques() {
         const response = await fetch('/api/chess-history')
         if (response.ok) {
           const data = await response.json()
-          setChessHistory(data)
+          setChessHistory(Array.isArray(data) ? data : [])
+        } else {
+          // Même en cas d'erreur HTTP, on peut avoir reçu un tableau vide
+          const data = await response.json().catch(() => [])
+          setChessHistory(Array.isArray(data) ? data : [])
         }
       } catch (error) {
         console.error('Erreur lors de la récupération de l\'historique Chess.com:', error)
+        setChessHistory([])
       } finally {
         setChessHistoryLoading(false)
       }
@@ -143,6 +172,73 @@ export default function DonneesPubliques() {
 
     fetchChessHistory()
   }, [])
+
+  // Récupérer l'historique pour chaque Key Result selon la période sélectionnée
+  useEffect(() => {
+    const fetchAllKeyResultsHistory = async () => {
+      console.log(`🔄 Récupération de l'historique pour ${keyResults.length} Key Results sur ${selectedPeriod} jours...`)
+      const historyPromises = keyResults
+        .filter(kr => kr.id && kr.id !== 'chess-rapid-virtual') // Exclure les Key Results virtuels
+        .map(async (kr) => {
+          try {
+            const response = await fetch(`/api/key-result-history?keyResultId=${kr.id}&days=${selectedPeriod}`)
+            // Même en cas d'erreur HTTP (rate limit géré côté serveur), essayer de récupérer les données
+            const history = await response.json().catch(() => [])
+            const historyArray = Array.isArray(history) ? history : []
+            
+            if (response.ok) {
+              if (historyArray.length > 0) {
+                console.log(`✅ ${kr.name}: ${historyArray.length} entrées d'historique trouvées`)
+              } else {
+                console.log(`⚠️ ${kr.name}: Aucun historique trouvé`)
+              }
+            } else {
+              if (response.status === 429) {
+                console.warn(`⚠️ ${kr.name}: Rate limit détecté, historique vide`)
+              } else {
+                console.error(`❌ ${kr.name}: Erreur HTTP ${response.status}`)
+              }
+            }
+            
+            return { keyResultId: kr.id, history: historyArray }
+          } catch (error) {
+            console.error(`❌ Erreur lors de la récupération de l'historique pour ${kr.name} (${kr.id}):`, error)
+            return { keyResultId: kr.id, history: [] }
+          }
+        })
+      
+      const results = await Promise.all(historyPromises)
+      const historyMap = {}
+      let totalWithHistory = 0
+      results.forEach(({ keyResultId, history }) => {
+        historyMap[keyResultId] = history
+        if (history.length > 0) totalWithHistory++
+      })
+      console.log(`✅ Historique récupéré: ${totalWithHistory}/${results.length} Key Results ont un historique`)
+      setKeyResultsHistory(historyMap)
+    }
+
+    if (keyResults.length > 0 && selectedPeriod) {
+      fetchAllKeyResultsHistory()
+    }
+  }, [keyResults, selectedPeriod])
+
+  // Fonction pour calculer l'évolution d'un Key Result
+  const calculateEvolution = (kr) => {
+    const history = keyResultsHistory[kr.id] || []
+    if (history.length === 0) return null
+
+    const currentValue = kr.currentResult || 0
+    const oldestValue = history[0]?.valeur || currentValue
+    const difference = currentValue - oldestValue
+    const percentage = oldestValue > 0 ? ((difference / oldestValue) * 100) : (difference > 0 ? 100 : 0)
+
+    return {
+      difference,
+      percentage: Math.round(percentage * 10) / 10,
+      isPositive: difference >= 0
+    }
+  }
 
   const openCalendly = () => {
     // Charger Calendly seulement au premier clic (lazy load)
@@ -176,15 +272,41 @@ export default function DonneesPubliques() {
     }
   }
 
-  // Grouper les Key Results par catégorie
+  // Fonction pour traduire les catégories en bénéfices business
+  const translateCategory = (category) => {
+    const categoryMap = {
+      'Affiliation': 'Affiliation',
+      'Meetings Call': 'Relation client',
+      'Logement Atypique': 'Logement Atypique',
+      'Apify': 'Scrapers publics',
+      'Apify & Scraping': 'Scrapers publics',
+      'Freelance': 'Activité freelance',
+      'Santé': 'Loisir',
+      'Personnel': 'Blog',
+      'default': category
+    }
+    // Vérifier aussi si la catégorie contient "Apify" (insensible à la casse)
+    if (category.toLowerCase().includes('apify')) {
+      return categoryMap[category] || 'Scrapers publics'
+    }
+    return categoryMap[category] || categoryMap['default'] || category
+  }
+
+  // Grouper les Key Results par catégorie (avec traduction)
   const groupedByCategory = keyResults.reduce((acc, kr) => {
     const category = kr.category || 'Sans catégorie'
-    if (!acc[category]) {
-      acc[category] = []
+    const translatedCategory = translateCategory(category)
+    if (!acc[translatedCategory]) {
+      acc[translatedCategory] = []
     }
-    acc[category].push(kr)
+    acc[translatedCategory].push(kr)
     return acc
   }, {})
+
+  // Filtrer par catégorie sélectionnée
+  const filteredGroupedByCategory = selectedCategory 
+    ? Object.fromEntries(Object.entries(groupedByCategory).filter(([cat]) => cat === selectedCategory))
+    : groupedByCategory
 
   // Calculer les objectifs virtuels Chess.com qui seront ajoutés
   const chessVirtualKRsCount = (() => {
@@ -391,11 +513,25 @@ export default function DonneesPubliques() {
       ],
       'Personnel': [
         'Elo chess.com',
-        'Classement échecs (Rapid)',
-        'Articles publiés blog',
-        'Visiteurs totaux blog',
-        'Impression Google blog',
-        'Rendez-vous par blog'
+        'Classement échecs chess.com',
+        'Articles publiés',
+        'Visiteurs organiques blog',
+        'Impressions Google',
+        'Échanges grâce au blog'
+      ],
+      'Blog': [
+        'Elo chess.com',
+        'Classement échecs chess.com',
+        'Articles publiés',
+        'Visiteurs organiques blog',
+        'Impressions Google',
+        'Échanges grâce au blog'
+      ],
+      'Logement Atypique': [
+        'Vidéos publiées',
+        'Abonnés Instagram',
+        'Impressions Google',
+        'ARR'
       ],
       'default': []
     }
@@ -425,26 +561,6 @@ export default function DonneesPubliques() {
       // Sinon, garder l'ordre original
       return 0
     })
-  }
-
-  // Fonction pour traduire les catégories en bénéfices business
-  const translateCategory = (category) => {
-    const categoryMap = {
-      'Affiliation': 'Affiliation',
-      'Meetings Call': 'Relation client',
-      'Logement Atypique': 'Logement Atypique',
-      'Apify': 'Scrapers publics',
-      'Apify & Scraping': 'Scrapers publics',
-      'Freelance': 'Activité freelance',
-      'Santé': 'Loisir',
-      'Personnel': 'Blog',
-      'default': category
-    }
-    // Vérifier aussi si la catégorie contient "Apify" (insensible à la casse)
-    if (category.toLowerCase().includes('apify')) {
-      return categoryMap[category] || 'Scrapers publics'
-    }
-    return categoryMap[category] || category
   }
   
   // Fonction pour obtenir le lien d'affiliation selon le service
@@ -529,7 +645,9 @@ export default function DonneesPubliques() {
       // Logement Atypique (retirer "Logement Atypique" car déjà dans le titre de catégorie)
       'CA Logement Atypique': 'Chiffre d\'affaires',
       'CA Logement Atypique (€)': 'Chiffre d\'affaires',
+      'ARR': 'ARR',
       'Abonnés': category?.toLowerCase().includes('logement') ? 'Abonnés Instagram' : 'Abonnés',
+      'Abonnés Instagram': 'Abonnés Instagram',
       'Vidéos publiées': category?.toLowerCase().includes('logement') ? 'Vidéos publiées' : 'Vidéos publiées',
       
       // Meetings / Appels
@@ -560,6 +678,7 @@ export default function DonneesPubliques() {
       // Blog
       'Articles publiés blog': 'Articles publiés',
       'Articles publiés': 'Articles publiés',
+      'Visiteurs organiques blog': 'Visiteurs organiques blog',
       'Visiteurs totaux blog': 'Visiteurs blog',
       'Visiteurs totaux': 'Visiteurs blog',
       'Impression Google blog': 'Impressions Google',
@@ -624,6 +743,41 @@ export default function DonneesPubliques() {
     improved = improved.replace(/\s+/g, ' ').trim()
     
     return improved
+  }
+
+  // Composant mini-graphique pour les cartes individuelles
+  const MiniGrowthChart = ({ history, height = 40, color = 'blue' }) => {
+    if (!history || history.length === 0) return null
+    
+    const colorClasses = {
+      blue: 'bg-blue-500 dark:bg-blue-400',
+      green: 'bg-green-500 dark:bg-green-400',
+      purple: 'bg-purple-500 dark:bg-purple-400'
+    }
+    const colorClass = colorClasses[color] || colorClasses.blue
+    
+    const maxValue = Math.max(...history.map(h => h.valeur))
+    const minValue = Math.min(...history.map(h => h.valeur))
+    const range = maxValue - minValue || 1
+    
+    return (
+      <div className="flex items-end justify-between gap-0.5 h-10 mt-2" style={{ height: `${height}px` }}>
+        {history.slice(-7).map((item, index) => {
+          const normalizedHeight = range > 0 ? ((item.valeur - minValue) / range) * 100 : 50
+          return (
+            <div
+              key={item.id || index}
+              className={`flex-1 ${colorClass} rounded-t opacity-70 hover:opacity-100 transition-opacity`}
+              style={{ 
+                height: `${Math.max(normalizedHeight, 10)}%`,
+                minHeight: '2px'
+              }}
+              title={`${item.date}: ${formatNumber(item.valeur)}`}
+            />
+          )
+        })}
+      </div>
+    )
   }
 
   // Composant réutilisable pour les graphiques de croissance
@@ -788,10 +942,11 @@ export default function DonneesPubliques() {
       }} />
       <main className="flex-auto min-w-0 mt-6 flex flex-col overflow-x-hidden">
         <section className="mb-8">
-          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Objectifs 2026</h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-0 tracking-tight">
+          <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Objectifs 2026</h1>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
             Transparence totale sur mes <strong className="text-neutral-900 dark:text-neutral-100">objectifs 2026</strong> et ma <strong className="text-neutral-900 dark:text-neutral-100">progression business</strong>. Métriques mises à jour en <strong className="text-neutral-900 dark:text-neutral-100">temps réel</strong> ou <strong className="text-neutral-900 dark:text-neutral-100">mensuellement</strong>. En parallèle, je développe <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> avec mon frère — on met en avant des logements d'exception partout en France.
           </p>
+
         </section>
 
         {/* TL;DR - Métriques clés */}
@@ -1035,6 +1190,28 @@ export default function DonneesPubliques() {
                   style={{ width: `${overallProgress}%` }}
                 ></div>
               </div>
+              
+              {/* Sélecteur de période d'évolution - déplacé ici */}
+              <div className="mt-6">
+                <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                  Période d'évolution
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {[3, 7, 30].map((period) => (
+                    <button
+                      key={period}
+                      onClick={() => setSelectedPeriod(period)}
+                      className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
+                        selectedPeriod === period
+                          ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
+                          : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
+                      }`}
+                    >
+                      {period} jours
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
           </div>
@@ -1057,7 +1234,16 @@ export default function DonneesPubliques() {
               ))}
             </div>
           ) : Object.keys(groupedByCategory).length === 0 ? (
-            <p className="text-neutral-600 dark:text-neutral-400">Aucun objectif disponible pour le moment.</p>
+            <div className="text-center py-12">
+              <p className="text-neutral-600 dark:text-neutral-400 mb-2">
+                {loading ? 'Chargement...' : 'Aucun objectif disponible pour le moment.'}
+              </p>
+              {!loading && (
+                <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                  Les données peuvent être temporairement indisponibles en raison de limitations de l'API Notion.
+                </p>
+              )}
+            </div>
           ) : (
             <div className="space-y-12">
               {Object.entries(groupedByCategory)
@@ -1325,6 +1511,31 @@ export default function DonneesPubliques() {
                                     return formatNumber(kr.currentResult)
                                   })()}
                                 </span>
+                                {/* Indicateur d'évolution - avec fond coloré pour plus de visibilité */}
+                                {(() => {
+                                  const evolution = calculateEvolution(kr)
+                                  if (evolution) {
+                                    return (
+                                      <span className={`inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded ${
+                                        evolution.isPositive 
+                                          ? 'text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20' 
+                                          : 'text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20'
+                                      }`}>
+                                        {evolution.isPositive ? (
+                                          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                                            <path d="M6 2L2 6H5V10H7V6H10L6 2Z" fill="currentColor" />
+                                          </svg>
+                                        ) : (
+                                          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                                            <path d="M6 10L10 6H7V2H5V6H2L6 10Z" fill="currentColor" />
+                                          </svg>
+                                        )}
+                                        <span>{evolution.isPositive ? '+' : ''}{evolution.percentage}%</span>
+                                      </span>
+                                    )
+                                  }
+                                  return null
+                                })()}
                                 <span className="text-sm text-neutral-500 dark:text-neutral-400">/</span>
                                 <span className="text-sm">{(() => {
                                   // Convertir les targetResult des revenus d'affiliation de USD en EUR
@@ -1460,6 +1671,39 @@ export default function DonneesPubliques() {
                             })()}
                           </div>
                         </div>
+                        
+                        {/* Mini-graphique de croissance pour "Projets réalisés sur Malt" et "Classement échecs chess.com" */}
+                        {(() => {
+                          const nameLower = (kr.name || '').toLowerCase()
+                          const title = improveTitle(kr.name, kr.category)
+                          const isMaltKR = nameLower.includes('mission malt') || title.includes('Projets réalisés sur Malt')
+                          const isChessKR = (nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess')) && 
+                                           (title.includes('Classement échecs') || title.includes('échecs chess.com'))
+                          
+                          // Récupérer l'historique pour ce Key Result
+                          let history = []
+                          if (isMaltKR || isChessKR) {
+                            history = keyResultsHistory[kr.id] || []
+                            
+                            // Pour Chess, utiliser l'historique Chess.com si disponible
+                            if (isChessKR && chessHistory.length > 0) {
+                              history = chessHistory
+                            }
+                          }
+                          
+                          if ((isMaltKR || isChessKR) && history.length > 0) {
+                            return (
+                              <div className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-800">
+                                <MiniGrowthChart 
+                                  history={history} 
+                                  height={32}
+                                  color={isMaltKR ? 'blue' : 'green'}
+                                />
+                              </div>
+                            )
+                          }
+                          return null
+                        })()}
                         
                         {/* Sous-éléments pour "Rendez-vous obtenu via Calendly" */}
                         {isCalendlyMain && subItems.length > 0 && (
