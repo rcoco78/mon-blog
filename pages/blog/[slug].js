@@ -217,7 +217,7 @@ export default function Post({ post, allPosts }) {
                   })}
                 </time>
                 <span className="text-neutral-400">•</span>
-                <ViewCounter slug={post.slug} />
+                <ViewCounter slug={post.slug} increment={true} />
               </div>
               <div className="flex items-center space-x-2">
                 {loadingMarkdown ? (
@@ -265,7 +265,7 @@ export default function Post({ post, allPosts }) {
                   })}
                 </time>
                 <span className="text-neutral-400">•</span>
-                <ViewCounter slug={post.slug} />
+                <ViewCounter slug={post.slug} increment={true} />
                 <span className="text-neutral-400">•</span>
                 {loadingMarkdown ? (
                   <div className="h-5 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />

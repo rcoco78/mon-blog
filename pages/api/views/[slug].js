@@ -73,10 +73,19 @@ export default async function handler(req, res) {
     // Nettoyer le slug
     const cleanSlug = slug.replace(/\//g, '')
     
-    // Incrémenter la vue et récupérer le nouveau total
-    const views = await incrementView(cleanSlug)
+    // Vérifier si on doit incrémenter (paramètre ?increment=true)
+    const shouldIncrement = req.query.increment === 'true'
     
-    res.status(200).json({ views })
+    if (shouldIncrement) {
+      // Incrémenter la vue et récupérer le nouveau total
+      const views = await incrementView(cleanSlug)
+      res.status(200).json({ views })
+    } else {
+      // Juste récupérer les vues sans incrémenter
+      const viewsData = await getViews()
+      const views = viewsData[cleanSlug] || 0
+      res.status(200).json({ views })
+    }
   } catch (error) {
     console.error('Error fetching/incrementing views:', error)
     // En cas d'erreur, essayer de récupérer les vues existantes sans incrémenter

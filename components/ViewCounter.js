@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-export default function ViewCounter({ slug }) {
+export default function ViewCounter({ slug, increment = false }) {
   const [views, setViews] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -8,7 +8,12 @@ export default function ViewCounter({ slug }) {
     const fetchViews = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/views/${slug}`)
+        // Si increment=true, on incrémente la vue (pour les pages d'article)
+        // Sinon, on récupère juste le nombre (pour les listes)
+        const url = increment 
+          ? `/api/views/${slug}?increment=true`
+          : `/api/views/${slug}`
+        const response = await fetch(url)
         const data = await response.json()
         setViews(data.views)
       } catch (error) {
@@ -20,7 +25,7 @@ export default function ViewCounter({ slug }) {
     }
 
     fetchViews()
-  }, [slug])
+  }, [slug, increment])
 
   if (loading) {
     return (
