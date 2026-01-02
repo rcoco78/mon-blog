@@ -1,9 +1,22 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function NewsletterForm({ compact = false }) {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState(null)
+  const [showToast, setShowToast] = useState(false)
+
+  // Afficher le toast et le masquer automatiquement après 5 secondes
+  useEffect(() => {
+    if (message) {
+      setShowToast(true)
+      const timer = setTimeout(() => {
+        setShowToast(false)
+        setMessage(null)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [message])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -22,7 +35,12 @@ export default function NewsletterForm({ compact = false }) {
       const data = await response.json()
 
       if (response.ok && data.success) {
-        setMessage({ type: 'success', text: 'Merci, vous êtes bien inscrit à la newsletter !' })
+        setMessage({ 
+          type: 'success', 
+          text: data.alreadySubscribed 
+            ? 'Vous êtes déjà inscrit à la newsletter !' 
+            : 'Merci, vous êtes bien inscrit à la newsletter ! Vous recevrez mes derniers articles directement dans votre boîte mail.' 
+        })
         setEmail('')
       } else {
         setMessage({ type: 'error', text: data.error || 'Une erreur est survenue. Veuillez réessayer.' })

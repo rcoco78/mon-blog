@@ -1,9 +1,53 @@
 // API route pour gérer les inscriptions à la newsletter
-// Pour l'instant, on stocke dans Blob Storage, mais tu peux intégrer avec un service comme Mailchimp, ConvertKit, etc.
+// Stocke dans Blob Storage et envoie une notification Telegram (comme logement-atypique)
 
 import { put, list } from '@vercel/blob'
 
 const BLOB_FILENAME = 'newsletter-subscribers.json'
+
+// Fonction pour envoyer une notification Telegram
+async function sendTelegramNotification(email, success = true) {
+  const botToken = process.env.TELEGRAM_BOT_TOKEN
+  const chatId = process.env.TELEGRAM_CHAT_ID
+
+  if (!botToken || !chatId) {
+    console.log('Variables Telegram non configurées, notification non envoyée')
+    return
+  }
+
+  try {
+    const emoji = success ? '🎉' : '❌'
+    const status = success ? 'Nouvelle inscription' : 'Erreur inscription'
+    
+    let telegramMessage = `${emoji} *${status} newsletter*\n\n`
+    telegramMessage += `📧 *Email:* ${email}\n`
+    telegramMessage += `📅 *Date:* ${new Date().toLocaleString('fr-FR')}\n`
+    telegramMessage += `🌐 *Source:* Blog Corentin Robert`
+
+    const tgUrl = `https://api.telegram.org/bot${botToken}/sendMessage`
+    const tgResponse = await fetch(tgUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: telegramMessage,
+        parse_mode: 'Markdown',
+      }),
+    })
+
+    if (tgResponse.ok) {
+      console.log('Notification Telegram envoyée avec succès')
+    } else {
+      const body = await tgResponse.text()
+      console.warn('Telegram API non OK:', tgResponse.status, body)
+    }
+  } catch (error) {
+    console.error('Erreur envoi notification Telegram:', error)
+    // Ne pas bloquer la réponse en cas d'erreur Telegram
+  }
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -45,10 +89,15 @@ export default async function handler(req, res) {
 
     // Vérifier si l'email existe déjà
     const emailLower = email.toLowerCase().trim()
-    if (subscribers.some((sub) => sub.email.toLowerCase() === emailLower)) {
+    const existingSubscriber = subscribers.find((sub) => sub.email.toLowerCase() === emailLower)
+    
+    if (existingSubscriber) {
+      // Envoyer notification Telegram même si déjà inscrit
+      await sendTelegramNotification(emailLower, true)
       return res.status(200).json({
         success: true,
         message: 'Vous êtes déjà inscrit à la newsletter',
+        alreadySubscribed: true,
       })
     }
 
@@ -57,6 +106,7 @@ export default async function handler(req, res) {
       email: emailLower,
       subscribedAt: new Date().toISOString(),
       source: 'blog',
+      userAgent: req.headers['user-agent'] || 'Inconnu',
     })
 
     // Sauvegarder dans Blob Storage
@@ -73,28 +123,19 @@ export default async function handler(req, res) {
       { access: 'public', allowOverwrite: true }
     )
 
-    // TODO: Intégrer avec un service d'email marketing (Mailchimp, ConvertKit, etc.)
-    // Exemple avec Mailchimp:
-    // await fetch(`https://usX.api.mailchimp.com/3.0/lists/${LIST_ID}/members`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Authorization': `Bearer ${MAILCHIMP_API_KEY}`,
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({
-    //     email_address: email,
-    //     status: 'subscribed',
-    //   }),
-    // })
+    // Envoyer notification Telegram
+    await sendTelegramNotification(emailLower, true)
 
     console.log(`✅ Nouvel abonné newsletter: ${emailLower}`)
 
     return res.status(200).json({
       success: true,
-      message: 'Inscription réussie',
+      message: 'Inscription réussie ! Merci de votre confiance.',
     })
   } catch (error) {
     console.error('Erreur lors de l\'inscription à la newsletter:', error)
+    // Envoyer notification Telegram en cas d'erreur
+    await sendTelegramNotification(email || 'Email inconnu', false)
     return res.status(500).json({ error: 'Erreur lors de l\'inscription' })
   }
 }
