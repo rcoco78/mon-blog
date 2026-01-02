@@ -288,7 +288,13 @@ export default function Spotify() {
               {/* Musique en cours */}
               {currentlyPlaying && (
                 <div className="mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-                  <h2 className="font-semibold text-lg mb-4 tracking-tighter">En ce moment</h2>
+                  <h2 className="font-semibold text-lg mb-4 tracking-tighter flex items-center gap-2">
+                    En ce moment
+                    <span className="relative flex h-2 w-2" title="En direct">
+                      <span className="absolute -inset-0.5 inline-flex rounded-full bg-green-400 opacity-40 animate-ping"></span>
+                      <span className="relative inline-flex rounded-full h-full w-full bg-green-500"></span>
+                    </span>
+                  </h2>
                   <div className="flex items-center gap-4">
                         {currentlyPlaying.album?.images?.[0]?.url && (
                       <Image
