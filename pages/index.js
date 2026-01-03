@@ -43,11 +43,29 @@ export default function Home({ posts }) {
   const [isMobile, setIsMobile] = useState(false)
   const [currentTestimonialScrollIndex, setCurrentTestimonialScrollIndex] = useState(0)
   const [showVideo, setShowVideo] = useState(false)
+  const [videoSeen, setVideoSeen] = useState(false)
   const testimonialScrollRef = useRef(null)
 
   // URL de la vidéo YouTube verticale (à remplacer par votre URL)
   const videoUrl = 'https://www.youtube.com/shorts/YOUR_VIDEO_ID' // À remplacer
   const videoId = videoUrl.includes('/shorts/') ? videoUrl.split('/shorts/')[1]?.split('?')[0] : null
+
+  // Vérifier si la vidéo a déjà été vue
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const seen = localStorage.getItem('profileVideoSeen') === 'true'
+      setVideoSeen(seen)
+    }
+  }, [])
+
+  // Marquer la vidéo comme vue quand on ouvre la popup
+  const handleVideoClick = () => {
+    setShowVideo(true)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('profileVideoSeen', 'true')
+      setVideoSeen(true)
+    }
+  }
 
   useEffect(() => {
     const fetchViews = async () => {
@@ -442,16 +460,28 @@ export default function Home({ posts }) {
       <main className="flex-auto min-w-0 mt-6 flex flex-col mb-0">
       <section aria-label="Présentation">
         <div>
-          <div className="relative inline-block mb-4 group cursor-pointer" onClick={() => setShowVideo(true)}>
-            <Image
-              src="/images/cr-pp3.png"
-              alt="Photo de profil de Corentin Robert"
-              width={64}
-              height={64}
-              className="w-16 h-16 rounded-full object-cover border-2 border-neutral-200 dark:border-neutral-800 transition-all group-hover:opacity-90"
-              style={{ objectPosition: 'center 30%' }}
-              priority
-            />
+          <div 
+            className={`relative inline-block mb-4 group cursor-pointer ${!videoSeen ? 'p-[3px] rounded-full' : ''}`}
+            onClick={handleVideoClick}
+            style={!videoSeen ? {
+              background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)'
+            } : {}}
+          >
+            <div className={!videoSeen ? 'rounded-full bg-white dark:bg-neutral-900 p-[2px]' : ''}>
+              <Image
+                src="/images/cr-pp3.png"
+                alt="Photo de profil de Corentin Robert"
+                width={64}
+                height={64}
+                className={`w-16 h-16 rounded-full object-cover transition-all group-hover:opacity-90 ${
+                  videoSeen 
+                    ? 'border-2 border-neutral-200 dark:border-neutral-800' 
+                    : ''
+                }`}
+                style={{ objectPosition: 'center 30%' }}
+                priority
+              />
+            </div>
             {/* Overlay grisé avec icône play au hover */}
             <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/70 dark:bg-neutral-900/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-play text-white" viewBox="0 0 16 16">

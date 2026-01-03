@@ -52,44 +52,99 @@ export default function Layout({ children }) {
         <nav className="flex flex-row items-center justify-between relative px-0 pb-8 fade md:overflow-auto scroll-pr-6 md:relative" id="nav">
           <div className="flex flex-row items-start sm:items-center flex-wrap gap-x-1 sm:gap-x-2 gap-y-1">
             <Link 
-              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
+              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-full ${
                 router.pathname === '/' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
-              }`} 
+              } ${
+                !visitedPages.has('/') && router.pathname !== '/' 
+                  ? 'px-2 sm:px-3 py-1.5 before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-r before:from-purple-500 before:via-pink-500 before:to-orange-500 before:p-[2px] before:-z-10 before:opacity-75' 
+                  : ''
+              }`}
+              style={!visitedPages.has('/') && router.pathname !== '/' ? {
+                background: 'linear-gradient(white, white) padding-box, linear-gradient(to right, #a855f7, #ec4899, #f97316) border-box',
+                border: '2px solid transparent',
+                borderRadius: '9999px'
+              } : {}}
               href="/"
             >
-              accueil
+              <span className={!visitedPages.has('/') && router.pathname !== '/' ? 'relative z-10' : ''}>
+                accueil
+              </span>
             </Link>
             <Link 
-              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
+              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-full ${
                 router.pathname.startsWith('/blog') ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
-              }`} 
+              } ${
+                !visitedPages.has('/blog') && !router.pathname.startsWith('/blog')
+                  ? 'px-2 sm:px-3 py-1.5 before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-r before:from-purple-500 before:via-pink-500 before:to-orange-500 before:p-[2px] before:-z-10 before:opacity-75' 
+                  : ''
+              }`}
+              style={!visitedPages.has('/blog') && !router.pathname.startsWith('/blog') ? {
+                background: 'linear-gradient(white, white) padding-box, linear-gradient(to right, #a855f7, #ec4899, #f97316) border-box',
+                border: '2px solid transparent',
+                borderRadius: '9999px'
+              } : {}}
               href="/blog"
             >
-              blog
+              <span className={!visitedPages.has('/blog') && !router.pathname.startsWith('/blog') ? 'relative z-10' : ''}>
+                blog
+              </span>
             </Link>
             <Link 
-              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
+              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-full ${
                 router.pathname === '/a-propos' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
-              }`} 
+              } ${
+                !visitedPages.has('/a-propos') && router.pathname !== '/a-propos'
+                  ? 'px-2 sm:px-3 py-1.5 before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-r before:from-purple-500 before:via-pink-500 before:to-orange-500 before:p-[2px] before:-z-10 before:opacity-75' 
+                  : ''
+              }`}
+              style={!visitedPages.has('/a-propos') && router.pathname !== '/a-propos' ? {
+                background: 'linear-gradient(white, white) padding-box, linear-gradient(to right, #a855f7, #ec4899, #f97316) border-box',
+                border: '2px solid transparent',
+                borderRadius: '9999px'
+              } : {}}
               href="/a-propos"
             >
-              à propos
+              <span className={!visitedPages.has('/a-propos') && router.pathname !== '/a-propos' ? 'relative z-10' : ''}>
+                à propos
+              </span>
             </Link>
             <Link 
-              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
+              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-full ${
                 router.pathname === '/marketplace' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
-              }`} 
+              } ${
+                !visitedPages.has('/marketplace') && router.pathname !== '/marketplace'
+                  ? 'px-2 sm:px-3 py-1.5 before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-r before:from-purple-500 before:via-pink-500 before:to-orange-500 before:p-[2px] before:-z-10 before:opacity-75' 
+                  : ''
+              }`}
+              style={!visitedPages.has('/marketplace') && router.pathname !== '/marketplace' ? {
+                background: 'linear-gradient(white, white) padding-box, linear-gradient(to right, #a855f7, #ec4899, #f97316) border-box',
+                border: '2px solid transparent',
+                borderRadius: '9999px'
+              } : {}}
               href="/marketplace"
             >
-              marketplace
+              <span className={!visitedPages.has('/marketplace') && router.pathname !== '/marketplace' ? 'relative z-10' : ''}>
+                marketplace
+              </span>
             </Link>
             <Link 
-              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
+              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-full ${
                 router.pathname === '/objectifs' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
-              }`} 
+              } ${
+                !visitedPages.has('/objectifs') && router.pathname !== '/objectifs'
+                  ? 'px-2 sm:px-3 py-1.5 before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-r before:from-purple-500 before:via-pink-500 before:to-orange-500 before:p-[2px] before:-z-10 before:opacity-75' 
+                  : ''
+              }`}
+              style={!visitedPages.has('/objectifs') && router.pathname !== '/objectifs' ? {
+                background: 'linear-gradient(white, white) padding-box, linear-gradient(to right, #a855f7, #ec4899, #f97316) border-box',
+                border: '2px solid transparent',
+                borderRadius: '9999px'
+              } : {}}
               href="/objectifs"
             >
-              objectifs
+              <span className={!visitedPages.has('/objectifs') && router.pathname !== '/objectifs' ? 'relative z-10' : ''}>
+                objectifs
+              </span>
             </Link>
           </div>
           <div className="flex justify-end items-center gap-0.5 max-[480px]:hidden">
