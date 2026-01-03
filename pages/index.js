@@ -42,7 +42,12 @@ export default function Home({ posts }) {
   const [keyResultsLoading, setKeyResultsLoading] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const [currentTestimonialScrollIndex, setCurrentTestimonialScrollIndex] = useState(0)
+  const [showVideo, setShowVideo] = useState(false)
   const testimonialScrollRef = useRef(null)
+
+  // URL de la vidéo YouTube verticale (à remplacer par votre URL)
+  const videoUrl = 'https://www.youtube.com/shorts/YOUR_VIDEO_ID' // À remplacer
+  const videoId = videoUrl.includes('/shorts/') ? videoUrl.split('/shorts/')[1]?.split('?')[0] : null
 
   useEffect(() => {
     const fetchViews = async () => {
@@ -437,15 +442,55 @@ export default function Home({ posts }) {
       <main className="flex-auto min-w-0 mt-6 flex flex-col mb-0">
       <section aria-label="Présentation">
         <div>
-          <Image
-            src="/images/cr-pp3.png"
-            alt="Photo de profil de Corentin Robert"
-            width={64}
-            height={64}
-            className="w-16 h-16 rounded-full object-cover mb-4 border-2 border-neutral-200 dark:border-neutral-800"
-            style={{ objectPosition: 'center 30%' }}
-            priority
-          />
+          <div className="relative inline-block mb-4 group cursor-pointer" onClick={() => setShowVideo(true)}>
+            <Image
+              src="/images/cr-pp3.png"
+              alt="Photo de profil de Corentin Robert"
+              width={64}
+              height={64}
+              className="w-16 h-16 rounded-full object-cover border-2 border-neutral-200 dark:border-neutral-800 transition-all group-hover:opacity-90"
+              style={{ objectPosition: 'center 30%' }}
+              priority
+            />
+            {/* Overlay grisé avec icône play au hover */}
+            <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/70 dark:bg-neutral-900/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-play text-white" viewBox="0 0 16 16">
+                <path d="M10.804 8 5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z"/>
+              </svg>
+            </div>
+          </div>
+          
+          {/* Popup vidéo verticale */}
+          {showVideo && videoId && (
+            <div 
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/80 dark:bg-neutral-900/80 backdrop-blur-sm"
+              onClick={() => setShowVideo(false)}
+            >
+              <div 
+                className="relative aspect-[9/16] w-full max-w-[280px] rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  onClick={() => setShowVideo(false)}
+                  className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-neutral-900/90 dark:bg-neutral-100/90 text-white dark:text-neutral-900 hover:bg-neutral-900 dark:hover:bg-neutral-100 transition-colors"
+                  aria-label="Fermer la vidéo"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                <iframe
+                  src={`https://www.youtube.com/embed/${videoId}`}
+                  title="Présentation de Corentin Robert"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  className="w-full h-full"
+                  style={{ border: 'none' }}
+                />
+              </div>
+            </div>
+          )}
+          
           <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Corentin Robert</h1>
         </div>
         <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
