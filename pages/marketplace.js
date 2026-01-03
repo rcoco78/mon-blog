@@ -19,14 +19,21 @@ export default function Marketplace() {
   const types = ['outil', 'database']
   const pricingOptions = ['gratuit', 'payant']
 
-  const filteredTools = tools.filter(tool => {
-    const matchesCategory = selectedCategory === null || tool.category === selectedCategory
-    const matchesType = selectedType === null || tool.type === selectedType
-    const matchesPricing = selectedPricing === null || 
-      (selectedPricing === 'gratuit' && !tool.isPaid) ||
-      (selectedPricing === 'payant' && tool.isPaid)
-    return matchesCategory && matchesType && matchesPricing
-  })
+  const filteredTools = tools
+    .filter(tool => {
+      const matchesCategory = selectedCategory === null || tool.category === selectedCategory
+      const matchesType = selectedType === null || tool.type === selectedType
+      const matchesPricing = selectedPricing === null || 
+        (selectedPricing === 'gratuit' && !tool.isPaid) ||
+        (selectedPricing === 'payant' && tool.isPaid)
+      return matchesCategory && matchesType && matchesPricing
+    })
+    .sort((a, b) => {
+      // Trier par date : du plus récent au plus ancien
+      const dateA = a.date ? new Date(a.date) : new Date(0) // Si pas de date, mettre en fin
+      const dateB = b.date ? new Date(b.date) : new Date(0)
+      return dateB - dateA // Ordre décroissant (plus récent en premier)
+    })
 
   const openCalendly = () => {
     // Charger Calendly seulement au premier clic (lazy load)

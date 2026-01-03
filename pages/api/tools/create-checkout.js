@@ -40,6 +40,19 @@ export default async function handler(req, res) {
         'Mise à jour annuelle du fichier incluse',
         'Renouvellement automatique chaque année'
       ]
+    },
+    'capeb': {
+      name: 'Base de données - Artisans CAPEB',
+      price: 99, // Prix en euros (paiement unique)
+      description: 'Base de données complète des artisans de France (CAPEB)',
+      image: undefined, // Image du produit (à ajouter si disponible)
+      features: [
+        'Tous les artisans CAPEB de France',
+        '22 champs par entrée',
+        'Formats : CSV, Excel, JSON',
+        'Données complètes : SIRET, géolocalisation, labels RGE, activités, etc.',
+        'Mise à jour régulière'
+      ]
     }
   }
 
@@ -86,8 +99,8 @@ export default async function handler(req, res) {
         },
       ],
       mode: isSubscription ? 'subscription' : 'payment',
-      success_url: `${req.headers.origin}/outils/${toolId}?payment=success&session_id={CHECKOUT_SESSION_ID}&type=${isSubscription ? 'subscription' : 'one-time'}`,
-      cancel_url: `${req.headers.origin}/outils/${toolId}?payment=cancelled`,
+      success_url: `${req.headers.origin}${toolId.startsWith('capeb') || toolId.startsWith('dentistes-parisiens') ? '/databases' : '/outils'}/${toolId}?payment=success&session_id={CHECKOUT_SESSION_ID}&type=${isSubscription ? 'subscription' : 'one-time'}`,
+      cancel_url: `${req.headers.origin}${toolId.startsWith('capeb') || toolId.startsWith('dentistes-parisiens') ? '/databases' : '/outils'}/${toolId}?payment=cancelled`,
       // Stripe collecte automatiquement l'email du client lors du checkout
       // customer_email n'est nécessaire que si on veut pré-remplir (optionnel)
       allow_promotion_codes: true,
@@ -97,24 +110,28 @@ export default async function handler(req, res) {
         subscriptionType: isSubscription ? 'annual' : 'one-time',
         // email sera automatiquement disponible dans session.customer_email après le paiement
       },
-      custom_fields: [
-        {
-          key: 'format_preference',
-          label: {
-            type: 'custom',
-            custom: 'Format préféré (optionnel)',
+      // Champ "Format préféré" uniquement pour les outils qui proposent plusieurs formats
+      // CAPEB utilise uniquement Google Sheets, donc pas besoin de ce champ
+      ...(toolId !== 'capeb' ? {
+        custom_fields: [
+          {
+            key: 'format_preference',
+            label: {
+              type: 'custom',
+              custom: 'Format préféré (optionnel)',
+            },
+            type: 'dropdown',
+            dropdown: {
+              options: [
+                { label: 'Tous les formats (CSV, Excel, JSON)', value: 'all' },
+                { label: 'CSV uniquement', value: 'csv' },
+                { label: 'Excel uniquement', value: 'excel' },
+                { label: 'JSON uniquement', value: 'json' },
+              ],
+            },
           },
-          type: 'dropdown',
-          dropdown: {
-            options: [
-              { label: 'Tous les formats (CSV, Excel, JSON)', value: 'all' },
-              { label: 'CSV uniquement', value: 'csv' },
-              { label: 'Excel uniquement', value: 'excel' },
-              { label: 'JSON uniquement', value: 'json' },
-            ],
-          },
-        },
-      ],
+        ],
+      } : {}),
     }
     
     const session = await stripe.checkout.sessions.create(sessionConfig)
