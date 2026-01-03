@@ -466,56 +466,51 @@ export default function Home({ posts }) {
       <section aria-label="Présentation">
         <div>
           <div 
-            className={`relative inline-block mb-4 group cursor-pointer ${!videoSeen ? 'p-[3px] rounded-full' : ''}`}
+            className="relative inline-block mb-4 group cursor-pointer p-[3px] rounded-full"
             onClick={handleVideoClick}
           >
-            {!videoSeen && (
-              <svg 
-                className="absolute inset-0"
-                style={{ 
-                  width: 'calc(100% + 6px)', 
-                  height: 'calc(100% + 6px)',
-                  margin: '-3px',
-                  transform: 'rotate(-90deg)'
+            <svg 
+              className="absolute inset-0"
+              style={{ 
+                width: 'calc(100% + 6px)', 
+                height: 'calc(100% + 6px)',
+                margin: '-3px',
+                transform: 'rotate(-90deg)'
+              }}
+              viewBox="0 0 70 70"
+            >
+              <defs>
+                <linearGradient id="instagram-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#f09433" />
+                  <stop offset="25%" stopColor="#e6683c" />
+                  <stop offset="50%" stopColor="#dc2743" />
+                  <stop offset="75%" stopColor="#cc2366" />
+                  <stop offset="100%" stopColor="#bc1888" />
+                </linearGradient>
+              </defs>
+              <circle
+                cx="35"
+                cy="35"
+                r="33"
+                fill="none"
+                stroke={videoSeen ? "#a3a3a3" : "url(#instagram-gradient)"}
+                strokeWidth="3"
+                strokeDasharray="207.35"
+                strokeDashoffset={videoSeen ? "0" : "207.35"}
+                className={videoSeen ? "" : "animate-draw-circle"}
+                style={{
+                  transformOrigin: '35px 35px',
+                  transition: videoSeen ? 'stroke 0.5s ease-out' : 'none'
                 }}
-                viewBox="0 0 70 70"
-              >
-                <defs>
-                  <linearGradient id="instagram-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#f09433" />
-                    <stop offset="25%" stopColor="#e6683c" />
-                    <stop offset="50%" stopColor="#dc2743" />
-                    <stop offset="75%" stopColor="#cc2366" />
-                    <stop offset="100%" stopColor="#bc1888" />
-                  </linearGradient>
-                </defs>
-                <circle
-                  cx="35"
-                  cy="35"
-                  r="33"
-                  fill="none"
-                  stroke="url(#instagram-gradient)"
-                  strokeWidth="3"
-                  strokeDasharray="207.35"
-                  strokeDashoffset="207.35"
-                  className="animate-draw-circle"
-                  style={{
-                    transformOrigin: '35px 35px'
-                  }}
-                />
-              </svg>
-            )}
-            <div className={!videoSeen ? 'rounded-full bg-white dark:bg-neutral-900 p-[2px]' : ''}>
+              />
+            </svg>
+            <div className="rounded-full bg-white dark:bg-neutral-900 p-[2px]">
               <Image
                 src="/images/cr-pp3.png"
                 alt="Photo de profil de Corentin Robert"
                 width={64}
                 height={64}
-                className={`w-16 h-16 rounded-full object-cover transition-all group-hover:opacity-90 ${
-                  videoSeen 
-                    ? 'border-2 border-neutral-200 dark:border-neutral-800' 
-                    : ''
-                }`}
+                className="w-16 h-16 rounded-full object-cover transition-all group-hover:opacity-90"
                 style={{ objectPosition: 'center 30%' }}
                 priority
               />
