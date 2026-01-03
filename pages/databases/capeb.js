@@ -350,13 +350,17 @@ export default function Capeb() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-            {/* Colonne gauche - Placeholder pour vidéo/image */}
+            {/* Colonne gauche - Vidéo Tella */}
             <div className="order-2 md:order-1 md:sticky md:top-8 md:self-start">
               <div className="relative aspect-video max-w-full mx-auto rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-                <div className="w-full h-full flex items-center justify-center">
-                  <svg className="w-12 h-12 text-neutral-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-                  </svg>
+                <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
+                  <iframe 
+                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+                    src="https://www.tella.tv/video/vid_cmjyjan5w02rr04jta21y1mpl/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0"
+                    allowFullScreen
+                    allowTransparency
+                    title="Présentation Base de données CAPEB"
+                  />
                 </div>
               </div>
 
