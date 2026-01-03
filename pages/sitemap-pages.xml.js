@@ -66,24 +66,6 @@ export const getServerSideProps = async ({ res }) => {
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
-  <url>
-    <loc>${baseUrl}/outils</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/ressources</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/newsletter</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
 </urlset>`
 
   res.setHeader('Content-Type', 'text/xml')
