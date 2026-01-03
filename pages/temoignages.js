@@ -213,11 +213,12 @@ export default function Temoignages() {
                   "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ."
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Adnane Amahou</p>
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Responsable CX @ NGI</p>
                 </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
               </div>
             </div>
             {/* Fiverr */}
@@ -230,11 +231,12 @@ export default function Temoignages() {
                   "Corentin did an excellent job and my cooperation with him was smooth and easy. He delivered what he promised, he was very open and quick to discuss revisions and delivered even them in no time. My project was not a simple one, as it required collecting information from different places. I'm 100% satisfied with the result."
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">lampro74</p>
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Belgique</p>
                 </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
               </div>
             </div>
             {/* LinkedIn */}
@@ -247,11 +249,12 @@ export default function Temoignages() {
                   "Prestation de scraping impeccable : compréhension rapide du besoin, extraction propre et structurée, délais respectés. Les données livrées sont exploitables immédiatement (format clair, colonnes cohérentes, pas de doublons). Communication fluide et réactif tout au long du projet."
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Mohamed-Amine Zaghdoud</p>
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Fondateur Kent</p>
                 </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
               </div>
             </div>
             {/* Malt */}
@@ -264,11 +267,12 @@ export default function Temoignages() {
                   "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Denis</p>
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Inovesta</p>
                 </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">Malt</span>
               </div>
             </div>
             {/* LinkedIn */}
@@ -281,11 +285,12 @@ export default function Temoignages() {
                   "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !"
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Hugues Chavrier</p>
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
                 </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
               </div>
             </div>
             {/* Fiverr */}
@@ -298,11 +303,12 @@ export default function Temoignages() {
                   "Corentin has been exceptionally fast at delivering that order. Great level of expertise! Kudos Corentin."
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">tigerparts</p>
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Pays-Bas</p>
                 </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
               </div>
             </div>
             {/* LinkedIn */}
@@ -315,11 +321,12 @@ export default function Temoignages() {
                   "Je recommande vivement Corentin pour sa réactivité et son professionnalisme. J'ai eu la chance de faire appel à lui à deux reprises, et à chaque fois, son accompagnement a été exemplaire."
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Chris Rydahl</p>
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Cofounder & CTO @ Parallel</p>
                 </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
               </div>
             </div>
             
@@ -350,11 +357,12 @@ export default function Temoignages() {
                   "Corentin est très pro. Il connait son métier, est de très bon conseils, et force de proposition."
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Charlotte</p>
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Agence Canopée</p>
                 </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">Malt</span>
               </div>
             </div>
             {/* LinkedIn */}
@@ -367,11 +375,12 @@ export default function Temoignages() {
                   "Nous travaillons avec Corentin depuis plus de 3 ans. Il a toujours été de très bons conseils, réactif et appliqué. Je recommande à 💯 % !"
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Julien Vabre</p>
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Dirigeant InXpress Gironde</p>
                 </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
               </div>
             </div>
             {/* Fiverr */}
@@ -384,11 +393,12 @@ export default function Temoignages() {
                   "Nous sommes extrêmement satisfaits du travail réalisé. Corentin a fait preuve d'un grand professionnalisme, d'une excellente réactivité et d'un sens du détail remarquable. La communication a toujours été fluide et agréable, et le résultat final dépasse largement nos attentes."
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">jma225845</p>
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">France</p>
                 </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
               </div>
             </div>
             {/* LinkedIn */}
@@ -401,11 +411,12 @@ export default function Temoignages() {
                   "Corentin est redoutablement efficace, il comprend vite et travaille vite. Un plaisir."
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">Arthur Dalaise</p>
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">Co-fondateur @ La Biche-Renard</p>
                 </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
               </div>
             </div>
             {/* Fiverr */}
@@ -418,11 +429,12 @@ export default function Temoignages() {
                   "For any scraping needs, he is amazing, was able to scrape 400K companies from a complex site."
                 </p>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">buzzinsider</p>
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">États-Unis</p>
                 </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
               </div>
             </div>
           </div>
