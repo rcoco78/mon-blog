@@ -329,28 +329,22 @@ export default function Blog({ posts }) {
             <h2 className="font-semibold text-xl mb-6 tracking-tighter">Articles les plus lus</h2>
             <div className="space-y-4">
               {topPosts.map((post) => {
-                const isNew = new Date(post.date) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
                 return (
                   <Link key={post.id} href={`/blog/${post.slug}`} className="post-link group">
                     <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 transition-all group-hover:translate-x-1">
                       <div className="flex flex-col md:flex-row md:items-center w-full">
                         <div className="flex-shrink-0">
-                          <p className="post-date whitespace-nowrap">
-                            {new Date(post.date).toLocaleDateString('fr-FR', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
-                            })}
-                          </p>
+                          <p className="post-date whitespace-nowrap">{(() => {
+                            const date = new Date(post.date)
+                            const day = String(date.getDate()).padStart(2, '0')
+                            const month = String(date.getMonth() + 1).padStart(2, '0')
+                            const year = date.getFullYear()
+                            return `${day}-${month}-${year}`
+                          })()}</p>
                         </div>
                         <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 mx-2 flex-shrink-0"></span>
                         <p className="post-title flex-grow w-full md:ml-0 flex items-center gap-2">
-                          <span className="break-words">{post.title}</span>
-                          {isNew && (
-                            <span className="text-xs font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-2 py-0.5 rounded-full flex-shrink-0">
-                              Nouveau
-                            </span>
-                          )}
+                          <span className="break-words whitespace-normal">{post.title}</span>
                         </p>
                         <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
                           <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">
@@ -409,28 +403,22 @@ export default function Blog({ posts }) {
           ) : filteredPosts && filteredPosts.length > 0 ? (
             <div className="space-y-4">
               {filteredPosts.map((post) => {
-                const isNew = new Date(post.date) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
                 return (
                   <Link key={post.id} href={`/blog/${post.slug}`} className="post-link group">
                     <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 transition-all group-hover:translate-x-1">
                     <div className="flex flex-col md:flex-row md:items-center w-full">
                       <div className="flex-shrink-0">
-                        <p className="post-date whitespace-nowrap">
-                          {new Date(post.date).toLocaleDateString('fr-FR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </p>
+                        <p className="post-date whitespace-nowrap">{(() => {
+                          const date = new Date(post.date)
+                          const day = String(date.getDate()).padStart(2, '0')
+                          const month = String(date.getMonth() + 1).padStart(2, '0')
+                          const year = date.getFullYear()
+                          return `${day}-${month}-${year}`
+                        })()}</p>
                       </div>
                         <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 mx-2 flex-shrink-0"></span>
                         <p className="post-title flex-grow w-full md:ml-0 flex items-center gap-2">
-                          <span className="break-words">{post.title}</span>
-                          {isNew && (
-                            <span className="text-xs font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 px-2 py-0.5 rounded-full flex-shrink-0">
-                              Nouveau
-                            </span>
-                          )}
+                          <span className="break-words whitespace-normal">{post.title}</span>
                         </p>
                       <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
                         <ViewCounter slug={post.slug} />

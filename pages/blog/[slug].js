@@ -226,11 +226,13 @@ export default function Post({ post, allPosts }) {
                   dateTime={post.date} 
                   className="text-sm text-neutral-600 dark:text-neutral-400"
                 >
-                  {new Date(post.date).toLocaleDateString('fr-FR', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                  })}
+                  {(() => {
+                    const date = new Date(post.date)
+                    const day = String(date.getDate()).padStart(2, '0')
+                    const month = String(date.getMonth() + 1).padStart(2, '0')
+                    const year = date.getFullYear()
+                    return `${day}-${month}-${year}`
+                  })()}
                 </time>
                 <span className="text-neutral-400">•</span>
                 <ViewCounter slug={post.slug} />
@@ -246,11 +248,11 @@ export default function Post({ post, allPosts }) {
                 {post.tags && post.tags.length > 0 && (
                   <>
                     <span className="text-neutral-400">•</span>
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
                       {post.tags.map((tag, index) => (
                         <button
                           key={index}
-                          className="px-2 py-0.5 rounded-full text-sm transition-colors bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                          className="px-1.5 py-0.5 rounded text-xs transition-colors bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700"
                         >
                           {tag}
                         </button>
@@ -268,17 +270,19 @@ export default function Post({ post, allPosts }) {
             </div>
 
             {/* Version desktop */}
-            <div className="hidden md:flex items-center justify-between">
-              <div className="flex items-center space-x-2">
+            <div className="hidden md:flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center space-x-2 flex-wrap">
                 <time 
                   dateTime={post.date} 
-                  className="text-sm text-neutral-600 dark:text-neutral-400"
+                  className="text-sm text-neutral-600 dark:text-neutral-400 whitespace-nowrap"
                 >
-                  {new Date(post.date).toLocaleDateString('fr-FR', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                  })}
+                  {(() => {
+                    const date = new Date(post.date)
+                    const day = String(date.getDate()).padStart(2, '0')
+                    const month = String(date.getMonth() + 1).padStart(2, '0')
+                    const year = date.getFullYear()
+                    return `${day}-${month}-${year}`
+                  })()}
                 </time>
                 <span className="text-neutral-400">•</span>
                 <ViewCounter slug={post.slug} />
@@ -286,18 +290,18 @@ export default function Post({ post, allPosts }) {
                 {loadingMarkdown ? (
                   <div className="h-5 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
                 ) : (
-                  <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                  <span className="text-sm text-neutral-600 dark:text-neutral-400 whitespace-nowrap">
                     {readingTime} min de lecture
                   </span>
                 )}
                 {post.tags && post.tags.length > 0 && (
                   <>
                     <span className="text-neutral-400">•</span>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       {post.tags.map((tag, index) => (
                         <button
                           key={index}
-                          className="px-2 py-0.5 rounded-full text-sm transition-colors bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                          className="px-1.5 py-0.5 rounded text-xs transition-colors bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700 whitespace-nowrap"
                         >
                           {tag}
                         </button>
