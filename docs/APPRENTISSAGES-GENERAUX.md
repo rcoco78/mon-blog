@@ -113,9 +113,10 @@ mon-blog/
 **Enseignement clé** : Adapter la fréquence des cron jobs au rythme de publication.
 
 **Configuration actuelle** :
-- `notion-sync` : 1 fois par jour (6h)
 - `metrics-sync` : 1 fois par jour (7h)
 - `key-results-sync` : 4 fois par jour (toutes les 6h)
+- `blog-sync` : 3 fois par jour (8h, 14h, 20h)
+- `blog-details-sync` : 3 fois par jour (9h, 15h, 21h)
 - `blog-sync` : 3 fois par jour (8h, 14h, 20h)
 - `blog-details-sync` : 3 fois par jour (9h, 15h, 21h)
 - `sitemap` : 1 fois par jour (8h)

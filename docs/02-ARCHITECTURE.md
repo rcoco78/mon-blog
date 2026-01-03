@@ -58,7 +58,10 @@ mon-blog/
 │   ├── sitemap.xml.js            # Sitemap XML
 │   └── api/                       # API Routes
 │       ├── cron/                  # Cron jobs Vercel
-│       │   ├── notion-sync.js    # Sync Notion quotidien
+│       │   ├── metrics-sync.js      # Sync métriques quotidien
+│       │   ├── key-results-sync.js   # Sync Key Results (toutes les 6h)
+│       │   ├── blog-sync.js          # Sync liste articles (3x/jour)
+│       │   └── blog-details-sync.js # Sync détails articles (3x/jour)
 │       │   └── sitemap.js        # Régénération sitemap
 │       └── ...
 │

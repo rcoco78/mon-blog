@@ -39,8 +39,10 @@ mon-blog/
 ### Cron Jobs Vercel
 - **Synchronisation Notion** : Tous les jours à 6h00
   - Route: `/api/cron/notion-sync`
-- **Régénération Sitemap** : Tous les jours à 8h00
-  - Route: `/api/cron/sitemap`
+- **Synchronisation Blog** : 3 fois par jour (8h, 14h, 20h)
+  - Route: `/api/cron/blog-sync`
+- **Synchronisation Détails Articles** : 3 fois par jour (9h, 15h, 21h)
+  - Route: `/api/cron/blog-details-sync`
 
 ### Configuration
 - Domaine principal : `corentinrobert.fr`
