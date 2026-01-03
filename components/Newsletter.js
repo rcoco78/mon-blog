@@ -26,20 +26,17 @@ export default function Newsletter() {
     setErrorMessage('')
     
     try {
-      const response = await fetch('/api/subscribe', {
+      const response = await fetch('/api/newsletter', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          email,
-          date: new Date().toISOString()
-        }),
+        body: JSON.stringify({ email }),
       })
       
       const data = await response.json()
       
-      if (response.ok) {
+      if (response.ok && data.success) {
         setStatus('success')
         setEmail('')
         
@@ -49,12 +46,12 @@ export default function Newsletter() {
         setSubscriberCount(countData.count)
       } else {
         // Si l'erreur indique que l'email est déjà inscrit
-        if (data.message && data.message.includes('déjà inscrite')) {
+        if (data.alreadySubscribed || (data.message && data.message.includes('déjà inscrit'))) {
           setStatus('already_subscribed')
         } else {
           setStatus('error')
         }
-        setErrorMessage(data.message || 'Une erreur est survenue. Veuillez réessayer.')
+        setErrorMessage(data.error || data.message || 'Une erreur est survenue. Veuillez réessayer.')
       }
     } catch (error) {
       setStatus('error')
