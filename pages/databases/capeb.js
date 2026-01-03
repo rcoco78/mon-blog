@@ -372,7 +372,7 @@ export default function Capeb() {
               }}>
                 <iframe 
                   className="absolute top-0 left-0 w-full h-full border-0"
-                  src="https://www.tella.tv/video/vid_cmjyjan5w02rr04jta21y1mpl/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0"
+                  src="https://www.tella.tv/video/base-de-donnees-artisans-capeb-9000-contacts-a9b0/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0"
                   allowFullScreen
                   allowTransparency
                   title="Présentation Base de données CAPEB"
