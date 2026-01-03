@@ -352,7 +352,7 @@ export default function Capeb() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
             {/* Colonne gauche - Placeholder pour vidéo/image */}
             <div className="order-2 md:order-1 md:sticky md:top-8 md:self-start">
-              <div className="relative aspect-[9/16] max-w-[280px] mx-auto md:max-w-none rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
+              <div className="relative aspect-video max-w-full mx-auto rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
                 <div className="w-full h-full flex items-center justify-center">
                   <svg className="w-12 h-12 text-neutral-400" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
