@@ -532,10 +532,7 @@ export default function Home({ posts }) {
               {/* Témoignage LinkedIn */}
               <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
                 <div className="mb-3">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="text-xs font-medium text-neutral-900 dark:text-neutral-100">Automatisation • Compréhension immédiate • Valeur apportée dès le départ</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
-                  </div>
+                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Automatisation • Compréhension immédiate • Valeur apportée dès le départ</p>
                 </div>
                 <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
                   "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ."
@@ -545,16 +542,14 @@ export default function Home({ posts }) {
                     <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Adnane Amahou</p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">Responsable CX @ NGI</p>
                   </div>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
                 </div>
               </div>
               
               {/* Témoignage LinkedIn - Assursafe */}
               <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
                 <div className="mb-3">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="text-xs font-medium text-neutral-900 dark:text-neutral-100">Plusieurs missions • Professionnel • À l'écoute</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
-                  </div>
+                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Plusieurs missions • Professionnel • À l'écoute</p>
                 </div>
                 <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
                   "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !"
@@ -564,16 +559,14 @@ export default function Home({ posts }) {
                     <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Hugues Chavrier</p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
                   </div>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
                 </div>
               </div>
               
               {/* Témoignage Fiverr */}
               <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
                 <div className="mb-3">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="text-xs font-medium text-neutral-900 dark:text-neutral-100">Projet complexe • Révisions rapides • 100% satisfait</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
-                  </div>
+                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Projet complexe • Révisions rapides • 100% satisfait</p>
                 </div>
                 <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
                   "Corentin did an excellent job and my cooperation with him was smooth and easy. He delivered what he promised, he was very open and quick to discuss revisions and delivered even them in no time. My project was not a simple one, as it required collecting information from different places. I'm 100% satisfied with the result."
@@ -583,16 +576,14 @@ export default function Home({ posts }) {
                     <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">lampro74</p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">Belgique</p>
                   </div>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
                 </div>
               </div>
               
               {/* Témoignage Malt */}
               <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
                 <div className="mb-3">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="text-xs font-medium text-neutral-900 dark:text-neutral-100">Délais respectés • Clarté dès le départ • Professionnalisme</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">Malt</span>
-                  </div>
+                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Délais respectés • Clarté dès le départ • Professionnalisme</p>
                 </div>
                 <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
                   "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
@@ -602,6 +593,7 @@ export default function Home({ posts }) {
                     <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Denis</p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">Inovesta</p>
                   </div>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">Malt</span>
                 </div>
               </div>
             </div>
