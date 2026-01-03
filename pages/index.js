@@ -919,7 +919,7 @@ export default function Home({ posts }) {
                 <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 transition-all group-hover:translate-x-1">
                 <div className="flex flex-col md:flex-row md:items-center w-full">
                   <div className="flex-shrink-0">
-                    <p className="post-date whitespace-nowrap">{(() => {
+                    <p className="post-date text-sm whitespace-nowrap">{(() => {
                       const date = new Date(post.date)
                       const day = String(date.getDate()).padStart(2, '0')
                       const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -929,7 +929,7 @@ export default function Home({ posts }) {
                   </div>
                     <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 mx-2 flex-shrink-0"></span>
                     <p className="post-title flex-grow w-full md:ml-0 flex items-center gap-2 min-w-0">
-                      <span className="break-words whitespace-normal">{post.title}</span>
+                      <span className="truncate">{post.title}</span>
                     </p>
                   <div className="md:ml-auto flex-shrink-0">
                     <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">{post.views} vues</span>

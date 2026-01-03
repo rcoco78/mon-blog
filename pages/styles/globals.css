@@ -29,7 +29,7 @@ body {
   }
   
   .post-date {
-    @apply text-neutral-600 dark:text-neutral-400 w-[100px] tabular-nums;
+    @apply text-sm text-neutral-500 dark:text-neutral-500 w-[90px] tabular-nums;
   }
   
   .post-title {
