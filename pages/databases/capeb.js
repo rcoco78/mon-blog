@@ -15,7 +15,7 @@ export default function Capeb() {
   const [emailSubmitted, setEmailSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [loadingStep, setLoadingStep] = useState('')
-  const [subscriptionType, setSubscriptionType] = useState('annual') // 'one-time' ou 'annual' (par défaut: annual recommandé)
+  const [subscriptionType, setSubscriptionType] = useState('one-time') // 'one-time' ou 'annual' (par défaut: one-time)
   const [paymentVerified, setPaymentVerified] = useState(false)
   const { toast, showToast, hideToast } = useToast()
 
@@ -366,7 +366,10 @@ export default function Capeb() {
 
             {/* Vidéo Tella - Entre le header et le formulaire */}
             <div className="mb-8 md:mb-12">
-              <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900">
+              <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900" style={{
+                boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.1)',
+                filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05))'
+              }}>
                 <iframe 
                   className="absolute top-0 left-0 w-full h-full border-0"
                   src="https://www.tella.tv/video/vid_cmjyjan5w02rr04jta21y1mpl/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0"
