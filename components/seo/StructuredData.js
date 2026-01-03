@@ -309,14 +309,25 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         return {
           '@context': 'https://schema.org',
           '@type': 'FAQPage',
-          mainEntity: (data.questions || []).map(q => ({
-            '@type': 'Question',
-            name: q.question || q.name,
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: q.answer || q.text
+          mainEntity: (data.questions || []).map(q => {
+            // Si déjà en format Schema.org, utiliser directement
+            if (q['@type'] === 'Question' && q.acceptedAnswer && q.acceptedAnswer.text) {
+              return q
             }
-          }))
+            // Sinon, transformer depuis le format simple
+            const answerText = q.answer || q.text || (q.acceptedAnswer && q.acceptedAnswer.text) || ''
+            if (!answerText) {
+              return null // Ignorer les questions sans réponse
+            }
+            return {
+              '@type': 'Question',
+              name: q.question || q.name,
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: answerText
+              }
+            }
+          }).filter(q => q !== null) // Filtrer les questions null
         };
 
       case 'Review':

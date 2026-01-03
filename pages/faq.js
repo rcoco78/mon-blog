@@ -115,12 +115,8 @@ export default function FAQPage() {
     questions: filteredQuestions
       .filter(q => typeof q.answer === 'string')
       .map(q => ({
-        '@type': 'Question',
-        name: q.question,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: q.answer
-        }
+        question: q.question,
+        answer: q.answer
       }))
   }
 
