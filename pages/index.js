@@ -46,13 +46,9 @@ export default function Home({ posts }) {
   const [videoSeen, setVideoSeen] = useState(false)
   const testimonialScrollRef = useRef(null)
 
-  // URL de la vidéo YouTube (à remplacer par votre URL)
-  const videoUrl = 'https://www.youtube.com/watch?v=YOUR_VIDEO_ID' // À remplacer
-  const videoId = videoUrl.includes('v=') 
-    ? videoUrl.split('v=')[1]?.split('&')[0] 
-    : videoUrl.includes('/shorts/') 
-      ? videoUrl.split('/shorts/')[1]?.split('?')[0] 
-      : null
+  // URL de la vidéo Tella
+  const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
+  const videoEmbedUrl = 'https://www.tella.tv/video/vid_cmjylsyom00bn04la9dfs342e/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0'
 
   // Vérifier si la vidéo a déjà été vue
   useEffect(() => {
@@ -528,13 +524,13 @@ export default function Home({ posts }) {
           </div>
           
           {/* Popup vidéo */}
-          {showVideo && videoId && (
+          {showVideo && videoEmbedUrl && (
             <div 
               className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/80 dark:bg-neutral-900/80 backdrop-blur-sm"
               onClick={handleCloseVideo}
             >
               <div 
-                className="relative aspect-video w-full max-w-4xl rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xl"
+                className="relative w-full max-w-sm rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               >
                 <button
@@ -546,14 +542,15 @@ export default function Home({ posts }) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
-                <iframe
-                  src={`https://www.youtube.com/embed/${videoId}`}
-                  title="Présentation de Corentin Robert"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  className="w-full h-full"
-                  style={{ border: 'none' }}
-                />
+                <div style={{ position: 'relative', paddingBottom: '177.78%', height: 0 }}>
+                  <iframe
+                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+                    src={videoEmbedUrl}
+                    title="Présentation de Corentin Robert"
+                    allowFullScreen
+                    allowTransparency
+                  />
+                </div>
               </div>
             </div>
           )}
