@@ -1,10 +1,29 @@
 import { useState, useEffect } from 'react'
 
-export default function NewsletterForm({ compact = false, subscriberCount = null }) {
+export default function NewsletterForm({ compact = false, subscriberCount: propSubscriberCount = null }) {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState(null)
   const [showToast, setShowToast] = useState(false)
+  const [subscriberCount, setSubscriberCount] = useState(propSubscriberCount)
+
+  // Récupérer le nombre d'inscrits si non fourni en prop
+  useEffect(() => {
+    if (propSubscriberCount === null) {
+      const fetchCount = async () => {
+        try {
+          const response = await fetch('/api/newsletter/count')
+          const data = await response.json()
+          setSubscriberCount(data.count)
+        } catch (error) {
+          console.error('Erreur lors de la récupération du nombre d\'inscrits:', error)
+        }
+      }
+      fetchCount()
+    } else {
+      setSubscriberCount(propSubscriberCount)
+    }
+  }, [propSubscriberCount])
 
   // Afficher le toast et le masquer automatiquement après 5 secondes
   useEffect(() => {
@@ -42,6 +61,10 @@ export default function NewsletterForm({ compact = false, subscriberCount = null
             : 'Merci, vous êtes bien inscrit à la newsletter ! Vous recevrez mes derniers articles directement dans votre boîte mail.' 
         })
         setEmail('')
+        // Mettre à jour le compteur après une inscription réussie
+        if (!data.alreadySubscribed && subscriberCount !== null) {
+          setSubscriberCount(prevCount => prevCount + 1)
+        }
       } else {
         setMessage({ type: 'error', text: data.error || 'Une erreur est survenue. Veuillez réessayer.' })
       }
