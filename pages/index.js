@@ -585,12 +585,31 @@ export default function Home({ posts }) {
                   </div>
                 </div>
               </div>
+              
+              {/* Témoignage Malt */}
+              <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
+                <div className="mb-3">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className="text-xs font-medium text-neutral-900 dark:text-neutral-100">Délais respectés • Clarté dès le départ • Professionnalisme</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">Malt</span>
+                  </div>
+                </div>
+                <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
+                  "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
+                </p>
+                <div className="flex items-center justify-between mt-auto">
+                  <div>
+                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Denis</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">Inovesta</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           
           {/* Indicateurs de navigation */}
           <div className="flex justify-center gap-2 mt-4">
-            {[0, 1, 2].map((index) => {
+            {[0, 1, 2, 3].map((index) => {
               const isActive = isMobile ? currentTestimonialScrollIndex === index : testimonialIndex === index
               return (
               <button
