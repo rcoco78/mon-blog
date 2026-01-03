@@ -287,14 +287,14 @@ export default function DentistesParisiens() {
   const pageSEO = generatePageSEO({
     title: `${toolData.name} - Base de Données Gratuite`,
     description: toolData.description,
-    path: '/outils/dentistes-parisiens',
+    path: '/databases/dentistes-parisiens',
     keywords: ['base de données dentistes paris', 'dentistes parisiens', 'prospection dentaire', 'annuaire dentistes paris', 'données dentistes']
   })
 
   const datasetStructuredData = {
     name: toolData.name,
     description: toolData.description,
-    url: `${siteConfig.url}/outils/dentistes-parisiens`,
+    url: `${siteConfig.url}/databases/dentistes-parisiens`,
     datePublished: '2025-01-20',
     dateModified: toolData.lastUpdate ? toolData.lastUpdate.split('/').reverse().join('-') : '2025-01-20',
     keywords: ['dentistes', 'paris', 'prospection', 'base de données'],
@@ -307,7 +307,7 @@ export default function DentistesParisiens() {
   }
 
   const relatedToolsList = tools.filter(tool => 
-    toolData.relatedTools.includes(tool.link.replace('/outils/', ''))
+    toolData.relatedTools.includes(tool.link.replace('/outils/', '').replace('/databases/', ''))
   )
 
   return (
@@ -325,7 +325,7 @@ export default function DentistesParisiens() {
           itemReviewed: {
             '@type': 'Dataset',
             name: toolData.name,
-            url: `${siteConfig.url}/outils/dentistes-parisiens`
+            url: `${siteConfig.url}/databases/dentistes-parisiens`
           },
           reviewRating: {
             '@type': 'Rating',
@@ -1086,7 +1086,7 @@ export default function DentistesParisiens() {
                         itemReviewed: {
                           '@type': 'Dataset',
                           name: toolData.name,
-                          url: `${siteConfig.url}/outils/dentistes-parisiens`
+                          url: `${siteConfig.url}/databases/dentistes-parisiens`
                         }
                       }}
                     />
