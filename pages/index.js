@@ -438,11 +438,12 @@ export default function Home({ posts }) {
       <section aria-label="Présentation">
         <div>
           <Image
-            src="/images/profile.jpg"
+            src="/images/cr-pp3.png"
             alt="Photo de profil de Corentin Robert"
             width={64}
             height={64}
             className="w-16 h-16 rounded-full object-cover mb-4 border-2 border-neutral-200 dark:border-neutral-800"
+            style={{ objectPosition: 'center 30%' }}
             priority
           />
           <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Corentin Robert</h1>
@@ -701,6 +702,7 @@ export default function Home({ posts }) {
                         height={24}
                         loading="lazy"
                         className={`w-6 h-6 rounded-lg object-cover border border-neutral-200 dark:border-neutral-800 ${!isActive ? 'opacity-50 grayscale' : ''}`}
+                        style={project.image === '/images/cr-pp3.png' ? { objectPosition: 'center 30%' } : undefined}
                       />
                     </div>
                   ) : project.icon ? (

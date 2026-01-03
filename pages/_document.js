@@ -20,8 +20,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <script defer src="https://cloud.umami.is/script.js" data-website-id="34057468-2b5a-4874-82ba-3e8b93514c2e"></script>
         
         {/* Favicon */}
-        <link rel="icon" href="/images/rounded-icon.png" />
-        <link rel="apple-touch-icon" href="/images/rounded-icon.png" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/images/cr-pp3.png" />
         
         {/* Theme */}
         <meta name="theme-color" content="#000000" />
