@@ -121,7 +121,7 @@ export default function Capeb() {
   const toolData = {
     name: 'Base de données - Artisans CAPEB',
     description: 'Base de données complète des artisans de France (CAPEB) avec coordonnées, typologie de profession et informations de contact. Idéal pour la prospection et l\'analyse du marché de l\'artisanat français.',
-    category: 'Scraping',
+    category: 'Artisanat',
     price: 99, // Prix TTC en euros (achat unique)
     priceHT: 82.50, // Prix HT (TVA 20%)
     priceLabel: '99 € TTC',
@@ -254,8 +254,8 @@ export default function Capeb() {
       answer: `La base de données contient tous les artisans de France (CAPEB) avec leurs coordonnées complètes, typologie de profession et informations de contact.`
     },
     {
-      question: 'Quelle est la différence entre l\'achat unique et l\'abonnement Apify ?',
-      answer: 'L\'achat unique à 99€ vous donne un accès immédiat à la base de données complète sans renouvellement. L\'abonnement Apify à 10$/mois vous permet d\'accéder aux données via notre API récurrente sur apify.com/corent1robert/capeb-scraper, idéal si vous avez besoin de données régulièrement mises à jour.'
+      question: 'Quelle est la différence entre l\'achat unique et l\'accès API récurrent ?',
+      answer: 'L\'achat unique à 99€ vous donne un accès immédiat à la base de données complète via Google Sheets, sans renouvellement. L\'accès API récurrent à 10$/mois vous permet d\'accéder à la même base de données via une API (apify.com/corent1robert/capeb-scraper), idéal si vous avez besoin d\'intégrer les données dans vos systèmes ou de les récupérer régulièrement.'
     },
     {
       question: 'Quelles typologies de profession sont incluses ?',
@@ -406,7 +406,7 @@ export default function Capeb() {
                               : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'
                           } disabled:opacity-50`}
                         >
-                          Abonnement Apify
+                          Accès API
                         </button>
                       </div>
 
@@ -430,7 +430,7 @@ export default function Capeb() {
                               {subscriptionType === 'annual' ? '10$/mois' : toolData.priceLabel.replace(' TTC', '')}
                             </div>
                             <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
-                              {subscriptionType === 'annual' ? 'Via Apify' : 'Achat unique'}
+                              {subscriptionType === 'annual' ? 'Via API' : 'Achat unique'}
                             </div>
                           </div>
                         )}
@@ -444,12 +444,12 @@ export default function Capeb() {
                         {subscriptionType === 'annual' ? (
                           <div className="flex items-start gap-2">
                             <span className="text-neutral-400 dark:text-neutral-600 mt-0.5">•</span>
-                            <span><strong className="text-neutral-700 dark:text-neutral-300">Abonnement Apify :</strong> Accès récurrent à 10$ par mois via notre API Apify. <a href="https://apify.com/corent1robert/capeb-scraper" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">apify.com/corent1robert/capeb-scraper</a></span>
+                            <span><strong className="text-neutral-700 dark:text-neutral-300">Accès API récurrent :</strong> Accès mensuel à la base de données via API (10$/mois). <a href="https://apify.com/corent1robert/capeb-scraper" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">apify.com/corent1robert/capeb-scraper</a></span>
                           </div>
                         ) : (
                           <div className="flex items-start gap-2">
                             <span className="text-neutral-400 dark:text-neutral-600 mt-0.5">•</span>
-                            <span><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Accès immédiat à la base de données complète, sans renouvellement.</span>
+                            <span><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Accès immédiat à la base de données complète via Google Sheets, sans renouvellement.</span>
                           </div>
                         )}
                       </div>
@@ -471,10 +471,10 @@ export default function Capeb() {
                         </span>
                       </div>
                       <div className="flex items-start justify-between">
-                        <span className="text-neutral-500 dark:text-neutral-500">Abonnement Apify</span>
+                        <span className="text-neutral-500 dark:text-neutral-500">Accès API récurrent</span>
                         <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
                           <div>10$/mois</div>
-                          <div className="text-xs text-neutral-500 dark:text-neutral-500">Via Apify</div>
+                          <div className="text-xs text-neutral-500 dark:text-neutral-500">Via API</div>
                         </span>
                       </div>
                     </div>
@@ -562,7 +562,7 @@ export default function Capeb() {
                               : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'
                           } disabled:opacity-50`}
                         >
-                          Abonnement Apify
+                          Accès API
                         </button>
                       </div>
 
@@ -586,7 +586,7 @@ export default function Capeb() {
                               {subscriptionType === 'annual' ? '10$/mois' : toolData.priceLabel.replace(' TTC', '')}
                             </div>
                             <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
-                              {subscriptionType === 'annual' ? 'Via Apify' : 'Achat unique'}
+                              {subscriptionType === 'annual' ? 'Via API' : 'Achat unique'}
                             </div>
                           </div>
                         )}
@@ -600,12 +600,12 @@ export default function Capeb() {
                         {subscriptionType === 'annual' ? (
                           <div className="flex items-start gap-2">
                             <span className="text-neutral-400 dark:text-neutral-600 mt-0.5">•</span>
-                            <span><strong className="text-neutral-700 dark:text-neutral-300">Abonnement Apify :</strong> Accès récurrent à 10$ par mois via notre API Apify. <a href="https://apify.com/corent1robert/capeb-scraper" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">apify.com/corent1robert/capeb-scraper</a></span>
+                            <span><strong className="text-neutral-700 dark:text-neutral-300">Accès API récurrent :</strong> Accès mensuel à la base de données via API (10$/mois). <a href="https://apify.com/corent1robert/capeb-scraper" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">apify.com/corent1robert/capeb-scraper</a></span>
                           </div>
                         ) : (
                           <div className="flex items-start gap-2">
                             <span className="text-neutral-400 dark:text-neutral-600 mt-0.5">•</span>
-                            <span><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Accès immédiat à la base de données complète, sans renouvellement.</span>
+                            <span><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Accès immédiat à la base de données complète via Google Sheets, sans renouvellement.</span>
                           </div>
                         )}
                       </div>
@@ -630,10 +630,10 @@ export default function Capeb() {
                         </span>
                       </div>
                       <div className="flex items-start justify-between">
-                        <span className="text-neutral-500 dark:text-neutral-500">Abonnement Apify</span>
+                        <span className="text-neutral-500 dark:text-neutral-500">Accès API récurrent</span>
                         <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
                           <div>10$/mois</div>
-                          <div className="text-xs text-neutral-500 dark:text-neutral-500">Via Apify</div>
+                          <div className="text-xs text-neutral-500 dark:text-neutral-500">Via API</div>
                         </span>
                       </div>
                     </div>

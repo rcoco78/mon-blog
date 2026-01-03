@@ -102,7 +102,7 @@ export default function DentistesParisiens() {
   const toolData = {
     name: 'Base de données - Dentistes Parisiens',
     description: 'Base de données complète des dentistes à Paris avec coordonnées, spécialités et informations de contact. Idéal pour la prospection et l\'analyse du marché dentaire parisien.',
-    category: 'Scraping',
+    category: 'Santé',
     price: 79, // Prix TTC en euros (achat unique)
     priceHT: 65.83, // Prix HT (TVA 20%)
     priceLabel: '79 € TTC',
