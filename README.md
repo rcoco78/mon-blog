@@ -15,8 +15,6 @@ mon-blog/
 │   ├── notion.js       # Client Notion API
 │   └── analytics.js    # Analytics
 ├── hooks/               # React Hooks personnalisés
-├── types/               # Types TypeScript (si migration)
-├── utils/               # Fonctions utilitaires
 ├── pages/               # Pages Next.js
 │   ├── api/            # API Routes
 │   │   └── cron/       # Cron jobs Vercel
