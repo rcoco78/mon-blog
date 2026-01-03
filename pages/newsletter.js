@@ -48,44 +48,40 @@ export default function NewsletterPage() {
 
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
         <section className="mb-16">
-          <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Newsletter</h1>
+          <h1 className="font-semibold text-2xl mb-3 tracking-tighter">Newsletter</h1>
           <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
             Rejoignez une communauté de professionnels passionnés par le scraping, l'automatisation et l'entrepreneuriat.
           </p>
 
-          {/* Statistiques */}
-          {subscriberCount !== null && (
-            <div className="mb-8 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                <strong className="text-neutral-900 dark:text-neutral-100">{subscriberCount}</strong> {subscriberCount === 1 ? 'personne' : 'personnes'} {subscriberCount === 1 ? 'est' : 'sont'} déjà inscrite{subscriberCount > 1 ? 's' : ''}
-              </p>
-            </div>
-          )}
+          {/* Formulaire d'inscription */}
+          <div className="mb-12">
+            <NewsletterForm compact={false} subscriberCount={subscriberCount} />
+          </div>
 
           {/* Bénéfices */}
-          <div className="mb-8 space-y-4">
-            <h2 className="font-semibold text-lg mb-4 tracking-tighter">Ce que vous recevrez</h2>
+          <div className="mb-12">
+            <h2 className="font-semibold text-lg mb-6 tracking-tighter">Ce que vous recevrez</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">📧 Articles en avant-première</h3>
+                <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Articles en avant-première</h3>
                 <p className="text-sm text-neutral-600 dark:text-neutral-400">
                   Recevez mes nouveaux articles directement dans votre boîte mail, avant même qu'ils ne soient partagés sur les réseaux sociaux.
                 </p>
               </div>
               <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">💡 Cas d'usage concrets</h3>
+                <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Cas d'usage concrets</h3>
                 <p className="text-sm text-neutral-600 dark:text-neutral-400">
                   Découvrez comment j'ai résolu des problèmes réels de scraping et d'automatisation pour mes clients.
                 </p>
               </div>
               <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">🚀 Outils et ressources</h3>
+                <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Outils et ressources</h3>
                 <p className="text-sm text-neutral-600 dark:text-neutral-400">
                   Accès en priorité à mes nouveaux outils gratuits et bases de données que je développe régulièrement.
                 </p>
               </div>
               <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">🎯 Contenu exclusif</h3>
+                <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Contenu exclusif</h3>
                 <p className="text-sm text-neutral-600 dark:text-neutral-400">
                   Réflexions sur l'entrepreneuriat, le freelance et mes apprentissages que je ne partage que par email.
                 </p>
@@ -93,36 +89,33 @@ export default function NewsletterPage() {
             </div>
           </div>
 
-          {/* Formulaire d'inscription */}
-          <div className="mb-8">
-            <NewsletterForm compact={false} />
-          </div>
-
           {/* Engagement */}
-          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-            <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-3">Notre engagement</h3>
-            <ul className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                <span><strong>Pas de spam</strong> — Maximum 1 email par semaine, uniquement pour les nouveaux articles</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                <span><strong>Désinscription facile</strong> — Un clic dans chaque email pour vous désinscrire à tout moment</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                <span><strong>Données protégées</strong> — Vos emails ne sont jamais partagés et sont stockés de manière sécurisée</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                <span><strong>Contenu de qualité</strong> — Seulement du contenu utile, pas de publicité</span>
-              </li>
-            </ul>
+          <div className="mb-12">
+            <h2 className="font-semibold text-lg mb-6 tracking-tighter">Notre engagement</h2>
+            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <ul className="space-y-3 text-sm text-neutral-600 dark:text-neutral-400">
+                <li className="flex items-start gap-3">
+                  <span className="text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0">✓</span>
+                  <span><strong className="text-neutral-900 dark:text-neutral-100">Pas de spam</strong> — Maximum 1 email par semaine, uniquement pour les nouveaux articles</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0">✓</span>
+                  <span><strong className="text-neutral-900 dark:text-neutral-100">Désinscription facile</strong> — Un clic dans chaque email pour vous désinscrire à tout moment</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0">✓</span>
+                  <span><strong className="text-neutral-900 dark:text-neutral-100">Données protégées</strong> — Vos emails ne sont jamais partagés et sont stockés de manière sécurisée</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0">✓</span>
+                  <span><strong className="text-neutral-900 dark:text-neutral-100">Contenu de qualité</strong> — Seulement du contenu utile, pas de publicité</span>
+                </li>
+              </ul>
+            </div>
           </div>
 
           {/* Liens vers le blog */}
-          <div className="mt-8 pt-8 border-t border-neutral-200 dark:border-neutral-800">
+          <div className="pt-8 border-t border-neutral-200 dark:border-neutral-800">
             <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
               En attendant, découvrez mes derniers articles :
             </p>

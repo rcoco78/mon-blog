@@ -381,6 +381,10 @@ export default function Outils() {
                 Découvrez mon parcours
               </Link>
               {' • '}
+              <Link href="/newsletter" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Inscrivez-vous à la newsletter
+              </Link>
+              {' • '}
               <Link href="/objectifs" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
                 Suivez mes objectifs 2026
               </Link>

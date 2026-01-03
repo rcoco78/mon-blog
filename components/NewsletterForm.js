@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-export default function NewsletterForm({ compact = false }) {
+export default function NewsletterForm({ compact = false, subscriberCount = null }) {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState(null)
@@ -125,9 +125,16 @@ export default function NewsletterForm({ compact = false }) {
           {isLoading ? 'Inscription...' : "S'inscrire"}
         </button>
       </form>
-      <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-3">
-        Pas de spam, désinscription en un clic. Vos données sont protégées.
-      </p>
+      <div className="flex items-center justify-between mt-3">
+        <p className="text-xs text-neutral-500 dark:text-neutral-500">
+          Pas de spam, désinscription en un clic. Vos données sont protégées.
+        </p>
+        {subscriberCount !== null && (
+          <p className="text-xs text-neutral-400 dark:text-neutral-600">
+            {subscriberCount} {subscriberCount === 1 ? 'inscrit' : 'inscrits'}
+          </p>
+        )}
+      </div>
       
       {/* Toast notification */}
       {showToast && message && (

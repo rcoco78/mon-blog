@@ -427,6 +427,10 @@ export default function Marketplace() {
                 Découvrez mon parcours
               </Link>
               {' • '}
+              <Link href="/newsletter" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Inscrivez-vous à la newsletter
+              </Link>
+              {' • '}
               <Link href="/temoignages" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
                 Lisez les témoignages clients
               </Link>

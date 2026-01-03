@@ -847,11 +847,11 @@ export default function DonneesPubliques() {
 
   // Composant réutilisable pour les graphiques de croissance
   const GrowthChart = ({ title, description, history, loading, colorFrom = 'blue', colorTo = 'blue', insight, targetValue }) => {
-    // Couleurs plus douces et moins saturées pour différencier tout en restant subtiles
+    // Couleurs pastel/claires comme dans MiniGrowthChart
     const colorClasses = {
-      blue: 'bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-400',
-      green: 'bg-green-600 dark:bg-green-500 hover:bg-green-700 dark:hover:bg-green-400',
-      purple: 'bg-purple-600 dark:bg-purple-500 hover:bg-purple-700 dark:hover:bg-purple-400'
+      blue: 'bg-blue-400 dark:bg-blue-500 hover:bg-blue-500 dark:hover:bg-blue-400',
+      green: 'bg-green-400 dark:bg-green-500 hover:bg-green-500 dark:hover:bg-green-400',
+      purple: 'bg-purple-400 dark:bg-purple-500 hover:bg-purple-500 dark:hover:bg-purple-400'
     }
     const colorClass = colorClasses[colorFrom] || colorClasses.blue
 
@@ -886,52 +886,119 @@ export default function DonneesPubliques() {
             <div className="sr-only">
               <p>Graphique en barres représentant l'évolution de {title.toLowerCase()}. Les données sont affichées chronologiquement de gauche à droite.</p>
             </div>
-            <div className="flex items-end justify-between gap-1 md:gap-2 h-64 relative overflow-x-hidden" role="img" aria-label={`Graphique de ${title.toLowerCase()}`}>
-              {/* Ligne d'objectif si targetValue est fourni */}
-              {targetValue && (() => {
-                const maxValue = Math.max(...history.map(h => h.valeur), targetValue || 0)
-                const targetHeight = maxValue > 0 ? (targetValue / maxValue) * 100 : 0
-                return (
-                  <div 
-                    className="absolute left-0 right-0 border-t-2 border-dashed border-neutral-400 dark:border-neutral-500 z-10"
-                    style={{ bottom: `${targetHeight}%` }}
-                    title={`Objectif: ${formatNumber(targetValue)}`}
-                  >
-                    {/* Label desktop : à droite de la ligne */}
-                    <div className="hidden md:block absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-full ml-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap shadow-lg">
-                      Objectif: {formatNumber(targetValue)}
-                    </div>
-                    {/* Label mobile : au-dessus de la ligne à gauche */}
-                    <div className="md:hidden absolute left-0 top-0 transform -translate-y-full -mt-1 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap shadow-lg z-20">
-                      Objectif: {formatNumber(targetValue)}
-                    </div>
-                  </div>
-                )
-              })()}
-              {history.map((item, index) => {
-                const maxValue = Math.max(...history.map(h => h.valeur), targetValue || 0)
-                const height = maxValue > 0 ? (item.valeur / maxValue) * 100 : 0
+            <div className="flex items-end justify-between gap-0.5 md:gap-2 h-80 md:h-72 relative overflow-x-hidden overflow-y-visible" role="img" aria-label={`Graphique de ${title.toLowerCase()}`}>
+              {(() => {
+                // Calcul de l'échelle pour mieux visualiser la progression
+                const minValue = Math.min(...history.map(h => h.valeur))
+                const maxValue = Math.max(...history.map(h => h.valeur))
+                const range = maxValue - minValue
+                
+                // Ne pas utiliser l'objectif si il est trop éloigné des valeurs réelles (plus de 3x le max)
+                // Cela permet de mieux visualiser les différences entre les valeurs réelles
+                const shouldUseTarget = targetValue && targetValue > maxValue && targetValue <= maxValue * 3
+                
+                // Si la plage est très petite par rapport au max, utiliser une échelle amplifiée
+                const useAmplifiedScale = range > 0 && range < maxValue * 0.15 // Si la plage est inférieure à 15% du max
+                
+                const scaleMax = shouldUseTarget
+                  ? targetValue 
+                  : useAmplifiedScale
+                    ? maxValue + (range * 0.03) // Petite marge pour amplifier
+                    : maxValue + (range > 0 ? range * 0.05 : maxValue * 0.05)
+                
+                // Commencer au minimum réel avec une marge minimale pour maximiser la visibilité des différences
+                const scaleMin = useAmplifiedScale
+                  ? Math.max(0, minValue - (range * 0.02)) // Marge très petite pour amplification
+                  : Math.max(0, minValue - (range > 0 ? range * 0.02 : minValue * 0.02))
+                
+                const scaleRange = scaleMax - scaleMin
                 
                 return (
-                  <div key={item.id} className="flex-1 flex flex-col items-center gap-1 md:gap-2 min-w-0 relative">
-                    <div className="relative w-full flex items-end justify-center" style={{ height: '200px' }}>
+                  <>
+                    {/* Ligne d'objectif si targetValue est fourni et dans la plage visible */}
+                    {targetValue && scaleMax > 0 && shouldUseTarget && (
                       <div 
-                        className={`w-full ${colorClass} rounded-t transition-all duration-500 group relative`}
-                        style={{ height: `${height}%`, minHeight: height > 0 ? '4px' : '0' }}
-                        title={`${item.date}: ${item.valeur}`}
+                        className="absolute left-0 right-0 border-t-2 border-dashed border-neutral-400 dark:border-neutral-500 z-10"
+                        style={{ bottom: `${((targetValue - scaleMin) / scaleRange) * 100}%` }}
+                        title={`Objectif: ${formatNumber(targetValue)}`}
                       >
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                          {item.date}: {formatNumber(item.valeur)}
+                        {/* Label desktop : à droite de la ligne */}
+                        <div className="hidden md:block absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-full ml-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap shadow-lg">
+                          Objectif: {formatNumber(targetValue)}
+                        </div>
+                        {/* Label mobile : au-dessus de la ligne à gauche */}
+                        <div className="md:hidden absolute left-0 top-0 transform -translate-y-full -mt-1 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap shadow-lg z-20">
+                          Objectif: {formatNumber(targetValue)}
+                        </div>
+                      </div>
+                    )}
+                    {history.map((item, index) => {
+                      const height = scaleRange > 0 ? ((item.valeur - scaleMin) / scaleRange) * 100 : 0
+                      const isFirst = index === 0
+                      const isLast = index === history.length - 1
+                      const isVisibleOnMobile = isFirst || isLast
+                      // Formater la date pour desktop : seulement jour/mois si beaucoup de données
+                      const formatDateForDesktop = (dateStr) => {
+                        try {
+                          const date = new Date(dateStr)
+                          if (!isNaN(date.getTime())) {
+                            if (history.length > 8) {
+                              // Format court : 23/12 au lieu de 23-12-2025
+                              return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`
+                            }
+                            // Format complet : dd-mm-yyyy
+                            return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`
+                          }
+                        } catch (e) {
+                          // Si erreur, retourner la date originale
+                        }
+                        return dateStr
+                      }
+                      
+                      // Formater la date pour le tooltip : dd-mm-yyyy
+                      const formatDateForTooltip = (dateStr) => {
+                        try {
+                          const date = new Date(dateStr)
+                          if (!isNaN(date.getTime())) {
+                            return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`
+                          }
+                        } catch (e) {
+                          // Si erreur, retourner la date originale
+                        }
+                        return dateStr
+                      }
+                
+                return (
+                  <div key={item.id} className="flex-1 flex flex-col items-center min-w-0 relative overflow-visible group/bar" style={{ height: '100%' }}>
+                    <div className="relative w-full flex items-end justify-center flex-1" style={{ minHeight: '240px', maxHeight: '240px' }}>
+                      <div 
+                        className={`w-full ${colorClass} rounded-t transition-all duration-500 group relative shadow-sm hover:shadow-md hover:opacity-90`}
+                        style={{ 
+                          height: `${height}%`, 
+                          minHeight: height > 0 ? '8px' : '0',
+                          width: 'calc(100% - 4px)',
+                          margin: '0 2px'
+                        }}
+                        title={`${formatDateForTooltip(item.date)}: ${formatNumber(item.valeur)}`}
+                      >
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-lg" style={{ zIndex: 9999, isolation: 'isolate' }}>
+                          <div className="flex flex-col items-center">
+                            <div>{formatDateForTooltip(item.date)}</div>
+                            <div className="font-semibold">{formatNumber(item.valeur)}</div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                    <div className="text-xs text-neutral-600 dark:text-neutral-400 text-center mt-2 min-w-0 w-full px-0.5">
-                      <div className="font-medium truncate">{formatNumber(item.valeur)}</div>
-                      <div className="hidden md:block text-[10px] mt-1 leading-tight">{item.date}</div>
+                    <div className={`text-xs text-neutral-600 dark:text-neutral-400 mt-2 min-w-0 w-full px-0.5 overflow-visible text-center md:text-center ${isFirst ? 'text-right md:text-center' : ''} ${isLast ? 'text-left md:text-center' : ''}`} style={{ minHeight: '2.5rem', flexShrink: 0, position: 'relative', zIndex: isVisibleOnMobile ? 10 : 1 }}>
+                      <div className={`font-medium ${isVisibleOnMobile ? 'whitespace-nowrap' : 'truncate'} ${isVisibleOnMobile ? '' : 'invisible sm:visible'} ${isVisibleOnMobile ? 'relative z-10 bg-neutral-50 dark:bg-neutral-900/50 px-1 rounded inline-block' : ''}`}>{formatNumber(item.valeur)}</div>
+                      <div className="hidden md:block text-[9px] mt-1 leading-tight whitespace-nowrap">{formatDateForDesktop(item.date)}</div>
                     </div>
                   </div>
+                    )
+                  })}
+                  </>
                 )
-              })}
+              })()}
             </div>
             
             {/* Ligne de tendance */}
@@ -2284,6 +2351,10 @@ export default function DonneesPubliques() {
               {' • '}
               <Link href="/blog" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
                 Lisez mes articles
+              </Link>
+              {' • '}
+              <Link href="/newsletter" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Inscrivez-vous à la newsletter
               </Link>
               {' • '}
               <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">

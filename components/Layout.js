@@ -218,6 +218,7 @@ export default function Layout({ children }) {
                     </button>
                   </div>
                   <ul className="font-sm mt-8 flex flex-row flex-wrap gap-4 text-neutral-600 dark:text-neutral-300">
+                    {/* Contact & Communication */}
                     <li>
                       <Link
                         href="/contact"
@@ -229,6 +230,20 @@ export default function Layout({ children }) {
                         <p className="ml-2 h-7">contact</p>
                       </Link>
                     </li>
+                    <li>
+                      <Link
+                        className={`flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100 ${
+                          router.pathname === '/newsletter' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : ''
+                        }`}
+                        href="/newsletter"
+                      >
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                        </svg>
+                        <p className="ml-2 h-7">newsletter</p>
+                      </Link>
+                    </li>
+                    {/* Réseaux professionnels */}
                     <li>
                       <a
                         className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
@@ -268,6 +283,7 @@ export default function Layout({ children }) {
                         <p className="ml-2 h-7">fiverr</p>
                       </a>
                     </li>
+                    {/* Outils & Personnel */}
                     <li>
                       <a
                         className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"

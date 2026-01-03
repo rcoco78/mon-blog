@@ -518,6 +518,10 @@ export default function Blog({ posts }) {
                 Découvrez mon parcours
               </Link>
               {' • '}
+              <Link href="/newsletter" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Inscrivez-vous à la newsletter
+              </Link>
+              {' • '}
               <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
                 Découvrez la marketplace
               </Link>
