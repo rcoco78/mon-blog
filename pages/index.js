@@ -468,10 +468,43 @@ export default function Home({ posts }) {
           <div 
             className={`relative inline-block mb-4 group cursor-pointer ${!videoSeen ? 'p-[3px] rounded-full' : ''}`}
             onClick={handleVideoClick}
-            style={!videoSeen ? {
-              background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)'
-            } : {}}
           >
+            {!videoSeen && (
+              <svg 
+                className="absolute inset-0"
+                style={{ 
+                  width: 'calc(100% + 6px)', 
+                  height: 'calc(100% + 6px)',
+                  margin: '-3px',
+                  transform: 'rotate(-90deg)'
+                }}
+                viewBox="0 0 70 70"
+              >
+                <defs>
+                  <linearGradient id="instagram-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#f09433" />
+                    <stop offset="25%" stopColor="#e6683c" />
+                    <stop offset="50%" stopColor="#dc2743" />
+                    <stop offset="75%" stopColor="#cc2366" />
+                    <stop offset="100%" stopColor="#bc1888" />
+                  </linearGradient>
+                </defs>
+                <circle
+                  cx="35"
+                  cy="35"
+                  r="33"
+                  fill="none"
+                  stroke="url(#instagram-gradient)"
+                  strokeWidth="3"
+                  strokeDasharray="207.35"
+                  strokeDashoffset="207.35"
+                  className="animate-draw-circle"
+                  style={{
+                    transformOrigin: '35px 35px'
+                  }}
+                />
+              </svg>
+            )}
             <div className={!videoSeen ? 'rounded-full bg-white dark:bg-neutral-900 p-[2px]' : ''}>
               <Image
                 src="/images/cr-pp3.png"

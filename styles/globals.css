@@ -77,4 +77,17 @@ body {
   .animate-shimmer {
     animation: shimmer 2s infinite;
   }
+  
+  @keyframes draw-circle {
+    0% {
+      stroke-dashoffset: 207.35;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+  
+  .animate-draw-circle {
+    animation: draw-circle 1.5s ease-out forwards;
+  }
 } 
