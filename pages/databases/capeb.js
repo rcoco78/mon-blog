@@ -655,7 +655,6 @@ export default function Capeb() {
                   </div>
                 </div>
               </div>
-            </div>
           </div>
         </section>
 
