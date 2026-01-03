@@ -84,17 +84,17 @@ export default function Post({ post, allPosts }) {
   } else if (blocks) {
     // Sinon, utiliser les blocks Notion (chargés côté client)
     content = blocks
-      .map(block => {
-        if (block.type === 'paragraph' && block.paragraph?.rich_text) {
-          return block.paragraph.rich_text
-            .map(text => text?.plain_text || '')
-            .filter(text => text.length > 0)
-            .join(' ')
-        }
-        return ''
-      })
-      .filter(text => text.length > 0)
-      .join(' ')
+    .map(block => {
+      if (block.type === 'paragraph' && block.paragraph?.rich_text) {
+        return block.paragraph.rich_text
+          .map(text => text?.plain_text || '')
+          .filter(text => text.length > 0)
+          .join(' ')
+      }
+      return ''
+    })
+    .filter(text => text.length > 0)
+    .join(' ')
   } else {
     // Fallback : utiliser la meta description pour le calcul minimal
     content = post.metaDescription || post.title || ''
@@ -241,9 +241,9 @@ export default function Post({ post, allPosts }) {
                 {loadingMarkdown ? (
                   <div className="h-5 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
                 ) : (
-                  <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                    {readingTime} min de lecture
-                  </span>
+                <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                  {readingTime} min de lecture
+                </span>
                 )}
                 {post.tags && post.tags.length > 0 && (
                   <>
@@ -291,8 +291,8 @@ export default function Post({ post, allPosts }) {
                   <div className="h-5 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
                 ) : (
                   <span className="text-sm text-neutral-600 dark:text-neutral-400 whitespace-nowrap">
-                    {readingTime} min de lecture
-                  </span>
+                  {readingTime} min de lecture
+                </span>
                 )}
                 {post.tags && post.tags.length > 0 && (
                   <>
@@ -350,10 +350,10 @@ export default function Post({ post, allPosts }) {
             ) : contentMarkdown ? (
               <MarkdownRenderer>{contentMarkdown}</MarkdownRenderer>
             ) : blocks ? (
-              <div className="prose prose-neutral dark:prose-invert max-w-none">
-                {blocks.map((block) => (
-                  <Block key={block.id} block={block} />
-                ))}
+        <div className="prose prose-neutral dark:prose-invert max-w-none">
+          {blocks.map((block) => (
+            <Block key={block.id} block={block} />
+          ))}
               </div>
             ) : null}
 
@@ -366,10 +366,10 @@ export default function Post({ post, allPosts }) {
                   title={post.title} 
                 />
               </div>
-            </div>
+        </div>
 
             {/* Articles similaires */}
-            <RelatedPosts currentPost={post} allPosts={allPosts} />
+        <RelatedPosts currentPost={post} allPosts={allPosts} />
 
             {/* Newsletter en fin d'article */}
             <NewsletterForm compact={false} />

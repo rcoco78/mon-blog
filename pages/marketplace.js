@@ -15,7 +15,7 @@ export default function Marketplace() {
   const [selectedPricing, setSelectedPricing] = useState(null) // 'gratuit' | 'payant' | null
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
 
-  const categories = ['Outreach', 'Scraping', 'Immobilier', 'Productivité', 'Santé', 'Artisanat']
+  const categories = ['Finance', 'Artisanat']
   const types = ['outil', 'database']
   const pricingOptions = ['gratuit', 'payant']
 

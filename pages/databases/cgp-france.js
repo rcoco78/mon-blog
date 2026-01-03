@@ -10,7 +10,7 @@ import { generatePageSEO } from '../../lib/seo'
 import { siteConfig } from '../../lib/config'
 import { tools } from '../../lib/tools'
 
-export default function DentistesParisiens() {
+export default function CgpFrance() {
   const [email, setEmail] = useState('')
   const [emailSubmitted, setEmailSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -55,120 +55,133 @@ export default function DentistesParisiens() {
     }
   }
 
-  // Exemple de données pour la preview
+  // Fonction pour flouter les emails
+  const blurEmail = (email) => {
+    if (!email) return '-'
+    const [localPart, domain] = email.split('@')
+    if (!domain) return email
+    // Garder seulement le premier caractère de la partie locale et masquer le reste
+    const blurredLocal = localPart.length > 1 ? localPart[0] + '***' : '***'
+    // Garder le domaine mais masquer partiellement
+    const domainParts = domain.split('.')
+    const blurredDomain = domainParts.length > 0 
+      ? domainParts[0].substring(0, 2) + '***.' + domainParts.slice(1).join('.')
+      : domain
+    return `${blurredLocal}@${blurredDomain}`
+  }
+
+  // Exemple de données pour la preview (basé sur les vraies colonnes de la base)
   const sampleData = [
     {
-      nom: 'Dr. Martin Dubois',
-      adresse: '15 Rue de Rivoli, 75001 Paris',
-      telephone: '01 42 36 12 45',
-      specialite: 'Orthodontie',
-      arrondissement: '75001',
-      siteWeb: 'www.dubois-dentiste.fr'
+      name: 'SélectionInvest',
+      city: 'Paris',
+      zipCode: '75116',
+      manager: 'Gael Morel',
+      phone: '01 44 20 44 20',
+      email: 'gmorel@selectioninvest.fr',
+      website: 'www.selectioninvest.fr',
+      orias: '16005255',
+      specialties: 'Gestion de fortune • Conseil dirigeant d\'entreprise • Stratégie retraite'
     },
     {
-      nom: 'Dr. Sophie Laurent',
-      adresse: '42 Avenue des Champs-Élysées, 75008 Paris',
-      telephone: '01 45 62 78 90',
-      specialite: 'Implantologie',
-      arrondissement: '75008',
-      siteWeb: 'www.laurent-dentaire.fr'
+      name: 'CGP Lyon Centre',
+      city: 'Lyon',
+      zipCode: '69003',
+      manager: 'Marie Dubois',
+      phone: '04 78 12 34 56',
+      email: 'contact@cgp-lyon.fr',
+      website: 'www.cgp-lyon.fr',
+      orias: '23456789',
+      specialties: 'Retraite • Immobilier • Transmission'
     },
     {
-      nom: 'Dr. Pierre Moreau',
-      adresse: '28 Boulevard Saint-Germain, 75005 Paris',
-      telephone: '01 43 25 67 89',
-      specialite: 'Parodontologie',
-      arrondissement: '75005',
-      siteWeb: 'www.moreau-dentiste.fr'
+      name: 'CGP Marseille',
+      city: 'Marseille',
+      zipCode: '13001',
+      manager: 'Pierre Martin',
+      phone: '04 91 23 45 67',
+      email: 'info@cgp-marseille.fr',
+      website: '',
+      orias: '34567890',
+      specialties: 'Investissement • Fiscalité • Assurance'
     },
     {
-      nom: 'Dr. Marie Bernard',
-      adresse: '67 Rue de la Paix, 75002 Paris',
-      telephone: '01 40 20 30 40',
-      specialite: 'Esthétique dentaire',
-      arrondissement: '75002',
-      siteWeb: 'www.bernard-dentaire.fr'
-    },
-    {
-      nom: 'Dr. Jean Lefebvre',
-      adresse: '89 Rue de Vaugirard, 75015 Paris',
-      telephone: '01 45 78 90 12',
-      specialite: 'Chirurgie orale',
-      arrondissement: '75015',
-      siteWeb: 'www.lefebvre-dentiste.fr'
+      name: 'CGP Toulouse',
+      city: 'Toulouse',
+      zipCode: '31000',
+      manager: 'Sophie Bernard',
+      phone: '05 61 34 56 78',
+      email: 'contact@cgp-toulouse.fr',
+      website: 'www.cgp-toulouse.fr',
+      orias: '45678901',
+      specialties: 'Épargne • Transmission • Conseil TNS'
     }
   ]
 
   const toolData = {
-    name: 'Base de données - Dentistes Parisiens',
-    description: 'Base de données complète des dentistes à Paris avec coordonnées, spécialités et informations de contact. Idéal pour la prospection et l\'analyse du marché dentaire parisien.',
-    category: 'Santé',
-    price: 79, // Prix TTC en euros (achat unique)
-    priceHT: 65.83, // Prix HT (TVA 20%)
-    priceLabel: '79 € TTC',
-    priceLabelHT: '65,83 € HT',
-    annualPrice: 59, // Prix annuel TTC
-    annualPriceHT: 49.17, // Prix annuel HT
-    annualPriceLabel: '59 € TTC',
-    annualPriceLabelHT: '49,17 € HT',
-    videoUrl: 'https://www.youtube.com/shorts/5bCoM91K1uM', // URL YouTube Shorts
-    videoThumbnail: '/images/outils/dentistes-parisiens-thumb.jpg', // Image de preview (optionnel si embed)
-    formats: ['CSV', 'Excel', 'JSON'],
-    lastUpdate: '20/01/2025',
-    rows: '500+ dentistes',
+    name: 'Base de données - CGP France',
+    description: 'Base de données complète des cabinets CGP France (le plus grand réseau de conseillers en gestion de patrimoine indépendants en France) avec coordonnées, informations professionnelles, profils managers et données business. Idéal pour la prospection et l\'analyse du marché de la gestion de patrimoine.',
+    category: 'Finance',
+    price: 99, // Prix TTC en euros (achat unique)
+    priceHT: 82.50, // Prix HT (TVA 20%)
+    priceLabel: '99 € TTC',
+    priceLabelHT: '82,50 € HT',
+    formats: ['Google Sheets'],
+    lastUpdate: '04/01/2026',
+    rows: 'Cabinets CGP France',
     isPaid: true,
     unlockType: 'payment',
-    relatedTools: ['linkedin-extractor', 'email-generator'],
+    relatedTools: [],
     problem: [
-      'Difficulté à trouver les coordonnées complètes des dentistes parisiens',
-      'Données dispersées sur différents annuaires',
-      'Manque d\'informations sur les spécialités',
-      'Temps perdu à collecter manuellement les données'
+      'Difficulté à trouver les coordonnées complètes des cabinets CGP France',
+      'Données dispersées sur différents annuaires professionnels',
+      'Manque d\'informations sur les spécialités, certifications et données business',
+      'Temps perdu à collecter manuellement les données (ORIAS, SIREN, coordonnées GPS, etc.)'
     ],
     solution: [
-      'Base de données complète et à jour des dentistes parisiens',
-      'Informations structurées : coordonnées, spécialités, arrondissements',
-      'Export direct en CSV, Excel ou JSON',
-      'Mise à jour régulière pour garantir la fraîcheur des données'
+      'Base de données complète et à jour de tous les cabinets CGP France',
+      '20+ champs par entrée : coordonnées, ORIAS, SIREN, spécialités, profils managers (CIF, Carte T), données business, etc.',
+      'Accès via Google Sheets : copiez et utilisez directement dans votre environnement',
+      'Données normalisées et nettoyées, prêtes à l\'emploi pour votre CRM ou outils d\'analyse'
     ],
     howToSteps: [
       {
-        name: 'Télécharger la base de données',
-        text: 'Entrez votre email pour recevoir l\'accès à la base de données complète des dentistes parisiens.'
+        name: 'Acheter la base de données',
+        text: 'Achetez la base de données pour recevoir l\'accès complet aux conseillers CGP France.'
       },
       {
-        name: 'Choisir le format',
-        text: 'Sélectionnez le format qui vous convient : CSV pour Excel, JSON pour vos applications, ou Excel directement.'
+        name: 'Copier sur Google Sheets',
+        text: 'Après votre paiement, copiez la base de données complète sur Google Sheets en un clic.'
       },
       {
-        name: 'Importer dans votre outil',
-        text: 'Importez les données dans votre CRM, outil de prospection ou tableur pour commencer votre analyse.'
+        name: 'Exporter ou utiliser directement',
+        text: 'Utilisez directement les données dans Google Sheets ou exportez-les dans le format de votre choix (CSV, Excel, etc.).'
       },
       {
         name: 'Analyser et prospecter',
-        text: 'Utilisez les données pour analyser le marché, identifier des opportunités ou lancer vos campagnes de prospection.'
+        text: 'Importez les données dans votre CRM, outil de prospection ou tableur pour commencer votre analyse et prospection.'
       }
     ],
     testimonials: [
       {
-        name: 'Thomas M.',
+        name: 'Thomas L.',
         role: 'Commercial B2B',
-        comment: 'Cette base de données m\'a fait gagner des semaines de recherche. Les données sont complètes et bien structurées. Parfait pour ma prospection !',
-        date: '18-01-2025',
+        comment: 'Cette base de données m\'a fait gagner un temps précieux. Les données sont complètes avec les numéros ORIAS et les spécialités. Parfait pour ma prospection auprès des conseillers CGP !',
+        date: '03-01-2026',
         tags: 'Données complètes • Gain de temps • Prospection'
       },
       {
-        name: 'Camille D.',
+        name: 'Julie R.',
         role: 'Analyste marché',
-        comment: 'Excellente qualité de données. J\'ai pu analyser rapidement la répartition des dentistes par arrondissement et spécialité. Très utile !',
-        date: '16-01-2025',
+        comment: 'Excellente qualité de données. J\'ai pu analyser rapidement la répartition des conseillers CGP par région et spécialité. Très utile pour comprendre le marché de la gestion de patrimoine !',
+        date: '02-01-2026',
         tags: 'Qualité • Analyse • Utile'
       },
       {
-        name: 'Lucas P.',
+        name: 'Marc F.',
         role: 'Entrepreneur',
-        comment: 'Base de données très complète avec toutes les informations nécessaires. L\'export CSV s\'intègre parfaitement dans mon CRM.',
-        date: '15-01-2025',
+        comment: 'Base de données très complète avec toutes les informations nécessaires (ORIAS, SIREN, coordonnées). L\'export s\'intègre parfaitement dans mon CRM.',
+        date: '01-01-2026',
         tags: 'Complet • Intégration • CRM'
       }
     ]
@@ -178,126 +191,92 @@ export default function DentistesParisiens() {
     e.preventDefault()
     
     if (toolData.isPaid && toolData.unlockType === 'payment') {
-      // Paiement Stripe
-      setIsLoading(true)
-      setLoadingStep(subscriptionType === 'annual' ? 'Redirection vers l\'abonnement...' : 'Redirection vers le paiement...')
-      
-      try {
-        const response = await fetch('/api/tools/create-checkout', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            toolId: 'dentistes-parisiens',
-            subscriptionType: subscriptionType // 'one-time' ou 'annual'
-            // Note: Stripe collecte automatiquement l'email du client lors du checkout
-          }),
-        })
+      if (subscriptionType === 'annual') {
+        // Accès API récurrent via Apify
+        setIsLoading(true)
+        setLoadingStep('Redirection vers l\'API Apify...')
+        
+        // Rediriger vers l'API Apify
+        window.location.href = 'https://apify.com/corent1robert/cgp-france-scraper'
+      } else {
+        // Paiement Stripe (achat unique)
+        setIsLoading(true)
+        setLoadingStep('Redirection vers le paiement...')
+        
+        try {
+          const response = await fetch('/api/tools/create-checkout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              toolId: 'cgp-france',
+              subscriptionType: 'one-time'
+              // Note: Stripe collecte automatiquement l'email du client lors du checkout
+            }),
+          })
 
-        const data = await response.json()
+          const data = await response.json()
 
-        if (response.ok && data.url) {
-          // Rediriger vers Stripe Checkout
-          window.location.href = data.url
-        } else {
-          showToast(data.error || 'Une erreur est survenue. Veuillez réessayer.', 'error')
+          if (response.ok && data.url) {
+            // Rediriger vers Stripe Checkout
+            window.location.href = data.url
+          } else {
+            showToast(data.error || 'Une erreur est survenue. Veuillez réessayer.', 'error')
+            setIsLoading(false)
+            setLoadingStep('')
+          }
+        } catch (error) {
+          console.error('Erreur lors de la création du paiement:', error)
+          showToast('Une erreur est survenue. Veuillez réessayer.', 'error')
           setIsLoading(false)
           setLoadingStep('')
         }
-      } catch (error) {
-        console.error('Erreur lors de la création du paiement:', error)
-        showToast('Une erreur est survenue. Veuillez réessayer.', 'error')
-        setIsLoading(false)
-        setLoadingStep('')
       }
-    } else if (!toolData.isPaid && toolData.unlockType === 'email') {
-      // Gratuit avec email
-      setIsLoading(true)
-      setLoadingStep('Envoi en cours...')
-      
-      try {
-        setLoadingStep('Vérification de votre email...')
-        const response = await fetch('/api/tools/collect-email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email,
-            tool: 'dentistes-parisiens'
-          }),
-        })
-
-        const data = await response.json()
-
-        if (response.ok) {
-          setLoadingStep('Préparation du téléchargement...')
-          await new Promise(resolve => setTimeout(resolve, 500))
-          
-          setEmailSubmitted(true)
-          showToast(
-            data.isNew 
-              ? '✓ Email enregistré ! Le lien de téléchargement vous a été envoyé.'
-              : '✓ Email déjà enregistré. Vous pouvez télécharger vos fichiers.',
-            'success'
-          )
-        } else {
-          showToast(data.error || 'Une erreur est survenue. Veuillez réessayer.', 'error')
-        }
-      } catch (error) {
-        console.error('Erreur lors de l\'envoi:', error)
-        showToast('Une erreur est survenue. Veuillez réessayer.', 'error')
-      } finally {
-        setIsLoading(false)
-        setLoadingStep('')
-      }
-    } else if (toolData.unlockType === 'direct') {
-      window.open(toolData.downloadUrl, '_blank')
     }
   }
 
   const faqItems = [
     {
       question: 'Comment utiliser cette base de données ?',
-      answer: 'Entrez votre email pour recevoir l\'accès à la base de données. Une fois téléchargée, vous pourrez l\'importer dans Excel, votre CRM ou tout autre outil d\'analyse.'
+      answer: 'Achetez la base de données pour recevoir l\'accès complet. Après votre paiement, vous recevrez un lien pour copier la base de données sur Google Sheets. Vous pourrez ensuite l\'utiliser directement ou l\'exporter dans Excel, votre CRM ou tout autre outil d\'analyse.'
     },
     {
-      question: 'La base de données est-elle vraiment gratuite ?',
-      answer: 'Oui, cette base de données est entièrement gratuite. Aucun paiement n\'est requis pour y accéder.'
-    },
-    {
-      question: 'Quels formats sont disponibles ?',
-      answer: 'La base de données est disponible en CSV (pour Excel), Excel (.xlsx) et JSON. Choisissez le format qui correspond à vos besoins.'
+      question: 'Quel format est disponible ?',
+      answer: 'La base de données est disponible via Google Sheets. Après votre achat, vous recevrez un lien pour copier la base de données complète sur Google Sheets, que vous pourrez ensuite exporter dans le format de votre choix (CSV, Excel, etc.).'
     },
     {
       question: 'Les données sont-elles à jour ?',
       answer: `Oui, la base de données est mise à jour régulièrement. Dernière mise à jour : ${toolData.lastUpdate}.`
     },
     {
-      question: 'Combien de dentistes sont inclus ?',
-      answer: `La base de données contient ${toolData.rows} dentistes parisiens avec leurs coordonnées complètes, spécialités et informations de contact.`
+      question: 'Combien de cabinets CGP sont inclus ?',
+      answer: `La base de données contient tous les cabinets CGP France (le plus grand réseau de conseillers en gestion de patrimoine indépendants) avec leurs coordonnées complètes, informations professionnelles, profils managers et données business.`
     },
     {
-      question: 'Quelle est la différence entre l\'achat unique et l\'abonnement annuel ?',
-      answer: 'L\'achat unique vous donne un accès immédiat à la base de données sans renouvellement. L\'abonnement annuel, au même prix, inclut une mise à jour annuelle du fichier : vous recevrez automatiquement la version actualisée de la base de données chaque année. Les deux options sont au même prix, l\'abonnement est recommandé si vous souhaitez garder vos données à jour sur le long terme.'
+      question: 'Quelle est la différence entre l\'achat unique et l\'accès API récurrent ?',
+      answer: 'L\'achat unique à 99€ vous donne un accès immédiat à la base de données complète via Google Sheets, sans renouvellement. L\'accès API récurrent à 10$/mois vous permet d\'accéder à la même base de données de manière programmatique via notre API sur apify.com/corent1robert/cgp-france-scraper, idéal si vous avez besoin de données régulièrement mises à jour et intégrées à votre système.'
+    },
+    {
+      question: 'Quelles informations sont incluses pour chaque cabinet ?',
+      answer: 'La base de données inclut 20+ champs par cabinet : informations cabinet (nom, ID, slug, catégorie, score, spécialités), localisation complète (adresse, GPS), coordonnées (téléphones pro/personnel, email, site web), profil manager (nom, URL, spécialités, CIF, Carte T), données business (ORIAS, SIREN, forme juridique, capital, année création, effectifs), assurances (RC pro, garantie financière), et codes administratifs (NAF/APE). Toutes les données sont normalisées et nettoyées.'
     }
   ]
 
   const pageSEO = generatePageSEO({
-    title: `${toolData.name} - Base de Données Gratuite`,
+    title: `${toolData.name} - Base de Données Conseillers`,
     description: toolData.description,
-    path: '/databases/dentistes-parisiens',
-    keywords: ['base de données dentistes paris', 'dentistes parisiens', 'prospection dentaire', 'annuaire dentistes paris', 'données dentistes']
+    path: '/databases/cgp-france',
+    keywords: ['base de données CGP', 'conseillers CGP France', 'prospection CGP', 'annuaire conseillers gestion patrimoine', 'données CGP', 'CGP France']
   })
 
   const datasetStructuredData = {
     name: toolData.name,
     description: toolData.description,
-    url: `${siteConfig.url}/databases/dentistes-parisiens`,
-    datePublished: '2025-01-20',
-    dateModified: toolData.lastUpdate ? toolData.lastUpdate.split('/').reverse().join('-') : '2025-01-20',
-    keywords: ['dentistes', 'paris', 'prospection', 'base de données'],
+    url: `${siteConfig.url}/databases/cgp-france`,
+    datePublished: '2026-01-04',
+    dateModified: toolData.lastUpdate ? toolData.lastUpdate.split('/').reverse().join('-') : '2026-01-04',
+    keywords: ['CGP', 'conseillers gestion patrimoine', 'prospection', 'base de données', 'finance'],
     license: 'https://creativecommons.org/licenses/by/4.0/',
     distribution: {
       '@type': 'DataDownload',
@@ -315,7 +294,6 @@ export default function DentistesParisiens() {
       <SEOHead 
         {...pageSEO} 
         ogType="product"
-        ogImage={toolData.videoThumbnail || undefined}
       />
       
       {/* Review Schema 5* par défaut */}
@@ -325,7 +303,7 @@ export default function DentistesParisiens() {
           itemReviewed: {
             '@type': 'Dataset',
             name: toolData.name,
-            url: `${siteConfig.url}/databases/dentistes-parisiens`
+            url: `${siteConfig.url}/databases/cgp-france`
           },
           reviewRating: {
             '@type': 'Rating',
@@ -343,19 +321,6 @@ export default function DentistesParisiens() {
       />
       
       <StructuredData type="Dataset" data={datasetStructuredData} />
-      {toolData.videoUrl && toolData.videoUrl.includes('youtube.com') && (
-        <StructuredData
-          type="VideoObject"
-          data={{
-            name: `Présentation - ${toolData.name}`,
-            description: toolData.description,
-            thumbnailUrl: toolData.videoThumbnail || `https://img.youtube.com/vi/${toolData.videoUrl.split('/shorts/')[1]?.split('?')[0]}/maxresdefault.jpg`,
-            uploadDate: toolData.lastUpdate ? new Date(toolData.lastUpdate.split('/').reverse().join('-')).toISOString() : new Date().toISOString(),
-            contentUrl: toolData.videoUrl,
-            embedUrl: `https://www.youtube.com/embed/${toolData.videoUrl.split('/shorts/')[1]?.split('?')[0]}`
-          }}
-        />
-      )}
       {toolData.howToSteps && toolData.howToSteps.length > 0 && (
         <StructuredData
           type="HowTo"
@@ -380,37 +345,19 @@ export default function DentistesParisiens() {
               {toolData.description}
             </p>
             <div className="flex items-center">
-              <DownloadCounter toolId="dentistes-parisiens" />
+              <DownloadCounter toolId="cgp-france" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-            {/* Colonne gauche - Vidéo verticale */}
+            {/* Colonne gauche - Placeholder pour vidéo/image */}
             <div className="order-2 md:order-1 md:sticky md:top-8 md:self-start">
               <div className="relative aspect-[9/16] max-w-[280px] mx-auto md:max-w-none rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-                {toolData.videoUrl && toolData.videoUrl.includes('youtube.com') ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${toolData.videoUrl.split('/shorts/')[1]?.split('?')[0]}`}
-                    title={`Vidéo de présentation - ${toolData.name}`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    className="w-full h-full"
-                    style={{ border: 'none' }}
-                  />
-                ) : toolData.videoThumbnail ? (
-                  <Image
-                    src={toolData.videoThumbnail}
-                    alt={`Vidéo de présentation - ${toolData.name}`}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <svg className="w-12 h-12 text-neutral-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-                    </svg>
-                  </div>
-                )}
+                <div className="w-full h-full flex items-center justify-center">
+                  <svg className="w-12 h-12 text-neutral-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                  </svg>
+                </div>
               </div>
 
               {/* Formulaire - Mobile seulement */}
@@ -419,13 +366,18 @@ export default function DentistesParisiens() {
                   paymentVerified ? (
                     <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
                       <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-3">
-                        ✓ Paiement confirmé ! Vous pouvez maintenant télécharger la base de données.
+                        ✓ Paiement confirmé ! Vous pouvez maintenant accéder à la base de données complète.
                       </p>
                       <a
-                        href={`/api/tools/download-csv?email=${encodeURIComponent(email)}&tool=dentistes-parisiens`}
-                        className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
+                        href="https://docs.google.com/spreadsheets/d/1jDw8r_DkLsFwFo2Nw56zZxFhwu4JN8FAb3QKJ0RQEZY/copy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline font-medium"
                       >
-                        Télécharger la base de données (CSV)
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        Copier la base de données sur Google Sheets
                       </a>
                     </div>
                   ) : (
@@ -454,7 +406,7 @@ export default function DentistesParisiens() {
                               : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'
                           } disabled:opacity-50`}
                         >
-                          Abonnement annuel
+                          Accès API récurrent
                         </button>
                       </div>
 
@@ -475,10 +427,10 @@ export default function DentistesParisiens() {
                         ) : (
                           <div className="text-center">
                             <div className="font-semibold">
-                              {subscriptionType === 'annual' ? `${toolData.annualPriceLabel.replace(' TTC', '')}/an` : toolData.priceLabel.replace(' TTC', '')}
+                              {subscriptionType === 'annual' ? '10$/mois' : toolData.priceLabel.replace(' TTC', '')}
                             </div>
                             <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
-                              {subscriptionType === 'annual' ? 'Mise à jour annuelle incluse' : 'Achat unique'}
+                              {subscriptionType === 'annual' ? 'Accès API' : 'Achat unique'}
                             </div>
                           </div>
                         )}
@@ -492,77 +444,18 @@ export default function DentistesParisiens() {
                         {subscriptionType === 'annual' ? (
                           <div className="flex items-start gap-2">
                             <span className="text-neutral-400 dark:text-neutral-600 mt-0.5">•</span>
-                            <span><strong className="text-neutral-700 dark:text-neutral-300">Abonnement annuel :</strong> Même prix, avec mise à jour annuelle du fichier incluse.</span>
+                            <span><strong className="text-neutral-700 dark:text-neutral-300">Accès API récurrent :</strong> Accès à la base de données de manière programmatique pour 10$ par mois. <a href="https://apify.com/corent1robert/cgp-france-scraper" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">apify.com/corent1robert/cgp-france-scraper</a></span>
                           </div>
                         ) : (
                           <div className="flex items-start gap-2">
                             <span className="text-neutral-400 dark:text-neutral-600 mt-0.5">•</span>
-                            <span><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Accès immédiat à la base de données, sans renouvellement.</span>
+                            <span><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Accès immédiat à la base de données complète via Google Sheets, sans renouvellement.</span>
                           </div>
                         )}
                       </div>
                     </div>
                   )
-                ) : toolData.unlockType === 'email' && !emailSubmitted ? (
-                  <form onSubmit={handleUnlock} className="space-y-4">
-                    <div>
-                      <label htmlFor="email-mobile" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                        Recevoir la base de données par email
-                      </label>
-                      <input
-                        type="email"
-                        id="email-mobile"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="votre@email.com"
-                        required
-                        className="w-full px-4 py-2.5 rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-colors bg-transparent"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="w-full px-6 py-2.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium relative overflow-hidden"
-                    >
-                      {isLoading ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          {loadingStep || 'Envoi en cours...'}
-                        </span>
-                      ) : (
-                        'Recevoir la base de données'
-                      )}
-                      {isLoading && (
-                        <div className="absolute bottom-0 left-0 h-0.5 bg-white dark:bg-neutral-900 animate-progress" style={{ animation: 'progress 2s linear infinite' }} />
-                      )}
-                    </button>
-                  </form>
-                ) : emailSubmitted ? (
-                  <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
-                    <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-3">
-                      ✓ Votre email a été enregistré avec succès. Le lien de téléchargement vous a été envoyé par email.
-                    </p>
-                    <a
-                      href={`/api/tools/download-csv?email=${encodeURIComponent(email)}`}
-                      className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
-                    >
-                      Télécharger mes téléchargements (CSV)
-                    </a>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleUnlock}
-                    className="w-full px-6 py-2.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors text-sm font-medium inline-flex items-center justify-center gap-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                    Télécharger la base de données
-                  </button>
-                )}
+                ) : null}
               </div>
 
               {/* Informations - Mobile seulement */}
@@ -578,10 +471,10 @@ export default function DentistesParisiens() {
                         </span>
                       </div>
                       <div className="flex items-start justify-between">
-                        <span className="text-neutral-500 dark:text-neutral-500">Abonnement annuel</span>
+                        <span className="text-neutral-500 dark:text-neutral-500">Accès API récurrent</span>
                         <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
-                          <div>{toolData.annualPriceLabel}/an</div>
-                          <div className="text-xs text-neutral-500 dark:text-neutral-500">{toolData.annualPriceLabelHT}/an</div>
+                          <div>10$/mois</div>
+                          <div className="text-xs text-neutral-500 dark:text-neutral-500">Via Apify</div>
                         </span>
                       </div>
                     </div>
@@ -620,7 +513,7 @@ export default function DentistesParisiens() {
               </p>
               
               <div className="hidden md:flex items-center mb-8">
-                <DownloadCounter toolId="dentistes-parisiens" />
+                <DownloadCounter toolId="cgp-france" />
               </div>
               
               {/* Section téléchargement - Desktop seulement */}
@@ -629,13 +522,18 @@ export default function DentistesParisiens() {
                   paymentVerified ? (
                     <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
                       <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-3">
-                        ✓ Paiement confirmé ! Vous pouvez maintenant télécharger la base de données.
+                        ✓ Paiement confirmé ! Vous pouvez maintenant accéder à la base de données complète.
                       </p>
                       <a
-                        href={`/api/tools/download-csv?email=${encodeURIComponent(email)}&tool=dentistes-parisiens`}
-                        className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
+                        href="https://docs.google.com/spreadsheets/d/1jDw8r_DkLsFwFo2Nw56zZxFhwu4JN8FAb3QKJ0RQEZY/copy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline font-medium"
                       >
-                        Télécharger la base de données (CSV)
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        Copier la base de données sur Google Sheets
                       </a>
                     </div>
                   ) : (
@@ -664,7 +562,7 @@ export default function DentistesParisiens() {
                               : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'
                           } disabled:opacity-50`}
                         >
-                          Abonnement annuel
+                          Accès API récurrent
                         </button>
                       </div>
 
@@ -685,10 +583,10 @@ export default function DentistesParisiens() {
                         ) : (
                           <div className="text-center">
                             <div className="font-semibold">
-                              {subscriptionType === 'annual' ? `${toolData.annualPriceLabel.replace(' TTC', '')}/an` : toolData.priceLabel.replace(' TTC', '')}
+                              {subscriptionType === 'annual' ? '10$/mois' : toolData.priceLabel.replace(' TTC', '')}
                             </div>
                             <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
-                              {subscriptionType === 'annual' ? 'Mise à jour annuelle incluse' : 'Achat unique'}
+                              {subscriptionType === 'annual' ? 'Accès API' : 'Achat unique'}
                             </div>
                           </div>
                         )}
@@ -702,64 +600,18 @@ export default function DentistesParisiens() {
                         {subscriptionType === 'annual' ? (
                           <div className="flex items-start gap-2">
                             <span className="text-neutral-400 dark:text-neutral-600 mt-0.5">•</span>
-                            <span><strong className="text-neutral-700 dark:text-neutral-300">Abonnement annuel :</strong> Même prix, avec mise à jour annuelle du fichier incluse.</span>
+                            <span><strong className="text-neutral-700 dark:text-neutral-300">Accès API récurrent :</strong> Accès à la base de données de manière programmatique pour 10$ par mois. <a href="https://apify.com/corent1robert/cgp-france-scraper" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">apify.com/corent1robert/cgp-france-scraper</a></span>
                           </div>
                         ) : (
                           <div className="flex items-start gap-2">
                             <span className="text-neutral-400 dark:text-neutral-600 mt-0.5">•</span>
-                            <span><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Accès immédiat à la base de données, sans renouvellement.</span>
+                            <span><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Accès immédiat à la base de données complète via Google Sheets, sans renouvellement.</span>
                           </div>
                         )}
                       </div>
                     </div>
                   )
-                ) : toolData.unlockType === 'email' && !emailSubmitted ? (
-                  <form onSubmit={handleUnlock} className="space-y-4">
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                        Recevoir la base de données par email
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="votre@email.com"
-                        required
-                        className="w-full px-4 py-2.5 rounded-md border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-colors bg-transparent"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="w-full px-6 py-2.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                    >
-                      {isLoading ? 'Envoi en cours...' : 'Recevoir la base de données'}
-                    </button>
-                  </form>
-                ) : emailSubmitted ? (
-                  <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
-                    <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-3">
-                      ✓ Votre email a été enregistré avec succès. Le lien de téléchargement vous a été envoyé par email.
-                    </p>
-                    <a
-                      href={`/api/tools/download-csv?email=${encodeURIComponent(email)}`}
-                      className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
-                    >
-                      Télécharger mes téléchargements (CSV)
-                    </a>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleUnlock}
-                    className="w-full px-6 py-2.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors text-sm font-medium inline-flex items-center justify-center gap-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                    Télécharger la base de données
-                  </button>
-                )}
+                ) : null}
                 
                 {/* Séparateur fin */}
                 <hr className="my-4 border-0 border-t border-dashed border-neutral-200 dark:border-neutral-800" />
@@ -778,10 +630,10 @@ export default function DentistesParisiens() {
                         </span>
                       </div>
                       <div className="flex items-start justify-between">
-                        <span className="text-neutral-500 dark:text-neutral-500">Abonnement annuel</span>
+                        <span className="text-neutral-500 dark:text-neutral-500">Accès API récurrent</span>
                         <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
-                          <div>{toolData.annualPriceLabel}/an</div>
-                          <div className="text-xs text-neutral-500 dark:text-neutral-500">{toolData.annualPriceLabelHT}/an</div>
+                          <div>10$/mois</div>
+                          <div className="text-xs text-neutral-500 dark:text-neutral-500">Via Apify</div>
                         </span>
                       </div>
                     </div>
@@ -851,34 +703,34 @@ export default function DentistesParisiens() {
             <h2 className="font-semibold text-xl mb-6 tracking-tighter">Ce que contient la base de données</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">500+</p>
-                <p className="text-xs text-neutral-600 dark:text-neutral-400">Dentistes</p>
+                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">Tous</p>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400">Cabinets CGP</p>
               </div>
               <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">20</p>
-                <p className="text-xs text-neutral-600 dark:text-neutral-400">Arrondissements</p>
+                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">France</p>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400">Entière</p>
               </div>
               <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">15+</p>
-                <p className="text-xs text-neutral-600 dark:text-neutral-400">Spécialités</p>
-              </div>
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">8</p>
+                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">20+</p>
                 <p className="text-xs text-neutral-600 dark:text-neutral-400">Champs par entrée</p>
+              </div>
+              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">GPS</p>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400">Géolocalisation</p>
               </div>
             </div>
             
             {/* Liste des champs disponibles */}
             <div className="mb-8">
-              <h3 className="font-semibold text-lg mb-4 tracking-tighter">Champs inclus pour chaque dentiste</h3>
+              <h3 className="font-semibold text-lg mb-4 tracking-tighter">Champs inclus pour chaque cabinet (20+ colonnes)</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="flex items-start gap-2">
                   <svg className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                   <div>
-                    <p className="font-medium text-neutral-900 dark:text-neutral-100">Nom complet</p>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Nom et prénom du dentiste</p>
+                    <p className="font-medium text-neutral-900 dark:text-neutral-100">Informations cabinet</p>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Nom, ID, slug, catégorie (recommandé/vérifié/testé), score final, spécialités</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
@@ -886,8 +738,8 @@ export default function DentistesParisiens() {
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                   <div>
-                    <p className="font-medium text-neutral-900 dark:text-neutral-100">Adresse complète</p>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Rue, numéro, code postal</p>
+                    <p className="font-medium text-neutral-900 dark:text-neutral-100">Localisation complète</p>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Adresse complète, ligne 2, code postal, arrondissement, ville, coordonnées GPS (latitude/longitude)</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
@@ -895,8 +747,8 @@ export default function DentistesParisiens() {
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                   <div>
-                    <p className="font-medium text-neutral-900 dark:text-neutral-100">Téléphone</p>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Numéro de contact direct</p>
+                    <p className="font-medium text-neutral-900 dark:text-neutral-100">Coordonnées</p>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Téléphone professionnel, téléphone personnel/mobile, email, site web, domaine</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
@@ -904,8 +756,8 @@ export default function DentistesParisiens() {
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                   <div>
-                    <p className="font-medium text-neutral-900 dark:text-neutral-100">Spécialité</p>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Orthodontie, Implantologie, etc.</p>
+                    <p className="font-medium text-neutral-900 dark:text-neutral-100">Profil manager</p>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Nom du manager, URL profil, spécialités, numéro CIF, Carte T (carte professionnelle)</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
@@ -913,8 +765,8 @@ export default function DentistesParisiens() {
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                   <div>
-                    <p className="font-medium text-neutral-900 dark:text-neutral-100">Arrondissement</p>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">75001 à 75020</p>
+                    <p className="font-medium text-neutral-900 dark:text-neutral-100">Données business</p>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Numéro ORIAS, SIREN, forme juridique (SARL, SAS, EURL, etc.), capital, année de création, effectifs</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
@@ -922,8 +774,8 @@ export default function DentistesParisiens() {
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                   <div>
-                    <p className="font-medium text-neutral-900 dark:text-neutral-100">Site web</p>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">URL du cabinet (si disponible)</p>
+                    <p className="font-medium text-neutral-900 dark:text-neutral-100">Assurances</p>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Assureur responsabilité civile professionnelle, assureur garantie financière</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
@@ -931,17 +783,8 @@ export default function DentistesParisiens() {
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                   <div>
-                    <p className="font-medium text-neutral-900 dark:text-neutral-100">Email</p>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Adresse email (si disponible)</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <div>
-                    <p className="font-medium text-neutral-900 dark:text-neutral-100">Horaires</p>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Jours et heures d'ouverture</p>
+                    <p className="font-medium text-neutral-900 dark:text-neutral-100">Codes administratifs</p>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Code NAF/APE (activité principale exercée)</p>
                   </div>
                 </div>
               </div>
@@ -954,26 +797,52 @@ export default function DentistesParisiens() {
           <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
             <h2 className="font-semibold text-xl mb-6 tracking-tighter">Exemple de données</h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6">
-              Aperçu de 5 entrées sur les {toolData.rows} disponibles :
+              Aperçu de 4 entrées sur les {toolData.rows} disponibles :
             </p>
+            {paymentVerified ? (
+              <div className="mb-6 p-4 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
+                <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-2">
+                  <strong>Voir un aperçu complet :</strong> Vous pouvez copier et explorer un exemple complet de la base de données sur Google Sheets.
+                </p>
+                <a
+                  href="https://docs.google.com/spreadsheets/d/1jDw8r_DkLsFwFo2Nw56zZxFhwu4JN8FAb3QKJ0RQEZY/copy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline font-medium"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  Copier l'exemple sur Google Sheets
+                </a>
+              </div>
+            ) : (
+              <div className="mb-6 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                  <strong>Achetez la base de données</strong> pour accéder à l'aperçu complet sur Google Sheets avec toutes les colonnes et données.
+                </p>
+              </div>
+            )}
             <div className="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
-                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-700 dark:text-neutral-300">Nom</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-700 dark:text-neutral-300">Arrondissement</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-700 dark:text-neutral-300">Spécialité</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-700 dark:text-neutral-300">Téléphone</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-700 dark:text-neutral-300">Cabinet</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-700 dark:text-neutral-300">Ville</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-700 dark:text-neutral-300">Manager</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-700 dark:text-neutral-300">ORIAS</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-700 dark:text-neutral-300">Email</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
                     {sampleData.map((row, index) => (
                       <tr key={index} className="hover:bg-neutral-100 dark:hover:bg-neutral-800/50 transition-colors">
-                        <td className="px-4 py-3 text-neutral-900 dark:text-neutral-100">{row.nom}</td>
-                        <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">{row.arrondissement}</td>
-                        <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">{row.specialite}</td>
-                        <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">{row.telephone}</td>
+                        <td className="px-4 py-3 text-neutral-900 dark:text-neutral-100">{row.name}</td>
+                        <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">{row.city} ({row.zipCode})</td>
+                        <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">{row.manager}</td>
+                        <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">{row.orias}</td>
+                        <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">{blurEmail(row.email)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -981,7 +850,7 @@ export default function DentistesParisiens() {
               </div>
               <div className="px-4 py-3 bg-neutral-100 dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700">
                 <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                  Exemple de 5 entrées sur {toolData.rows} disponibles dans la base de données complète
+                  Exemple de 4 entrées sur {toolData.rows} disponibles dans la base de données complète
                 </p>
               </div>
             </div>
@@ -996,16 +865,16 @@ export default function DentistesParisiens() {
               <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
                 <h3 className="font-semibold text-lg mb-3 tracking-tighter">Prospection commerciale</h3>
                 <p className="text-neutral-600 dark:text-neutral-400 text-sm mb-3">
-                  Contactez directement les dentistes par arrondissement ou spécialité pour proposer vos services (équipements, logiciels, formations).
+                  Contactez directement les conseillers CGP par région ou spécialité pour proposer vos services (produits financiers, formations, outils).
                 </p>
                 <ul className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                    <span>Filtrez par arrondissement pour cibler géographiquement</span>
+                    <span>Filtrez par spécialité pour cibler précisément</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                    <span>Identifiez les spécialités pour adapter votre offre</span>
+                    <span>Identifiez les conseillers par région</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
@@ -1016,12 +885,12 @@ export default function DentistesParisiens() {
               <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
                 <h3 className="font-semibold text-lg mb-3 tracking-tighter">Analyse de marché</h3>
                 <p className="text-neutral-600 dark:text-neutral-400 text-sm mb-3">
-                  Étudiez la répartition des dentistes parisiens pour identifier les opportunités et comprendre le marché.
+                  Étudiez la répartition des conseillers CGP français pour identifier les opportunités et comprendre le marché de la gestion de patrimoine.
                 </p>
                 <ul className="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
-                    <span>Analysez la densité par arrondissement</span>
+                    <span>Analysez la densité par région</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
@@ -1086,7 +955,7 @@ export default function DentistesParisiens() {
                         itemReviewed: {
                           '@type': 'Dataset',
                           name: toolData.name,
-                          url: `${siteConfig.url}/databases/dentistes-parisiens`
+                          url: `${siteConfig.url}/databases/cgp-france`
                         }
                       }}
                     />

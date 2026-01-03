@@ -30,7 +30,7 @@ export default function EmailGenerator() {
     rows: null,
     isPaid: false,
     unlockType: 'email',
-    relatedTools: ['notion-dashboard', 'real-estate-generator'],
+    relatedTools: [],
     problem: [
       'Taux de réponse faibles avec vos emails d\'outreach',
       'Temps perdu à rédiger des emails personnalisés',

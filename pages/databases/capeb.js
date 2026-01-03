@@ -131,7 +131,7 @@ export default function Capeb() {
     rows: 'Artisans de France',
     isPaid: true,
     unlockType: 'payment',
-    relatedTools: ['linkedin-extractor', 'email-generator'],
+    relatedTools: [],
     problem: [
       'Difficulté à trouver les coordonnées complètes des artisans de France',
       'Données dispersées sur différents annuaires professionnels',

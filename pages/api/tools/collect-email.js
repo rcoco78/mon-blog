@@ -21,10 +21,7 @@ async function sendTelegramNotification(data) {
     });
 
                 const toolLabels = {
-                  'notion-dashboard': '📊 Dashboard Notion pour Agents',
-                  'email-generator': '✉️ Générateur de Templates d\'Emails',
-                  'real-estate-generator': '🏠 Générateur de Descriptions Immobilières',
-                  'linkedin-extractor': '🔍 Extracteur LinkedIn'
+                  'email-generator': '✉️ Générateur de Templates d\'Emails'
                 };
 
     const toolLabel = toolLabels[data.tool] || data.tool || 'Outil inconnu';
@@ -200,7 +197,7 @@ export default async function handler(req, res) {
       // Ajouter le nouvel email
       const newEmailEntry = {
         email,
-        tool: tool || 'notion-dashboard',
+        tool: tool || 'email-generator',
         timestamp: new Date().toISOString()
       };
       
@@ -224,7 +221,7 @@ export default async function handler(req, res) {
     // Envoyer une notification Telegram pour chaque téléchargement
     await sendTelegramNotification({
       email,
-      tool: tool || 'notion-dashboard'
+      tool: tool || 'email-generator'
     });
 
     // Tracker le téléchargement (uniquement pour les nouveaux emails)
@@ -247,7 +244,7 @@ export default async function handler(req, res) {
         }
         
         // Incrémenter le compteur
-        const toolId = tool || 'notion-dashboard';
+        const toolId = tool || 'email-generator';
         downloads[toolId] = (downloads[toolId] || 0) + 1;
         downloads._lastUpdate = new Date().toISOString();
         

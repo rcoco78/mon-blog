@@ -140,46 +140,25 @@ Aider les dirigeants de TPE-PME à automatiser leurs processus et gagner du temp
 - **Nurturing** : Automatisation de séquences de nurturing
 - **Suivi de leads** : Automatisation de suivi de leads et qualification
 
-## 🛠️ Suite Complète d'Outils Gratuits
+## 🛠️ Marketplace - Bases de Données
 
-### **Outils de Scraping et Extraction** 📊
+### **Bases de Données Disponibles** 📊
 
-#### **1. Générateur de Templates d'Emails**
-- **URL** : https://www.corentinrobert.fr/outils/email-generator
-- **Fonctionnalité** : Créez des templates d'outreach performants avec notre outil gratuit
-- **Utilité** : Personnalisez vos messages et augmentez vos taux de réponse
-- **Catégorie** : Outreach
+#### **1. Base de données - Artisans CAPEB**
+- **URL** : https://www.corentinrobert.fr/databases/capeb
+- **Fonctionnalité** : Base de données complète des artisans de France (CAPEB) avec coordonnées, typologie de profession et informations de contact
+- **Utilité** : Prospection et analyse du marché de l'artisanat français
+- **Catégorie** : Artisanat
+- **Prix** : 99€ TTC (achat unique) ou 10$/mois (accès API récurrent)
+- **Format** : Google Sheets
+- **Contenu** : 22 champs par entrée (SIRET, coordonnées, activités, labels RGE, géolocalisation, etc.)
 - **Statut** : ✅ Opérationnel
 
-#### **2. Extracteur LinkedIn**
-- **URL** : https://www.corentinrobert.fr/outils/linkedin-extractor
-- **Fonctionnalité** : Extrayez des données de profils LinkedIn de manière éthique et efficace
-- **Utilité** : Extraction de données de profils LinkedIn pour prospection
-- **Limite** : Version gratuite limitée à 50 profils par jour
-- **Catégorie** : Scraping
-- **Statut** : ✅ Opérationnel
+### **Philosophie de la Marketplace**
 
-#### **3. Générateur de Descriptions Immobilières**
-- **URL** : https://www.corentinrobert.fr/outils/real-estate-generator
-- **Fonctionnalité** : Créez des descriptions immobilières optimisées pour le luxe
-- **Utilité** : Templates et suggestions de mots-clés inclus pour descriptions immobilières
-- **Catégorie** : Immobilier
-- **Statut** : ✅ Opérationnel
+La marketplace propose des **bases de données structurées** pour la prospection B2B. Chaque base de données est soigneusement collectée, nettoyée et organisée pour être immédiatement exploitable dans vos outils (CRM, tableurs, etc.).
 
-#### **4. Dashboard Notion pour Agents**
-- **URL** : https://www.corentinrobert.fr/outils/notion-dashboard
-- **Fonctionnalité** : Template Notion complet pour la gestion de votre activité immobilière
-- **Utilité** : Suivi des clients, visites et contenus pour agents immobiliers
-- **Catégorie** : Productivité
-- **Statut** : ✅ Opérationnel
-
-### **Philosophie des Outils Gratuits**
-
-Ces outils gratuits sont nés d'une **philosophie du partage**. En tant que freelance scraping, je crois en la création de valeur pour la communauté. Ces outils permettent de **démontrer mon expertise pratique** tout en aidant ceux qui en ont besoin.
-
-Chaque outil répond à un **besoin business concret** que j'ai rencontré dans mes projets. En les partageant gratuitement, je contribue à la communauté tout en montrant ce que je sais faire. C'est aussi une façon de créer du lien et de générer de la confiance.
-
-Si vous avez besoin d'un **outil sur-mesure** pour votre business, je peux développer une solution adaptée à vos besoins spécifiques.
+Si vous avez besoin d'une **base de données sur-mesure** pour votre secteur d'activité, je peux développer une solution adaptée à vos besoins spécifiques.
 
 ## 📊 Statistiques et Performances Détaillées
 

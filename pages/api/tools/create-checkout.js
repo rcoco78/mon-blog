@@ -21,24 +21,17 @@ export default async function handler(req, res) {
 
   // Mapping des outils avec leurs prix et options
   const toolPrices = {
-    'dentistes-parisiens': {
-      name: 'Base de données - Dentistes Parisiens',
-      price: 79, // Prix en euros (paiement unique)
-      annualPrice: 59, // Prix annuel (abonnement avec mises à jour)
-      description: 'Base de données complète des dentistes à Paris (500+ entrées)',
-      image: 'https://www.corentinrobert.fr/images/outils/dentistes-parisiens-thumb.jpg', // Image du produit
+    'cgp-france': {
+      name: 'Base de données - CGP France',
+      price: 99, // Prix en euros (paiement unique)
+      description: 'Base de données complète des conseillers CGP France (Conseillers en Gestion de Patrimoine)',
+      image: undefined, // Image du produit (à ajouter si disponible)
       features: [
-        '500+ dentistes parisiens',
-        '8 champs par entrée',
-        'Formats : CSV, Excel, JSON',
+        'Tous les conseillers CGP France',
+        '20+ champs par entrée',
+        'Format : Google Sheets',
+        'Données complètes : ORIAS, SIREN, coordonnées, spécialités, informations manager, etc.',
         'Mise à jour régulière'
-      ],
-      annualFeatures: [
-        '500+ dentistes parisiens',
-        '8 champs par entrée',
-        'Formats : CSV, Excel, JSON',
-        'Mise à jour annuelle du fichier incluse',
-        'Renouvellement automatique chaque année'
       ]
     },
     'capeb': {
@@ -49,7 +42,7 @@ export default async function handler(req, res) {
       features: [
         'Tous les artisans CAPEB de France',
         '22 champs par entrée',
-        'Formats : CSV, Excel, JSON',
+        'Format : Google Sheets',
         'Données complètes : SIRET, géolocalisation, labels RGE, activités, etc.',
         'Mise à jour régulière'
       ]
@@ -99,8 +92,8 @@ export default async function handler(req, res) {
         },
       ],
       mode: isSubscription ? 'subscription' : 'payment',
-      success_url: `${req.headers.origin}${toolId.startsWith('capeb') || toolId.startsWith('dentistes-parisiens') ? '/databases' : '/outils'}/${toolId}?payment=success&session_id={CHECKOUT_SESSION_ID}&type=${isSubscription ? 'subscription' : 'one-time'}`,
-      cancel_url: `${req.headers.origin}${toolId.startsWith('capeb') || toolId.startsWith('dentistes-parisiens') ? '/databases' : '/outils'}/${toolId}?payment=cancelled`,
+      success_url: `${req.headers.origin}${toolId.startsWith('capeb') || toolId.startsWith('cgp-france') ? '/databases' : '/outils'}/${toolId}?payment=success&session_id={CHECKOUT_SESSION_ID}&type=${isSubscription ? 'subscription' : 'one-time'}`,
+      cancel_url: `${req.headers.origin}${toolId.startsWith('capeb') || toolId.startsWith('cgp-france') ? '/databases' : '/outils'}/${toolId}?payment=cancelled`,
       // Stripe collecte automatiquement l'email du client lors du checkout
       // customer_email n'est nécessaire que si on veut pré-remplir (optionnel)
       allow_promotion_codes: true,
