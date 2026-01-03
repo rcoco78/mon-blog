@@ -351,13 +351,24 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           }
         };
         
-        // Ajouter itemReviewed si fourni
+        // Ajouter itemReviewed si fourni (obligatoire pour Google)
         if (data.itemReviewed) {
           review.itemReviewed = data.itemReviewed;
         } else if (data.serviceName) {
           review.itemReviewed = {
             '@type': 'Service',
             name: data.serviceName,
+            provider: {
+              '@type': 'Person',
+              name: siteConfig.author,
+              url: siteConfig.url
+            }
+          };
+        } else {
+          // Par défaut : Service de scraping et automatisation
+          review.itemReviewed = {
+            '@type': 'Service',
+            name: 'Services de Scraping et Automatisation',
             provider: {
               '@type': 'Person',
               name: siteConfig.author,
