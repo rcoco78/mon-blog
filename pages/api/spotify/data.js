@@ -187,7 +187,7 @@ async function getTopArtists(accessToken, timeRange = 'short_term') {
  */
 async function getRecentlyPlayed(accessToken) {
   try {
-    const response = await fetch('https://api.spotify.com/v1/me/player/recently-played?limit=20', {
+    const response = await fetch('https://api.spotify.com/v1/me/player/recently-played?limit=50', {
       headers: {
         'Authorization': `Bearer ${accessToken}`
       }
@@ -199,7 +199,27 @@ async function getRecentlyPlayed(accessToken) {
 
     const data = await response.json()
     // Transformer les données pour avoir le même format que les tracks
-    return (data.items || []).map(item => item.track)
+    // et préserver played_at pour le tri
+    const tracks = (data.items || []).map(item => ({
+      ...item.track,
+      played_at: item.played_at
+    }))
+    
+    // Trier par date de lecture (les plus récentes en premier)
+    // L'API Spotify retourne déjà dans l'ordre chronologique, mais on s'assure du tri
+    return tracks.sort((a, b) => {
+      if (!a.played_at || !b.played_at) return 0
+      return new Date(b.played_at) - new Date(a.played_at)
+    })
+  } catch (error) {
+    console.error('Error fetching recently played:', error)
+    return []
+  }
+}
+
+
+      return new Date(b.played_at) - new Date(a.played_at)
+    })
   } catch (error) {
     console.error('Error fetching recently played:', error)
     return []
