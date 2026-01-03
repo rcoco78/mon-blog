@@ -14,7 +14,6 @@ mon-blog/
 │   ├── config.js       # Configuration centralisée du site
 │   ├── notion.js       # Client Notion API
 │   └── analytics.js    # Analytics
-├── hooks/               # React Hooks personnalisés
 ├── pages/               # Pages Next.js
 │   ├── api/            # API Routes
 │   │   └── cron/       # Cron jobs Vercel
