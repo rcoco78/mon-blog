@@ -1,14 +1,6 @@
 {
   "crons": [
     {
-      "path": "/api/cron/notion-sync",
-      "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/cron/sitemap",
-      "schedule": "0 8 * * *"
-    },
-    {
       "path": "/api/cron/metrics-sync",
       "schedule": "0 7 * * *"
     },
