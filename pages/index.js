@@ -58,9 +58,14 @@ export default function Home({ posts }) {
     }
   }, [])
 
-  // Marquer la vidéo comme vue quand on ouvre la popup
+  // Ouvrir la popup vidéo
   const handleVideoClick = () => {
     setShowVideo(true)
+  }
+
+  // Marquer la vidéo comme vue quand on ferme la popup (après avoir regardé)
+  const handleCloseVideo = () => {
+    setShowVideo(false)
     if (typeof window !== 'undefined') {
       localStorage.setItem('profileVideoSeen', 'true')
       setVideoSeen(true)
@@ -494,14 +499,14 @@ export default function Home({ posts }) {
           {showVideo && videoId && (
             <div 
               className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/80 dark:bg-neutral-900/80 backdrop-blur-sm"
-              onClick={() => setShowVideo(false)}
+              onClick={handleCloseVideo}
             >
               <div 
                 className="relative aspect-[9/16] w-full max-w-[280px] rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               >
                 <button
-                  onClick={() => setShowVideo(false)}
+                  onClick={handleCloseVideo}
                   className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-neutral-900/90 dark:bg-neutral-100/90 text-white dark:text-neutral-900 hover:bg-neutral-900 dark:hover:bg-neutral-100 transition-colors"
                   aria-label="Fermer la vidéo"
                 >
