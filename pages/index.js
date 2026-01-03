@@ -46,9 +46,13 @@ export default function Home({ posts }) {
   const [videoSeen, setVideoSeen] = useState(false)
   const testimonialScrollRef = useRef(null)
 
-  // URL de la vidéo YouTube verticale (à remplacer par votre URL)
-  const videoUrl = 'https://www.youtube.com/shorts/YOUR_VIDEO_ID' // À remplacer
-  const videoId = videoUrl.includes('/shorts/') ? videoUrl.split('/shorts/')[1]?.split('?')[0] : null
+  // URL de la vidéo YouTube (à remplacer par votre URL)
+  const videoUrl = 'https://www.youtube.com/watch?v=YOUR_VIDEO_ID' // À remplacer
+  const videoId = videoUrl.includes('v=') 
+    ? videoUrl.split('v=')[1]?.split('&')[0] 
+    : videoUrl.includes('/shorts/') 
+      ? videoUrl.split('/shorts/')[1]?.split('?')[0] 
+      : null
 
   // Vérifier si la vidéo a déjà été vue
   useEffect(() => {
@@ -523,14 +527,14 @@ export default function Home({ posts }) {
             </div>
           </div>
           
-          {/* Popup vidéo verticale */}
+          {/* Popup vidéo */}
           {showVideo && videoId && (
             <div 
               className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/80 dark:bg-neutral-900/80 backdrop-blur-sm"
               onClick={handleCloseVideo}
             >
               <div 
-                className="relative aspect-[9/16] w-full max-w-[280px] rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xl"
+                className="relative aspect-video w-full max-w-4xl rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               >
                 <button

@@ -264,10 +264,10 @@ export default function Capeb() {
   ]
 
   const pageSEO = generatePageSEO({
-    title: `${toolData.name} - Base de Données Artisans`,
-    description: toolData.description,
+    title: `${toolData.name} - Base de Données Artisans CAPEB | 99€`,
+    description: `${toolData.description} Achetez la base de données complète des artisans CAPEB avec coordonnées, activités, labels RGE. Format Google Sheets. Achat unique 99€ ou accès API 10$/mois.`,
     path: '/databases/capeb',
-    keywords: ['base de données artisans', 'artisans CAPEB', 'prospection artisans', 'annuaire artisans france', 'données artisans', 'CAPEB']
+    keywords: ['base de données artisans', 'artisans CAPEB', 'prospection artisans', 'annuaire artisans france', 'données artisans', 'CAPEB', 'artisans de France', 'base données artisans CAPEB']
   })
 
   const datasetStructuredData = {
@@ -321,6 +321,25 @@ export default function Capeb() {
       />
       
       <StructuredData type="Dataset" data={datasetStructuredData} />
+      
+      {/* VideoObject Schema pour SEO vidéo */}
+      <StructuredData
+        type="VideoObject"
+        data={{
+          name: `${toolData.name} - Présentation vidéo`,
+          description: toolData.description,
+          thumbnailUrl: `${siteConfig.url}/images/video-thumbnail-capeb.jpg`,
+          uploadDate: '2026-01-03',
+          duration: 'PT3M12S', // À ajuster selon la durée réelle
+          contentUrl: 'https://www.tella.tv/video/base-de-donnees-artisans-capeb-9000-contacts-a9b0',
+          embedUrl: 'https://www.tella.tv/video/base-de-donnees-artisans-capeb-9000-contacts-a9b0/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0',
+          publisher: {
+            '@type': 'Person',
+            name: siteConfig.author
+          }
+        }}
+      />
+      
       {toolData.howToSteps && toolData.howToSteps.length > 0 && (
         <StructuredData
           type="HowTo"

@@ -264,10 +264,10 @@ export default function CgpFrance() {
   ]
 
   const pageSEO = generatePageSEO({
-    title: `${toolData.name} - Base de Données Conseillers`,
-    description: toolData.description,
+    title: `${toolData.name} - Base de Données Conseillers CGP France | 99€`,
+    description: `${toolData.description} Achetez la base de données complète des conseillers CGP France avec coordonnées, ORIAS, spécialités. Format Google Sheets. Achat unique 99€ ou accès API 10$/mois.`,
     path: '/databases/cgp-france',
-    keywords: ['base de données CGP', 'conseillers CGP France', 'prospection CGP', 'annuaire conseillers gestion patrimoine', 'données CGP', 'CGP France']
+    keywords: ['base de données CGP', 'conseillers CGP France', 'prospection CGP', 'annuaire conseillers gestion patrimoine', 'données CGP', 'CGP France', 'conseillers en gestion de patrimoine', 'base données conseillers']
   })
 
   const datasetStructuredData = {
@@ -321,6 +321,25 @@ export default function CgpFrance() {
       />
       
       <StructuredData type="Dataset" data={datasetStructuredData} />
+      
+      {/* VideoObject Schema pour SEO vidéo */}
+      <StructuredData
+        type="VideoObject"
+        data={{
+          name: `${toolData.name} - Présentation vidéo`,
+          description: toolData.description,
+          thumbnailUrl: `${siteConfig.url}/images/video-thumbnail-cgp-france.jpg`,
+          uploadDate: '2026-01-04',
+          duration: 'PT3M12S', // À ajuster selon la durée réelle
+          contentUrl: 'https://www.tella.tv/video/vid_cmjyjan5w02rr04jta21y1mpl',
+          embedUrl: 'https://www.tella.tv/video/vid_cmjyjan5w02rr04jta21y1mpl/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0',
+          publisher: {
+            '@type': 'Person',
+            name: siteConfig.author
+          }
+        }}
+      />
+      
       {toolData.howToSteps && toolData.howToSteps.length > 0 && (
         <StructuredData
           type="HowTo"
