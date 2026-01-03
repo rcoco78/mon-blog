@@ -466,15 +466,15 @@ export default function Home({ posts }) {
       <section aria-label="Présentation">
         <div>
           <div 
-            className="relative inline-block mb-4 group cursor-pointer p-[3px] rounded-full"
+            className="relative inline-block mb-4 group cursor-pointer p-[2px] rounded-full"
             onClick={handleVideoClick}
           >
             <svg 
               className="absolute inset-0"
               style={{ 
-                width: 'calc(100% + 6px)', 
-                height: 'calc(100% + 6px)',
-                margin: '-3px',
+                width: 'calc(100% + 4px)', 
+                height: 'calc(100% + 4px)',
+                margin: '-2px',
                 transform: 'rotate(-90deg)'
               }}
               viewBox="0 0 70 70"
@@ -494,7 +494,7 @@ export default function Home({ posts }) {
                 r="33"
                 fill="none"
                 stroke={videoSeen ? "#a3a3a3" : "url(#instagram-gradient)"}
-                strokeWidth="3"
+                strokeWidth="2"
                 strokeDasharray="207.35"
                 strokeDashoffset={videoSeen ? "0" : "207.35"}
                 className={videoSeen ? "" : "animate-draw-circle"}
