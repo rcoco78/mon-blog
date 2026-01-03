@@ -217,12 +217,3 @@ async function getRecentlyPlayed(accessToken) {
   }
 }
 
-
-      return new Date(b.played_at) - new Date(a.played_at)
-    })
-  } catch (error) {
-    console.error('Error fetching recently played:', error)
-    return []
-  }
-}
-

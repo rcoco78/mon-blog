@@ -1,6 +1,6 @@
 import { tools } from '../lib/tools'
 
-const SitemapOutils = () => {}
+const SitemapMarketplace = () => {}
 
 export const getServerSideProps = async ({ res }) => {
   const baseUrl = 'https://www.corentinrobert.fr'
@@ -30,5 +30,5 @@ export const getServerSideProps = async ({ res }) => {
   }
 }
 
-export default SitemapOutils
+export default SitemapMarketplace
 
