@@ -597,7 +597,7 @@ export default function About() {
                       <h2 className={`font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 flex items-center gap-2 ${!isActive ? 'text-neutral-500 dark:text-neutral-400' : ''}`}>
                         {project.title}
                         {project.status === 'active' && (
-                          <span className="relative flex h-2 w-2" title="Projet actif">
+                          <span className="relative flex h-2 w-2 flex-shrink-0 mt-1 sm:mt-0" title="Projet actif">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                           </span>
