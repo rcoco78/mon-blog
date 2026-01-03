@@ -349,23 +349,36 @@ export default function CgpFrance() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-            {/* Colonne gauche - Vidéo Tella */}
-            <div className="order-2 md:order-1 md:sticky md:top-8 md:self-start">
-              <div className="relative aspect-video max-w-full mx-auto rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-                <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
-                  <iframe 
-                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
-                    src="https://www.tella.tv/video/vid_cmjyjan5w02rr04jta21y1mpl/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0"
-                    allowFullScreen
-                    allowTransparency
-                    title="Présentation Base de données CGP France"
-                  />
-                </div>
+          {/* Contenu principal */}
+          <div>
+            {/* Header - Desktop seulement */}
+            <div className="hidden md:block mb-8">
+              <h1 className="font-semibold text-2xl mb-3 tracking-tighter">
+                {toolData.name}
+              </h1>
+              <p className="text-neutral-600 dark:text-neutral-400 tracking-tight mb-3">
+                {toolData.description}
+              </p>
+              <div className="flex items-center">
+                <DownloadCounter toolId="cgp-france" />
               </div>
+            </div>
 
-              {/* Formulaire - Mobile seulement */}
-              <div className="md:hidden mt-6">
+            {/* Vidéo Tella - Entre le header et le formulaire */}
+            <div className="mb-8 md:mb-12">
+              <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900">
+                <iframe 
+                  className="absolute top-0 left-0 w-full h-full border-0"
+                  src="https://www.tella.tv/video/vid_cmjyjan5w02rr04jta21y1mpl/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0"
+                  allowFullScreen
+                  allowTransparency
+                  title="Présentation Base de données CGP France"
+                />
+              </div>
+            </div>
+
+            {/* Formulaire - Mobile seulement */}
+            <div className="md:hidden mb-6">
                 {toolData.isPaid && toolData.unlockType === 'payment' ? (
                   paymentVerified ? (
                     <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
@@ -446,13 +459,11 @@ export default function CgpFrance() {
                       {/* Texte descriptif selon le choix */}
                       <div className="text-xs text-neutral-600 dark:text-neutral-400">
                         {subscriptionType === 'annual' ? (
-                          <div className="flex items-start gap-2">
-                            <span className="text-neutral-400 dark:text-neutral-600 mt-0.5">•</span>
+                          <div>
                             <span><strong className="text-neutral-700 dark:text-neutral-300">Accès API récurrent :</strong> Accès à la base de données de manière programmatique pour 10$ par mois. <a href="https://apify.com/corent1robert/cgp-france-scraper" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">apify.com/corent1robert/cgp-france-scraper</a></span>
                           </div>
                         ) : (
-                          <div className="flex items-start gap-2">
-                            <span className="text-neutral-400 dark:text-neutral-600 mt-0.5">•</span>
+                          <div>
                             <span><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Accès immédiat à la base de données complète via Google Sheets, sans renouvellement.</span>
                           </div>
                         )}
@@ -503,25 +514,9 @@ export default function CgpFrance() {
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Colonne droite - Contenu */}
-            <div className="order-1 md:order-2">
-              {/* Header - Desktop seulement */}
-              <h1 className="hidden md:block font-semibold text-2xl mb-3 tracking-tighter">
-                {toolData.name}
-              </h1>
-              
-              <p className="hidden md:block text-neutral-600 dark:text-neutral-400 tracking-tight mb-3">
-                {toolData.description}
-              </p>
-              
-              <div className="hidden md:flex items-center mb-8">
-                <DownloadCounter toolId="cgp-france" />
-              </div>
-              
-              {/* Section téléchargement - Desktop seulement */}
-              <div className="mb-8 hidden md:block">
+            {/* Section téléchargement - Desktop seulement */}
+            <div className="mb-8 hidden md:block">
                 {toolData.isPaid && toolData.unlockType === 'payment' ? (
                   paymentVerified ? (
                     <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
@@ -602,13 +597,11 @@ export default function CgpFrance() {
                       {/* Texte descriptif selon le choix */}
                       <div className="text-xs text-neutral-600 dark:text-neutral-400">
                         {subscriptionType === 'annual' ? (
-                          <div className="flex items-start gap-2">
-                            <span className="text-neutral-400 dark:text-neutral-600 mt-0.5">•</span>
+                          <div>
                             <span><strong className="text-neutral-700 dark:text-neutral-300">Accès API récurrent :</strong> Accès à la base de données de manière programmatique pour 10$ par mois. <a href="https://apify.com/corent1robert/cgp-france-scraper" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">apify.com/corent1robert/cgp-france-scraper</a></span>
                           </div>
                         ) : (
-                          <div className="flex items-start gap-2">
-                            <span className="text-neutral-400 dark:text-neutral-600 mt-0.5">•</span>
+                          <div>
                             <span><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Accès immédiat à la base de données complète via Google Sheets, sans renouvellement.</span>
                           </div>
                         )}
@@ -662,7 +655,6 @@ export default function CgpFrance() {
                   </div>
                 </div>
               </div>
-            </div>
           </div>
         </section>
 
