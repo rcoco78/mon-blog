@@ -147,9 +147,13 @@ export default function About() {
         type="Review"
         data={{
           itemReviewed: {
-            '@type': 'Person',
-            name: siteConfig.author,
-            url: `${siteConfig.url}/a-propos`
+            '@type': 'Service',
+            name: 'Services de Scraping et Automatisation',
+            provider: {
+              '@type': 'Person',
+              name: siteConfig.author,
+              url: `${siteConfig.url}/a-propos`
+            }
           },
           reviewRating: {
             '@type': 'Rating',

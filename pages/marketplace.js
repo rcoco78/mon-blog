@@ -145,9 +145,14 @@ export default function Marketplace() {
         type="Review"
         data={{
           itemReviewed: {
-            '@type': 'ItemList',
+            '@type': 'Service',
             name: 'Marketplace - Outils et Bases de Données',
-            url: `${siteConfig.url}/marketplace`
+            url: `${siteConfig.url}/marketplace`,
+            provider: {
+              '@type': 'Person',
+              name: siteConfig.author,
+              url: siteConfig.url
+            }
           },
           reviewRating: {
             '@type': 'Rating',

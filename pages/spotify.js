@@ -79,7 +79,7 @@ export default function Spotify() {
         type="Review"
         data={{
           itemReviewed: {
-            '@type': 'CollectionPage',
+            '@type': 'CreativeWork',
             name: 'Musique - Ce que j\'écoute',
             url: `${siteConfig.url}/spotify`
           },

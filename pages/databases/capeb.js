@@ -301,7 +301,7 @@ export default function Capeb() {
         type="Review"
         data={{
           itemReviewed: {
-            '@type': 'Dataset',
+            '@type': 'Product',
             name: toolData.name,
             url: `${siteConfig.url}/databases/capeb`
           },
@@ -998,7 +998,7 @@ export default function Capeb() {
                         reviewBody: testimonial.comment,
                         ratingValue: '5',
                         itemReviewed: {
-                          '@type': 'Dataset',
+                          '@type': 'Product',
                           name: toolData.name,
                           url: `${siteConfig.url}/databases/capeb`
                         }

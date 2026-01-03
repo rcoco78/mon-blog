@@ -301,7 +301,7 @@ export default function CgpFrance() {
         type="Review"
         data={{
           itemReviewed: {
-            '@type': 'Dataset',
+            '@type': 'Product',
             name: toolData.name,
             url: `${siteConfig.url}/databases/cgp-france`
           },
@@ -953,7 +953,7 @@ export default function CgpFrance() {
                         reviewBody: testimonial.comment,
                         ratingValue: '5',
                         itemReviewed: {
-                          '@type': 'Dataset',
+                          '@type': 'Product',
                           name: toolData.name,
                           url: `${siteConfig.url}/databases/cgp-france`
                         }

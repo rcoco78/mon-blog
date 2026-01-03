@@ -1060,7 +1060,7 @@ export default function DonneesPubliques() {
         type="Review"
         data={{
           itemReviewed: {
-            '@type': 'Dataset',
+            '@type': 'Product',
             name: 'Objectifs 2026 - Métriques Business',
             url: `${siteConfig.url}/objectifs`
           },

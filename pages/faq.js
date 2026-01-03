@@ -144,7 +144,7 @@ export default function FAQPage() {
         type="Review"
         data={{
           itemReviewed: {
-            '@type': 'WebPage',
+            '@type': 'CreativeWork',
             name: 'FAQ - Questions fréquentes',
             url: `${siteConfig.url}/faq`
           },

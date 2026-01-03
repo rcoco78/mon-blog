@@ -269,7 +269,7 @@ export default function Blog({ posts }) {
         type="Review"
         data={{
           itemReviewed: {
-            '@type': 'Blog',
+            '@type': 'CreativeWork',
             name: 'Blog - Corentin Robert',
             url: `${siteConfig.url}/blog`
           },
