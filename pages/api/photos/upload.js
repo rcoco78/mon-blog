@@ -3,12 +3,11 @@
 // Accepte FormData multipart (recommandé) ou JSON base64 (legacy)
 
 import { put, list } from '@vercel/blob'
-import formidable from 'formidable'
-import fs from 'fs'
+import Busboy from 'busboy'
 
 const PHOTOS_JSON_FILENAME = 'photos.json'
 const PHOTOS_FOLDER = 'photos'
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB (limite Vercel: 4.5 MB pour le body, mais on peut accepter plus avec FormData)
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
 
 // Désactiver le bodyParser pour parser FormData manuellement
 export const config = {
@@ -37,62 +36,67 @@ export default async function handler(req, res) {
     let contentType_image = 'image/jpeg'
     let date, location, alt
 
-    // Vérifier si c'est FormData (multipart/form-data) ou JSON (legacy)
-    // Shortcuts peut envoyer FormData avec ou sans Content-Type explicite
-    // On détecte FormData par la présence de multipart/form-data OU si le body n'est pas du JSON valide
-    const isFormData = contentType.includes('multipart/form-data')
-    
     // Log pour debug
     console.log('[photos-upload] Content-Type:', contentType)
     console.log('[photos-upload] Content-Length:', req.headers['content-length'])
-    
+
+    // Vérifier si c'est FormData (multipart/form-data) ou JSON (legacy)
+    const isFormData = contentType.includes('multipart/form-data')
+
     if (isFormData) {
-      try {
-        // Parser FormData avec formidable
-        const form = formidable({
-          maxFileSize: MAX_FILE_SIZE,
-          keepExtensions: true,
+      // Parser FormData avec busboy (plus robuste que formidable)
+      const busboy = Busboy({ headers: req.headers, limits: { fileSize: MAX_FILE_SIZE } })
+      
+      const fields = {}
+      const files = []
+
+      // Parser les champs et fichiers
+      await new Promise((resolve, reject) => {
+        busboy.on('file', (name, file, info) => {
+          const { filename, encoding, mimeType } = info
+          console.log(`[photos-upload] Fichier reçu: ${name}, filename: ${filename}, mimeType: ${mimeType}`)
+          
+          if (name === 'image') {
+            const chunks = []
+            
+            file.on('data', (chunk) => {
+              chunks.push(chunk)
+            })
+            
+            file.on('end', () => {
+              imageBuffer = Buffer.concat(chunks)
+              contentType_image = mimeType || 'image/jpeg'
+              console.log(`[photos-upload] Image reçue: ${imageBuffer.length} bytes, type: ${contentType_image}`)
+            })
+          } else {
+            // Ignorer les autres fichiers
+            file.resume()
+          }
         })
 
-        const [fields, files] = await form.parse(req)
-        
-        console.log('[photos-upload] FormData parsé - Fields:', Object.keys(fields), 'Files:', Object.keys(files))
+        busboy.on('field', (name, value) => {
+          fields[name] = value
+          console.log(`[photos-upload] Champ: ${name} = ${value}`)
+        })
 
-        // Récupérer le fichier image
-        const imageFile = Array.isArray(files.image) ? files.image[0] : files.image
-        if (!imageFile) {
-          return res.status(400).json({ error: 'Image is required (champ "image"). Vérifie que le champ FormData s\'appelle bien "image".' })
-        }
+        busboy.on('finish', () => {
+          console.log('[photos-upload] Parsing FormData terminé')
+          resolve()
+        })
 
-        // Lire le fichier
-        const fileData = fs.readFileSync(imageFile.filepath)
-        imageBuffer = Buffer.from(fileData)
+        busboy.on('error', (err) => {
+          console.error('[photos-upload] Erreur busboy:', err)
+          reject(err)
+        })
 
-        // Déterminer le type MIME
-        contentType_image = imageFile.mimetype || 'image/jpeg'
+        req.pipe(busboy)
+      })
 
-        // Récupérer les métadonnées
-        date = Array.isArray(fields.date) ? fields.date[0] : fields.date
-        location = Array.isArray(fields.location) ? fields.location[0] : fields.location
-        alt = Array.isArray(fields.alt) ? fields.alt[0] : fields.alt
-
-        // Nettoyer le fichier temporaire
-        if (fs.existsSync(imageFile.filepath)) {
-          fs.unlinkSync(imageFile.filepath)
-        }
-      } catch (formError) {
-        console.error('[photos-upload] Erreur parsing FormData:', formError)
-        // Si le parsing FormData échoue, essayer JSON
-        if (formError.code === 'LIMIT_FILE_SIZE') {
-          return res.status(413).json({ error: 'Fichier trop volumineux' })
-        }
-        // Fallback vers JSON si FormData échoue
-        console.log('[photos-upload] Fallback vers JSON')
-      }
-    }
-    
-    // Si pas de FormData ou si FormData a échoué, essayer JSON
-    if (!imageBuffer) {
+      // Récupérer les métadonnées
+      date = fields.date
+      location = fields.location
+      alt = fields.alt
+    } else {
       // Format JSON legacy (base64) - pour compatibilité
       const { buffer } = await import('micro')
       
@@ -110,7 +114,6 @@ export default async function handler(req, res) {
         body = JSON.parse(bodyString)
       } catch (error) {
         console.error('[photos-upload] Erreur parsing JSON:', error)
-        console.error('[photos-upload] Content-Type:', contentType)
         console.error('[photos-upload] Body preview:', bodyString.substring(0, 200))
         return res.status(400).json({ 
           error: 'Invalid JSON body. Si tu utilises FormData, vérifie que le Content-Type est bien "multipart/form-data" et que le champ s\'appelle "image".' 
