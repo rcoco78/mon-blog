@@ -506,11 +506,12 @@ export default function Home({ posts }) {
             </svg>
             <div className="rounded-full bg-white dark:bg-neutral-900 p-[2px]">
               <Image
-                src="/images/profile-picture/pp.png"
+                src="/images/profile-picture/cr-pp3.png"
                 alt="Photo de profil de Corentin Robert"
                 width={64}
                 height={64}
                 className="w-16 h-16 rounded-full object-cover transition-all group-hover:opacity-90"
+                style={{ objectPosition: 'center 30%' }}
                 priority
               />
             </div>
