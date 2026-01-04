@@ -1,16 +1,17 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import SEOHead from '../../components/seo/SEOHead'
-import StructuredData from '../../components/seo/StructuredData'
-import FAQ from '../../components/FAQ'
-import { generatePageSEO } from '../../lib/seo'
-import { siteConfig } from '../../lib/config'
-import { caseStudies, getCaseStudyBySlug, getRelatedCaseStudies } from '../../lib/case-studies'
-import { tools } from '../../lib/tools'
-import { getAllPosts } from '../../lib/notion'
-import { list, head } from '@vercel/blob'
+import SEOHead from '../../../components/seo/SEOHead'
+import StructuredData from '../../../components/seo/StructuredData'
+import FAQ from '../../../components/FAQ'
+import { generatePageSEO } from '../../../lib/seo'
+import { siteConfig } from '../../../lib/config'
+import { caseStudies, getCaseStudyBySlug, getRelatedCaseStudies } from '../../../lib/case-studies'
+import { slugToSector, sectorToSlug } from '../../../lib/case-studies-helpers'
+import { tools } from '../../../lib/tools'
+// import { getAllPosts } from '../../../lib/notion' // Non utilisé - chargement côté client si nécessaire
+// import { list, head } from '@vercel/blob' // Non utilisé dans getStaticProps pour optimiser les performances
 import { useState, useEffect } from 'react'
-import CaseStudyViewCounter from '../../components/CaseStudyViewCounter'
+import CaseStudyViewCounter from '../../../components/CaseStudyViewCounter'
 
 export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts, relatedTools }) {
   const router = useRouter()
@@ -35,11 +36,12 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
     )
   }
 
-  const pageUrl = `${siteConfig.url}/cas-usage/${caseStudy.slug}`
+  const sectorSlug = sectorToSlug(caseStudy.sector)
+  const pageUrl = `${siteConfig.url}/cas-usage/${sectorSlug}/${caseStudy.slug}`
   const today = new Date().toISOString().split('T')[0]
 
   // Enrichir la description SEO avec plus de détails et long-tail keywords
-  const enrichedDescription = `${caseStudy.description} ${caseStudy.useCase}. Extraction automatisée de données depuis ${caseStudy.examples.slice(0, 3).join(', ')}. Données extractibles : ${caseStudy.dataExtracted.slice(0, 5).join(', ')}. Solution sur-mesure pour ${caseStudy.sector.toLowerCase()}. Délai moyen 7 jours, livraison dans le format de votre choix (CSV, Excel, JSON, API).`
+  const enrichedDescription = `${caseStudy.description} Extraction automatisée de données depuis ${caseStudy.examples.slice(0, 3).join(', ')}. Données extractibles : ${caseStudy.dataExtracted.slice(0, 5).join(', ')}. Solution sur-mesure pour ${caseStudy.sector.toLowerCase()}. Délai moyen 7 jours, livraison dans le format de votre choix (CSV, Excel, JSON, API).`
 
   const pageSEO = generatePageSEO({
     title: `${caseStudy.title} | Scraping & Automatisation ${caseStudy.sector}`,
@@ -155,22 +157,51 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
     }
   ]
 
-  // Sélectionner 5-6 témoignages variés (mélange de sources et dates)
+  // Sélectionner 2-3 témoignages variés (mélange de sources et dates)
   const selectedTestimonials = [
     allTestimonials[0], // JP Crenn - récent, Fiverr
-    allTestimonials[1], // Adnane - LinkedIn, automatisation
     allTestimonials[2], // Mohamed-Amine - LinkedIn, scraping
-    allTestimonials[3], // Denis - Malt
-    allTestimonials[4], // Hugues - LinkedIn, plusieurs missions
-    allTestimonials[7] // jma225845 - Fiverr, résultat
+    allTestimonials[3] // Denis - Malt
   ]
 
   // Métriques et chiffres clés
   const metrics = [
-    { value: '7 jours', label: 'Délai moyen de livraison', icon: '⏱️' },
-    { value: '500€+', label: 'Prix à partir de', icon: '💰' },
-    { value: '100%', label: 'Données structurées', icon: '✅' },
-    { value: '5 formats', label: 'Formats de livraison', icon: '📊' }
+    { 
+      value: '7 jours', 
+      label: 'Délai moyen de livraison', 
+      icon: (
+        <svg className="w-5 h-5 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      )
+    },
+    { 
+      value: 'à partir de 600€ HT', 
+      label: 'Prix', 
+      icon: (
+        <svg className="w-5 h-5 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      )
+    },
+    { 
+      value: '100%', 
+      label: 'Données structurées', 
+      icon: (
+        <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+        </svg>
+      )
+    },
+    { 
+      value: '2 formats', 
+      label: 'CSV ou Sheets', 
+      icon: (
+        <svg className="w-5 h-5 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      )
+    }
   ]
 
   const serviceStructuredData = {
@@ -222,7 +253,7 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
       '@type': 'ListItem',
       position: 3,
       name: caseStudy.sector,
-      item: `${siteConfig.url}/cas-usage?secteur=${encodeURIComponent(caseStudy.sector)}`
+      item: `${siteConfig.url}/cas-usage/${sectorSlug}`
     },
     {
       '@type': 'ListItem',
@@ -335,36 +366,28 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
       />
 
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
-        {/* CTA secondaire en haut (sticky sur mobile) */}
-        <div className="sticky top-0 z-10 md:hidden mb-6 -mx-4 px-4 py-3 bg-neutral-900 dark:bg-white border-b border-neutral-800 dark:border-neutral-200">
-          <button
-            onClick={openCalendly}
-            disabled={!mounted}
-            className="w-full px-4 py-2.5 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-          >
-            Réserver un appel gratuit
-          </button>
-        </div>
-
         {/* Header */}
-        <header className="mb-8">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-4xl flex-1">
+        <section className="mb-12">
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <h1 className="font-semibold text-2xl tracking-tighter text-neutral-900 dark:text-neutral-100 flex-1">
               {caseStudy.title}
             </h1>
             <div className="flex-shrink-0">
               <CaseStudyViewCounter slug={caseStudy.slug} increment={true} />
             </div>
           </div>
-          <p className="text-lg text-neutral-600 dark:text-neutral-400 leading-relaxed mb-6">
+          
+          <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight leading-relaxed">
             {caseStudy.description}
           </p>
           
           {/* Métriques clés - En un coup d'œil */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {metrics.map((metric, index) => (
               <div key={index} className="p-3 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
-                <div className="text-2xl mb-1">{metric.icon}</div>
+                <div className="mb-2 flex items-center">
+                  {metric.icon}
+                </div>
                 <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-0.5">
                   {metric.value}
                 </p>
@@ -374,22 +397,13 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
               </div>
             ))}
           </div>
-        </header>
-
-        {/* Cas d'usage concret - Section mise en avant */}
-        <section className="mb-12 p-6 rounded-lg bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
-          <h2 className="text-xl font-semibold mb-3 tracking-tighter text-neutral-900 dark:text-neutral-100">
-            Cas d'usage concret
-          </h2>
-          <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed">
-            {caseStudy.useCase}
-          </p>
         </section>
+
 
         {/* Processus étape par étape */}
         <section className="mb-12">
           <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-            <h2 className="text-2xl font-semibold mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+            <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
               Comment ça fonctionne ?
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
@@ -403,7 +417,7 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
                 {howToSteps.map((step, index) => (
                   <div key={index} className="relative flex flex-col sm:flex-row sm:gap-4">
                     {/* Point sur la ligne */}
-                    <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-blue-500 border-2 border-white dark:border-neutral-900 z-10"></div>
+                    <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-400 dark:bg-neutral-600 border-2 border-white dark:border-neutral-900 z-10"></div>
                     <div className="w-full sm:w-32 sm:flex-shrink-0 text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-2 sm:mb-0 pl-0 sm:pl-4">
                       Étape {index + 1}
                     </div>
@@ -425,7 +439,7 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
         {/* Données extractibles - Format épuré */}
         <section className="mb-12">
           <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-            <h2 className="text-2xl font-semibold mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+            <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
               Données extractibles
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
@@ -434,10 +448,10 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {caseStudy.dataExtracted.map((data, index) => (
                 <div key={index} className="flex items-start gap-3 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
-                  <svg className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-neutral-600 dark:text-neutral-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
-                  <span className="text-neutral-700 dark:text-neutral-300">{data}</span>
+                  <span className="text-neutral-600 dark:text-neutral-400">{data}</span>
                 </div>
               ))}
             </div>
@@ -447,7 +461,7 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
         {/* Bénéfices business - Format amélioré */}
         <section className="mb-12">
           <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-            <h2 className="text-2xl font-semibold mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+            <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
               Bénéfices pour votre business
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
@@ -460,10 +474,10 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
                   className="p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
                 >
                   <div className="flex items-start gap-3">
-                    <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-neutral-600 dark:text-neutral-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <p className="text-neutral-700 dark:text-neutral-300 font-medium">{benefit}</p>
+                    <p className="text-neutral-600 dark:text-neutral-400 font-medium">{benefit}</p>
                   </div>
                 </div>
               ))}
@@ -474,7 +488,7 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
         {/* Exemples de sources - Format amélioré */}
         <section className="mb-12">
           <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-            <h2 className="text-2xl font-semibold mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+            <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
               Sources de données
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
@@ -496,28 +510,35 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
         {/* Timeline/Délais visuel */}
         <section className="mb-12">
           <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-            <h2 className="text-2xl font-semibold mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+            <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
               Délais et planning
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
               Un planning transparent et respecté pour vous garantir une livraison dans les temps :
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 text-center">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">J+1</div>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">Devis personnalisé</p>
-              </div>
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 text-center">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">J+2-4</div>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">Développement scraper</p>
-              </div>
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 text-center">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">J+5-6</div>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">Extraction données</p>
-              </div>
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 text-center">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">J+7</div>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">Livraison finale</p>
+            <div className="relative">
+              {/* Ligne horizontale en pointillés - Light mode */}
+              <div className="hidden md:block absolute top-1/2 left-0 right-0 h-[1px] -translate-y-1/2 dark:hidden" style={{ background: 'repeating-linear-gradient(to right, transparent 0, transparent 4px, rgb(212 212 212) 4px, rgb(212 212 212) 8px)' }}></div>
+              {/* Ligne horizontale en pointillés - Dark mode */}
+              <div className="hidden md:dark:block absolute top-1/2 left-0 right-0 h-[1px] -translate-y-1/2" style={{ background: 'repeating-linear-gradient(to right, transparent 0, transparent 4px, rgb(64 64 64) 4px, rgb(64 64 64) 8px)' }}></div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 relative z-10">
+                <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 text-center">
+                  <div className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">J+1</div>
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400">Devis personnalisé</p>
+                </div>
+                <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 text-center">
+                  <div className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">J+2-4</div>
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400">Développement scraper</p>
+                </div>
+                <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 text-center">
+                  <div className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">J+5-6</div>
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400">Extraction données</p>
+                </div>
+                <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 text-center">
+                  <div className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">J+7</div>
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400">Livraison finale</p>
+                </div>
               </div>
             </div>
           </div>
@@ -526,7 +547,7 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
         {/* Témoignages */}
         <section className="mb-12">
           <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-            <h2 className="text-2xl font-semibold mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+            <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
               Ce qu'en disent les clients
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
@@ -605,7 +626,7 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
         {relatedPosts && relatedPosts.length > 0 && (
           <section className="mb-12">
             <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-              <h2 className="text-2xl font-semibold mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+              <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
                 Articles sur ce sujet
               </h2>
               <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
@@ -655,7 +676,7 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
         {relatedTools && relatedTools.length > 0 && (
           <section className="mb-12">
             <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-              <h2 className="text-2xl font-semibold mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+              <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
                 Outils et bases de données disponibles
               </h2>
               <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
@@ -697,32 +718,26 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
           </section>
         )}
 
-        {/* CTA principal - Format amélioré */}
-        <section className="mb-12 p-6 rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 border border-neutral-800 dark:border-neutral-200">
-          <h2 className="text-xl font-semibold mb-3 tracking-tighter">
-            Intéressé par ce cas d'usage ?
-          </h2>
-          <p className="text-neutral-200 dark:text-neutral-700 mb-4 leading-relaxed">
-            Discutons de votre projet lors d'un appel de 20 minutes gratuit. 
-            Je vous expliquerai comment adapter cette solution à vos besoins spécifiques et vous fournirai un devis personnalisé. Plus de 424 projets réalisés avec 270+ avis positifs.
+        {/* CTA principal - Style marketplace */}
+        <section className="mb-12 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-center" aria-label="Contact">
+          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Intéressé par ce cas d'usage ?</h2>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-6">
+            Discutons de votre projet lors d'un appel de 20 minutes gratuit. Je vous expliquerai comment adapter cette solution à vos besoins spécifiques et vous fournirai un devis personnalisé.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <a
-              href="https://calendly.com/corentinrobert/20min"
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+            <button
+              onClick={openCalendly}
+              className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
+            >
+              Discutons de votre projet
+            </button>
+            <Link 
+              href={siteConfig.social.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center px-5 py-2.5 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm font-medium"
+              className="inline-block px-6 py-3 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
             >
-              Réserver un appel gratuit
-              <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </a>
-            <Link
-              href="/contact"
-              className="inline-flex items-center justify-center px-5 py-2.5 border border-white/20 dark:border-neutral-800 text-white dark:text-neutral-900 rounded-lg hover:bg-white/10 dark:hover:bg-neutral-100 transition-colors text-sm font-medium"
-            >
-              Me contacter
+              Me contacter sur LinkedIn
             </Link>
           </div>
         </section>
@@ -744,7 +759,7 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
         {relatedCaseStudies.length > 0 && (
           <section className="mb-12">
             <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-              <h2 className="text-2xl font-semibold mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+              <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
                 Autres cas d'usage en {caseStudy.sector}
               </h2>
               <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
@@ -754,7 +769,7 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
                 {relatedCaseStudies.map(related => (
                   <Link
                     key={related.slug}
-                    href={`/cas-usage/${related.slug}`}
+                    href={`/cas-usage/${sectorSlug}/${related.slug}`}
                     className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
                   >
                     <h3 className="text-lg font-semibold mb-2 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
@@ -803,11 +818,6 @@ export async function getStaticPaths() {
   // On utilise fallback: 'blocking' pour générer à la demande
   // Les pages seront générées au premier accès et mises en cache
   
-  // Optionnel : pré-générer seulement les 50 premiers pour le SEO initial
-  // const paths = caseStudies.slice(0, 50).map(cs => ({
-  //   params: { slug: cs.slug }
-  // }))
-  
   return {
     paths: [], // Aucune page pré-générée, tout sera généré à la demande
     fallback: 'blocking' // Génère la page au premier accès et la met en cache
@@ -815,51 +825,27 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  // Essayer de récupérer depuis Blob Storage directement, sinon fallback vers fichier local
-  let caseStudy = null
+  // Vérifier que le secteur correspond au case study
+  const sector = slugToSector(params.sector)
   
-  try {
-    // Essayer depuis Blob Storage
-    try {
-      const blobs = await list({ prefix: 'case-studies.json' })
-      const existingBlob = blobs.blobs.find((blob) => blob.pathname === 'case-studies.json')
-      
-      if (existingBlob) {
-        const cacheBuster = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-        const response = await fetch(`${existingBlob.url}?t=${cacheBuster}`, {
-          method: 'GET',
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-            Pragma: 'no-cache',
-          },
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          if (data.caseStudies && Array.isArray(data.caseStudies)) {
-            caseStudy = data.caseStudies.find(cs => cs.slug === params.slug)
-          }
-        }
-      }
-    } catch (blobError) {
-      // BlobNotFoundError est normal si les cron jobs n'ont pas encore tourné
-      if (blobError.name !== 'BlobNotFoundError') {
-        console.warn('Erreur Blob Storage, fallback fichier local:', blobError.message)
-      }
+  if (!sector) {
+    return {
+      notFound: true
     }
-    
-    // Fallback vers fichier local si Blob Storage n'est pas disponible
-    if (!caseStudy) {
-      caseStudy = getCaseStudyBySlug(params.slug)
-    }
-  } catch (error) {
-    console.warn('Erreur lors de la récupération du case study:', error)
-    // Dernier fallback vers fichier local
-    caseStudy = getCaseStudyBySlug(params.slug)
   }
   
+  // Utiliser directement le fichier local (plus rapide que fetch blob storage)
+  // Le blob storage est utilisé uniquement pour les API routes, pas pour getStaticProps
+  const caseStudy = getCaseStudyBySlug(params.slug)
+  
   if (!caseStudy) {
+    return {
+      notFound: true
+    }
+  }
+  
+  // Vérifier que le secteur correspond bien au case study
+  if (caseStudy.sector !== sector) {
     return {
       notFound: true
     }
@@ -868,62 +854,9 @@ export async function getStaticProps({ params }) {
   const relatedCaseStudies = getRelatedCaseStudies(params.slug, 4)
 
   // Trouver des articles de blog pertinents par keywords
+  // On charge les articles de manière asynchrone côté client pour ne pas bloquer le rendu initial
+  // Cela améliore significativement le temps de chargement de la page
   let relatedPosts = []
-  try {
-    let allPosts = []
-    
-    // Essayer depuis Blob Storage
-    try {
-      const blobs = await list({ prefix: 'blog-posts.json' })
-      const existingBlob = blobs.blobs.find((blob) => blob.pathname === 'blog-posts.json')
-      
-      if (existingBlob) {
-        const cacheBuster = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-        const response = await fetch(`${existingBlob.url}?t=${cacheBuster}`, {
-          method: 'GET',
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-            Pragma: 'no-cache',
-          },
-        })
-        
-        if (response.ok) {
-          const data = await response.json()
-          if (data.posts && Array.isArray(data.posts)) {
-            allPosts = data.posts
-          }
-        }
-      }
-    } catch (error) {
-      console.warn('Erreur Blob Storage, fallback Notion:', error)
-    }
-    
-    // Fallback vers Notion
-    if (allPosts.length === 0) {
-      allPosts = await getAllPosts()
-    }
-    
-    // Filtrer les articles pertinents par keywords
-    const keywordsLower = caseStudy.keywords.map(k => k.toLowerCase())
-    relatedPosts = allPosts
-      .filter(post => {
-        if (!post.tags || post.tags.length === 0) return false
-        const postTagsLower = post.tags.map(t => t.toLowerCase())
-        const titleLower = (post.title || '').toLowerCase()
-        const descLower = (post.metaDescription || '').toLowerCase()
-        
-        // Vérifier si les tags, titre ou description contiennent des keywords
-        return keywordsLower.some(keyword => 
-          postTagsLower.some(tag => tag.includes(keyword) || keyword.includes(tag)) ||
-          titleLower.includes(keyword) ||
-          descLower.includes(keyword)
-        )
-      })
-      .slice(0, 3)
-  } catch (error) {
-    console.warn('Erreur lors de la récupération des articles:', error)
-  }
 
   // Trouver des outils/databases pertinents par secteur ou keywords
   let relatedTools = []

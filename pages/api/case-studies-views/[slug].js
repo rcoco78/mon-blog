@@ -114,6 +114,11 @@ export default async function handler(req, res) {
     // Vérifier si on doit incrémenter (paramètre ?increment=true)
     const shouldIncrement = req.query.increment === 'true'
     
+    // Headers pour éviter le cache
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+    res.setHeader('Pragma', 'no-cache')
+    res.setHeader('Expires', '0')
+    
     if (shouldIncrement) {
       // Incrémenter la vue et récupérer le nouveau total
       const views = await incrementView(cleanSlug)

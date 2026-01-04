@@ -377,6 +377,10 @@ export default function Outils() {
                 Lisez mes articles
               </Link>
               {' • '}
+              <Link href="/cas-usage" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Découvrez les cas d'usage
+              </Link>
+              {' • '}
               <Link href="/a-propos" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
                 Découvrez mon parcours
               </Link>

@@ -7,6 +7,7 @@ export default function Custom404() {
     { href: '/', label: 'Accueil', description: 'Retour à la page d\'accueil' },
     { href: '/blog', label: 'Blog', description: 'Découvrir mes articles' },
     { href: '/marketplace', label: 'Marketplace', description: 'Outils et bases de données gratuits' },
+    { href: '/cas-usage', label: 'Cas d\'usage', description: '6 500+ cas d\'usage scraping par secteur' },
     { href: '/a-propos', label: 'À propos', description: 'En savoir plus sur moi' },
     { href: '/objectifs', label: 'Objectifs 2026', description: 'Suivre mes objectifs' },
     { href: '/temoignages', label: 'Témoignages', description: 'Avis de mes clients' },

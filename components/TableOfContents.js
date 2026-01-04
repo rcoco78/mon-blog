@@ -35,6 +35,9 @@ export default function TableOfContents({ markdown }) {
       // Nettoyer le texte des astérisques markdown (**texte** -> texte)
       text = text.replace(/\*\*(.*?)\*\*/g, '$1')
       
+      // Nettoyer le texte des liens markdown ([texte](url) -> texte)
+      text = text.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
+      
       // Utiliser la même logique de génération d'ID que MarkdownRenderer
       const id = text
         .toLowerCase()

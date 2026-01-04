@@ -514,6 +514,10 @@ export default function Blog({ posts }) {
                 Découvrez la marketplace
               </Link>
               {' • '}
+              <Link href="/cas-usage" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Découvrez les cas d'usage
+              </Link>
+              {' • '}
               <Link href="/temoignages" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
                 Lisez les témoignages clients
               </Link>

@@ -13,9 +13,20 @@ export default function CaseStudyViewCounter({ slug, increment = false }) {
         const url = increment 
           ? `/api/case-studies-views/${slug}?increment=true`
           : `/api/case-studies-views/${slug}`
-        const response = await fetch(url)
+        
+        // Cache-busting pour forcer la récupération des données à jour
+        const cacheBuster = `?t=${Date.now()}`
+        const finalUrl = url.includes('?') ? `${url}&t=${Date.now()}` : `${url}${cacheBuster}`
+        
+        const response = await fetch(finalUrl, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+          },
+        })
         const data = await response.json()
-        setViews(data.views)
+        setViews(data.views || 0)
       } catch (error) {
         console.error('Erreur lors de la récupération des vues:', error)
         setViews(0)
@@ -37,7 +48,7 @@ export default function CaseStudyViewCounter({ slug, increment = false }) {
 
   return (
     <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">
-      {views} vues
+      {views} {views === 0 || views === 1 ? 'vue' : 'vues'}
     </span>
   )
 }
