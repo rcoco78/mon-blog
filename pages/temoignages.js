@@ -173,7 +173,8 @@ export default function Temoignages() {
           },
           author: {
             '@type': 'Person',
-            name: 'Client satisfait'
+            name: siteConfig.author,
+            url: siteConfig.url
           },
           reviewBody: '424+ projets réalisés avec 270+ avis positifs. Expert freelance scraping et automatisation. Livraison en 7 jours, résultats garantis.',
           datePublished: new Date().toISOString().split('T')[0]
@@ -192,7 +193,11 @@ export default function Temoignages() {
           key={index}
           type="Review"
           data={{
-            authorName: testimonial.authorName,
+            author: {
+              '@type': 'Person',
+              name: siteConfig.author,
+              url: siteConfig.url
+            },
             reviewBody: testimonial.reviewBody,
             ratingValue: testimonial.ratingValue,
             datePublished: testimonial.datePublished,

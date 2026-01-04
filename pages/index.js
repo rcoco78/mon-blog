@@ -415,7 +415,8 @@ export default function Home({ posts }) {
           },
           author: {
             '@type': 'Person',
-            name: 'Client satisfait'
+            name: siteConfig.author,
+            url: siteConfig.url
           },
           reviewBody: 'Expert freelance en scraping et automatisation. 424+ projets réalisés avec 270+ avis positifs. Livraison en 7 jours, résultats garantis.',
           datePublished: new Date().toISOString().split('T')[0]
@@ -435,7 +436,11 @@ export default function Home({ posts }) {
       <StructuredData
         type="Review"
         data={{
-          authorName: 'Adnane Amahou',
+          author: {
+            '@type': 'Person',
+            name: siteConfig.author,
+            url: siteConfig.url
+          },
           reviewBody: "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ.",
           ratingValue: '5',
           datePublished: '2024-01-15',
@@ -445,7 +450,11 @@ export default function Home({ posts }) {
       <StructuredData
         type="Review"
         data={{
-          authorName: 'Mohamed-Amine Zaghdoud',
+          author: {
+            '@type': 'Person',
+            name: siteConfig.author,
+            url: siteConfig.url
+          },
           reviewBody: "Prestation de scraping impeccable : compréhension rapide du besoin, extraction propre et structurée, délais respectés. Les données livrées sont exploitables immédiatement (format clair, colonnes cohérentes, pas de doublons). Communication fluide et réactif tout au long du projet.",
           ratingValue: '5',
           datePublished: '2024-01-05',
@@ -455,7 +464,11 @@ export default function Home({ posts }) {
       <StructuredData
         type="Review"
         data={{
-          authorName: 'Hugues Chavrier',
+          author: {
+            '@type': 'Person',
+            name: siteConfig.author,
+            url: siteConfig.url
+          },
           reviewBody: "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !",
           ratingValue: '5',
           datePublished: '2023-12-15',
@@ -631,152 +644,15 @@ export default function Home({ posts }) {
           )}
           </div>
         </div>
-        
-        {/* Carousel de témoignages */}
-        <section className="mb-8 relative" aria-label="Témoignages clients">
-          <div className="relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-live="polite" aria-atomic="true">
-            <div 
-              ref={testimonialScrollRef}
-              className="flex overflow-x-auto scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-            >
-              {/* Témoignage Fiverr - JP */}
-              <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
-                <div className="mb-3">
-                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">1 an de collaboration • Qualité • Rapidité • Force de proposition</p>
-                </div>
-                <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
-                  "Cela fait plusieurs missions de scrapping que nous confions à Corentin depuis maintenant 1 an et nous avons toujours été ravis de travailler avec lui tant au niveau de la qualité des résultats que de la rapidité de la livraison. Un point important à souligner, Corentin est également force de proposition et c'est un véritable dialogue qui se construit autour de chacun des projets, en toute fluidité, au bénéfice d'une grande efficience. Nous recommandons Vivement."
-                </p>
-                <div className="flex items-center justify-between mt-auto">
-                  <div>
-                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Jean Paul Crenn</p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500">Dirigeant VUCA Strategy</p>
-                  </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
-                </div>
-              </div>
-              
-              {/* Témoignage LinkedIn */}
-              <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
-                <div className="mb-3">
-                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Automatisation • Compréhension immédiate • Valeur apportée dès le départ</p>
-                </div>
-                <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
-                  "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ."
-                </p>
-                <div className="flex items-center justify-between mt-auto">
-                  <div>
-                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Adnane Amahou</p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500">Responsable CX @ NGI</p>
-                  </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
-                </div>
-              </div>
-              
-              {/* Témoignage LinkedIn - Assursafe */}
-              <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
-                <div className="mb-3">
-                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Plusieurs missions • Professionnel • À l'écoute</p>
-                </div>
-                <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
-                  "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !"
-                </p>
-                <div className="flex items-center justify-between mt-auto">
-                  <div>
-                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Hugues Chavrier</p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
-                  </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
-                </div>
-              </div>
-              
-              {/* Témoignage Fiverr */}
-              <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
-                <div className="mb-3">
-                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Projet complexe • Révisions rapides • 100% satisfait</p>
-                </div>
-                <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
-                  "Corentin did an excellent job and my cooperation with him was smooth and easy. He delivered what he promised, he was very open and quick to discuss revisions and delivered even them in no time. My project was not a simple one, as it required collecting information from different places. I'm 100% satisfied with the result."
-                </p>
-                <div className="flex items-center justify-between mt-auto">
-                  <div>
-                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">lampro74</p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500">Belgique</p>
-                  </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
-                </div>
-              </div>
-              
-              {/* Témoignage Malt */}
-              <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
-                <div className="mb-3">
-                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Délais respectés • Clarté dès le départ • Professionnalisme</p>
-                </div>
-                <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
-                  "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
-                </p>
-                <div className="flex items-center justify-between mt-auto">
-                  <div>
-                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Denis</p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500">Inovesta</p>
-                  </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">Malt</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Indicateurs de navigation */}
-          <div className="flex justify-center gap-2 mt-4">
-            {[0, 1, 2, 3, 4].map((index) => {
-              const isActive = isMobile ? currentTestimonialScrollIndex === index : testimonialIndex === index
-              return (
-              <button
-                key={index}
-                  onClick={() => {
-                    if (testimonialScrollRef.current) {
-                      const container = testimonialScrollRef.current
-                      const containerWidth = container.clientWidth
-                      
-                      // Chaque élément fait 100% de la largeur (mobile et desktop)
-                      const itemWidth = containerWidth
-                      const scrollPosition = index * itemWidth
-                      container.scrollTo({ left: scrollPosition, behavior: 'smooth' })
-                      
-                      if (!isMobile) {
-                        setTestimonialIndex(index)
-                      }
-                    }
-                  }}
-                className={`h-1.5 rounded-full transition-all ${
-                    isActive
-                    ? 'w-6 bg-neutral-900 dark:bg-neutral-100'
-                    : 'w-1.5 bg-neutral-300 dark:bg-neutral-700'
-                }`}
-                aria-label={`Aller au témoignage ${index + 1}`}
-              />
-              )
-            })}
-          </div>
-          
-          {/* Lien vers la page complète */}
-          <div className="mt-4 text-center">
-            <Link
-              href="/temoignages"
-              className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
-            >
-              Voir tous les témoignages
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-              </svg>
-            </Link>
-          </div>
-        </section>
       </section>
       <section className="mt-4" aria-label="Projets">
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Projets</h2>
         <div className="flex flex-col space-y-4">
-          {siteConfig.projects.filter(project => project.status === 'active').map((project, index) => {
+          {siteConfig.projects.filter(project => {
+            // Filtrer uniquement les projets (exclure les partenaires)
+            const partnerIds = ['contributeurs-apify', 'lemlist', 'zapmail']
+            return project.status === 'active' && !partnerIds.includes(project.id)
+          }).map((project, index) => {
             const isActive = project.status === 'active'
             const Component = project.link ? 'a' : 'div'
             
@@ -911,6 +787,148 @@ export default function Home({ posts }) {
         </div>
       </section>
       
+      {/* Carousel de témoignages */}
+      <section className="mt-12 mb-8 relative" aria-label="Témoignages clients">
+        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Témoignages</h2>
+        <div className="relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-live="polite" aria-atomic="true">
+          <div 
+            ref={testimonialScrollRef}
+            className="flex overflow-x-auto scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          >
+            {/* Témoignage Fiverr - JP */}
+            <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
+              <div className="mb-3">
+                <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">1 an de collaboration • Qualité • Rapidité • Force de proposition</p>
+              </div>
+              <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
+                "Cela fait plusieurs missions de scrapping que nous confions à Corentin depuis maintenant 1 an et nous avons toujours été ravis de travailler avec lui tant au niveau de la qualité des résultats que de la rapidité de la livraison. Un point important à souligner, Corentin est également force de proposition et c'est un véritable dialogue qui se construit autour de chacun des projets, en toute fluidité, au bénéfice d'une grande efficience. Nous recommandons Vivement."
+              </p>
+              <div className="flex items-center justify-between mt-auto">
+                <div>
+                  <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Jean Paul Crenn</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">Dirigeant VUCA Strategy</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
+              </div>
+            </div>
+            
+            {/* Témoignage LinkedIn */}
+            <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
+              <div className="mb-3">
+                <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Automatisation • Compréhension immédiate • Valeur apportée dès le départ</p>
+              </div>
+              <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
+                "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ."
+              </p>
+              <div className="flex items-center justify-between mt-auto">
+                <div>
+                  <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Adnane Amahou</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">Responsable CX @ NGI</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
+              </div>
+            </div>
+            
+            {/* Témoignage LinkedIn - Assursafe */}
+            <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
+              <div className="mb-3">
+                <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Plusieurs missions • Professionnel • À l'écoute</p>
+              </div>
+              <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
+                "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !"
+              </p>
+              <div className="flex items-center justify-between mt-auto">
+                <div>
+                  <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Hugues Chavrier</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
+              </div>
+            </div>
+            
+            {/* Témoignage Fiverr */}
+            <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
+              <div className="mb-3">
+                <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Projet complexe • Révisions rapides • 100% satisfait</p>
+              </div>
+              <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
+                "Corentin did an excellent job and my cooperation with him was smooth and easy. He delivered what he promised, he was very open and quick to discuss revisions and delivered even them in no time. My project was not a simple one, as it required collecting information from different places. I'm 100% satisfied with the result."
+              </p>
+              <div className="flex items-center justify-between mt-auto">
+                <div>
+                  <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">lampro74</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">Belgique</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
+              </div>
+            </div>
+            
+            {/* Témoignage Malt */}
+            <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
+              <div className="mb-3">
+                <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Délais respectés • Clarté dès le départ • Professionnalisme</p>
+              </div>
+              <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
+                "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
+              </p>
+              <div className="flex items-center justify-between mt-auto">
+                <div>
+                  <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Denis</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">Inovesta</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">Malt</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Indicateurs de navigation */}
+        <div className="flex justify-center gap-2 mt-4">
+          {[0, 1, 2, 3, 4].map((index) => {
+            const isActive = isMobile ? currentTestimonialScrollIndex === index : testimonialIndex === index
+            return (
+            <button
+              key={index}
+                onClick={() => {
+                  if (testimonialScrollRef.current) {
+                    const container = testimonialScrollRef.current
+                    const containerWidth = container.clientWidth
+                    
+                    // Chaque élément fait 100% de la largeur (mobile et desktop)
+                    const itemWidth = containerWidth
+                    const scrollPosition = index * itemWidth
+                    container.scrollTo({ left: scrollPosition, behavior: 'smooth' })
+                    
+                    if (!isMobile) {
+                      setTestimonialIndex(index)
+                    }
+                  }
+                }}
+              className={`h-1.5 rounded-full transition-all ${
+                  isActive
+                  ? 'w-6 bg-neutral-900 dark:bg-neutral-100'
+                  : 'w-1.5 bg-neutral-300 dark:bg-neutral-700'
+              }`}
+              aria-label={`Aller au témoignage ${index + 1}`}
+            />
+            )
+          })}
+        </div>
+        
+        {/* Lien vers la page complète */}
+        <div className="mt-4 text-center">
+          <Link
+            href="/temoignages"
+            className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
+          >
+            Voir tous les témoignages
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+            </svg>
+          </Link>
+        </div>
+      </section>
+      
       {/* Section Marketplace */}
       <section className="mt-12" aria-label="Marketplace">
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Marketplace</h2>
@@ -1008,6 +1026,129 @@ export default function Home({ posts }) {
               <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
             </svg>
           </Link>
+        </div>
+      </section>
+      
+      {/* Section Partenaires */}
+      <section className="mt-12" aria-label="Partenaires">
+        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Partenaires</h2>
+        <div className="flex flex-col space-y-4">
+          {siteConfig.projects.filter(project => {
+            // Filtrer uniquement les partenaires
+            const partnerIds = ['contributeurs-apify', 'lemlist', 'zapmail']
+            return project.status === 'active' && partnerIds.includes(project.id)
+          }).map((project, index) => {
+            const isActive = project.status === 'active'
+            const Component = project.link ? 'a' : 'div'
+            
+            const handleClick = async (e) => {
+              if (project.link && project.id) {
+                // Tracker le clic de manière asynchrone sans bloquer la navigation
+                // Utiliser sendBeacon pour garantir l'envoi même si la page se ferme
+                const timestamp = Date.now()
+                const data = JSON.stringify({ projectId: project.id, timestamp })
+                
+                // Essayer sendBeacon d'abord (plus fiable pour les clics)
+                if (navigator.sendBeacon) {
+                  const blob = new Blob([data], { type: 'application/json' })
+                  navigator.sendBeacon(`/api/projects/click?t=${timestamp}`, blob)
+                } else {
+                  // Fallback sur fetch
+                  fetch(`/api/projects/click?t=${timestamp}`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Cache-Control': 'no-cache',
+                    },
+                    body: data,
+                    keepalive: true, // Important pour les requêtes après navigation
+                  }).catch(err => console.error('Error tracking click:', err))
+                }
+              }
+            }
+
+            const props = project.link ? {
+              href: project.link,
+              target: '_blank',
+              rel: 'noopener noreferrer',
+              onClick: handleClick,
+              className: 'relative flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group'
+            } : {
+              className: 'flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50'
+            }
+
+            return (
+              <Component key={index} {...props}>
+                <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
+                  {project.image ? (
+                    <div className="flex-shrink-0 w-6 h-6">
+                      <Image
+                        src={project.image}
+                        alt={project.imageAlt || `${project.title} - ${project.description}`}
+                        width={24}
+                        height={24}
+                        loading="lazy"
+                        className={`w-6 h-6 rounded-lg object-cover border border-neutral-200 dark:border-neutral-800 ${!isActive ? 'opacity-50 grayscale' : ''}`}
+                      />
+                    </div>
+                  ) : project.icon ? (
+                    project.icon.startsWith('/') ? (
+                      <div className="flex-shrink-0 w-6 h-6">
+                        <Image
+                          src={project.icon}
+                          alt={project.iconAlt || `${project.title} - ${project.description}`}
+                          width={24}
+                          height={24}
+                          loading="lazy"
+                          className={`w-6 h-6 rounded-lg object-contain ${!isActive ? 'opacity-50 grayscale' : ''}`}
+                        />
+                      </div>
+                    ) : (
+                      <div className={`flex-shrink-0 w-6 h-6 flex items-center justify-center text-xl leading-none ${!isActive ? 'opacity-50' : ''}`}>
+                        {project.icon}
+                      </div>
+                    )
+                  ) : null}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start sm:items-center gap-2 mb-1 flex-wrap sm:flex-nowrap">
+                      <h2 className={`font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 flex-1 min-w-0 sm:flex-initial ${!isActive ? 'text-neutral-500 dark:text-neutral-400' : ''}`}>
+                        {project.title}
+                      </h2>
+                      {project.status === 'active' && (
+                        <span className="relative flex h-2 w-2 flex-shrink-0 mt-1 sm:mt-0" title="Partenaire actif">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                      )}
+                    </div>
+                    <p className={`text-sm ${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} line-clamp-2`}>
+                      {project.description}
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Séparateur fin et compteur de clics */}
+                {project.link && (
+                  <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
+                    <div className="flex items-center gap-3">
+                      {/* Espaceur pour aligner avec l'icône */}
+                      <div className="flex-shrink-0 w-6 h-6"></div>
+                      <div className="flex-1 min-w-0 flex items-center gap-2">
+                        {project.id ? (
+                          <ProjectClickCounter projectId={project.id} />
+                        ) : (
+                          <span></span>
+                        )}
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
+                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </Component>
+            )
+          })}
         </div>
       </section>
       

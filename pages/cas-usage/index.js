@@ -36,7 +36,7 @@ export default function CaseStudiesIndex() {
 
   const pageSEO = generatePageSEO({
     title: 'Cas d\'usage scraping et automatisation par secteur | Corentin Robert',
-    description: 'Découvrez comment le scraping et l\'automatisation peuvent transformer votre business. 30+ cas d\'usage concrets par secteur : immobilier, santé, artisanat, e-commerce, finance, restauration...',
+    description: `Découvrez comment le scraping et l'automatisation peuvent transformer votre business. ${caseStudies.length.toLocaleString('fr-FR')}+ cas d'usage concrets par secteur : immobilier, santé, artisanat, e-commerce, finance, restauration...`,
     path: '/cas-usage',
     keywords: ['cas d\'usage scraping', 'scraping par secteur', 'automatisation business', 'extraction données', 'scraping immobilier', 'scraping santé', 'scraping e-commerce']
   })
@@ -75,7 +75,7 @@ export default function CaseStudiesIndex() {
                 </h1>
                 <p className="text-lg text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
                   Découvrez comment le scraping et l'automatisation peuvent transformer votre business. 
-                  Plus de 30 cas d'usage concrets par secteur avec exemples réels et données extractibles.
+                  Plus de {caseStudies.length.toLocaleString('fr-FR')} cas d'usage concrets par secteur avec exemples réels et données extractibles.
                 </p>
 
                 {/* Search et Filtres */}
@@ -185,7 +185,7 @@ export default function CaseStudiesIndex() {
                           </span>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {studies.map(cs => (
+                          {studies.slice(0, 10).map(cs => (
                             <Link
                               key={cs.slug}
                               href={`/cas-usage/${cs.slug}`}
@@ -215,6 +215,16 @@ export default function CaseStudiesIndex() {
                             </Link>
                           ))}
                         </div>
+                        {studies.length > 10 && (
+                          <div className="mt-4 text-center">
+                            <button
+                              onClick={() => setSelectedSector(sector)}
+                              className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors underline"
+                            >
+                              Voir tous les {studies.length} cas d'usage en {sector.toLowerCase()} →
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )
                   })}

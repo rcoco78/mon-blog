@@ -162,7 +162,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         };
 
       case 'AggregateRating':
-        return {
+        const aggregateRating = {
           '@context': 'https://schema.org',
           '@type': 'AggregateRating',
           ratingValue: data.ratingValue || '4.9',
@@ -170,6 +170,11 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           bestRating: '5',
           worstRating: '1'
         };
+        // Si itemReviewed est fourni, l'ajouter (pour Service/Product)
+        if (data.itemReviewed) {
+          aggregateRating.itemReviewed = data.itemReviewed;
+        }
+        return aggregateRating;
 
       case 'VideoObject':
         return {

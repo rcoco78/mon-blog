@@ -162,7 +162,8 @@ export default function Marketplace() {
           },
           author: {
             '@type': 'Person',
-            name: 'Utilisateur satisfait'
+            name: siteConfig.author,
+            url: siteConfig.url
           },
           reviewBody: 'Marketplace d\'outils scraping et automatisation gratuits et payants. Outils testés, documentés et prêts à l\'emploi pour automatiser vos processus business.',
           datePublished: new Date().toISOString().split('T')[0]

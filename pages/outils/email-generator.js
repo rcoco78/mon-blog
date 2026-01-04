@@ -205,7 +205,8 @@ export default function EmailGenerator() {
           },
           author: {
             '@type': 'Person',
-            name: 'Utilisateur satisfait'
+            name: siteConfig.author,
+            url: siteConfig.url
           },
           reviewBody: toolData.description,
           datePublished: new Date().toISOString().split('T')[0]
@@ -546,7 +547,11 @@ export default function EmailGenerator() {
                     <StructuredData
                       type="Review"
                       data={{
-                        authorName: testimonial.name,
+                        author: {
+                          '@type': 'Person',
+                          name: siteConfig.author,
+                          url: siteConfig.url
+                        },
                         datePublished: testimonial.date.split('-').reverse().join('-'),
                         reviewBody: testimonial.comment,
                         ratingValue: '5',

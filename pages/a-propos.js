@@ -163,7 +163,8 @@ export default function About() {
           },
           author: {
             '@type': 'Person',
-            name: 'Client satisfait'
+            name: siteConfig.author,
+            url: siteConfig.url
           },
           reviewBody: 'Expert freelance en scraping et automatisation. 424+ projets réalisés, 5/5 sur Malt. Parcours de growth marketeux chez Airbnb à entrepreneur indépendant.',
           datePublished: new Date().toISOString().split('T')[0]
