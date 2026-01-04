@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-export default function CaseStudyViewCounter({ slug, increment = false, views: initialViews = null }) {
+export default function CaseStudyViewCounter({ slug, views: initialViews = null }) {
   const [views, setViews] = useState(initialViews)
   const [loading, setLoading] = useState(initialViews === null)
 
@@ -12,27 +12,11 @@ export default function CaseStudyViewCounter({ slug, increment = false, views: i
       return
     }
 
-    // Sinon, on fait l'appel API (pour la rétrocompatibilité)
+    // Sinon, on fait l'appel API pour récupérer les vues
     const fetchViews = async () => {
       try {
         setLoading(true)
-        // Si increment=true, on incrémente la vue (pour les pages de case study)
-        // Sinon, on récupère juste le nombre (pour les listes)
-        const url = increment 
-          ? `/api/case-studies-views/${slug}?increment=true`
-          : `/api/case-studies-views/${slug}`
-        
-        // Cache-busting pour forcer la récupération des données à jour
-        const cacheBuster = `?t=${Date.now()}`
-        const finalUrl = url.includes('?') ? `${url}&t=${Date.now()}` : `${url}${cacheBuster}`
-        
-        const response = await fetch(finalUrl, {
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-          },
-        })
+        const response = await fetch(`/api/case-studies-views/${slug}`)
         const data = await response.json()
         setViews(data.views || 0)
       } catch (error) {
@@ -44,7 +28,7 @@ export default function CaseStudyViewCounter({ slug, increment = false, views: i
     }
 
     fetchViews()
-  }, [slug, increment, initialViews])
+  }, [slug, initialViews])
 
   if (loading) {
     return (

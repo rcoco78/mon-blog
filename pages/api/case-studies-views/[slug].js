@@ -52,15 +52,25 @@ async function calculateViewsFromEvents() {
 }
 
 // Incrémenter la vue avec système d'événements (évite les race conditions)
-async function incrementView(slug) {
+async function incrementView(slug, sector = null) {
   try {
+    // Si le secteur n'est pas fourni, le récupérer depuis le case study
+    if (!sector) {
+      const { getCaseStudyBySlug } = await import('../../../lib/case-studies')
+      const caseStudy = getCaseStudyBySlug(slug)
+      if (caseStudy) {
+        sector = caseStudy.sector
+      }
+    }
+    
     // Récupérer les événements existants
     const events = await getViewEvents()
     
-    // Ajouter le nouvel événement
+    // Ajouter le nouvel événement avec le secteur
     const newEvent = {
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       slug,
+      sector: sector || null, // Stocker le secteur si disponible
       timestamp: Date.now()
     }
     events.push(newEvent)
@@ -113,15 +123,12 @@ export default async function handler(req, res) {
     
     // Vérifier si on doit incrémenter (paramètre ?increment=true)
     const shouldIncrement = req.query.increment === 'true'
-    
-    // Headers pour éviter le cache
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
-    res.setHeader('Pragma', 'no-cache')
-    res.setHeader('Expires', '0')
+    // Récupérer le secteur si fourni en paramètre
+    const sector = req.query.sector || null
     
     if (shouldIncrement) {
       // Incrémenter la vue et récupérer le nouveau total
-      const views = await incrementView(cleanSlug)
+      const views = await incrementView(cleanSlug, sector)
       res.status(200).json({ views })
     } else {
       // Juste récupérer les vues sans incrémenter

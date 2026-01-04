@@ -30,6 +30,22 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
     }
   }, [caseStudy?.slug])
 
+  // Incrémenter la vue à chaque chargement de page (sans cache) - comme pour les articles de blog
+  useEffect(() => {
+    if (caseStudy?.slug && caseStudy?.sector) {
+      // Incrémenter la vue en arrière-plan avec le secteur (ne pas attendre la réponse)
+      fetch(`/api/case-studies-views/${caseStudy.slug}?increment=true&sector=${encodeURIComponent(caseStudy.sector)}`)
+        .then(res => res.json())
+        .then(data => {
+          // Vue incrémentée avec succès
+        })
+        .catch(error => {
+          console.warn('Erreur lors de l\'incrémentation des vues:', error)
+          // Ne pas bloquer si l'incrémentation échoue
+        })
+    }
+  }, [caseStudy?.slug, caseStudy?.sector])
+
   if (router.isFallback) {
     return (
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
@@ -597,7 +613,7 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
               
               <div className="flex items-center gap-3 text-xs text-neutral-500 dark:text-neutral-500 mb-4 flex-wrap">
                 <div className="text-xs text-neutral-500 dark:text-neutral-500">
-                  <CaseStudyViewCounter slug={caseStudy.slug} increment={true} views={views} />
+                  <CaseStudyViewCounter slug={caseStudy.slug} views={views} />
                 </div>
                 <span>•</span>
                 <span>
