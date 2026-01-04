@@ -44,8 +44,43 @@ export default async function handler(req, res) {
     const isFormData = contentType.includes('multipart/form-data')
 
     if (isFormData) {
-      // Parser FormData avec busboy (plus robuste que formidable)
-      const busboy = Busboy({ headers: req.headers, limits: { fileSize: MAX_FILE_SIZE } })
+      // Lire le body entier pour extraire le boundary si absent
+      const { buffer } = await import('micro')
+      const bodyBuffer = await buffer(req, { limit: MAX_FILE_SIZE + 1024 * 1024 }) // +1MB pour les métadonnées
+      
+      // Extraire le boundary du body
+      let boundary = null
+      const bodyStart = bodyBuffer.toString('binary', 0, Math.min(200, bodyBuffer.length))
+      const boundaryMatch = bodyStart.match(/^--([^\r\n]+)/)
+      
+      if (boundaryMatch) {
+        boundary = boundaryMatch[1]
+      } else if (contentType.includes('boundary=')) {
+        // Extraire du Content-Type si présent
+        const ctMatch = contentType.match(/boundary=([^;]+)/)
+        if (ctMatch) {
+          boundary = ctMatch[1].trim()
+        }
+      }
+      
+      if (!boundary) {
+        return res.status(400).json({ 
+          error: 'Impossible de déterminer le boundary du multipart. Vérifie que tu envoies bien du FormData.' 
+        })
+      }
+      
+      // Créer un nouveau stream à partir du buffer
+      const { Readable } = await import('stream')
+      const bodyStream = Readable.from(bodyBuffer)
+      
+      // Modifier les headers pour inclure le boundary
+      const headers = {
+        ...req.headers,
+        'content-type': `multipart/form-data; boundary=${boundary}`,
+      }
+      
+      // Parser FormData avec busboy
+      const busboy = Busboy({ headers, limits: { fileSize: MAX_FILE_SIZE } })
       
       const fields = {}
       const files = []
@@ -89,7 +124,7 @@ export default async function handler(req, res) {
           reject(err)
         })
 
-        req.pipe(busboy)
+        bodyStream.pipe(busboy)
       })
 
       // Récupérer les métadonnées
