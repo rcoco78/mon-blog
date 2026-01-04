@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/blog-details-sync",
       "schedule": "0 9,15,21 * * *"
+    },
+    {
+      "path": "/api/cron/case-studies-sync",
+      "schedule": "0 10 * * *"
     }
   ],
   "redirects": [

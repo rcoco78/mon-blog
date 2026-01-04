@@ -8,7 +8,7 @@ import { siteConfig } from '../../lib/config'
 import { caseStudies, getCaseStudyBySlug, getRelatedCaseStudies } from '../../lib/case-studies'
 import { tools } from '../../lib/tools'
 import { getAllPosts } from '../../lib/notion'
-import { list } from '@vercel/blob'
+import { list, head } from '@vercel/blob'
 import { useState, useEffect } from 'react'
 
 export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts, relatedTools }) {
@@ -793,18 +793,65 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
 }
 
 export async function getStaticPaths() {
-  const paths = caseStudies.map(cs => ({
-    params: { slug: cs.slug }
-  }))
-
+  // Ne pas pré-générer toutes les pages (6577 pages = trop long)
+  // On utilise fallback: 'blocking' pour générer à la demande
+  // Les pages seront générées au premier accès et mises en cache
+  
+  // Optionnel : pré-générer seulement les 50 premiers pour le SEO initial
+  // const paths = caseStudies.slice(0, 50).map(cs => ({
+  //   params: { slug: cs.slug }
+  // }))
+  
   return {
-    paths,
-    fallback: true
+    paths: [], // Aucune page pré-générée, tout sera généré à la demande
+    fallback: 'blocking' // Génère la page au premier accès et la met en cache
   }
 }
 
 export async function getStaticProps({ params }) {
-  const caseStudy = getCaseStudyBySlug(params.slug)
+  // Essayer de récupérer depuis Blob Storage directement, sinon fallback vers fichier local
+  let caseStudy = null
+  
+  try {
+    // Essayer depuis Blob Storage
+    try {
+      const blobs = await list({ prefix: 'case-studies.json' })
+      const existingBlob = blobs.blobs.find((blob) => blob.pathname === 'case-studies.json')
+      
+      if (existingBlob) {
+        const cacheBuster = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        const response = await fetch(`${existingBlob.url}?t=${cacheBuster}`, {
+          method: 'GET',
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+            Pragma: 'no-cache',
+          },
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          if (data.caseStudies && Array.isArray(data.caseStudies)) {
+            caseStudy = data.caseStudies.find(cs => cs.slug === params.slug)
+          }
+        }
+      }
+    } catch (blobError) {
+      // BlobNotFoundError est normal si les cron jobs n'ont pas encore tourné
+      if (blobError.name !== 'BlobNotFoundError') {
+        console.warn('Erreur Blob Storage, fallback fichier local:', blobError.message)
+      }
+    }
+    
+    // Fallback vers fichier local si Blob Storage n'est pas disponible
+    if (!caseStudy) {
+      caseStudy = getCaseStudyBySlug(params.slug)
+    }
+  } catch (error) {
+    console.warn('Erreur lors de la récupération du case study:', error)
+    // Dernier fallback vers fichier local
+    caseStudy = getCaseStudyBySlug(params.slug)
+  }
   
   if (!caseStudy) {
     return {
