@@ -2,39 +2,14 @@ import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
 import SEOHead from '../components/seo/SEOHead'
 import { generatePageSEO } from '../lib/seo'
-import { getPhotosByMonth, photos as defaultPhotos } from '../lib/photos'
+import { getPhotosByMonth } from '../lib/photos'
 
 export default function Photos() {
   const [selectedPhoto, setSelectedPhoto] = useState(null)
   const [monthIndices, setMonthIndices] = useState({})
   const [currentScrollIndices, setCurrentScrollIndices] = useState({})
-  const [photos, setPhotos] = useState(defaultPhotos)
-  const [loading, setLoading] = useState(true)
+  const photosByMonth = getPhotosByMonth()
   const scrollRefs = useRef({})
-
-  // Charger les photos depuis l'API
-  useEffect(() => {
-    const loadPhotos = async () => {
-      try {
-        const response = await fetch('/api/photos/list', {
-          cache: 'no-store',
-        })
-        if (response.ok) {
-          const data = await response.json()
-          if (data.photos && data.photos.length > 0) {
-            setPhotos(data.photos)
-          }
-        }
-      } catch (error) {
-        console.warn('Erreur lors du chargement des photos:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadPhotos()
-  }, [])
-
-  const photosByMonth = getPhotosByMonth(photos)
   
   // Auto-rotation du carousel par mois (désactivée, on utilise le scroll natif)
   // Le scroll natif avec snap remplace l'auto-rotation
