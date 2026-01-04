@@ -326,7 +326,7 @@ export default function Home({ posts }) {
       // Chaque élément fait 100% de la largeur (mobile et desktop)
       const itemWidth = containerWidth
       const index = Math.round(scrollLeft / itemWidth)
-      const maxIndex = 2 // 3 témoignages au total
+      const maxIndex = 4 // 5 témoignages au total
       const clampedIndex = Math.min(Math.max(0, index), maxIndex)
       
       if (isMobile) {
@@ -639,6 +639,23 @@ export default function Home({ posts }) {
               ref={testimonialScrollRef}
               className="flex overflow-x-auto scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             >
+              {/* Témoignage Fiverr - JP */}
+              <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
+                <div className="mb-3">
+                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">1 an de collaboration • Qualité • Rapidité • Force de proposition</p>
+                </div>
+                <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
+                  "Cela fait plusieurs missions de scrapping que nous confions à Corentin depuis maintenant 1 an et nous avons toujours été ravis de travailler avec lui tant au niveau de la qualité des résultats que de la rapidité de la livraison. Un point important à souligner, Corentin est également force de proposition et c'est un véritable dialogue qui se construit autour de chacun des projets, en toute fluidité, au bénéfice d'une grande efficience. Nous recommandons Vivement."
+                </p>
+                <div className="flex items-center justify-between mt-auto">
+                  <div>
+                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Jean Paul Crenn</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">Dirigeant VUCA Strategy</p>
+                  </div>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
+                </div>
+              </div>
+              
               {/* Témoignage LinkedIn */}
               <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
                 <div className="mb-3">
@@ -711,7 +728,7 @@ export default function Home({ posts }) {
           
           {/* Indicateurs de navigation */}
           <div className="flex justify-center gap-2 mt-4">
-            {[0, 1, 2, 3].map((index) => {
+            {[0, 1, 2, 3, 4].map((index) => {
               const isActive = isMobile ? currentTestimonialScrollIndex === index : testimonialIndex === index
               return (
               <button

@@ -43,6 +43,14 @@ export default function Temoignages() {
   // Données des témoignages pour le Review Schema
   const testimonials = [
     {
+      authorName: 'Jean Paul Crenn',
+      authorJob: 'Dirigeant VUCA Strategy',
+      reviewBody: "Cela fait plusieurs missions de scrapping que nous confions à Corentin depuis maintenant 1 an et nous avons toujours été ravis de travailler avec lui tant au niveau de la qualité des résultats que de la rapidité de la livraison. Un point important à souligner, Corentin est également force de proposition et c'est un véritable dialogue qui se construit autour de chacun des projets, en toute fluidité, au bénéfice d'une grande efficience. Nous recommandons Vivement.",
+      source: 'Fiverr',
+      ratingValue: '5',
+      datePublished: '2025-01-03'
+    },
+    {
       authorName: 'Adnane Amahou',
       authorJob: 'Responsable CX @ NGI',
       reviewBody: "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ.",
@@ -203,6 +211,24 @@ export default function Temoignages() {
         {/* Section Témoignages */}
         <section className="mb-16">
           <div className="space-y-6">
+            {/* Fiverr - JP */}
+            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">1 an de collaboration • Qualité • Rapidité • Force de proposition</p>
+              </div>
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
+                  "Cela fait plusieurs missions de scrapping que nous confions à Corentin depuis maintenant 1 an et nous avons toujours été ravis de travailler avec lui tant au niveau de la qualité des résultats que de la rapidité de la livraison. Un point important à souligner, Corentin est également force de proposition et c'est un véritable dialogue qui se construit autour de chacun des projets, en toute fluidité, au bénéfice d'une grande efficience. Nous recommandons Vivement."
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Jean Paul Crenn</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Dirigeant VUCA Strategy</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
+              </div>
+            </div>
             {/* LinkedIn */}
             <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
               <div className="mb-3">
