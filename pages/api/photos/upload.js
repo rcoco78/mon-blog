@@ -1,19 +1,19 @@
 // API endpoint pour uploader des photos depuis iPhone
 // Sécurisé avec un token secret
-// Accepte JSON (base64)
-// Désactive le bodyParser pour contourner la limite de 1 MB
+// Accepte FormData multipart (recommandé) ou JSON base64 (legacy)
 
 import { put, list } from '@vercel/blob'
-import { buffer } from 'micro'
+import formidable from 'formidable'
+import fs from 'fs'
 
 const PHOTOS_JSON_FILENAME = 'photos.json'
 const PHOTOS_FOLDER = 'photos'
-const MAX_FILE_SIZE = 4 * 1024 * 1024 // 4 MB (limite Vercel: 4.5 MB)
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB (limite Vercel: 4.5 MB pour le body, mais on peut accepter plus avec FormData)
 
-// Désactiver le bodyParser pour parser manuellement et contourner la limite de 1 MB
+// Désactiver le bodyParser pour parser FormData manuellement
 export const config = {
   api: {
-    bodyParser: false, // Parser manuellement avec micro
+    bodyParser: false,
   },
 }
 
@@ -32,60 +32,101 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Parser le body manuellement (bodyParser désactivé)
-    // Augmenter la limite de micro à 4.5 MB (limite Vercel)
-    const bodyBuffer = await buffer(req, { limit: '4.5mb' })
-    const bodyString = bodyBuffer.toString('utf-8')
-    
-    // Vérifier la taille du body brut (limite Vercel: 4.5 MB)
-    if (bodyBuffer.length > 4.5 * 1024 * 1024) {
-      return res.status(413).json({ 
-        error: `Requête trop grande (${Math.round(bodyBuffer.length / 1024 / 1024 * 100) / 100} MB). Maximum: 4.5 MB. Compressez l'image à 50-60% de qualité.` 
+    const contentType = req.headers['content-type'] || ''
+    let imageBuffer
+    let contentType_image = 'image/jpeg'
+    let date, location, alt
+
+    // Vérifier si c'est FormData (multipart/form-data) ou JSON (legacy)
+    if (contentType.includes('multipart/form-data')) {
+      // Parser FormData avec formidable
+      const form = formidable({
+        maxFileSize: MAX_FILE_SIZE,
+        keepExtensions: true,
       })
+
+      const [fields, files] = await form.parse(req)
+
+      // Récupérer le fichier image
+      const imageFile = Array.isArray(files.image) ? files.image[0] : files.image
+      if (!imageFile) {
+        return res.status(400).json({ error: 'Image is required (champ "image")' })
+      }
+
+      // Lire le fichier
+      const fileData = fs.readFileSync(imageFile.filepath)
+      imageBuffer = Buffer.from(fileData)
+
+      // Déterminer le type MIME
+      contentType_image = imageFile.mimetype || 'image/jpeg'
+
+      // Récupérer les métadonnées
+      date = Array.isArray(fields.date) ? fields.date[0] : fields.date
+      location = Array.isArray(fields.location) ? fields.location[0] : fields.location
+      alt = Array.isArray(fields.alt) ? fields.alt[0] : fields.alt
+
+      // Nettoyer le fichier temporaire
+      fs.unlinkSync(imageFile.filepath)
+    } else {
+      // Format JSON legacy (base64) - pour compatibilité
+      const { Readable } = await import('stream')
+      const { buffer } = await import('micro')
+      
+      const bodyBuffer = await buffer(req, { limit: '4.5mb' })
+      const bodyString = bodyBuffer.toString('utf-8')
+
+      if (bodyBuffer.length > 4.5 * 1024 * 1024) {
+        return res.status(413).json({
+          error: `Requête trop grande (${Math.round(bodyBuffer.length / 1024 / 1024 * 100) / 100} MB). Maximum: 4.5 MB. Utilisez FormData multipart pour les fichiers plus grands.`,
+        })
+      }
+
+      let body
+      try {
+        body = JSON.parse(bodyString)
+      } catch (error) {
+        return res.status(400).json({ error: 'Invalid JSON body' })
+      }
+
+      const { image, date: dateParam, location: locationParam, alt: altParam } = body
+
+      if (!image) {
+        return res.status(400).json({ error: 'Image is required' })
+      }
+
+      // Convertir l'image base64 en buffer
+      const base64Data = image.replace(/^data:image\/\w+;base64,/, '')
+      imageBuffer = Buffer.from(base64Data, 'base64')
+
+      const mimeType = image.match(/data:image\/(\w+);base64/)?.[1] || 'jpeg'
+      contentType_image = `image/${mimeType}`
+      date = dateParam
+      location = locationParam
+      alt = altParam
     }
 
-    let body
-    try {
-      body = JSON.parse(bodyString)
-    } catch (error) {
-      return res.status(400).json({ error: 'Invalid JSON body' })
-    }
-
-    const { image, date: dateParam, location: locationParam, alt: altParam } = body
-
-    if (!image) {
-      return res.status(400).json({ error: 'Image is required' })
-    }
-
-    // Convertir l'image base64 en buffer
-    const base64Data = image.replace(/^data:image\/\w+;base64,/, '')
-    const imageBuffer = Buffer.from(base64Data, 'base64')
-    
-    // Vérifier la taille de l'image décodée
+    // Vérifier la taille de l'image
     if (imageBuffer.length > MAX_FILE_SIZE) {
-      return res.status(413).json({ 
-        error: `Image trop grande (${Math.round(imageBuffer.length / 1024 / 1024 * 100) / 100} MB). Maximum: 4 MB. Compressez l'image à 50-60% de qualité.` 
+      return res.status(413).json({
+        error: `Image trop grande (${Math.round(imageBuffer.length / 1024 / 1024 * 100) / 100} MB). Maximum: 10 MB.`,
       })
     }
-    
-    // Déterminer le type MIME
-    const mimeType = image.match(/data:image\/(\w+);base64/)?.[1] || 'jpeg'
-    const contentType = `image/${mimeType}`
-    const date = dateParam
-    const location = locationParam
-    const alt = altParam
 
     // Générer un nom de fichier unique
     const timestamp = Date.now()
     const randomId = Math.random().toString(36).substring(2, 9)
-    const extension = contentType.includes('jpeg') ? 'jpg' : (contentType.includes('png') ? 'png' : 'jpg')
+    const extension = contentType_image.includes('jpeg') || contentType_image.includes('jpg')
+      ? 'jpg'
+      : contentType_image.includes('png')
+      ? 'png'
+      : 'jpg'
     const fileName = `${timestamp}-${randomId}.${extension}`
     const blobPath = `${PHOTOS_FOLDER}/${fileName}`
 
     // Uploader l'image dans Vercel Blob Storage
     const blob = await put(blobPath, imageBuffer, {
       access: 'public',
-      contentType,
+      contentType: contentType_image,
       addRandomSuffix: false,
     })
 
@@ -149,7 +190,9 @@ export default async function handler(req, res) {
     })
   } catch (error) {
     console.error('[photos-upload] Erreur:', error)
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ error: 'Fichier trop volumineux' })
+    }
     return res.status(500).json({ error: 'Erreur lors de l\'upload de la photo' })
   }
 }
-
