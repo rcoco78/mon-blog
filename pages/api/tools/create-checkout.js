@@ -92,8 +92,8 @@ export default async function handler(req, res) {
         },
       ],
       mode: isSubscription ? 'subscription' : 'payment',
-      success_url: `${req.headers.origin}${toolId.startsWith('capeb') || toolId.startsWith('cgp-france') ? '/databases' : '/outils'}/${toolId}?payment=success&session_id={CHECKOUT_SESSION_ID}&type=${isSubscription ? 'subscription' : 'one-time'}`,
-      cancel_url: `${req.headers.origin}${toolId.startsWith('capeb') || toolId.startsWith('cgp-france') ? '/databases' : '/outils'}/${toolId}?payment=cancelled`,
+      success_url: `${req.headers.origin}${toolId.startsWith('capeb') || toolId.startsWith('cgp-france') ? '/marketplace' : '/outils'}/${toolId}?payment=success&session_id={CHECKOUT_SESSION_ID}&type=${isSubscription ? 'subscription' : 'one-time'}`,
+      cancel_url: `${req.headers.origin}${toolId.startsWith('capeb') || toolId.startsWith('cgp-france') ? '/marketplace' : '/outils'}/${toolId}?payment=cancelled`,
       // Stripe collecte automatiquement l'email du client lors du checkout
       // customer_email n'est nécessaire que si on veut pré-remplir (optionnel)
       allow_promotion_codes: true,

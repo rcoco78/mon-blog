@@ -284,7 +284,6 @@ export default function Marketplace() {
                   setSelectedCategory(null)
                   setSelectedType(null)
                   setSelectedPricing(null)
-                  setSearchQuery('')
                 }}
                 className="text-sm text-neutral-900 dark:text-neutral-100 underline hover:no-underline"
               >

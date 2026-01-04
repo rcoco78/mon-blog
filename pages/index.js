@@ -526,11 +526,11 @@ export default function Home({ posts }) {
           {/* Popup vidéo */}
           {showVideo && videoEmbedUrl && (
             <div 
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/80 dark:bg-neutral-900/80 backdrop-blur-sm"
+              className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-4 bg-neutral-900/80 dark:bg-neutral-900/80 backdrop-blur-sm"
               onClick={handleCloseVideo}
             >
               <div 
-                className="relative w-full max-w-sm rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xl"
+                className="relative w-full max-w-[280px] md:max-w-sm rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               >
                 <button

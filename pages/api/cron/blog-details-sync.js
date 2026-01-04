@@ -11,6 +11,72 @@ const notion = new Client({
 
 const databaseId = process.env.NOTION_DATABASE_ID
 
+// Fonction pour télécharger et stocker une image Notion dans Vercel Blob
+async function downloadAndStoreImage(imageUrl, slug, imageIndex) {
+  try {
+    // Extraire le nom de fichier de l'URL
+    const urlParts = imageUrl.split('?')[0].split('/')
+    const fileName = urlParts[urlParts.length - 1] || `image-${imageIndex}.png`
+    
+    // Télécharger l'image
+    const imageResponse = await fetch(imageUrl)
+    if (!imageResponse.ok) {
+      throw new Error(`Erreur téléchargement image: ${imageResponse.status}`)
+    }
+    
+    const imageBuffer = await imageResponse.arrayBuffer()
+    const imageBlob = new Blob([imageBuffer])
+    
+    // Stocker dans Vercel Blob Storage
+    const blobPath = `blog-images/${slug}/${fileName}`
+    const blob = await put(blobPath, imageBlob, {
+      access: 'public',
+      allowOverwrite: true,
+      contentType: imageResponse.headers.get('content-type') || 'image/png',
+    })
+    
+    console.log(`[blog-details-sync] Image téléchargée et stockée: ${blob.url}`)
+    return blob.url
+  } catch (error) {
+    console.error(`[blog-details-sync] Erreur téléchargement image ${imageUrl}:`, error)
+    // En cas d'erreur, retourner l'URL originale
+    return imageUrl
+  }
+}
+
+// Fonction pour traiter les images dans le markdown
+async function processMarkdownImages(markdown, slug) {
+  // Regex pour trouver les images markdown: ![alt](url)
+  const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g
+  const matches = [...markdown.matchAll(imageRegex)]
+  
+  if (matches.length === 0) {
+    return markdown
+  }
+  
+  console.log(`[blog-details-sync] ${matches.length} image(s) trouvée(s) dans le markdown`)
+  
+  let processedMarkdown = markdown
+  let imageIndex = 0
+  
+  // Traiter chaque image
+  for (const match of matches) {
+    const [fullMatch, altText, imageUrl] = match
+    
+    // Vérifier si c'est une URL Notion (S3)
+    if (imageUrl.includes('prod-files-secure.s3') || imageUrl.includes('notion.so') || imageUrl.includes('amazonaws.com')) {
+      console.log(`[blog-details-sync] Téléchargement image Notion: ${imageUrl.substring(0, 100)}...`)
+      const newUrl = await downloadAndStoreImage(imageUrl, slug, imageIndex)
+      
+      // Remplacer l'URL dans le markdown
+      processedMarkdown = processedMarkdown.replace(fullMatch, `![${altText}](${newUrl})`)
+      imageIndex++
+    }
+  }
+  
+  return processedMarkdown
+}
+
 async function getFullPost(post) {
   try {
     console.log(`[blog-details-sync] Récupération de l'article id=${post.id}, slug=${post.slug}`)
@@ -26,9 +92,17 @@ async function getFullPost(post) {
     const mdBlocks = await n2m.pageToMarkdown(post.id)
     const mdString = n2m.toMarkdownString(mdBlocks)
 
+    // Extraire le contenu markdown (gérer string ou objet)
+    const markdownContent = typeof mdString === 'string' 
+      ? mdString 
+      : (mdString?.parent || '')
+
+    // Traiter les images dans le markdown (télécharger et stocker dans Vercel Blob)
+    const processedMarkdown = await processMarkdownImages(markdownContent, post.slug)
+
     return {
       ...post,
-      contentMarkdown: mdString,
+      contentMarkdown: processedMarkdown,
       blocks: blocks.results,
     }
   } catch (error) {

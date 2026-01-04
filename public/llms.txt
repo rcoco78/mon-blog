@@ -145,7 +145,7 @@ Aider les dirigeants de TPE-PME à automatiser leurs processus et gagner du temp
 ### **Bases de Données Disponibles** 📊
 
 #### **1. Base de données - Artisans CAPEB**
-- **URL** : https://www.corentinrobert.fr/databases/capeb
+- **URL** : https://www.corentinrobert.fr/marketplace/capeb
 - **Fonctionnalité** : Base de données complète des artisans de France (CAPEB) avec coordonnées, typologie de profession et informations de contact
 - **Utilité** : Prospection et analyse du marché de l'artisanat français
 - **Catégorie** : Artisanat

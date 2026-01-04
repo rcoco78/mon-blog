@@ -266,14 +266,14 @@ export default function Capeb() {
   const pageSEO = generatePageSEO({
     title: `${toolData.name} - Base de Données Artisans CAPEB | 99€`,
     description: `${toolData.description} Achetez la base de données complète des artisans CAPEB avec coordonnées, activités, labels RGE. Format Google Sheets. Achat unique 99€ ou accès API 10$/mois.`,
-    path: '/databases/capeb',
+    path: '/marketplace/capeb',
     keywords: ['base de données artisans', 'artisans CAPEB', 'prospection artisans', 'annuaire artisans france', 'données artisans', 'CAPEB', 'artisans de France', 'base données artisans CAPEB']
   })
 
   const datasetStructuredData = {
     name: toolData.name,
     description: toolData.description,
-    url: `${siteConfig.url}/databases/capeb`,
+    url: `${siteConfig.url}/marketplace/capeb`,
     datePublished: '2026-01-03',
     dateModified: toolData.lastUpdate ? toolData.lastUpdate.split('/').reverse().join('-') : '2026-01-03',
     keywords: ['artisans', 'CAPEB', 'prospection', 'base de données', 'artisanat'],
@@ -286,7 +286,7 @@ export default function Capeb() {
   }
 
   const relatedToolsList = tools.filter(tool => 
-    toolData.relatedTools.includes(tool.link.replace('/outils/', '').replace('/databases/', ''))
+    toolData.relatedTools.includes(tool.link.replace('/outils/', '').replace('/marketplace/', ''))
   )
 
   return (
@@ -303,7 +303,7 @@ export default function Capeb() {
           itemReviewed: {
             '@type': 'Product',
             name: toolData.name,
-            url: `${siteConfig.url}/databases/capeb`
+            url: `${siteConfig.url}/marketplace/capeb`
           },
           reviewRating: {
             '@type': 'Rating',
@@ -450,11 +450,12 @@ export default function Capeb() {
                       </div>
 
                       {/* Bouton unique qui varie selon le choix */}
-                      <button
-                        onClick={handleUnlock}
-                        disabled={isLoading}
-                        className="w-full px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium relative overflow-hidden"
-                      >
+                      <div className="p-1 bg-neutral-100 dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                        <button
+                          onClick={handleUnlock}
+                          disabled={isLoading}
+                          className="w-full px-4 py-2.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium relative overflow-hidden"
+                        >
                         {isLoading ? (
                           <span className="flex items-center justify-center gap-2">
                             <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -464,19 +465,20 @@ export default function Capeb() {
                             {loadingStep || 'Redirection...'}
                           </span>
                         ) : (
-                          <div className="text-center">
-                            <div className="font-semibold">
+                          <div className="flex items-center justify-center gap-2">
+                            <span className="font-semibold">
                               {subscriptionType === 'annual' ? '10$/mois' : toolData.priceLabel.replace(' TTC', '')}
-                            </div>
-                            <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
+                            </span>
+                            <span className="text-xs text-neutral-500 dark:text-neutral-500">
                               {subscriptionType === 'annual' ? 'Via API' : 'Achat unique'}
-                            </div>
+                            </span>
                           </div>
                         )}
                         {isLoading && (
                           <div className="absolute bottom-0 left-0 h-0.5 bg-white dark:bg-neutral-900 animate-progress" style={{ animation: 'progress 2s linear infinite' }} />
                         )}
-                      </button>
+                        </button>
+                      </div>
 
                       {/* Texte descriptif selon le choix */}
                       <div className="text-xs text-neutral-600 dark:text-neutral-400">
@@ -1018,7 +1020,7 @@ export default function Capeb() {
                         itemReviewed: {
                           '@type': 'Product',
                           name: toolData.name,
-                          url: `${siteConfig.url}/databases/capeb`
+                          url: `${siteConfig.url}/marketplace/capeb`
                         }
                       }}
                     />

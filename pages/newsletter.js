@@ -91,7 +91,7 @@ export default function NewsletterPage() {
 
           {/* Engagement */}
           <div className="mb-12">
-            <h2 className="font-semibold text-lg mb-6 tracking-tighter">Notre engagement</h2>
+            <h2 className="font-semibold text-lg mb-6 tracking-tighter">Mon engagement</h2>
             <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
               <ul className="space-y-3 text-sm text-neutral-600 dark:text-neutral-400">
                 <li className="flex items-start gap-3">

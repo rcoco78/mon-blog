@@ -148,12 +148,12 @@ export default function NewsletterForm({ compact = false, subscriberCount: propS
           {isLoading ? 'Inscription...' : "S'inscrire"}
         </button>
       </form>
-      <div className="flex items-center justify-between mt-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mt-3">
         <p className="text-xs text-neutral-500 dark:text-neutral-500">
           Pas de spam, désinscription en un clic. Vos données sont protégées.
         </p>
         {subscriberCount !== null && (
-          <p className="text-xs text-neutral-400 dark:text-neutral-600">
+          <p className="text-xs text-neutral-400 dark:text-neutral-600 whitespace-nowrap flex-shrink-0">
             {subscriberCount} {subscriberCount === 1 ? 'inscrit' : 'inscrits'}
           </p>
         )}
