@@ -506,7 +506,7 @@ export default function Home({ posts }) {
             </svg>
             <div className="rounded-full bg-white dark:bg-neutral-900 p-[2px]">
               <Image
-                src="/images/pp.png"
+                src="/images/profile-picture/pp.png"
                 alt="Photo de profil de Corentin Robert"
                 width={64}
                 height={64}
