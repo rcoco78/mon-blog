@@ -6,7 +6,7 @@ import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import ProjectClickCounter from '../components/ProjectClickCounter'
-import { photos } from '../lib/photos'
+import { photos as defaultPhotos } from '../lib/photos'
 
 // Configuration des articles "Leçons apprises" pour les projets arrêtés
 // Mettre le slug de l'article quand il sera créé, ou null pour ne pas afficher le lien
@@ -23,6 +23,7 @@ export default function About() {
   const [isMobile, setIsMobile] = useState(false)
   const scrollContainerRef = useRef(null)
   const [currentScrollIndex, setCurrentScrollIndex] = useState(0)
+  const [photos, setPhotos] = useState(defaultPhotos)
   
   useEffect(() => {
     setMounted(true)
@@ -36,6 +37,24 @@ export default function About() {
     
     updateItemsPerView()
     window.addEventListener('resize', updateItemsPerView)
+    
+    // Charger les photos depuis l'API
+    const loadPhotos = async () => {
+      try {
+        const response = await fetch('/api/photos/list', {
+          cache: 'no-store',
+        })
+        if (response.ok) {
+          const data = await response.json()
+          if (data.photos && data.photos.length > 0) {
+            setPhotos(data.photos)
+          }
+        }
+      } catch (error) {
+        console.warn('Erreur lors du chargement des photos:', error)
+      }
+    }
+    loadPhotos()
     
     return () => window.removeEventListener('resize', updateItemsPerView)
   }, [])
