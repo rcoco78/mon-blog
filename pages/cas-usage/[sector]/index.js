@@ -3,7 +3,9 @@ import SEOHead from '../../../components/seo/SEOHead'
 import StructuredData from '../../../components/seo/StructuredData'
 import { generatePageSEO } from '../../../lib/seo'
 import { siteConfig } from '../../../lib/config'
-import { caseStudies, getCaseStudiesBySector } from '../../../lib/case-studies'
+// Utiliser Blob Storage comme source principale avec fallback vers fichier local
+import { getCaseStudiesFromBlob, getCaseStudiesBySector } from '../../../lib/case-studies-blob'
+import { getCaseStudiesBySector as getCaseStudiesBySectorLocal } from '../../../lib/case-studies'
 import { slugToSector, sectorToSlug } from '../../../lib/case-studies-helpers'
 import CaseStudyViewCounter from '../../../components/CaseStudyViewCounter'
 import { useState, useEffect } from 'react'
@@ -446,7 +448,6 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const { getCaseStudiesBySector } = await import('../../../lib/case-studies')
   const { slugToSector } = await import('../../../lib/case-studies-helpers')
   
   const sector = slugToSector(params.sector)
@@ -457,7 +458,15 @@ export async function getStaticProps({ params }) {
     }
   }
 
-  const sectorCaseStudies = getCaseStudiesBySector(sector)
+  // Charger depuis Blob Storage avec fallback
+  let sectorCaseStudies = []
+  try {
+    sectorCaseStudies = await getCaseStudiesBySector(sector)
+  } catch (error) {
+    console.warn('⚠️ Erreur lors du chargement depuis Blob Storage, fallback vers fichier local:', error.message)
+    // Fallback vers fichier local
+    sectorCaseStudies = getCaseStudiesBySectorLocal(sector)
+  }
 
   // Vérification de sécurité
   if (!sectorCaseStudies || !Array.isArray(sectorCaseStudies) || sectorCaseStudies.length === 0) {

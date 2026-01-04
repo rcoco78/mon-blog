@@ -3,11 +3,12 @@ import SEOHead from '../../components/seo/SEOHead'
 import StructuredData from '../../components/seo/StructuredData'
 import { generatePageSEO } from '../../lib/seo'
 import { siteConfig } from '../../lib/config'
-import { caseStudies as caseStudiesImport, getAllSectors, getCaseStudiesBySector } from '../../lib/case-studies'
+// Utiliser Blob Storage comme source principale avec fallback vers fichier local
+import { getCaseStudiesFromBlob, getAllSectors, getCaseStudiesBySector } from '../../lib/case-studies-blob'
+import { caseStudies as caseStudiesImport, getAllSectors as getAllSectorsLocal, getCaseStudiesBySector as getCaseStudiesBySectorLocal } from '../../lib/case-studies'
 import { sectorToSlug } from '../../lib/case-studies-helpers'
 
-// Vérification de sécurité pour caseStudies
-const caseStudies = caseStudiesImport || []
+// Plus besoin de cette constante, on charge depuis Blob Storage dans getStaticProps
 import { useState, useEffect } from 'react'
 import CaseStudyViewCounter from '../../components/CaseStudyViewCounter'
 import CustomSelect from '../../components/CustomSelect'
@@ -38,7 +39,7 @@ async function getViewEvents() {
   }
 }
 
-export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies, sectorsWithCounts, viewsMap = {} }) {
+export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies, sectorsWithCounts, viewsMap = {}, allCaseStudies = [] }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedSector, setSelectedSector] = useState(null)
   const [topCaseStudies, setTopCaseStudies] = useState(initialTopCaseStudies || [])
@@ -77,7 +78,9 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
     }
   }
 
-  const sectors = getAllSectors()
+  // Utiliser les données passées en props (depuis Blob Storage)
+  const caseStudies = allCaseStudies.length > 0 ? allCaseStudies : caseStudiesImport || []
+  const sectors = sectorsWithCounts.map(({ sector }) => sector)
 
   // Filtrer les cas d'usage par recherche et secteur
   const filteredCaseStudies = caseStudies.filter(cs => {
@@ -327,7 +330,7 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
             </h2>
             {sectorsWithCounts
               .map(({ sector, count }) => {
-                const studies = getCaseStudiesBySector(sector).filter(cs => {
+                const studies = caseStudies.filter(cs => cs.sector === sector).filter(cs => {
                   if (!searchQuery) return true
                   return cs.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     cs.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -429,8 +432,15 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
 }
 
 export async function getStaticProps() {
-  // Pré-calculer les top 3 case studies avec leurs vues
-  let topCaseStudies = []
+  // Charger depuis Blob Storage avec fallback
+  let caseStudies = []
+  try {
+    caseStudies = await getCaseStudiesFromBlob()
+  } catch (error) {
+    console.warn('⚠️ Erreur lors du chargement depuis Blob Storage, fallback vers fichier local:', error.message)
+    // Fallback vers fichier local
+    caseStudies = caseStudiesImport || []
+  }
   
   // Vérification de sécurité
   if (!caseStudies || !Array.isArray(caseStudies) || caseStudies.length === 0) {
@@ -444,6 +454,8 @@ export async function getStaticProps() {
     }
   }
   
+  // Pré-calculer les top 3 case studies avec leurs vues
+  let topCaseStudies = []
   let viewsMap = {}
   try {
     const events = await getViewEvents()
@@ -477,23 +489,37 @@ export async function getStaticProps() {
   }
 
   // Pré-calculer les secteurs avec leurs comptes (triés par ordre décroissant)
-  const sectors = getAllSectors()
-  const sectorsWithCounts = sectors
-    .map(sector => {
-      const studies = getCaseStudiesBySector(sector)
-      return {
-        sector,
-        count: studies.length
-      }
-    })
+  let sectors = []
+  try {
+    sectors = await getAllSectors()
+  } catch (error) {
+    console.warn('⚠️ Erreur lors de la récupération des secteurs depuis Blob Storage, fallback:', error.message)
+    sectors = getAllSectorsLocal()
+  }
+  
+  const sectorsWithCounts = await Promise.all(sectors.map(async (sector) => {
+    let studies = []
+    try {
+      studies = await getCaseStudiesBySector(sector)
+    } catch (error) {
+      studies = getCaseStudiesBySectorLocal(sector)
+    }
+    return {
+      sector,
+      count: studies.length
+    }
+  }))
+  
+  const filteredSectors = sectorsWithCounts
     .filter(item => item.count > 0)
     .sort((a, b) => b.count - a.count) // Tri décroissant
 
   return {
     props: {
       topCaseStudies,
-      sectorsWithCounts,
-      viewsMap
+      sectorsWithCounts: filteredSectors,
+      viewsMap,
+      allCaseStudies: caseStudies // Passer tous les case studies au composant
     },
     revalidate: 3600 // Revalider toutes les heures
   }

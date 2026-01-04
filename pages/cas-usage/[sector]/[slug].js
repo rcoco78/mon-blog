@@ -15,20 +15,23 @@ import { useState, useEffect } from 'react'
 import CaseStudyViewCounter from '../../../components/CaseStudyViewCounter'
 import ReadingProgress from '../../../components/ReadingProgress'
 
-export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts, relatedTools, views = 0, isPopular = false }) {
+export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies, relatedPosts, relatedTools, views = 0, isPopular = false, personalizedData: personalizedDataProp = null }) {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
-  const [personalizedData, setPersonalizedData] = useState(null)
+  // Utiliser les données personnalisées depuis props (Blob Storage) ou depuis caseStudy.personalized
+  const [personalizedData, setPersonalizedData] = useState(personalizedDataProp || caseStudyProp?.personalized || null)
+  const caseStudy = caseStudyProp
 
   useEffect(() => {
     setMounted(true)
-    // Charger les données personnalisées côté client pour ne pas bloquer le rendu initial
-    if (caseStudy?.slug) {
-      import('../../../lib/case-studies-personalized').then(module => {
-        setPersonalizedData(module.getPersonalizedData(caseStudy.slug))
-      })
+    // Les données personnalisées sont maintenant chargées depuis Blob Storage dans getStaticProps
+    // On les utilise directement depuis les props si disponibles
+    if (personalizedDataProp) {
+      setPersonalizedData(personalizedDataProp)
+    } else if (caseStudy?.personalized) {
+      setPersonalizedData(caseStudy.personalized)
     }
-  }, [caseStudy?.slug])
+  }, [personalizedDataProp, caseStudy?.personalized])
 
   // Incrémenter la vue à chaque chargement de page (sans cache) - comme pour les articles de blog
   useEffect(() => {
@@ -1415,7 +1418,17 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   // Imports dynamiques pour réduire le temps de compilation
-  const { getCaseStudyBySlug, getRelatedCaseStudies, getCaseStudiesBySector } = await import('../../../lib/case-studies')
+  const blobModule = await import('../../../lib/case-studies-blob')
+  const localModule = await import('../../../lib/case-studies')
+  
+  const getCaseStudyBySlug = blobModule.getCaseStudyBySlug
+  const getRelatedCaseStudies = blobModule.getRelatedCaseStudies
+  const getCaseStudiesBySector = blobModule.getCaseStudiesBySector
+  const getPersonalizedData = blobModule.getPersonalizedData
+  
+  const getCaseStudyBySlugLocal = localModule.getCaseStudyBySlug
+  const getRelatedCaseStudiesLocal = localModule.getRelatedCaseStudies
+  const getCaseStudiesBySectorLocal = localModule.getCaseStudiesBySector
   
   // Vérifier que le secteur correspond au case study
   const sector = slugToSector(params.sector)
@@ -1426,9 +1439,15 @@ export async function getStaticProps({ params }) {
     }
   }
   
-  // Utiliser directement le fichier local (plus rapide que fetch blob storage)
-  // Le blob storage est utilisé uniquement pour les API routes, pas pour getStaticProps
-  const caseStudy = getCaseStudyBySlug(params.slug)
+  // Charger depuis Blob Storage avec fallback
+  let caseStudy = null
+  try {
+    caseStudy = await getCaseStudyBySlug(params.slug)
+  } catch (error) {
+    console.warn('⚠️ Erreur lors du chargement depuis Blob Storage, fallback vers fichier local:', error.message)
+    // Fallback vers fichier local
+    caseStudy = getCaseStudyBySlugLocal(params.slug)
+  }
   
   if (!caseStudy) {
     return {
@@ -1443,7 +1462,22 @@ export async function getStaticProps({ params }) {
     }
   }
 
-  const relatedCaseStudies = getRelatedCaseStudies(params.slug, 4)
+  // Récupérer les données personnalisées depuis Blob Storage
+  let personalizedData = null
+  try {
+    personalizedData = await getPersonalizedData(params.slug)
+  } catch (error) {
+    console.warn('⚠️ Erreur lors de la récupération des données personnalisées:', error.message)
+  }
+
+  // Récupérer les cas d'usage similaires
+  let relatedCaseStudies = []
+  try {
+    relatedCaseStudies = await getRelatedCaseStudies(params.slug, 4)
+  } catch (error) {
+    console.warn('⚠️ Erreur lors de la récupération des cas similaires, fallback:', error.message)
+    relatedCaseStudies = getRelatedCaseStudiesLocal(params.slug, 4)
+  }
 
   // Calculer les vues et déterminer si populaire (top 3)
   // Optimisé : timeout de 2 secondes max pour éviter de bloquer la génération
@@ -1475,7 +1509,12 @@ export async function getStaticProps({ params }) {
           views = eventsArray.filter(event => event.slug === params.slug).length
           
           // Calculer les vues pour tous les case studies du même secteur
-          const sectorCaseStudies = getCaseStudiesBySector(sector)
+          let sectorCaseStudies = []
+          try {
+            sectorCaseStudies = await getCaseStudiesBySector(sector)
+          } catch (error) {
+            sectorCaseStudies = getCaseStudiesBySectorLocal(sector)
+          }
           const viewsMap = {}
           eventsArray.forEach(event => {
             if (event.slug) {
