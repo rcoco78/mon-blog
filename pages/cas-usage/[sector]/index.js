@@ -51,17 +51,22 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
     setMounted(true)
   }, [])
 
+  // Vérification de sécurité
+  const safeSectorCaseStudies = Array.isArray(sectorCaseStudies) ? sectorCaseStudies : []
+  const safeTopCaseStudies = Array.isArray(topCaseStudies) ? topCaseStudies : []
+  
   // Exclure les top case studies de la liste principale pour éviter les doublons
-  const topSlugs = new Set(topCaseStudies.map(cs => cs.slug))
-  const regularCaseStudies = sectorCaseStudies.filter(cs => !topSlugs.has(cs.slug))
+  const topSlugs = new Set(safeTopCaseStudies.map(cs => cs.slug))
+  const regularCaseStudies = safeSectorCaseStudies.filter(cs => !topSlugs.has(cs.slug))
   
   // Filtrer les cas d'usage par recherche
-  const filteredCaseStudies = (searchQuery ? sectorCaseStudies : regularCaseStudies).filter(cs => {
+  const filteredCaseStudies = (searchQuery ? safeSectorCaseStudies : regularCaseStudies).filter(cs => {
     if (!searchQuery) return true
-    return cs.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      cs.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      cs.keywords.some(k => k.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      cs.examples.some(e => e.toLowerCase().includes(searchQuery.toLowerCase()))
+    const query = searchQuery.toLowerCase()
+    return (cs.title || '').toLowerCase().includes(query) ||
+      (cs.description || '').toLowerCase().includes(query) ||
+      (Array.isArray(cs.keywords) && cs.keywords.some(k => (k || '').toLowerCase().includes(query))) ||
+      (Array.isArray(cs.examples) && cs.examples.some(e => (e || '').toLowerCase().includes(query)))
   })
 
   // Cas d'usage à afficher (avec lazy loading si pas de recherche)
@@ -205,7 +210,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
 
   const pageSEO = generatePageSEO({
     title: `Cas d'usage scraping ${sector} | Corentin Robert`,
-    description: `Découvrez tous les cas d'usage de scraping et automatisation pour le secteur ${sector.toLowerCase()}. ${sectorCaseStudies.length} cas d'usage concrets avec exemples réels et données extractibles.`,
+    description: `Découvrez tous les cas d'usage de scraping et automatisation pour le secteur ${sector.toLowerCase()}. ${safeSectorCaseStudies.length} cas d'usage concrets avec exemples réels et données extractibles.`,
     path: `/cas-usage/${sectorToSlug(sector)}`,
     keywords: [`scraping ${sector.toLowerCase()}`, `automatisation ${sector.toLowerCase()}`, `extraction données ${sector.toLowerCase()}`, 'cas d\'usage scraping']
   })
@@ -228,12 +233,12 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
             Cas d'usage {sector}
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
-            <strong className="text-neutral-900 dark:text-neutral-100">{sectorCaseStudies.length} cas d'usage concrets</strong> de <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> pour le secteur <strong className="text-neutral-900 dark:text-neutral-100">{sector.toLowerCase()}</strong>.
+            <strong className="text-neutral-900 dark:text-neutral-100">{safeSectorCaseStudies.length} cas d'usage concrets</strong> de <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> pour le secteur <strong className="text-neutral-900 dark:text-neutral-100">{sector.toLowerCase()}</strong>.
           </p>
         </section>
 
         {/* Top 3 Case Studies - Les plus consultés */}
-        {!searchQuery && topCaseStudies.length > 0 && (
+        {!searchQuery && safeTopCaseStudies.length > 0 && (
           <section className="mb-12">
             <h2 className="font-semibold text-xl mb-6 tracking-tighter">
               Les plus consultés
@@ -242,7 +247,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
               Les cas d'usage les plus populaires pour {sector.toLowerCase()}, basés sur les consultations réelles
             </p>
             <div className="space-y-4">
-              {topCaseStudies.map((cs, index) => (
+              {safeTopCaseStudies.map((cs, index) => (
                 <Link
                   key={cs.slug}
                   href={`/cas-usage/${sectorToSlug(sector)}/${cs.slug}`}
@@ -263,7 +268,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
                       </p>
                       <div className="flex items-center gap-4">
                         <span className="flex flex-wrap gap-1.5">
-                          {cs.examples.slice(0, 3).map(example => (
+                          {Array.isArray(cs.examples) && cs.examples.slice(0, 3).map(example => (
                             <span
                               key={example}
                               className="px-2 py-0.5 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400"
@@ -271,7 +276,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
                               {example}
                             </span>
                           ))}
-                          {cs.examples.length > 3 && (
+                          {Array.isArray(cs.examples) && cs.examples.length > 3 && (
                             <span className="px-2 py-0.5 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400">
                               +{cs.examples.length - 3}
                             </span>
@@ -297,7 +302,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={`Rechercher parmi ${sectorCaseStudies.length} cas d'usage ${sector.toLowerCase()}...`}
+            placeholder={`Rechercher parmi ${safeSectorCaseStudies.length} cas d'usage ${sector.toLowerCase()}...`}
             className="w-full px-4 py-2.5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-transparent"
           />
           
@@ -314,7 +319,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
         {/* Liste complète des case studies avec lazy loading */}
         <section className="mb-16">
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">
-            {searchQuery ? `Résultats (${filteredCaseStudies.length} cas d'usage)` : `Tous les cas d'usage ${sector.toLowerCase()} (${sectorCaseStudies.length})`}
+            {searchQuery ? `Résultats (${filteredCaseStudies.length} cas d'usage)` : `Tous les cas d'usage ${sector.toLowerCase()} (${safeSectorCaseStudies.length})`}
           </h2>
           {displayedCaseStudies.length > 0 ? (
             <>
@@ -333,7 +338,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
                     </p>
                     <div className="flex items-center gap-4">
                       <span className="flex flex-wrap gap-1.5">
-                        {cs.examples.slice(0, 3).map(example => (
+                        {Array.isArray(cs.examples) && cs.examples.slice(0, 3).map(example => (
                           <span
                             key={example}
                             className="px-2 py-0.5 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400"
@@ -341,7 +346,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
                             {example}
                           </span>
                         ))}
-                        {cs.examples.length > 3 && (
+                        {Array.isArray(cs.examples) && cs.examples.length > 3 && (
                           <span className="px-2 py-0.5 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400">
                             +{cs.examples.length - 3}
                           </span>
@@ -453,6 +458,13 @@ export async function getStaticProps({ params }) {
   }
 
   const sectorCaseStudies = getCaseStudiesBySector(sector)
+
+  // Vérification de sécurité
+  if (!sectorCaseStudies || !Array.isArray(sectorCaseStudies) || sectorCaseStudies.length === 0) {
+    return {
+      notFound: true
+    }
+  }
 
   // Pré-calculer toutes les vues pour ce secteur
   let viewsMap = {}
