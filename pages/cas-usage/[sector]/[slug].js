@@ -1335,23 +1335,24 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
                         }
                       }}
                     >
-                    <h3 className="text-lg font-semibold mb-2 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
-                      {related.title}
-                    </h3>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed line-clamp-2 mb-3">
-                      {related.description}
-                    </p>
-                    <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-500">
-                      <span>{related.dataExtracted?.length || 0} types de données</span>
-                      {related.examples.length > 0 && (
-                        <>
-                          <span>•</span>
-                          <span>{related.examples[0]}</span>
-                        </>
-                      )}
-                    </div>
-                  </Link>
-                ))}
+                      <h3 className="text-lg font-semibold mb-2 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
+                        {related.title}
+                      </h3>
+                      <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed line-clamp-2 mb-3">
+                        {related.description}
+                      </p>
+                      <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-500">
+                        <span>{related.dataExtracted?.length || 0} types de données</span>
+                        {related.examples.length > 0 && (
+                          <>
+                            <span>•</span>
+                            <span>{related.examples[0]}</span>
+                          </>
+                        )}
+                      </div>
+                    </Link>
+                  )
+                })}
               </div>
               <div className="mt-6 text-center">
                 <Link
