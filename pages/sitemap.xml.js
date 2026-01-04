@@ -22,6 +22,10 @@ export const getServerSideProps = async ({ res }) => {
     <loc>${baseUrl}/sitemap-marketplace.xml</loc>
     <lastmod>${today}</lastmod>
   </sitemap>
+  <sitemap>
+    <loc>${baseUrl}/sitemap-case-studies.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
 </sitemapindex>`
 
   res.setHeader('Content-Type', 'text/xml')
