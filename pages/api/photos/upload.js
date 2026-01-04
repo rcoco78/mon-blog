@@ -33,7 +33,8 @@ export default async function handler(req, res) {
 
   try {
     // Parser le body manuellement (bodyParser désactivé)
-    const bodyBuffer = await buffer(req)
+    // Augmenter la limite de micro à 4.5 MB (limite Vercel)
+    const bodyBuffer = await buffer(req, { limit: '4.5mb' })
     const bodyString = bodyBuffer.toString('utf-8')
     
     // Vérifier la taille du body brut (limite Vercel: 4.5 MB)
