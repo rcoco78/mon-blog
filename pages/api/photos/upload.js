@@ -38,38 +38,62 @@ export default async function handler(req, res) {
     let date, location, alt
 
     // Vérifier si c'est FormData (multipart/form-data) ou JSON (legacy)
-    if (contentType.includes('multipart/form-data')) {
-      // Parser FormData avec formidable
-      const form = formidable({
-        maxFileSize: MAX_FILE_SIZE,
-        keepExtensions: true,
-      })
+    // Shortcuts peut envoyer FormData avec ou sans Content-Type explicite
+    // On détecte FormData par la présence de multipart/form-data OU si le body n'est pas du JSON valide
+    const isFormData = contentType.includes('multipart/form-data')
+    
+    // Log pour debug
+    console.log('[photos-upload] Content-Type:', contentType)
+    console.log('[photos-upload] Content-Length:', req.headers['content-length'])
+    
+    if (isFormData) {
+      try {
+        // Parser FormData avec formidable
+        const form = formidable({
+          maxFileSize: MAX_FILE_SIZE,
+          keepExtensions: true,
+        })
 
-      const [fields, files] = await form.parse(req)
+        const [fields, files] = await form.parse(req)
+        
+        console.log('[photos-upload] FormData parsé - Fields:', Object.keys(fields), 'Files:', Object.keys(files))
 
-      // Récupérer le fichier image
-      const imageFile = Array.isArray(files.image) ? files.image[0] : files.image
-      if (!imageFile) {
-        return res.status(400).json({ error: 'Image is required (champ "image")' })
+        // Récupérer le fichier image
+        const imageFile = Array.isArray(files.image) ? files.image[0] : files.image
+        if (!imageFile) {
+          return res.status(400).json({ error: 'Image is required (champ "image"). Vérifie que le champ FormData s\'appelle bien "image".' })
+        }
+
+        // Lire le fichier
+        const fileData = fs.readFileSync(imageFile.filepath)
+        imageBuffer = Buffer.from(fileData)
+
+        // Déterminer le type MIME
+        contentType_image = imageFile.mimetype || 'image/jpeg'
+
+        // Récupérer les métadonnées
+        date = Array.isArray(fields.date) ? fields.date[0] : fields.date
+        location = Array.isArray(fields.location) ? fields.location[0] : fields.location
+        alt = Array.isArray(fields.alt) ? fields.alt[0] : fields.alt
+
+        // Nettoyer le fichier temporaire
+        if (fs.existsSync(imageFile.filepath)) {
+          fs.unlinkSync(imageFile.filepath)
+        }
+      } catch (formError) {
+        console.error('[photos-upload] Erreur parsing FormData:', formError)
+        // Si le parsing FormData échoue, essayer JSON
+        if (formError.code === 'LIMIT_FILE_SIZE') {
+          return res.status(413).json({ error: 'Fichier trop volumineux' })
+        }
+        // Fallback vers JSON si FormData échoue
+        console.log('[photos-upload] Fallback vers JSON')
       }
-
-      // Lire le fichier
-      const fileData = fs.readFileSync(imageFile.filepath)
-      imageBuffer = Buffer.from(fileData)
-
-      // Déterminer le type MIME
-      contentType_image = imageFile.mimetype || 'image/jpeg'
-
-      // Récupérer les métadonnées
-      date = Array.isArray(fields.date) ? fields.date[0] : fields.date
-      location = Array.isArray(fields.location) ? fields.location[0] : fields.location
-      alt = Array.isArray(fields.alt) ? fields.alt[0] : fields.alt
-
-      // Nettoyer le fichier temporaire
-      fs.unlinkSync(imageFile.filepath)
-    } else {
+    }
+    
+    // Si pas de FormData ou si FormData a échoué, essayer JSON
+    if (!imageBuffer) {
       // Format JSON legacy (base64) - pour compatibilité
-      const { Readable } = await import('stream')
       const { buffer } = await import('micro')
       
       const bodyBuffer = await buffer(req, { limit: '4.5mb' })
@@ -85,7 +109,12 @@ export default async function handler(req, res) {
       try {
         body = JSON.parse(bodyString)
       } catch (error) {
-        return res.status(400).json({ error: 'Invalid JSON body' })
+        console.error('[photos-upload] Erreur parsing JSON:', error)
+        console.error('[photos-upload] Content-Type:', contentType)
+        console.error('[photos-upload] Body preview:', bodyString.substring(0, 200))
+        return res.status(400).json({ 
+          error: 'Invalid JSON body. Si tu utilises FormData, vérifie que le Content-Type est bien "multipart/form-data" et que le champ s\'appelle "image".' 
+        })
       }
 
       const { image, date: dateParam, location: locationParam, alt: altParam } = body
@@ -103,6 +132,13 @@ export default async function handler(req, res) {
       date = dateParam
       location = locationParam
       alt = altParam
+    }
+
+    // Vérifier qu'on a bien une image
+    if (!imageBuffer) {
+      return res.status(400).json({ 
+        error: 'Aucune image trouvée. Vérifie que tu envoies bien un fichier avec le champ "image" en FormData, ou une image en base64 dans le body JSON.' 
+      })
     }
 
     // Vérifier la taille de l'image

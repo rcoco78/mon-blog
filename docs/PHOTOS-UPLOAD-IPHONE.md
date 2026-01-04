@@ -53,16 +53,23 @@ PHOTOS_UPLOAD_SECRET=ton_secret_token_ici
   - Cliquer sur **"+"** pour ajouter un en-tête
   - Colonne **"Clé"** : `Authorization`
   - Colonne **"Texte"** : `Bearer TON_SECRET_TOKEN` (remplacer par ton token)
+  - **Note** : Le Content-Type `multipart/form-data` est automatiquement ajouté par Shortcuts quand tu sélectionnes "Fichier" comme type de corps. Tu n'as pas besoin de l'ajouter manuellement.
 - **Corps** :
-  - Sélectionner le type : **Fichier**
+  - Sélectionner le type : **Fichier** (pas JSON, pas Texte)
   - Connecter la photo (résultat de l'action "Obtenir les photos")
-  - **Important** : Le champ doit s'appeler `image` (nom du champ dans FormData)
+  - **Important** : Le nom du champ doit être `image` (pas "photo", "file", etc.)
   
   **Comment configurer le corps FormData :**
   - Dans la section "Corps", sélectionner **"Fichier"** (pas JSON)
-  - Cliquer dans le champ
+  - Cliquer dans le champ de nom (par défaut peut être "Fichier" ou vide)
+  - Taper : `image` (c'est le nom que l'API attend)
+  - Cliquer dans le champ de valeur
   - Sélectionner la variable **"Photos"** (résultat de "Obtenir les photos")
-  - Le nom du champ sera automatiquement `image` (c'est ce que l'API attend)
+  
+  **Si tu vois une erreur "Invalid JSON body" :**
+  - Vérifie que le type de corps est bien **"Fichier"** (pas JSON)
+  - Vérifie que le nom du champ est bien `image`
+  - Si nécessaire, ajoute manuellement l'en-tête `Content-Type: multipart/form-data`
 
 #### Action 4 : Afficher le Résultat
 - Ajouter l'action **"Afficher la notification"**
