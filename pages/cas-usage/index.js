@@ -466,7 +466,12 @@ export async function getStaticProps() {
     })
 
     const caseStudiesWithViews = caseStudies.map(cs => ({
-      ...cs,
+      slug: cs.slug,
+      title: cs.title,
+      description: cs.description,
+      sector: cs.sector,
+      keywords: cs.keywords || [],
+      examples: (cs.examples || []).slice(0, 3),
       views: viewsMap[cs.slug] || 0
     }))
 
@@ -484,7 +489,15 @@ export async function getStaticProps() {
     console.error('Error calculating top case studies:', error)
     // Fallback : les 3 premiers sans vues
     if (caseStudies && Array.isArray(caseStudies) && caseStudies.length > 0) {
-      topCaseStudies = caseStudies.slice(0, 3).map(cs => ({ ...cs, views: 0 }))
+      topCaseStudies = caseStudies.slice(0, 3).map(cs => ({
+        slug: cs.slug,
+        title: cs.title,
+        description: cs.description,
+        sector: cs.sector,
+        keywords: cs.keywords || [],
+        examples: (cs.examples || []).slice(0, 3),
+        views: 0
+      }))
     }
   }
 
@@ -514,12 +527,23 @@ export async function getStaticProps() {
     .filter(item => item.count > 0)
     .sort((a, b) => b.count - a.count) // Tri décroissant
 
+  // Optimiser : ne passer que les données minimales nécessaires pour la page d'index
+  // pour réduire la taille du JSON (évite le warning "Oversized ISR page")
+  const optimizedCaseStudies = caseStudies.map(cs => ({
+    slug: cs.slug,
+    title: cs.title,
+    description: cs.description,
+    sector: cs.sector,
+    keywords: cs.keywords || [], // Pour la recherche
+    examples: (cs.examples || []).slice(0, 3) // Limiter à 3 pour l'affichage
+  }))
+
   return {
     props: {
       topCaseStudies,
       sectorsWithCounts: filteredSectors,
       viewsMap,
-      allCaseStudies: caseStudies // Passer tous les case studies au composant
+      allCaseStudies: optimizedCaseStudies // Données minimales uniquement
     },
     revalidate: 3600 // Revalider toutes les heures
   }
