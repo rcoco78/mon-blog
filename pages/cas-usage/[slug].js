@@ -10,6 +10,7 @@ import { tools } from '../../lib/tools'
 import { getAllPosts } from '../../lib/notion'
 import { list, head } from '@vercel/blob'
 import { useState, useEffect } from 'react'
+import CaseStudyViewCounter from '../../components/CaseStudyViewCounter'
 
 export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts, relatedTools }) {
   const router = useRouter()
@@ -347,9 +348,14 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
 
         {/* Header */}
         <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-4xl mb-4">
-            {caseStudy.title}
-          </h1>
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-4xl flex-1">
+              {caseStudy.title}
+            </h1>
+            <div className="flex-shrink-0">
+              <CaseStudyViewCounter slug={caseStudy.slug} increment={true} />
+            </div>
+          </div>
           <p className="text-lg text-neutral-600 dark:text-neutral-400 leading-relaxed mb-6">
             {caseStudy.description}
           </p>
