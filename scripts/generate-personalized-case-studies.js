@@ -18,7 +18,7 @@ const path = require('path')
 // Configuration
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 const CASE_STUDIES_FILE = path.join(__dirname, '../lib/case-studies.js')
-const PERSONALIZED_FILE = path.join(__dirname, '../lib/case-studies-personalized1.js')
+const PERSONALIZED_FILE = path.join(__dirname, '../lib/case-studies-personalized.js')
 const PROGRESS_FILE = path.join(__dirname, '../.personalized-progress.json')
 
 // Rate limiting : 1 requête par seconde pour éviter de dépasser les limites
