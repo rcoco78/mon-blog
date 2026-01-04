@@ -21,7 +21,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/images/cr-pp3.png" />
+        <link rel="apple-touch-icon" href="/images/pp.png" />
         
         {/* Theme */}
         <meta name="theme-color" content="#000000" />
