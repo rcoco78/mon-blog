@@ -1,10 +1,21 @@
 // API endpoint pour uploader des photos depuis iPhone
 // Sécurisé avec un token secret
+// Accepte JSON (base64)
+// Désactive le bodyParser pour contourner la limite de 1 MB
 
 import { put, list } from '@vercel/blob'
+import { buffer } from 'micro'
 
 const PHOTOS_JSON_FILENAME = 'photos.json'
 const PHOTOS_FOLDER = 'photos'
+const MAX_FILE_SIZE = 4 * 1024 * 1024 // 4 MB (limite Vercel: 4.5 MB)
+
+// Désactiver le bodyParser pour parser manuellement et contourner la limite de 1 MB
+export const config = {
+  api: {
+    bodyParser: false, // Parser manuellement avec micro
+  },
+}
 
 export default async function handler(req, res) {
   // Vérifier la méthode
@@ -21,7 +32,25 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { image, date, location, alt } = req.body
+    // Parser le body manuellement (bodyParser désactivé)
+    const bodyBuffer = await buffer(req)
+    const bodyString = bodyBuffer.toString('utf-8')
+    
+    // Vérifier la taille du body brut (limite Vercel: 4.5 MB)
+    if (bodyBuffer.length > 4.5 * 1024 * 1024) {
+      return res.status(413).json({ 
+        error: `Requête trop grande (${Math.round(bodyBuffer.length / 1024 / 1024 * 100) / 100} MB). Maximum: 4.5 MB. Compressez l'image à 50-60% de qualité.` 
+      })
+    }
+
+    let body
+    try {
+      body = JSON.parse(bodyString)
+    } catch (error) {
+      return res.status(400).json({ error: 'Invalid JSON body' })
+    }
+
+    const { image, date: dateParam, location: locationParam, alt: altParam } = body
 
     if (!image) {
       return res.status(400).json({ error: 'Image is required' })
@@ -31,14 +60,24 @@ export default async function handler(req, res) {
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '')
     const imageBuffer = Buffer.from(base64Data, 'base64')
     
+    // Vérifier la taille de l'image décodée
+    if (imageBuffer.length > MAX_FILE_SIZE) {
+      return res.status(413).json({ 
+        error: `Image trop grande (${Math.round(imageBuffer.length / 1024 / 1024 * 100) / 100} MB). Maximum: 4 MB. Compressez l'image à 50-60% de qualité.` 
+      })
+    }
+    
     // Déterminer le type MIME
     const mimeType = image.match(/data:image\/(\w+);base64/)?.[1] || 'jpeg'
     const contentType = `image/${mimeType}`
+    const date = dateParam
+    const location = locationParam
+    const alt = altParam
 
     // Générer un nom de fichier unique
     const timestamp = Date.now()
     const randomId = Math.random().toString(36).substring(2, 9)
-    const extension = mimeType === 'jpeg' ? 'jpg' : mimeType
+    const extension = contentType.includes('jpeg') ? 'jpg' : (contentType.includes('png') ? 'png' : 'jpg')
     const fileName = `${timestamp}-${randomId}.${extension}`
     const blobPath = `${PHOTOS_FOLDER}/${fileName}`
 
