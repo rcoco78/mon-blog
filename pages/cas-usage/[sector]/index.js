@@ -7,6 +7,7 @@ import { caseStudies, getCaseStudiesBySector } from '../../../lib/case-studies'
 import { slugToSector, sectorToSlug } from '../../../lib/case-studies-helpers'
 import CaseStudyViewCounter from '../../../components/CaseStudyViewCounter'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import { list } from '@vercel/blob'
 
 const VIEWS_EVENTS_FILENAME = 'case-studies-views-events.json'
@@ -34,15 +35,139 @@ async function getViewEvents() {
   }
 }
 
-export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseStudies: initialTopCaseStudies }) {
+export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseStudies: initialTopCaseStudies, viewsMap = {} }) {
+  const router = useRouter()
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [topCaseStudies, setTopCaseStudies] = useState(initialTopCaseStudies || [])
+  
+  // Lazy loading au scroll
+  const ITEMS_PER_PAGE = 20
+  const [displayedCount, setDisplayedCount] = useState(ITEMS_PER_PAGE)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Exclure les top case studies de la liste principale pour éviter les doublons
+  const topSlugs = new Set(topCaseStudies.map(cs => cs.slug))
+  const regularCaseStudies = sectorCaseStudies.filter(cs => !topSlugs.has(cs.slug))
+  
+  // Filtrer les cas d'usage par recherche
+  const filteredCaseStudies = (searchQuery ? sectorCaseStudies : regularCaseStudies).filter(cs => {
+    if (!searchQuery) return true
+    return cs.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      cs.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      cs.keywords.some(k => k.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      cs.examples.some(e => e.toLowerCase().includes(searchQuery.toLowerCase()))
+  })
+
+  // Cas d'usage à afficher (avec lazy loading si pas de recherche)
+  const displayedCaseStudies = searchQuery 
+    ? filteredCaseStudies 
+    : filteredCaseStudies.slice(0, displayedCount)
+  
+  const hasMore = !searchQuery && displayedCount < filteredCaseStudies.length
+
+  // Réinitialiser le compteur quand la recherche change
+  useEffect(() => {
+    if (searchQuery) {
+      setDisplayedCount(ITEMS_PER_PAGE)
+    }
+  }, [searchQuery])
+
+  // Intersection Observer pour charger plus au scroll
+  useEffect(() => {
+    if (searchQuery || !hasMore || !mounted) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoading) {
+          setIsLoading(true)
+          // Simuler un petit délai pour une meilleure UX
+          setTimeout(() => {
+            setDisplayedCount(prev => Math.min(prev + ITEMS_PER_PAGE, filteredCaseStudies.length))
+            setIsLoading(false)
+          }, 300)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    const sentinel = document.getElementById('load-more-sentinel')
+    if (sentinel) {
+      observer.observe(sentinel)
+    }
+
+    return () => {
+      if (sentinel) {
+        observer.unobserve(sentinel)
+      }
+    }
+  }, [hasMore, searchQuery, mounted, isLoading, filteredCaseStudies.length])
+
+  if (router.isFallback) {
+    return (
+      <main className="min-w-0 mt-6 flex flex-col">
+        {/* Skeleton Breadcrumb */}
+        <nav className="mb-6">
+          <div className="flex items-center flex-wrap gap-x-1.5 sm:gap-x-2 gap-y-1">
+            <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+            <div className="h-4 w-1 bg-neutral-300 dark:bg-neutral-700"></div>
+            <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+            <div className="h-4 w-1 bg-neutral-300 dark:bg-neutral-700"></div>
+            <div className="h-4 w-32 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+          </div>
+        </nav>
+
+        {/* Skeleton Header */}
+        <section className="mb-8">
+          <div className="h-8 w-48 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-4"></div>
+          <div className="h-5 w-full bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
+          <div className="h-5 w-5/6 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-8"></div>
+        </section>
+
+        {/* Skeleton Top Case Studies */}
+        <section className="mb-12">
+          <div className="h-7 w-48 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-4"></div>
+          <div className="space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+                <div className="h-6 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
+                <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
+                <div className="h-4 w-2/3 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Skeleton Search */}
+        <section className="mb-12">
+          <div className="h-7 w-48 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-4"></div>
+          <div className="h-10 w-full bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+        </section>
+
+        {/* Skeleton Case Studies List */}
+        <section className="mb-16">
+          <div className="h-7 w-64 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-6"></div>
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+                <div className="h-6 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
+                <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-3"></div>
+                <div className="flex items-center gap-4">
+                  <div className="h-6 w-32 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                  <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+    )
+  }
 
   const openCalendly = () => {
     if (!mounted) return
@@ -77,14 +202,6 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
     }
   }
 
-  // Filtrer les cas d'usage par recherche
-  const filteredCaseStudies = sectorCaseStudies.filter(cs => {
-    if (!searchQuery) return true
-    return cs.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      cs.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      cs.keywords.some(k => k.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      cs.examples.some(e => e.toLowerCase().includes(searchQuery.toLowerCase()))
-  })
 
   const pageSEO = generatePageSEO({
     title: `Cas d'usage scraping ${sector} | Corentin Robert`,
@@ -160,7 +277,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
                             </span>
                           )}
                         </span>
-                        <CaseStudyViewCounter slug={cs.slug} />
+                        <CaseStudyViewCounter slug={cs.slug} views={viewsMap[cs.slug]} />
                       </div>
                     </div>
                   </div>
@@ -194,46 +311,72 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
           )}
         </section>
 
-        {/* Liste complète des case studies */}
+        {/* Liste complète des case studies avec lazy loading */}
         <section className="mb-16">
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">
             {searchQuery ? `Résultats (${filteredCaseStudies.length} cas d'usage)` : `Tous les cas d'usage ${sector.toLowerCase()} (${sectorCaseStudies.length})`}
           </h2>
-          {filteredCaseStudies.length > 0 ? (
-            <div className="space-y-4">
-              {filteredCaseStudies.map(cs => (
-                <Link
-                  key={cs.slug}
-                  href={`/cas-usage/${sectorToSlug(sector)}/${cs.slug}`}
-                  className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-                >
-                  <h3 className="text-lg font-semibold mb-2 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
-                    {cs.title}
-                  </h3>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 leading-relaxed line-clamp-2">
-                    {cs.description}
-                  </p>
-                  <div className="flex items-center gap-4">
-                    <span className="flex flex-wrap gap-1.5">
-                      {cs.examples.slice(0, 3).map(example => (
-                        <span
-                          key={example}
-                          className="px-2 py-0.5 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400"
-                        >
-                          {example}
-                        </span>
+          {displayedCaseStudies.length > 0 ? (
+            <>
+              <div className="space-y-4">
+                {displayedCaseStudies.map(cs => (
+                  <Link
+                    key={cs.slug}
+                    href={`/cas-usage/${sectorToSlug(sector)}/${cs.slug}`}
+                    className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+                  >
+                    <h3 className="text-lg font-semibold mb-2 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
+                      {cs.title}
+                    </h3>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 leading-relaxed line-clamp-2">
+                      {cs.description}
+                    </p>
+                    <div className="flex items-center gap-4">
+                      <span className="flex flex-wrap gap-1.5">
+                        {cs.examples.slice(0, 3).map(example => (
+                          <span
+                            key={example}
+                            className="px-2 py-0.5 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400"
+                          >
+                            {example}
+                          </span>
+                        ))}
+                        {cs.examples.length > 3 && (
+                          <span className="px-2 py-0.5 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400">
+                            +{cs.examples.length - 3}
+                          </span>
+                        )}
+                      </span>
+                      <CaseStudyViewCounter slug={cs.slug} views={viewsMap[cs.slug]} />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+              
+              {/* Sentinel pour le lazy loading */}
+              {hasMore && (
+                <div id="load-more-sentinel" className="py-8">
+                  {isLoading && (
+                    <div className="space-y-4">
+                      {[1, 2, 3].map(i => (
+                        <div key={i} className="p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 animate-pulse">
+                          <div className="h-6 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded mb-2"></div>
+                          <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded mb-3"></div>
+                          <div className="h-4 w-32 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
+                        </div>
                       ))}
-                      {cs.examples.length > 3 && (
-                        <span className="px-2 py-0.5 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400">
-                          +{cs.examples.length - 3}
-                        </span>
-                      )}
-                    </span>
-                    <CaseStudyViewCounter slug={cs.slug} />
-                  </div>
-                </Link>
-              ))}
-            </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Indicateur de progression */}
+              {!searchQuery && (
+                <div className="mt-6 text-center text-sm text-neutral-500 dark:text-neutral-500">
+                  {displayedCount} sur {filteredCaseStudies.length} cas d'usage affichés
+                </div>
+              )}
+            </>
           ) : (
             <div className="text-center py-12">
               <p className="text-neutral-600 dark:text-neutral-400 mb-4">
@@ -293,7 +436,7 @@ export async function getStaticPaths() {
 
   return {
     paths,
-    fallback: 'blocking'
+    fallback: true // Affiche le skeleton pendant la génération
   }
 }
 
@@ -311,11 +454,11 @@ export async function getStaticProps({ params }) {
 
   const sectorCaseStudies = getCaseStudiesBySector(sector)
 
-  // Pré-calculer les top 3 case studies avec leurs vues pour ce secteur
+  // Pré-calculer toutes les vues pour ce secteur
+  let viewsMap = {}
   let topCaseStudies = []
   try {
     const events = await getViewEvents()
-    const viewsMap = {}
     events.forEach(event => {
       if (event.slug) {
         viewsMap[event.slug] = (viewsMap[event.slug] || 0) + 1
@@ -347,7 +490,8 @@ export async function getStaticProps({ params }) {
     props: {
       sector,
       sectorCaseStudies,
-      topCaseStudies
+      topCaseStudies,
+      viewsMap
     },
     revalidate: 3600
   }

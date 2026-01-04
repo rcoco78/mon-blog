@@ -1,10 +1,18 @@
 import { useEffect, useState } from 'react'
 
-export default function CaseStudyViewCounter({ slug, increment = false }) {
-  const [views, setViews] = useState(null)
-  const [loading, setLoading] = useState(true)
+export default function CaseStudyViewCounter({ slug, increment = false, views: initialViews = null }) {
+  const [views, setViews] = useState(initialViews)
+  const [loading, setLoading] = useState(initialViews === null)
 
   useEffect(() => {
+    // Si views est fourni en prop, on l'utilise directement (pas d'appel API)
+    if (initialViews !== null) {
+      setViews(initialViews)
+      setLoading(false)
+      return
+    }
+
+    // Sinon, on fait l'appel API (pour la rétrocompatibilité)
     const fetchViews = async () => {
       try {
         setLoading(true)
@@ -36,18 +44,18 @@ export default function CaseStudyViewCounter({ slug, increment = false }) {
     }
 
     fetchViews()
-  }, [slug, increment])
+  }, [slug, increment, initialViews])
 
   if (loading) {
     return (
-      <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">
-        <span className="inline-block h-4 w-12 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></span>
+      <span className="text-xs text-neutral-500 dark:text-neutral-500 tabular-nums">
+        <span className="inline-block h-3 w-10 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></span>
       </span>
     )
   }
 
   return (
-    <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">
+    <span className="text-xs text-neutral-500 dark:text-neutral-500 tabular-nums">
       {views} {views === 0 || views === 1 ? 'vue' : 'vues'}
     </span>
   )

@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "next lint",
     "vercel-build": "next build",
-    "create-article": "node scripts/create-article-template.js"
+    "create-article": "node scripts/create-article-template.js",
+    "generate-personalized": "node scripts/generate-personalized-case-studies.js",
+    "generate-personalized-resume": "node scripts/generate-personalized-case-studies.js --resume",
+    "generate-personalized-test": "node scripts/generate-personalized-case-studies.js --limit=10"
   },
   "keywords": [],
   "author": "",

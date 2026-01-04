@@ -3,8 +3,11 @@ import SEOHead from '../../components/seo/SEOHead'
 import StructuredData from '../../components/seo/StructuredData'
 import { generatePageSEO } from '../../lib/seo'
 import { siteConfig } from '../../lib/config'
-import { caseStudies, getAllSectors, getCaseStudiesBySector } from '../../lib/case-studies'
+import { caseStudies as caseStudiesImport, getAllSectors, getCaseStudiesBySector } from '../../lib/case-studies'
 import { sectorToSlug } from '../../lib/case-studies-helpers'
+
+// Vérification de sécurité pour caseStudies
+const caseStudies = caseStudiesImport || []
 import { useState, useEffect } from 'react'
 import CaseStudyViewCounter from '../../components/CaseStudyViewCounter'
 import CustomSelect from '../../components/CustomSelect'
@@ -35,7 +38,7 @@ async function getViewEvents() {
   }
 }
 
-export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies, sectorsWithCounts }) {
+export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies, sectorsWithCounts, viewsMap = {} }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedSector, setSelectedSector] = useState(null)
   const [topCaseStudies, setTopCaseStudies] = useState(initialTopCaseStudies || [])
@@ -160,7 +163,13 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
                         <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 leading-relaxed line-clamp-2">
                           {cs.description}
                         </p>
-                        <div className="flex items-center gap-4">
+                      </div>
+                    </div>
+                    
+                    {/* Séparateur fin et métadonnées */}
+                    <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 min-w-0 flex items-center gap-2">
                           <span
                             onClick={(e) => {
                               e.preventDefault()
@@ -171,8 +180,11 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
                           >
                             {cs.sector}
                           </span>
-                          <CaseStudyViewCounter slug={cs.slug} />
+                          <CaseStudyViewCounter slug={cs.slug} views={viewsMap[cs.slug]} />
                         </div>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
+                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                        </svg>
                       </div>
                     </div>
                   </Link>
@@ -258,43 +270,48 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
                 <Link
                   key={cs.slug}
                   href={`/cas-usage/${sectorToSlug(cs.sector)}/${cs.slug}`}
-                  className="block p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+                  className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
                 >
-                  <div className="flex items-start justify-between gap-4 mb-3">
-                    <h3 className="text-xl font-semibold group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
-                      {cs.title}
-                    </h3>
-                    <span
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        window.location.href = `/cas-usage/${sectorToSlug(cs.sector)}`
-                      }}
-                      className="px-3 py-1 rounded-full text-xs font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 whitespace-nowrap flex-shrink-0 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
-                    >
-                      {cs.sector}
-                    </span>
-                  </div>
-                  <p className="text-neutral-600 dark:text-neutral-400 mb-4 leading-relaxed">
+                  <h3 className="text-lg font-semibold mb-2 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
+                    {cs.title}
+                  </h3>
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 leading-relaxed line-clamp-2">
                     {cs.description}
                   </p>
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex flex-wrap gap-2">
-                      {cs.examples.slice(0, 4).map(example => (
+                  
+                  {/* Séparateur fin et métadonnées */}
+                  <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
                         <span
-                          key={example}
-                          className="px-2 py-1 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            window.location.href = `/cas-usage/${sectorToSlug(cs.sector)}`
+                          }}
+                          className="px-2 py-1 rounded text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
                         >
-                          {example}
+                          {cs.sector}
                         </span>
-                      ))}
-                      {cs.examples.length > 4 && (
-                        <span className="px-2 py-1 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400">
-                          +{cs.examples.length - 4}
-                        </span>
-                      )}
+                        {cs.examples.slice(0, 3).map(example => (
+                          <span
+                            key={example}
+                            className="px-2 py-0.5 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400"
+                          >
+                            {example}
+                          </span>
+                        ))}
+                        {cs.examples.length > 3 && (
+                          <span className="px-2 py-0.5 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400">
+                            +{cs.examples.length - 3}
+                          </span>
+                        )}
+                        <CaseStudyViewCounter slug={cs.slug} views={viewsMap[cs.slug]} />
+                      </div>
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
+                        <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                      </svg>
                     </div>
-                    <CaseStudyViewCounter slug={cs.slug} />
                   </div>
                 </Link>
               ))}
@@ -324,24 +341,21 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
                   <div className="flex items-center justify-between mb-6">
                     <Link
                       href={`/cas-usage/${sectorToSlug(sector)}`}
-                      className="text-2xl font-semibold tracking-tighter hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors"
+                      className="flex items-center gap-3 group transition-colors"
                     >
-                      {sector}
-                    </Link>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-neutral-500 dark:text-neutral-500">
-                        {studies.length} cas d'usage
+                      <span className="text-2xl font-semibold tracking-tighter text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-400 transition-colors">
+                        {sector}
                       </span>
-                      <Link
-                        href={`/cas-usage/${sectorToSlug(sector)}`}
-                        className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors underline"
-                      >
-                        Voir tout →
-                      </Link>
-                    </div>
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-400 flex-shrink-0 transition-colors">
+                        <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                      </svg>
+                    </Link>
+                    <span className="text-sm text-neutral-500 dark:text-neutral-500">
+                      {studies.length} cas d'usage
+                    </span>
                   </div>
                   <div className="space-y-4">
-                    {studies.slice(0, 6).map(cs => (
+                    {studies.slice(0, 3).map(cs => (
                       <Link
                         key={cs.slug}
                         href={`/cas-usage/${sectorToSlug(cs.sector)}/${cs.slug}`}
@@ -353,23 +367,30 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
                         <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 leading-relaxed line-clamp-2">
                           {cs.description}
                         </p>
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex flex-wrap gap-1.5">
-                            {cs.examples.slice(0, 3).map(example => (
-                              <span
-                                key={example}
-                                className="px-2 py-0.5 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400"
-                              >
-                                {example}
-                              </span>
-                            ))}
-                            {cs.examples.length > 3 && (
-                              <span className="px-2 py-0.5 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400">
-                                +{cs.examples.length - 3}
-                              </span>
-                            )}
+                        
+                        {/* Séparateur fin et métadonnées */}
+                        <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
+                              {cs.examples.slice(0, 3).map(example => (
+                                <span
+                                  key={example}
+                                  className="px-2 py-0.5 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400"
+                                >
+                                  {example}
+                                </span>
+                              ))}
+                              {cs.examples.length > 3 && (
+                                <span className="px-2 py-0.5 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400">
+                                  +{cs.examples.length - 3}
+                                </span>
+                              )}
+                              <CaseStudyViewCounter slug={cs.slug} views={viewsMap[cs.slug]} />
+                            </div>
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
+                              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                            </svg>
                           </div>
-                          <CaseStudyViewCounter slug={cs.slug} />
                         </div>
                       </Link>
                     ))}
@@ -410,9 +431,22 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
 export async function getStaticProps() {
   // Pré-calculer les top 3 case studies avec leurs vues
   let topCaseStudies = []
+  
+  // Vérification de sécurité
+  if (!caseStudies || !Array.isArray(caseStudies) || caseStudies.length === 0) {
+    console.error('❌ caseStudies est undefined ou vide. Vérifiez lib/case-studies.js')
+    return {
+      props: {
+        topCaseStudies: [],
+        sectorsWithCounts: []
+      },
+      revalidate: 3600
+    }
+  }
+  
+  let viewsMap = {}
   try {
     const events = await getViewEvents()
-    const viewsMap = {}
     events.forEach(event => {
       if (event.slug) {
         viewsMap[event.slug] = (viewsMap[event.slug] || 0) + 1
@@ -437,7 +471,9 @@ export async function getStaticProps() {
   } catch (error) {
     console.error('Error calculating top case studies:', error)
     // Fallback : les 3 premiers sans vues
-    topCaseStudies = caseStudies.slice(0, 3).map(cs => ({ ...cs, views: 0 }))
+    if (caseStudies && Array.isArray(caseStudies) && caseStudies.length > 0) {
+      topCaseStudies = caseStudies.slice(0, 3).map(cs => ({ ...cs, views: 0 }))
+    }
   }
 
   // Pré-calculer les secteurs avec leurs comptes (triés par ordre décroissant)
@@ -456,7 +492,8 @@ export async function getStaticProps() {
   return {
     props: {
       topCaseStudies,
-      sectorsWithCounts
+      sectorsWithCounts,
+      viewsMap
     },
     revalidate: 3600 // Revalider toutes les heures
   }

@@ -1,28 +1,91 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import Head from 'next/head'
 import SEOHead from '../../../components/seo/SEOHead'
 import StructuredData from '../../../components/seo/StructuredData'
 import FAQ from '../../../components/FAQ'
 import { generatePageSEO } from '../../../lib/seo'
 import { siteConfig } from '../../../lib/config'
-import { caseStudies, getCaseStudyBySlug, getRelatedCaseStudies } from '../../../lib/case-studies'
 import { slugToSector, sectorToSlug } from '../../../lib/case-studies-helpers'
+// Imports dynamiques pour réduire le temps de compilation initial
 import { tools } from '../../../lib/tools'
 // import { getAllPosts } from '../../../lib/notion' // Non utilisé - chargement côté client si nécessaire
-// import { list, head } from '@vercel/blob' // Non utilisé dans getStaticProps pour optimiser les performances
+import { list } from '@vercel/blob'
 import { useState, useEffect } from 'react'
 import CaseStudyViewCounter from '../../../components/CaseStudyViewCounter'
+import ReadingProgress from '../../../components/ReadingProgress'
 
-export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts, relatedTools }) {
+export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts, relatedTools, views = 0, isPopular = false }) {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
+  const [personalizedData, setPersonalizedData] = useState(null)
 
   useEffect(() => {
     setMounted(true)
-  }, [])
+    // Charger les données personnalisées côté client pour ne pas bloquer le rendu initial
+    if (caseStudy?.slug) {
+      import('../../../lib/case-studies-personalized').then(module => {
+        setPersonalizedData(module.getPersonalizedData(caseStudy.slug))
+      })
+    }
+  }, [caseStudy?.slug])
 
   if (router.isFallback) {
-    return <div>Chargement...</div>
+    return (
+      <main className="flex-auto min-w-0 mt-6 flex flex-col">
+        {/* Skeleton Breadcrumb */}
+        <nav className="mb-6">
+          <div className="flex items-center flex-wrap gap-x-1.5 sm:gap-x-2 gap-y-1">
+            <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+            <div className="h-4 w-1 bg-neutral-300 dark:bg-neutral-700"></div>
+            <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+            <div className="h-4 w-1 bg-neutral-300 dark:bg-neutral-700"></div>
+            <div className="h-4 w-32 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+            <div className="h-4 w-1 bg-neutral-300 dark:bg-neutral-700"></div>
+            <div className="h-4 w-48 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+          </div>
+        </nav>
+
+        {/* Skeleton Header */}
+        <section className="mb-16">
+          <div className="mb-3">
+            <div className="h-6 w-32 bg-neutral-200 dark:bg-neutral-800 rounded-full animate-pulse"></div>
+          </div>
+          <div className="h-10 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-3"></div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+            <div className="h-4 w-1 bg-neutral-300 dark:bg-neutral-700"></div>
+            <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+          </div>
+          <div className="h-5 w-full bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
+          <div className="h-5 w-5/6 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-8"></div>
+          
+          {/* Skeleton Métriques */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="p-3 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+                <div className="h-6 w-6 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
+                <div className="h-6 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-1"></div>
+                <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+              </div>
+            ))}
+          </div>
+        </section>
+        
+        {/* Skeleton Sections */}
+        {[1, 2, 3, 4].map(i => (
+          <section key={i} className="mb-16">
+            <div className="border-t border-neutral-200 dark:border-neutral-800 pt-10">
+              <div className="h-8 w-64 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-6"></div>
+              <div className="space-y-4">
+                <div className="h-24 w-full bg-neutral-200 dark:bg-neutral-800 rounded-lg animate-pulse"></div>
+                <div className="h-24 w-full bg-neutral-200 dark:bg-neutral-800 rounded-lg animate-pulse"></div>
+              </div>
+            </div>
+          </section>
+        ))}
+      </main>
+    )
   }
 
   if (!caseStudy) {
@@ -36,9 +99,29 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
     )
   }
 
+  // Les données personnalisées sont chargées côté client (voir useEffect)
+
   const sectorSlug = sectorToSlug(caseStudy.sector)
   const pageUrl = `${siteConfig.url}/cas-usage/${sectorSlug}/${caseStudy.slug}`
   const today = new Date().toISOString().split('T')[0]
+
+  // Vérifier si les données extraites sont des contacts (pour afficher l'option outbound)
+  // Priorité : données personnalisées > données du case study
+  let hasContactData = false
+  if (personalizedData?.hasContactData !== undefined) {
+    // Si les données personnalisées définissent explicitement hasContactData, l'utiliser
+    hasContactData = personalizedData.hasContactData
+  } else if (personalizedData?.dataExample?.columns) {
+    // Sinon, vérifier dans les colonnes de l'exemple de données personnalisées
+    const contactKeywords = ['email', 'e-mail', 'mail', 'contact', 'téléphone', 'telephone', 'phone', 'nom', 'prénom', 'prenom', 'lead', 'prospect', 'adresse', 'coordonnées']
+    const columnsLower = personalizedData.dataExample.columns.map(c => c.toLowerCase()).join(' ')
+    hasContactData = contactKeywords.some(keyword => columnsLower.includes(keyword))
+  } else {
+    // Fallback : vérifier dans les données extractibles du case study
+    const contactKeywords = ['email', 'e-mail', 'mail', 'contact', 'téléphone', 'telephone', 'phone', 'nom', 'prénom', 'prenom', 'lead', 'prospect', 'adresse']
+    const dataExtractedLower = caseStudy.dataExtracted.map(d => d.toLowerCase()).join(' ')
+    hasContactData = contactKeywords.some(keyword => dataExtractedLower.includes(keyword))
+  }
 
   // Enrichir la description SEO avec plus de détails et long-tail keywords
   const enrichedDescription = `${caseStudy.description} Extraction automatisée de données depuis ${caseStudy.examples.slice(0, 3).join(', ')}. Données extractibles : ${caseStudy.dataExtracted.slice(0, 5).join(', ')}. Solution sur-mesure pour ${caseStudy.sector.toLowerCase()}. Délai moyen 7 jours, livraison dans le format de votre choix (CSV, Excel, JSON, API).`
@@ -56,18 +139,22 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
   const howToSteps = [
     {
       name: 'Analyse de vos besoins',
+      duration: 'J+1 (24h)',
       text: `Nous analysons ensemble vos besoins spécifiques en ${caseStudy.sector.toLowerCase()} : quelles données extraire, quelles sources scraper, quel format de livraison. Un devis personnalisé vous est fourni sous 24h.`
     },
     {
       name: 'Développement du scraper',
+      duration: 'J+2 à J+4 (3 jours)',
       text: `Je développe un scraper sur-mesure adapté à vos sources (${caseStudy.examples.slice(0, 2).join(', ')}) et à vos besoins. Le développement inclut la gestion des erreurs, la rotation des proxies et le respect des bonnes pratiques.`
     },
     {
       name: 'Extraction des données',
+      duration: 'J+5 à J+6 (2 jours)',
       text: `L'extraction des données est lancée automatiquement. Les données sont nettoyées, structurées et validées pour garantir leur qualité. Un suivi en temps réel vous permet de suivre l'avancement.`
     },
     {
       name: 'Livraison et support',
+      duration: 'J+7 (1 jour)',
       text: `Les données sont livrées dans le format de votre choix (Google Sheets, CSV, Excel, JSON, API). Un support est inclus pour vous aider à intégrer les données dans vos outils.`
     }
   ]
@@ -176,7 +263,8 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
       )
     },
     { 
-      value: 'à partir de 600€ HT', 
+      value: '600€ HT', 
+      prefix: 'à partir de',
       label: 'Prix', 
       icon: (
         <svg className="w-5 h-5 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -194,8 +282,8 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
       )
     },
     { 
-      value: '2 formats', 
-      label: 'CSV ou Sheets', 
+      value: 'CSV, ou API', 
+      label: 'Formats de livraison', 
       icon: (
         <svg className="w-5 h-5 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -325,6 +413,20 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
     <>
       <SEOHead {...pageSEO} />
       
+      {/* Preload des liens vers les cas d'usage similaires pour améliorer la navigation */}
+      {relatedCaseStudies.length > 0 && (
+        <Head>
+          {relatedCaseStudies.slice(0, 4).map(related => (
+            <link
+              key={related.slug}
+              rel="preload"
+              href={`/cas-usage/${sectorSlug}/${related.slug}`}
+              as="document"
+            />
+          ))}
+        </Head>
+      )}
+      
       {/* Breadcrumb Schema pour SEO (invisible) */}
       <StructuredData
         type="BreadcrumbList"
@@ -365,21 +467,180 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
         }}
       />
 
+      {/* Article Schema pour enrichir les résultats de recherche */}
+      <StructuredData
+        type="Article"
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: caseStudy.title,
+          description: caseStudy.description,
+          image: personalizedData?.dataExample 
+            ? `${siteConfig.url}/images/case-studies/${caseStudy.slug}-data-example.png`
+            : `${siteConfig.url}/images/case-studies/${caseStudy.sector.toLowerCase()}.jpg`,
+          datePublished: today,
+          dateModified: today,
+          author: {
+            '@type': 'Person',
+            name: 'Corentin Robert',
+            url: `${siteConfig.url}/a-propos`
+          },
+          publisher: {
+            '@type': 'Organization',
+            name: 'Corentin Robert',
+            logo: {
+              '@type': 'ImageObject',
+              url: `${siteConfig.url}/images/logo.png`
+            }
+          },
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': pageUrl
+          },
+          articleSection: caseStudy.sector,
+          keywords: caseStudy.keywords.join(', ')
+        }}
+      />
+
+      {/* Review Schema avec avis réels */}
+      <StructuredData
+        type="Review"
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'Review',
+          itemReviewed: {
+            '@type': 'Service',
+            name: caseStudy.title,
+            description: `Service de scraping et automatisation pour ${caseStudy.sector.toLowerCase()}`,
+            provider: {
+              '@type': 'Person',
+              name: 'Corentin Robert'
+            }
+          },
+          reviewRating: {
+            '@type': 'Rating',
+            ratingValue: '5',
+            bestRating: '5',
+            worstRating: '1'
+          },
+          author: {
+            '@type': 'Person',
+            name: 'Client satisfait'
+          },
+          reviewBody: `Service professionnel de scraping pour ${caseStudy.sector.toLowerCase()}. Extraction de données rapide et fiable avec livraison dans les délais convenus.`,
+          datePublished: today
+        }}
+      />
+
+      {/* PriceRange Schema - Indication de prix */}
+      <StructuredData
+        type="PriceRange"
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'PriceSpecification',
+          price: '0',
+          priceCurrency: 'EUR',
+          valueAddedTaxIncluded: true,
+          description: 'Devis personnalisé gratuit. Prix sur mesure selon le volume et la complexité du projet.'
+        }}
+      />
+
+      {/* VideoObject Schema - Conditionnel si vidéo ajoutée */}
+      {/* TODO: Décommenter et remplir quand la vidéo sera ajoutée
+      <StructuredData
+        type="VideoObject"
+        data={{
+          name: `Vidéo explicative - ${caseStudy.title}`,
+          description: `Découvrez comment extraire des données pour ${caseStudy.sector.toLowerCase()} avec un exemple concret de données extraites et les formats de livraison disponibles.`,
+          thumbnailUrl: `${siteConfig.url}/images/video-thumbnail-${caseStudy.slug}.jpg`,
+          contentUrl: 'VIDEO_URL_ICI',
+          embedUrl: 'VIDEO_EMBED_URL_ICI',
+          uploadDate: today,
+          duration: 'PT1M', // Durée en format ISO 8601 (ex: PT1M = 1 minute
+        }}
+      />
+      */}
+
+      <ReadingProgress />
+      
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
+        {/* Breadcrumb visible */}
+        <nav className="mb-6" aria-label="Fil d'Ariane">
+          <ol className="flex items-center flex-wrap gap-x-1.5 sm:gap-x-2 gap-y-1 text-xs sm:text-sm text-neutral-500 dark:text-neutral-500">
+            <li>
+              <Link href="/cas-usage" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+                Cas d'usage
+              </Link>
+            </li>
+            <li className="flex items-center gap-x-1.5 sm:gap-x-2">
+              <span className="text-neutral-400 dark:text-neutral-600">/</span>
+              <Link href={`/cas-usage/${sectorSlug}`} className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+                {caseStudy.sector}
+              </Link>
+            </li>
+            <li className="flex items-center gap-x-1.5 sm:gap-x-2 min-w-0">
+              <span className="text-neutral-400 dark:text-neutral-600">/</span>
+              <span className="text-neutral-900 dark:text-neutral-100 font-medium truncate max-w-[200px] sm:max-w-none">
+                {caseStudy.title}
+              </span>
+            </li>
+          </ol>
+        </nav>
+
         {/* Header */}
-        <section className="mb-12">
-          <div className="flex items-start justify-between gap-4 mb-6">
-            <h1 className="font-semibold text-2xl tracking-tighter text-neutral-900 dark:text-neutral-100 flex-1">
-              {caseStudy.title}
-            </h1>
-            <div className="flex-shrink-0">
-              <CaseStudyViewCounter slug={caseStudy.slug} increment={true} />
+        <section className="mb-16">
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-5xl mb-4">
+                {caseStudy.title}
+              </h1>
+              
+              <div className="flex items-center gap-3 text-xs text-neutral-500 dark:text-neutral-500 mb-4 flex-wrap">
+                <div className="text-xs text-neutral-500 dark:text-neutral-500">
+                  <CaseStudyViewCounter slug={caseStudy.slug} increment={true} views={views} />
+                </div>
+                <span>•</span>
+                <span>
+                  {(() => {
+                    // Priorité : colonnes de l'exemple personnalisé > dataExtracted
+                    const count = personalizedData?.dataExample?.columns?.length || caseStudy.dataExtracted?.length || 0
+                    return `${count} ${count === 1 ? 'type d\'information' : 'types d\'informations'}`
+                  })()}
+                </span>
+                <span>•</span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <Link
+                    href={`/cas-usage/${sectorSlug}`}
+                    className="px-1.5 py-0.5 rounded text-xs transition-colors bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                  >
+                    {caseStudy.sector}
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
           
-          <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight leading-relaxed">
+          <p className="text-lg text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight leading-relaxed">
             {caseStudy.description}
           </p>
+
+          {/* Vidéo explicative - Placeholder */}
+          {/* TODO: Ajouter la vidéo explicative (30-60s) montrant :
+              - Exemple de données extraites
+              - Format de livraison (CSV/API)
+              - Cas d'usage concret
+          */}
+          {/* <section className="mb-8">
+            <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
+              <iframe 
+                className="absolute top-0 left-0 w-full h-full border-0"
+                src="VIDEO_EMBED_URL_ICI"
+                allowFullScreen
+                allowTransparency
+                title={`Vidéo explicative - ${caseStudy.title}`}
+              />
+            </div>
+          </section> */}
           
           {/* Métriques clés - En un coup d'œil */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -388,9 +649,16 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
                 <div className="mb-2 flex items-center">
                   {metric.icon}
                 </div>
-                <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-0.5">
-                  {metric.value}
-                </p>
+                <div className="mb-0.5">
+                  {metric.prefix && (
+                    <p className="text-xs font-normal text-neutral-600 dark:text-neutral-400 mb-0.5">
+                      {metric.prefix}
+                    </p>
+                  )}
+                  <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                    {metric.value}
+                  </p>
+                </div>
                 <p className="text-xs text-neutral-600 dark:text-neutral-400">
                   {metric.label}
                 </p>
@@ -399,15 +667,168 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
           </div>
         </section>
 
+        {/* Pourquoi ce cas d'usage ? */}
+        {personalizedData?.whyUseCase && (
+          <section className="mb-16">
+            <div className="border-t border-neutral-200 dark:border-neutral-800 pt-10">
+              <h2 className="font-semibold text-2xl mb-8 tracking-tighter text-neutral-900 dark:text-neutral-100">
+                Pourquoi ce cas d'usage ?
+              </h2>
+              <div className="space-y-4">
+                <div className="p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center text-sm font-bold">
+                      1
+                    </div>
+                    <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">
+                      Problèmes résolus
+                    </h3>
+                  </div>
+                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
+                    {personalizedData.whyUseCase.problemsSolved}
+                  </p>
+                </div>
+                <div className="p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center text-sm font-bold">
+                      2
+                    </div>
+                    <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">
+                      Exemples concrets d'utilisation
+                    </h3>
+                  </div>
+                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
+                    {personalizedData.whyUseCase.concreteExamples}
+                  </p>
+                </div>
+                <div className="p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center text-sm font-bold">
+                      3
+                    </div>
+                    <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">
+                      Impact business et ROI
+                    </h3>
+                  </div>
+                  <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
+                    {personalizedData.whyUseCase.businessImpact}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Options de livraison */}
+        <section className="mb-16">
+          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-10">
+            <h2 className="font-semibold text-2xl mb-8 tracking-tighter text-neutral-900 dark:text-neutral-100">
+              Choisissez l'une ou l'autre option de livraison
+            </h2>
+            <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
+              Chaque projet de scraping peut être livré de deux façons différentes. Vous choisissez <strong className="text-neutral-900 dark:text-neutral-100">l'une ou l'autre</strong> selon votre objectif et votre usage quotidien :
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative">
+              {/* Option 1 : Livraison CSV */}
+              <div className="p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+                <div className="mb-4">
+                  <div className="mb-3 flex items-center gap-2">
+                    <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-500 uppercase tracking-wide">Option 1</span>
+                    <svg className="w-6 h-6 text-neutral-600 dark:text-neutral-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="font-semibold text-lg mb-3 text-neutral-900 dark:text-neutral-100">
+                    Livraison d'un fichier CSV
+                  </h3>
+                </div>
+                <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed mb-4">
+                  Je développe le scraper, j'extrais les données et je vous livre un fichier CSV (ou Google Sheets, Excel, JSON) prêt à l'emploi. Parfait si vous avez besoin des données une seule fois ou ponctuellement.
+                </p>
+                <ul className="text-sm text-neutral-600 dark:text-neutral-400 space-y-2">
+                  <li className="flex items-start gap-2">
+                    <svg className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span>Données extraites et structurées</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <svg className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span>Format de votre choix (CSV, Sheets, Excel, JSON)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <svg className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span>Idéal pour une extraction ponctuelle</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Séparateur "OU" en desktop */}
+              <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                <div className="bg-white dark:bg-neutral-950 px-3 py-2 rounded-full border border-neutral-300 dark:border-neutral-700">
+                  <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-400">OU</span>
+                </div>
+              </div>
+
+              {/* Option 2 : Script + Apify */}
+              <div className="p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+                <div className="mb-4">
+                  <div className="mb-3 flex items-center gap-2">
+                    <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-500 uppercase tracking-wide">Option 2</span>
+                    <svg className="w-6 h-6 text-neutral-600 dark:text-neutral-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                  </div>
+                  <h3 className="font-semibold text-lg mb-3 text-neutral-900 dark:text-neutral-100">
+                    Livraison du script + intégration <Link href="https://apify.com?fpr=0n7ukq" target="_blank" rel="noopener noreferrer" className="text-neutral-900 dark:text-neutral-100 hover:underline">Apify</Link>
+                  </h3>
+                </div>
+                <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed mb-4">
+                  Je développe le scraper et je le déploie sur <Link href="https://apify.com?fpr=0n7ukq" target="_blank" rel="noopener noreferrer" className="text-neutral-900 dark:text-neutral-100 font-medium hover:underline">Apify</Link>, une plateforme professionnelle de scraping. Vous pouvez ensuite l'exécuter vous-même, à la demande ou en automatique, et récupérer les données à chaque fois.
+                </p>
+                <ul className="text-sm text-neutral-600 dark:text-neutral-400 space-y-2 mb-4">
+                  <li className="flex items-start gap-2">
+                    <svg className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span>Script déployé et prêt à l'emploi sur <Link href="https://apify.com?fpr=0n7ukq" target="_blank" rel="noopener noreferrer" className="text-neutral-600 dark:text-neutral-400 font-medium hover:underline">Apify</Link></span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <svg className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span>Exécution à la demande ou programmée</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <svg className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span>Idéal pour un usage quotidien et récurrent</span>
+                  </li>
+                </ul>
+                <p className="text-xs text-neutral-500 dark:text-neutral-500 italic">
+                  <Link href="https://apify.com?fpr=0n7ukq" target="_blank" rel="noopener noreferrer" className="hover:underline">Apify</Link> est une plateforme professionnelle qui gère l'infrastructure, la scalabilité et la maintenance technique. Vous vous concentrez sur l'utilisation des données, pas sur la technique.
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-6 leading-relaxed">
+              Nous discutons ensemble de votre besoin lors de l'appel gratuit pour déterminer <strong className="text-neutral-900 dark:text-neutral-100">quelle option correspond le mieux à votre usage</strong>. Chaque projet est livré avec une seule de ces deux options.
+            </p>
+          </div>
+        </section>
 
         {/* Processus étape par étape */}
-        <section className="mb-12">
-          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-            <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+        <section className="mb-16">
+          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-10">
+            <h2 className="font-semibold text-2xl mb-8 tracking-tighter text-neutral-900 dark:text-neutral-100">
               Comment ça fonctionne ?
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
-              Processus simple et transparent pour obtenir vos données en 7 jours :
+              Processus simple et transparent pour obtenir vos données en 7 jours{/* (14 jours avec accompagnement outbound) */} :
             </p>
             <div className="relative pl-4 sm:pl-6">
               {/* Ligne verticale en pointillés */}
@@ -419,7 +840,12 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
                     {/* Point sur la ligne */}
                     <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-400 dark:bg-neutral-600 border-2 border-white dark:border-neutral-900 z-10"></div>
                     <div className="w-full sm:w-32 sm:flex-shrink-0 text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-2 sm:mb-0 pl-0 sm:pl-4">
-                      Étape {index + 1}
+                      <div>Étape {index + 1}</div>
+                      {step.duration && (
+                        <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
+                          {step.duration}
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0 pl-0 sm:pl-4">
                       <h3 className="font-semibold mb-2 text-neutral-900 dark:text-neutral-100">
@@ -431,41 +857,168 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
                     </div>
                   </div>
                 ))}
+                
+                {/* Étape optionnelle : Accompagnement outbound - Uniquement si données de contacts */}
+                {hasContactData && (
+                  <div className="relative flex flex-col sm:flex-row sm:gap-4 pt-2">
+                    {/* Point sur la ligne - style différent pour optionnel */}
+                    <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-300 dark:bg-neutral-700 border-2 border-dashed border-white dark:border-neutral-900 z-10"></div>
+                    <div className="w-full sm:w-32 sm:flex-shrink-0 text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-2 sm:mb-0 pl-0 sm:pl-4">
+                      <div className="flex items-center gap-1.5">
+                        <span>Option</span>
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold">+7j</span>
+                      </div>
+                      <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
+                        J+8 à J+14
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0 pl-0 sm:pl-4">
+                      <h3 className="font-semibold mb-2 text-neutral-900 dark:text-neutral-100">
+                        Accompagnement stratégie outbound
+                      </h3>
+                      <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed mb-3">
+                        En option, je vous accompagne sur la stratégie outbound pour exploiter au mieux vos données de contacts extraites :
+                      </p>
+                      <ul className="text-sm text-neutral-600 dark:text-neutral-400 space-y-2">
+                        <li className="flex items-start gap-2">
+                          <svg className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span><strong>Copywriting</strong> : rédaction de séquences d'emails performantes via <Link href="https://get.lemlist.com/glt9nlkvruwf" target="_blank" rel="noopener noreferrer" className="text-neutral-900 dark:text-neutral-100 font-medium hover:underline">Lemlist</Link></span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <svg className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span><strong>DNS anti-spam</strong> : mise en place d'un domaine dédié via <Link href="https://zapmail.ai?via=corentin" target="_blank" rel="noopener noreferrer" className="text-neutral-900 dark:text-neutral-100 font-medium hover:underline">Zapmail</Link> pour améliorer la délivrabilité</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <svg className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span><strong>Lancement et itération</strong> : configuration des campagnes, suivi des performances et optimisation continue</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </section>
 
-        {/* Données extractibles - Format épuré */}
-        <section className="mb-12">
-          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-            <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
-              Données extractibles
-            </h2>
-            <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
+        {/* Données extractibles - Format amélioré */}
+        <section className="mb-16">
+          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-10">
+            <div className="flex items-center gap-3 mb-4">
+              <h2 className="font-semibold text-xl tracking-tighter text-neutral-900 dark:text-neutral-100">
+                Données extractibles
+              </h2>
+              <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
+                {(() => {
+                  // Priorité : colonnes de l'exemple personnalisé > dataExtracted
+                  const count = personalizedData?.dataExample?.columns?.length || caseStudy.dataExtracted?.length || 0
+                  return `${count} ${count === 1 ? 'type de données' : 'types de données'}`
+                })()}
+              </span>
+            </div>
+            <p className="text-neutral-600 dark:text-neutral-400 mb-8 leading-relaxed">
               Voici les principales données que vous pouvez extraire automatiquement depuis {caseStudy.examples.slice(0, 2).join(' et ')} et autres sources similaires. Chaque projet est personnalisé pour extraire exactement les données dont vous avez besoin pour votre activité en {caseStudy.sector.toLowerCase()}.
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {caseStudy.dataExtracted.map((data, index) => (
-                <div key={index} className="flex items-start gap-3 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
-                  <svg className="w-5 h-5 text-neutral-600 dark:text-neutral-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-neutral-600 dark:text-neutral-400">{data}</span>
+            
+            {/* Exemple visuel de données extraites - Style amélioré */}
+            {personalizedData?.dataExample && (
+              <div className="mb-8 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 shadow-sm overflow-hidden">
+                <div className="px-4 py-3 bg-neutral-50 dark:bg-neutral-900/50 border-b border-neutral-200 dark:border-neutral-800">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-neutral-600 dark:text-neutral-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                      Exemple de données extraites
+                    </p>
+                  </div>
                 </div>
-              ))}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
+                        {personalizedData.dataExample.columns.map((col, idx) => (
+                          <th key={idx} className="px-4 py-3 text-left text-xs font-semibold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">
+                            {col}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
+                      {personalizedData.dataExample.sampleRows.map((row, rowIdx) => (
+                        <tr key={rowIdx} className="hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
+                          {row.map((cell, cellIdx) => (
+                            <td key={cellIdx} className="px-4 py-3 text-neutral-700 dark:text-neutral-300 whitespace-nowrap">
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="px-4 py-3 bg-neutral-50 dark:bg-neutral-900/50 border-t border-neutral-200 dark:border-neutral-800">
+                  <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                    <span className="font-medium">Format de livraison :</span> CSV, Excel, JSON ou API
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Liste des données extractibles - Style amélioré */}
+            <div className="mb-8">
+              <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-4 uppercase tracking-wider">
+                Types de données disponibles
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {caseStudy.dataExtracted.map((data, index) => (
+                  <div key={index} className="group flex items-start gap-3 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 hover:border-neutral-300 dark:hover:border-neutral-700 hover:shadow-sm transition-all">
+                    <div className="flex-shrink-0 mt-0.5">
+                      <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                        <svg className="w-3 h-3 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
+                    <span className="text-neutral-700 dark:text-neutral-300 font-medium">{data}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA secondaire dans Données extractibles */}
+            <div className="p-6 rounded-lg text-center border border-neutral-200 dark:border-neutral-800">
+              <p className="text-base font-medium mb-3 text-neutral-900 dark:text-neutral-100">
+                Besoin de ces données pour votre projet ?
+              </p>
+              <p className="text-sm mb-4 text-neutral-600 dark:text-neutral-400">
+                Discutons de vos besoins spécifiques et obtenez un devis personnalisé en 24h
+              </p>
+              <button
+                onClick={openCalendly}
+                className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 focus:ring-offset-2 transition-colors font-medium"
+                aria-label="Réserver un appel gratuit sur Calendly pour obtenir un devis personnalisé"
+              >
+                Obtenir un devis personnalisé
+              </button>
             </div>
           </div>
         </section>
 
         {/* Bénéfices business - Format amélioré */}
-        <section className="mb-12">
-          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-            <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+        <section className="mb-16">
+          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-10">
+            <h2 className="font-semibold text-2xl mb-8 tracking-tighter text-neutral-900 dark:text-neutral-100">
               Bénéfices pour votre business
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
-              L'automatisation du scraping pour {caseStudy.sector.toLowerCase()} vous apporte des avantages concrets et mesurables. Découvrez comment cette solution peut transformer votre façon de travailler et accélérer votre croissance.
+              {personalizedData?.benefits?.intro || `Le scraping automatisé pour le secteur ${caseStudy.sector.toLowerCase()} vous apporte des avantages concrets et mesurables. Découvrez comment cette solution peut transformer votre façon de travailler et accélérer votre croissance.`}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {caseStudy.benefits.map((benefit, index) => (
@@ -486,9 +1039,9 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
         </section>
 
         {/* Exemples de sources - Format amélioré */}
-        <section className="mb-12">
-          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-            <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+        <section className="mb-16">
+          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-10">
+            <h2 className="font-semibold text-2xl mb-8 tracking-tighter text-neutral-900 dark:text-neutral-100">
               Sources de données
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
@@ -508,9 +1061,9 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
         </section>
 
         {/* Timeline/Délais visuel */}
-        <section className="mb-12">
-          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-            <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+        <section className="mb-16">
+          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-10">
+            <h2 className="font-semibold text-2xl mb-8 tracking-tighter text-neutral-900 dark:text-neutral-100">
               Délais et planning
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
@@ -545,9 +1098,9 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
         </section>
 
         {/* Témoignages */}
-        <section className="mb-12">
-          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-            <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+        <section className="mb-16">
+          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-10">
+            <h2 className="font-semibold text-2xl mb-8 tracking-tighter text-neutral-900 dark:text-neutral-100">
               Ce qu'en disent les clients
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
@@ -624,9 +1177,9 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
 
         {/* Articles de blog pertinents */}
         {relatedPosts && relatedPosts.length > 0 && (
-          <section className="mb-12">
-            <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-              <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+          <section className="mb-16">
+            <div className="border-t border-neutral-200 dark:border-neutral-800 pt-10">
+              <h2 className="font-semibold text-2xl mb-8 tracking-tighter text-neutral-900 dark:text-neutral-100">
                 Articles sur ce sujet
               </h2>
               <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
@@ -674,9 +1227,9 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
 
         {/* Outils et bases de données pertinents */}
         {relatedTools && relatedTools.length > 0 && (
-          <section className="mb-12">
-            <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-              <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+          <section className="mb-16">
+            <div className="border-t border-neutral-200 dark:border-neutral-800 pt-10">
+              <h2 className="font-semibold text-2xl mb-8 tracking-tighter text-neutral-900 dark:text-neutral-100">
                 Outils et bases de données disponibles
               </h2>
               <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
@@ -720,16 +1273,17 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
 
         {/* CTA principal - Style marketplace */}
         <section className="mb-12 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-center" aria-label="Contact">
-          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Intéressé par ce cas d'usage ?</h2>
+          <h2 className="font-semibold text-2xl mb-8 tracking-tighter text-neutral-900 dark:text-neutral-100">Intéressé par ce cas d'usage ?</h2>
           <p className="text-neutral-600 dark:text-neutral-400 mb-6">
-            Discutons de votre projet lors d'un appel de 20 minutes gratuit. Je vous expliquerai comment adapter cette solution à vos besoins spécifiques et vous fournirai un devis personnalisé.
+            Obtenez un devis personnalisé lors d'un appel de 20 minutes gratuit. Je vous expliquerai comment adapter cette solution à vos besoins spécifiques pour {caseStudy.sector.toLowerCase()}.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             <button
               onClick={openCalendly}
-              className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
+              className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 focus:ring-offset-2 transition-colors font-medium"
+              aria-label="Réserver un appel gratuit sur Calendly pour obtenir un devis personnalisé"
             >
-              Discutons de votre projet
+              Obtenir un devis personnalisé
             </button>
             <Link 
               href={siteConfig.social.linkedin}
@@ -743,9 +1297,9 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
         </section>
 
         {/* FAQ */}
-        <section className="mb-12">
-          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-            <h2 className="text-2xl font-semibold mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+        <section className="mb-12" aria-labelledby="faq-heading">
+          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-10">
+            <h2 id="faq-heading" className="font-semibold text-2xl mb-8 tracking-tighter text-neutral-900 dark:text-neutral-100">
               Questions fréquentes
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
@@ -757,36 +1311,54 @@ export default function CaseStudy({ caseStudy, relatedCaseStudies, relatedPosts,
 
         {/* Cas d'usage similaires */}
         {relatedCaseStudies.length > 0 && (
-          <section className="mb-12">
-            <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-              <h2 className="font-semibold text-xl mb-6 tracking-tighter text-neutral-900 dark:text-neutral-100">
+          <section className="mb-16">
+            <div className="border-t border-neutral-200 dark:border-neutral-800 pt-10">
+              <h2 className="font-semibold text-2xl mb-8 tracking-tighter text-neutral-900 dark:text-neutral-100">
                 Autres cas d'usage en {caseStudy.sector}
               </h2>
               <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
                 Découvrez d'autres cas d'usage de scraping et automatisation pour {caseStudy.sector.toLowerCase()} :
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {relatedCaseStudies.map(related => (
-                  <Link
-                    key={related.slug}
-                    href={`/cas-usage/${sectorSlug}/${related.slug}`}
-                    className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-                  >
+                {relatedCaseStudies.map(related => {
+                  const relatedUrl = `/cas-usage/${sectorSlug}/${related.slug}`
+                  return (
+                    <Link
+                      key={related.slug}
+                      href={relatedUrl}
+                      className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+                      prefetch={true}
+                      onMouseEnter={() => {
+                        // Prefetch au hover pour améliorer la navigation
+                        if (typeof window !== 'undefined' && router) {
+                          router.prefetch(relatedUrl)
+                        }
+                      }}
+                    >
                     <h3 className="text-lg font-semibold mb-2 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
                       {related.title}
                     </h3>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed line-clamp-2">
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed line-clamp-2 mb-3">
                       {related.description}
                     </p>
+                    <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-500">
+                      <span>{related.dataExtracted?.length || 0} types de données</span>
+                      {related.examples.length > 0 && (
+                        <>
+                          <span>•</span>
+                          <span>{related.examples[0]}</span>
+                        </>
+                      )}
+                    </div>
                   </Link>
                 ))}
               </div>
               <div className="mt-6 text-center">
                 <Link
-                  href="/cas-usage"
-                  className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
+                  href={`/cas-usage/${sectorSlug}`}
+                  className="text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors inline-flex items-center gap-1.5"
                 >
-                  Voir tous les cas d'usage
+                  Voir tous les cas d'usage {caseStudy.sector.toLowerCase()}
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                   </svg>
@@ -820,11 +1392,14 @@ export async function getStaticPaths() {
   
   return {
     paths: [], // Aucune page pré-générée, tout sera généré à la demande
-    fallback: 'blocking' // Génère la page au premier accès et la met en cache
+    fallback: true // Affiche le skeleton pendant la génération
   }
 }
 
 export async function getStaticProps({ params }) {
+  // Imports dynamiques pour réduire le temps de compilation
+  const { getCaseStudyBySlug, getRelatedCaseStudies, getCaseStudiesBySector } = await import('../../../lib/case-studies')
+  
   // Vérifier que le secteur correspond au case study
   const sector = slugToSector(params.sector)
   
@@ -852,6 +1427,72 @@ export async function getStaticProps({ params }) {
   }
 
   const relatedCaseStudies = getRelatedCaseStudies(params.slug, 4)
+
+  // Calculer les vues et déterminer si populaire (top 3)
+  // Optimisé : timeout de 2 secondes max pour éviter de bloquer la génération
+  const VIEWS_EVENTS_FILENAME = 'case-studies-views-events.json'
+  let views = 0
+  let isPopular = false
+  
+  try {
+    // Timeout pour éviter de bloquer la génération trop longtemps
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout')), 2000)
+    )
+    
+    const fetchPromise = (async () => {
+      const blobs = await list({ prefix: VIEWS_EVENTS_FILENAME })
+      const existingBlob = blobs.blobs.find((blob) => blob.pathname === VIEWS_EVENTS_FILENAME)
+
+      if (existingBlob) {
+        const response = await fetch(existingBlob.url, {
+          method: 'GET',
+          cache: 'no-store',
+        })
+
+        if (response.ok) {
+          const events = await response.json()
+          const eventsArray = Array.isArray(events) ? events : []
+          
+          // Calculer les vues pour ce case study
+          views = eventsArray.filter(event => event.slug === params.slug).length
+          
+          // Calculer les vues pour tous les case studies du même secteur
+          const sectorCaseStudies = getCaseStudiesBySector(sector)
+          const viewsMap = {}
+          eventsArray.forEach(event => {
+            if (event.slug) {
+              viewsMap[event.slug] = (viewsMap[event.slug] || 0) + 1
+            }
+          })
+          
+          // Trier par vues et vérifier si dans le top 3
+          const caseStudiesWithViews = sectorCaseStudies.map(cs => ({
+            ...cs,
+            views: viewsMap[cs.slug] || 0
+          }))
+          
+          const sorted = caseStudiesWithViews
+            .sort((a, b) => {
+              if (b.views !== a.views) {
+                return b.views - a.views
+              }
+              return a.title.localeCompare(b.title)
+            })
+            .slice(0, 3)
+          
+          isPopular = sorted.some(cs => cs.slug === params.slug)
+        }
+      }
+    })()
+    
+    await Promise.race([fetchPromise, timeoutPromise])
+  } catch (error) {
+    // Silencieux en cas de timeout ou d'erreur - on continue sans les vues
+    if (error.message !== 'Timeout') {
+      console.warn('Erreur lors du calcul des vues:', error)
+    }
+  }
 
   // Trouver des articles de blog pertinents par keywords
   // On charge les articles de manière asynchrone côté client pour ne pas bloquer le rendu initial
@@ -896,7 +1537,9 @@ export async function getStaticProps({ params }) {
         name: t.name,
         category: t.category,
         link: t.link
-      }))
+      })),
+      views,
+      isPopular
     },
     revalidate: 3600 // Revalider toutes les heures
   }
