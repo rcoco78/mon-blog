@@ -1417,9 +1417,26 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
+  // Vérifier que le secteur correspond au case study
+  const sector = slugToSector(params.sector)
+  
+  if (!sector) {
+    return {
+      notFound: true
+    }
+  }
+  
   // Imports dynamiques pour réduire le temps de compilation
-  const blobModule = await import('../../../lib/case-studies-blob')
-  const localModule = await import('../../../lib/case-studies')
+  let blobModule, localModule
+  try {
+    blobModule = await import('../../../lib/case-studies-blob')
+    localModule = await import('../../../lib/case-studies')
+  } catch (error) {
+    console.error('❌ Erreur lors du chargement des modules:', error.message)
+    return {
+      notFound: true
+    }
+  }
   
   const getCaseStudyBySlug = blobModule.getCaseStudyBySlug
   const getRelatedCaseStudies = blobModule.getRelatedCaseStudies
@@ -1430,26 +1447,30 @@ export async function getStaticProps({ params }) {
   const getRelatedCaseStudiesLocal = localModule.getRelatedCaseStudies
   const getCaseStudiesBySectorLocal = localModule.getCaseStudiesBySector
   
-  // Vérifier que le secteur correspond au case study
-  const sector = slugToSector(params.sector)
+  // Charger depuis Blob Storage avec fallback robuste
+  let caseStudy = null
+  let loadedFromBlob = false
   
-  if (!sector) {
-    return {
-      notFound: true
+  try {
+    caseStudy = await getCaseStudyBySlug(params.slug)
+    loadedFromBlob = !!caseStudy
+    // Si Blob Storage ne retourne rien, essayer le fallback local
+    if (!caseStudy) {
+      console.warn(`⚠️ Case study "${params.slug}" non trouvé dans Blob Storage, fallback vers fichier local`)
+      caseStudy = getCaseStudyBySlugLocal(params.slug)
+    }
+  } catch (error) {
+    console.warn('⚠️ Erreur lors du chargement depuis Blob Storage, fallback vers fichier local:', error.message)
+    // Fallback vers fichier local en cas d'erreur
+    try {
+      caseStudy = getCaseStudyBySlugLocal(params.slug)
+    } catch (localError) {
+      console.error('❌ Erreur lors du fallback local:', localError.message)
     }
   }
   
-  // Charger depuis Blob Storage avec fallback
-  let caseStudy = null
-  try {
-    caseStudy = await getCaseStudyBySlug(params.slug)
-  } catch (error) {
-    console.warn('⚠️ Erreur lors du chargement depuis Blob Storage, fallback vers fichier local:', error.message)
-    // Fallback vers fichier local
-    caseStudy = getCaseStudyBySlugLocal(params.slug)
-  }
-  
   if (!caseStudy) {
+    console.error(`❌ Case study non trouvé: slug="${params.slug}", sector="${params.sector}", loadedFromBlob=${loadedFromBlob}`)
     return {
       notFound: true
     }
@@ -1457,6 +1478,7 @@ export async function getStaticProps({ params }) {
   
   // Vérifier que le secteur correspond bien au case study
   if (caseStudy.sector !== sector) {
+    console.error(`❌ Secteur ne correspond pas: attendu="${sector}", trouvé="${caseStudy.sector}", slug="${params.slug}"`)
     return {
       notFound: true
     }

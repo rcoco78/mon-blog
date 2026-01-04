@@ -10,14 +10,18 @@ const BLOB_FILENAME = 'case-studies.json'
 async function fetchAndSaveCaseStudies() {
   // Charger les données personnalisées
   let personalizedData = {}
+  let personalizedCount = 0
   try {
     const personalizedModule = await import('../../../lib/case-studies-personalized')
     personalizedData = personalizedModule.personalizedCaseStudies || {}
+    personalizedCount = Object.keys(personalizedData).length
+    console.log(`[case-studies-sync] Données personnalisées chargées: ${personalizedCount} entrées`)
   } catch (error) {
     console.warn('[case-studies-sync] Erreur lors du chargement des données personnalisées:', error.message)
   }
   
   // Fusionner les données de base avec les données personnalisées
+  let personalizedInData = 0
   const caseStudiesData = caseStudies.map(cs => {
     const baseData = {
       slug: cs.slug,
@@ -34,6 +38,7 @@ async function fetchAndSaveCaseStudies() {
     // Ajouter les données personnalisées si disponibles
     if (personalizedData[cs.slug]) {
       baseData.personalized = personalizedData[cs.slug]
+      personalizedInData++
     }
     
     return baseData
@@ -45,7 +50,8 @@ async function fetchAndSaveCaseStudies() {
     JSON.stringify(
       {
         caseStudies: caseStudiesData,
-        personalizedCount: Object.keys(personalizedData).length,
+        personalizedCount: personalizedInData,
+        personalizedAvailable: personalizedCount,
         lastUpdated: new Date().toISOString(),
         count: caseStudiesData.length,
       },
@@ -55,8 +61,12 @@ async function fetchAndSaveCaseStudies() {
     { access: 'public', allowOverwrite: true }
   )
 
-  console.log(`[case-studies-sync] Case studies sauvegardés. Nombre : ${caseStudiesData.length}, Personnalisés : ${Object.keys(personalizedData).length}`)
-  return { count: caseStudiesData.length, personalizedCount: Object.keys(personalizedData).length }
+  console.log(`[case-studies-sync] Case studies sauvegardés. Nombre : ${caseStudiesData.length}, Personnalisés dans Blob : ${personalizedInData}, Disponibles : ${personalizedCount}`)
+  return { 
+    count: caseStudiesData.length, 
+    personalizedCount: personalizedInData,
+    personalizedAvailable: personalizedCount
+  }
 }
 
 export default async function handler(req, res) {
