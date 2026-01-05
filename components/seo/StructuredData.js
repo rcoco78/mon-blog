@@ -170,10 +170,8 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           bestRating: '5',
           worstRating: '1'
         };
-        // Si itemReviewed est fourni, l'ajouter (pour Service/Product)
-        if (data.itemReviewed) {
-          aggregateRating.itemReviewed = data.itemReviewed;
-        }
+        // Note: AggregateRating ne doit pas avoir itemReviewed selon Schema.org
+        // itemReviewed est uniquement pour Review, pas pour AggregateRating
         return aggregateRating;
 
       case 'VideoObject':
@@ -367,6 +365,10 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           // S'assurer que le provider a une URL si c'est un Service
           if (itemReviewed['@type'] === 'Service' && itemReviewed.provider && !itemReviewed.provider.url) {
             itemReviewed.provider.url = siteConfig.url;
+          }
+          // S'assurer que le brand a une URL si c'est un Product
+          if (itemReviewed['@type'] === 'Product' && itemReviewed.brand && !itemReviewed.brand.url) {
+            itemReviewed.brand.url = siteConfig.url;
           }
           review.itemReviewed = itemReviewed;
         } else if (data.serviceName) {

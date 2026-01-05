@@ -478,11 +478,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
           ratingValue: '5',
           reviewCount: '270',
           bestRating: '5',
-          worstRating: '1',
-          itemReviewed: {
-            '@type': 'Service',
-            name: caseStudy.title
-          }
+          worstRating: '1'
         }}
       />
 
@@ -526,11 +522,11 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
         type="Review"
         data={{
           itemReviewed: {
-            '@type': 'Service',
+            '@type': 'Product',
             name: caseStudy.title,
             url: pageUrl,
             description: `Service de scraping et automatisation pour ${caseStudy.sector.toLowerCase()}`,
-            provider: {
+            brand: {
               '@type': 'Person',
               name: siteConfig.author,
               url: siteConfig.url
@@ -1171,10 +1167,10 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
                       reviewBody: testimonial.reviewBody,
                       ratingValue: testimonial.ratingValue,
                       itemReviewed: {
-                        '@type': 'Service',
+                        '@type': 'Product',
                         name: caseStudy.title,
                         url: pageUrl,
-                        provider: {
+                        brand: {
                           '@type': 'Person',
                           name: siteConfig.author,
                           url: siteConfig.url
