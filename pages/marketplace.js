@@ -72,10 +72,8 @@ export default function Marketplace() {
     name: 'Marketplace - Outils et Bases de Données',
     description: 'Collection d\'outils scraping, automatisation et bases de données pour automatiser vos processus business',
     numberOfItems: tools.length,
-    items: tools.map((tool, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      item: {
+    items: tools.map((tool, index) => {
+      const item = {
         '@type': tool.type === 'database' ? 'Dataset' : 'SoftwareApplication',
         name: tool.name,
         description: tool.description,
@@ -88,7 +86,18 @@ export default function Marketplace() {
         },
         url: `${siteConfig.url}${tool.link}`
       }
-    }))
+      
+      // Ajouter le champ license pour les bases de données (Dataset)
+      if (tool.type === 'database') {
+        item.license = 'https://creativecommons.org/licenses/by/4.0/'
+      }
+      
+      return {
+        '@type': 'ListItem',
+        position: index + 1,
+        item
+      }
+    })
   }
 
   // Structured Data pour FAQ
