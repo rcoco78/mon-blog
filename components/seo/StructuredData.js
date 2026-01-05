@@ -382,10 +382,10 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           review.itemReviewed = itemReviewed;
         } else if (data.serviceName) {
           review.itemReviewed = {
-            '@type': 'Service',
+            '@type': 'Product',
             name: data.serviceName,
             url: data.url || siteConfig.url,
-            provider: {
+            brand: {
               '@type': 'Person',
               name: siteConfig.author,
               url: siteConfig.url
@@ -394,10 +394,10 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         } else {
           // Par défaut : Service de scraping et automatisation
           review.itemReviewed = {
-            '@type': 'Service',
+            '@type': 'Product',
             name: 'Services de Scraping et Automatisation',
             url: siteConfig.url,
-            provider: {
+            brand: {
               '@type': 'Person',
               name: siteConfig.author,
               url: siteConfig.url

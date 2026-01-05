@@ -157,9 +157,10 @@ export default function Temoignages() {
         type="Review"
         data={{
           itemReviewed: {
-            '@type': 'Service',
+            '@type': 'Product',
             name: 'Services de Scraping et Automatisation',
-            provider: {
+            url: siteConfig.url,
+            brand: {
               '@type': 'Person',
               name: siteConfig.author,
               url: siteConfig.url
@@ -181,12 +182,6 @@ export default function Temoignages() {
         }}
       />
       
-      <StructuredData type="AggregateRating" data={{
-        ratingValue: '5',
-        reviewCount: '270',
-        bestRating: '5',
-        worstRating: '1'
-      }} />
       {/* Review Schema pour chaque témoignage */}
       {testimonials.map((testimonial, index) => (
         <StructuredData
@@ -201,7 +196,16 @@ export default function Temoignages() {
             reviewBody: testimonial.reviewBody,
             ratingValue: testimonial.ratingValue,
             datePublished: testimonial.datePublished,
-            serviceName: 'Services de Scraping et Automatisation'
+            itemReviewed: {
+              '@type': 'Product',
+              name: 'Services de Scraping et Automatisation',
+              url: siteConfig.url,
+              brand: {
+                '@type': 'Person',
+                name: siteConfig.author,
+                url: siteConfig.url
+              }
+            }
           }}
         />
       ))}
