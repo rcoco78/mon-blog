@@ -386,11 +386,19 @@ export default function Home({ posts }) {
           name: 'Scraping et Automatisation',
           serviceType: 'Web Scraping, Data Automation, Outbound Marketing',
           description: 'Expert freelance en scraping web et automatisation. Création d\'outils sur-mesure pour extraire, structurer et exploiter vos données. 424+ projets réalisés via Malt et Fiverr.',
+          url: siteConfig.url,
           offers: {
             '@type': 'Offer',
             availability: 'https://schema.org/InStock',
             priceCurrency: 'EUR',
             description: 'Services de scraping et automatisation sur-mesure'
+          },
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: '5',
+            reviewCount: '270',
+            bestRating: '5',
+            worstRating: '1'
           }
         }} 
       />
@@ -422,16 +430,6 @@ export default function Home({ posts }) {
           reviewBody: 'Expert freelance en scraping et automatisation. 424+ projets réalisés avec 270+ avis positifs. Livraison en 7 jours, résultats garantis.',
           datePublished: new Date().toISOString().split('T')[0]
         }}
-      />
-      
-      <StructuredData 
-        type="AggregateRating" 
-        data={{
-          ratingValue: '5',
-          reviewCount: '270',
-          bestRating: '5',
-          worstRating: '1'
-        }} 
       />
       {/* Review Schema individuelles pour Google Search Console (Extraits d'avis) */}
       <StructuredData

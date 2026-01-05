@@ -139,7 +139,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         };
       
       case 'Service':
-        return {
+        const service = {
           '@context': 'https://schema.org',
           '@type': 'Service',
           serviceType: data.serviceType || 'Consulting',
@@ -160,6 +160,15 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
             priceCurrency: 'EUR'
           }
         };
+        // Ajouter l'URL si fournie
+        if (data.url) {
+          service.url = data.url;
+        }
+        // Ajouter aggregateRating si fourni
+        if (data.aggregateRating) {
+          service.aggregateRating = data.aggregateRating;
+        }
+        return service;
 
       case 'AggregateRating':
         const aggregateRating = {
