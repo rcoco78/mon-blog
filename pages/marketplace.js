@@ -87,9 +87,14 @@ export default function Marketplace() {
         url: `${siteConfig.url}${tool.link}`
       }
       
-      // Ajouter le champ license pour les bases de données (Dataset)
+      // Ajouter les champs license et creator pour les bases de données (Dataset)
       if (tool.type === 'database') {
         item.license = 'https://creativecommons.org/licenses/by/4.0/'
+        item.creator = {
+          '@type': 'Person',
+          name: siteConfig.author,
+          url: siteConfig.url
+        }
       }
       
       return {
