@@ -399,9 +399,10 @@ export default function Home({ posts }) {
         type="Review"
         data={{
           itemReviewed: {
-            '@type': 'Service',
+            '@type': 'Product',
             name: 'Scraping et Automatisation',
-            provider: {
+            url: siteConfig.url,
+            brand: {
               '@type': 'Person',
               name: siteConfig.author,
               url: siteConfig.url
@@ -444,7 +445,16 @@ export default function Home({ posts }) {
           reviewBody: "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ.",
           ratingValue: '5',
           datePublished: '2024-01-15',
-          serviceName: 'Services de Scraping et Automatisation'
+          itemReviewed: {
+            '@type': 'Product',
+            name: 'Services de Scraping et Automatisation',
+            url: siteConfig.url,
+            brand: {
+              '@type': 'Person',
+              name: siteConfig.author,
+              url: siteConfig.url
+            }
+          }
         }}
       />
       <StructuredData
@@ -458,7 +468,16 @@ export default function Home({ posts }) {
           reviewBody: "Prestation de scraping impeccable : compréhension rapide du besoin, extraction propre et structurée, délais respectés. Les données livrées sont exploitables immédiatement (format clair, colonnes cohérentes, pas de doublons). Communication fluide et réactif tout au long du projet.",
           ratingValue: '5',
           datePublished: '2024-01-05',
-          serviceName: 'Services de Scraping et Automatisation'
+          itemReviewed: {
+            '@type': 'Product',
+            name: 'Services de Scraping et Automatisation',
+            url: siteConfig.url,
+            brand: {
+              '@type': 'Person',
+              name: siteConfig.author,
+              url: siteConfig.url
+            }
+          }
         }}
       />
       <StructuredData
@@ -472,7 +491,16 @@ export default function Home({ posts }) {
           reviewBody: "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !",
           ratingValue: '5',
           datePublished: '2023-12-15',
-          serviceName: 'Services de Scraping et Automatisation'
+          itemReviewed: {
+            '@type': 'Product',
+            name: 'Services de Scraping et Automatisation',
+            url: siteConfig.url,
+            brand: {
+              '@type': 'Person',
+              name: siteConfig.author,
+              url: siteConfig.url
+            }
+          }
         }} 
       />
       <main className="flex-auto min-w-0 mt-6 flex flex-col mb-0">
