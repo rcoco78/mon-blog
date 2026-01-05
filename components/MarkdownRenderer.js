@@ -28,9 +28,48 @@ export default function MarkdownRenderer({ children }) {
     return null
   }
 
-  const markdownContent = getMarkdownContent()
+  let markdownContent = getMarkdownContent()
 
   if (!markdownContent) return null
+
+  // Normaliser le code inline : s'assurer que les backticks sont bien formatés
+  // Notion peut exporter le code inline de différentes manières, on normalise tout
+  // Détecter les patterns de code inline et s'assurer qu'ils sont bien formatés
+  markdownContent = markdownContent
+    // S'assurer qu'il n'y a pas de retours à la ligne dans le code inline (casse la détection)
+    .replace(/`([^`\n]*)\n([^`]*)`/g, '`$1$2`')
+    // Enlever les espaces autour du code dans les backticks (important pour la détection inline)
+    // Mais préserver les espaces après le backtick fermant si nécessaire
+    .replace(/`\s+([^`\n]+?)\s+`/g, '`$1`')
+    // S'assurer qu'il n'y a pas de backticks doubles qui cassent le parsing (code blocks)
+    .replace(/```([^`]+?)```/g, (match, code) => {
+      // Si le code est court et sur une seule ligne, le convertir en inline
+      const trimmed = code.trim()
+      if (trimmed.length < 50 && !trimmed.includes('\n')) {
+        return `\`${trimmed}\``
+      }
+      return match // Garder les blocs de code longs
+    })
+    // Détecter les patterns "(ex: mot-avec-tirets)" et les convertir en code inline si approprié
+    // Cela capture les cas où Notion n'exporte pas le code avec backticks
+    .replace(/\(ex:\s*([a-z0-9-]+)\)/gi, '(ex: `$1`)')
+    // Normaliser les espaces après le code inline suivi d'une parenthèse fermante et d'un tiret
+    // Cas: `code` )- ou `code`)- ou `code`  )- → tous deviennent `code`) -
+    .replace(/`([^`]+)`\s*\)\s*-\s*/g, '`$1`) - ')
+    // Normaliser les espaces après le code inline suivi directement d'un tiret ou d'une parenthèse
+    // Ex: `code`)- devient `code`) - (avec espace)
+    // Ex: `code`  )- devient `code`) - (normalise les espaces multiples)
+    .replace(/`([^`]+)`\s*([)-])(?!\s)/g, '`$1` $2')
+    // Détecter les patterns "Bon : `code` - Moins bon : `code`" dans les listes
+    // et les séparer en deux éléments de liste distincts
+    // Pattern : texte avec code, suivi de " - ", suivi de texte avec code
+    .replace(/^(\s*[-*+])\s+([^`\n]*`[^`]+`[^`\n]*)\s+-\s+([^`\n]*`[^`]+`[^`\n]*)$/gm, (match, bullet, firstPart, secondPart) => {
+      // Vérifier que les deux parties contiennent bien du code inline (backticks)
+      if (firstPart.includes('`') && secondPart.includes('`')) {
+        return `${bullet} ${firstPart.trim()}\n${bullet} ${secondPart.trim()}`
+      }
+      return match // Ne pas modifier si ce n'est pas le pattern attendu
+    })
 
   return (
     <div className="prose prose-neutral dark:prose-invert max-w-none">
@@ -151,22 +190,53 @@ export default function MarkdownRenderer({ children }) {
             </ol>
           ),
           li: ({ node, children, ...props }) => (
-            <li className="ml-4" {...props}>
+            <li className="ml-4 leading-relaxed" {...props}>
               {children}
             </li>
           ),
           // Code
           code: ({ node, inline, children, ...props }) => {
-            if (inline) {
+            // Extraire le texte du code
+            const codeText = typeof children === 'string' 
+              ? children 
+              : (Array.isArray(children) ? children.join('') : String(children))
+            
+            // Vérifier si c'est dans un <pre> (bloc de code avec syntax highlighting)
+            const isInPre = node?.parent?.tagName === 'pre'
+            
+            // Si c'est dans un pre, ne pas ajouter de style block (le pre gère déjà)
+            if (isInPre) {
               return (
                 <code
-                  className="bg-neutral-100 dark:bg-neutral-800 rounded px-1.5 py-0.5 text-sm font-mono"
+                  className="text-sm font-mono text-neutral-900 dark:text-neutral-100"
                   {...props}
                 >
                   {children}
                 </code>
               )
             }
+            
+            // Détection du code inline :
+            // - Si ReactMarkdown dit explicitement inline=true, c'est inline
+            // - Si ce n'est PAS dans un <pre> ET qu'il n'y a pas de retours à la ligne, c'est inline
+            //   (les vrais blocs de code sont toujours dans un <pre> ou ont des retours à la ligne)
+            const hasNoLineBreaks = !codeText.includes('\n')
+            // Forcer l'inline si pas dans un pre et pas de retours à la ligne
+            // Cela corrige les cas où ReactMarkdown ne détecte pas correctement le code inline
+            const isInlineCode = inline === true || (!isInPre && hasNoLineBreaks)
+            
+            if (isInlineCode) {
+              return (
+                <code
+                  className="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded px-1.5 py-0.5 text-sm font-mono border border-neutral-200 dark:border-neutral-700"
+                  {...props}
+                >
+                  {children}
+                </code>
+              )
+            }
+            
+            // Sinon, c'est un bloc de code standalone (rare, mais possible)
             return (
               <code
                 className="block bg-neutral-100 dark:bg-neutral-800 rounded p-4 text-sm font-mono overflow-x-auto mb-4"
@@ -176,11 +246,23 @@ export default function MarkdownRenderer({ children }) {
               </code>
             )
           },
-          pre: ({ node, children, ...props }) => (
-            <pre className="bg-neutral-100 dark:bg-neutral-800 rounded p-4 overflow-x-auto mb-4" {...props}>
-              {children}
-            </pre>
-          ),
+          pre: ({ node, children, ...props }) => {
+            // Extraire le langage du code si présent
+            const codeNode = node?.children?.[0]
+            const className = codeNode?.properties?.className?.[0] || ''
+            const language = className?.replace('language-', '') || ''
+            
+            return (
+              <pre className="bg-neutral-100 dark:bg-neutral-800 rounded p-4 overflow-x-auto mb-4" {...props}>
+                {language && (
+                  <div className="text-xs text-neutral-500 dark:text-neutral-400 mb-2 font-mono">
+                    {language}
+                  </div>
+                )}
+                {children}
+              </pre>
+            )
+          },
           // Liens
           a: ({ node, children, href, ...props }) => {
             // Détection des vidéos YouTube (comme dans logement-atypique)

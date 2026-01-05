@@ -237,28 +237,27 @@ export default function Post({ post, allPosts }) {
                 <span className="text-neutral-400">•</span>
                 <ViewCounter slug={post.slug} />
               </div>
-              <div className="flex items-center space-x-2">
-                {loadingMarkdown ? (
-                  <div className="h-5 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
-                ) : (
-                <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                  {readingTime} min de lecture
-                </span>
-                )}
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center space-x-2">
+                  {loadingMarkdown ? (
+                    <div className="h-5 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+                  ) : (
+                    <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                      {readingTime} min de lecture
+                    </span>
+                  )}
+                </div>
                 {post.tags && post.tags.length > 0 && (
-                  <>
-                    <span className="text-neutral-400">•</span>
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      {post.tags.map((tag, index) => (
-                        <button
-                          key={index}
-                          className="px-1.5 py-0.5 rounded text-xs transition-colors bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700"
-                        >
-                          {tag}
-                        </button>
-                      ))}
-                    </div>
-                  </>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {post.tags.map((tag, index) => (
+                      <button
+                        key={index}
+                        className="px-1.5 py-0.5 rounded text-xs transition-colors bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
               <div className="flex items-center space-x-3 pt-2">
