@@ -525,15 +525,15 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
       <StructuredData
         type="Review"
         data={{
-          '@context': 'https://schema.org',
-          '@type': 'Review',
           itemReviewed: {
             '@type': 'Service',
             name: caseStudy.title,
+            url: pageUrl,
             description: `Service de scraping et automatisation pour ${caseStudy.sector.toLowerCase()}`,
             provider: {
               '@type': 'Person',
-              name: 'Corentin Robert'
+              name: siteConfig.author,
+              url: siteConfig.url
             }
           },
           reviewRating: {
@@ -1173,7 +1173,12 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
                       itemReviewed: {
                         '@type': 'Service',
                         name: caseStudy.title,
-                        url: pageUrl
+                        url: pageUrl,
+                        provider: {
+                          '@type': 'Person',
+                          name: siteConfig.author,
+                          url: siteConfig.url
+                        }
                       }
                     }}
                   />

@@ -358,11 +358,22 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         
         // Ajouter itemReviewed si fourni (obligatoire pour Google)
         if (data.itemReviewed) {
-          review.itemReviewed = data.itemReviewed;
+          // S'assurer que itemReviewed a une URL si c'est un Service ou Product
+          const itemReviewed = { ...data.itemReviewed };
+          if ((itemReviewed['@type'] === 'Service' || itemReviewed['@type'] === 'Product') && !itemReviewed.url) {
+            // Si pas d'URL fournie, utiliser l'URL du site par défaut
+            itemReviewed.url = data.url || siteConfig.url;
+          }
+          // S'assurer que le provider a une URL si c'est un Service
+          if (itemReviewed['@type'] === 'Service' && itemReviewed.provider && !itemReviewed.provider.url) {
+            itemReviewed.provider.url = siteConfig.url;
+          }
+          review.itemReviewed = itemReviewed;
         } else if (data.serviceName) {
           review.itemReviewed = {
             '@type': 'Service',
             name: data.serviceName,
+            url: data.url || siteConfig.url,
             provider: {
               '@type': 'Person',
               name: siteConfig.author,
@@ -374,6 +385,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           review.itemReviewed = {
             '@type': 'Service',
             name: 'Services de Scraping et Automatisation',
+            url: siteConfig.url,
             provider: {
               '@type': 'Person',
               name: siteConfig.author,
