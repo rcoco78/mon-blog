@@ -43,6 +43,18 @@
       ],
       "destination": "https://www.corentinrobert.fr/$1",
       "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "host",
+          "value": "corentinrobert.fr"
+        }
+      ],
+      "destination": "https://www.corentinrobert.fr/$1",
+      "permanent": true
     }
   ],
   "headers": [
