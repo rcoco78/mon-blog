@@ -10,7 +10,7 @@
  */
 
 const { main } = require('../../../scripts/enrich-marketplace-sheets')
-const { getAllDatabasesSync } = require('../../../lib/marketplace-databases')
+const { getAllDatabases } = require('../../../lib/marketplace-databases')
 const { put } = require('@vercel/blob')
 
 const BLOB_FILENAME = 'marketplace-databases.json'
@@ -50,7 +50,8 @@ export default async function handler(req, res) {
     // Synchroniser vers Blob Storage si disponible
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       try {
-        const databases = getAllDatabasesSync()
+        // Utiliser getAllDatabases() (async) pour charger depuis Blob Storage
+        const databases = await getAllDatabases()
         const dataToSave = {
           databases,
           lastUpdated: new Date().toISOString(),
