@@ -11,6 +11,7 @@ import StructuredData from '../../components/seo/StructuredData'
 import FAQ from '../../components/FAQ'
 import Toast, { useToast } from '../../components/Toast'
 import DownloadCounter from '../../components/DownloadCounter'
+import MarketplaceViewCounter from '../../components/MarketplaceViewCounter'
 import { generatePageSEO } from '../../lib/seo'
 import { siteConfig } from '../../lib/config'
 import { getRelevantTestimonials } from '../../lib/testimonials'
@@ -491,7 +492,8 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
             <p className="text-neutral-600 dark:text-neutral-400 tracking-tight mb-3 text-base leading-relaxed">
               {toolData.description}
             </p>
-            <div className="flex items-center">
+            <div className="flex items-center gap-4">
+              <MarketplaceViewCounter slug={database.slug} category={database.category} increment={true} />
               <DownloadCounter toolId={database.slug} />
             </div>
           </div>
@@ -506,7 +508,8 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
               <p className="text-neutral-600 dark:text-neutral-400 tracking-tight mb-3">
                 {toolData.description}
               </p>
-              <div className="flex items-center">
+              <div className="flex items-center gap-4">
+                <MarketplaceViewCounter slug={database.slug} category={database.category} increment={true} />
                 <DownloadCounter toolId={database.slug} />
               </div>
             </div>

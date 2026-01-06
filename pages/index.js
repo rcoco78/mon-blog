@@ -45,6 +45,8 @@ export default function Home({ posts, dynamicDatabases = [] }) {
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
   const testimonialScrollRef = useRef(null)
+  const [topDatabases, setTopDatabases] = useState([])
+  const [topDatabasesLoading, setTopDatabasesLoading] = useState(true)
 
   // URL de la vidéo Tella
   const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
@@ -118,6 +120,26 @@ export default function Home({ posts, dynamicDatabases = [] }) {
 
     fetchViews()
   }, [posts])
+
+  // Charger le top 3 des bases de données les plus vues
+  useEffect(() => {
+    const fetchTopDatabases = async () => {
+      try {
+        setTopDatabasesLoading(true)
+        const response = await fetch('/api/marketplace-views/top?limit=3')
+        if (response.ok) {
+          const data = await response.json()
+          setTopDatabases(data)
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération du top des bases de données:', error)
+      } finally {
+        setTopDatabasesLoading(false)
+      }
+    }
+
+    fetchTopDatabases()
+  }, [])
 
   // Charger les métriques depuis l'API et enrichir avec les Key Results
   useEffect(() => {
@@ -1075,6 +1097,76 @@ export default function Home({ posts, dynamicDatabases = [] }) {
           </Link>
         </div>
       </section>
+
+      {/* Section Top 3 Bases de données les plus vues */}
+      {topDatabases.length > 0 && (
+        <section className="mt-12" aria-label="Bases de données les plus consultées">
+          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Les plus consultées</h2>
+          <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
+            Les bases de données les plus consultées par les visiteurs.
+          </p>
+          <div className="flex flex-col space-y-4">
+            {topDatabasesLoading ? (
+              // Skeleton pendant le chargement
+              Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="relative flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                  <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
+                    <div className="flex-shrink-0 w-6 h-6 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                    <div className="flex-1 min-w-0">
+                      <div className="h-5 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
+                      <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              topDatabases.map((db) => (
+                <Link
+                  key={db.slug}
+                  href={`/marketplace/${db.slug}`}
+                  className="relative flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+                >
+                  <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
+                    <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-600 dark:text-neutral-400">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="mb-1">
+                        <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
+                          {db.name}
+                        </h2>
+                      </div>
+                      <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
+                        {db.description}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Séparateur fin et prix + vues */}
+                  <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex-shrink-0 w-6 h-6"></div>
+                      <div className="flex-1 min-w-0 flex items-center gap-2">
+                        <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                          {db.isPaid ? `À partir de ${db.price || 0}€` : 'Gratuit'}
+                        </span>
+                        <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                          • {db.views} vues
+                        </span>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
+                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
+        </section>
+      )}
       
       {/* Section Partenaires */}
       <section className="mt-12" aria-label="Partenaires">
