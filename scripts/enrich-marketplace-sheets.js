@@ -37,6 +37,8 @@ const args = process.argv.slice(2)
 const sheetIdArg = args.find(arg => arg.startsWith('--sheet-id='))
 const sheetId = sheetIdArg ? sheetIdArg.split('=')[1] : null
 const allSheets = args.includes('--all')
+const limitArg = args.find(arg => arg.startsWith('--limit='))
+const limit = limitArg ? parseInt(limitArg.split('=')[1]) : null
 
 // Initialiser OpenAI
 let openai = null
@@ -898,10 +900,13 @@ async function main() {
       return
     }
     
-    console.log(blue(`\n📝 ${sheetsToEnrich.length} sheet(s) à enrichir sur ${sheetsToProcess.length} trouvé(s)\n`))
+    // Limiter le nombre de sheets à traiter (pour éviter timeout sur Vercel)
+    const sheetsToProcessLimited = limit ? sheetsToEnrich.slice(0, limit) : sheetsToEnrich
     
-    // Traiter chaque sheet à enrichir
-    for (const sheet of sheetsToEnrich) {
+    console.log(blue(`\n📝 ${sheetsToProcessLimited.length} sheet(s) à enrichir sur ${sheetsToEnrich.length} trouvé(s)${limit ? ` (limite: ${limit})` : ''}\n`))
+    
+    // Traiter chaque sheet à enrichir (limité)
+    for (const sheet of sheetsToProcessLimited) {
       console.log(cyan(`\n📄 ${sheet.name}...`))
       
       // Analyser
@@ -959,11 +964,21 @@ async function main() {
         databases.push(database)
         console.log(green(`  ✅ Ajouté`))
       }
+      
+      // Sauvegarder après chaque traitement pour éviter de perdre le travail en cas de timeout
+      await saveDatabases(databases)
+      console.log(cyan(`  💾 Sauvegardé (${databases.length} base(s) au total)`))
     }
     
-    // Sauvegarder
+    // Sauvegarder final (au cas où)
     await saveDatabases(databases)
-    console.log(green(`\n✅ ${databases.length} base(s) de données sauvegardée(s)\n`))
+    
+    if (limit && sheetsToEnrich.length > limit) {
+      const remaining = sheetsToEnrich.length - limit
+      console.log(yellow(`\n⚠️  ${remaining} sheet(s) restant(s) à traiter lors du prochain cron\n`))
+    } else {
+      console.log(green(`\n✅ ${databases.length} base(s) de données sauvegardée(s)\n`))
+    }
     
   } catch (error) {
     console.error(red(`\n❌ Erreur: ${error.message}\n`))

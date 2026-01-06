@@ -40,8 +40,9 @@ export default async function handler(req, res) {
       console.warn('⚠️ BLOB_READ_WRITE_TOKEN non configuré. Les données seront uniquement sauvegardées localement.')
     }
     
-    // Forcer --all pour enrichir toutes les bases
-    process.argv = ['node', 'enrich-marketplace-sheets.js', '--all']
+    // Limiter à 2 sheets par exécution pour éviter timeout (300s max sur Vercel)
+    // Les sheets restants seront traités lors du prochain cron
+    process.argv = ['node', 'enrich-marketplace-sheets.js', '--limit=2']
     
     // Exécuter l'enrichissement
     await main()
@@ -73,7 +74,7 @@ export default async function handler(req, res) {
     
     return res.status(200).json({
       success: true,
-      message: 'Enrichissement marketplace terminé avec succès',
+      message: 'Enrichissement marketplace terminé avec succès (2 sheets max par exécution)',
       timestamp: new Date().toISOString()
     })
 
