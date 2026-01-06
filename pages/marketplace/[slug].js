@@ -1014,6 +1014,12 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
             
             {/* Taux d'enrichissement des champs de contact - Affichage positif */}
             {(() => {
+              // Ne pas afficher si on n'a pas de données réelles de complétude (seulement des estimations)
+              const hasRealData = database.enrichedData?.contactCompleteness && 
+                                  Object.keys(database.enrichedData.contactCompleteness).length > 0
+              
+              if (!hasRealData) return null
+              
               const contactFields = database.headers.filter(header => {
                 const headerLower = header.toLowerCase()
                 return headerLower.includes('email') || 
@@ -1024,13 +1030,17 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                        (headerLower.includes('url') && (headerLower.includes('linkedin') || headerLower.includes('profil') || headerLower.includes('profile')))
               })
               
-              // Filtrer pour n'afficher que les champs avec un taux raisonnable (>= 20%) ou présenter de manière positive
+              // Filtrer pour n'afficher que les champs avec un taux raisonnable (>= 20%) et des données réelles
               const fieldsToShow = contactFields.filter(field => {
                 const completeness = contactCompleteness[field]
-                return completeness && completeness.percentage >= 20
+                // Ne montrer que si on a des données réelles (pas d'estimation) et un taux >= 20%
+                return completeness && 
+                       !completeness.isEstimate && 
+                       completeness.percentage >= 20 &&
+                       completeness.filled > 0
               })
               
-              if (fieldsToShow.length > 0 && Object.keys(contactCompleteness).length > 0) {
+              if (fieldsToShow.length > 0) {
                 return (
                   <div className="mt-6 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
                     <h4 className="font-semibold text-base mb-2 text-neutral-900 dark:text-neutral-100">Contacts disponibles</h4>
