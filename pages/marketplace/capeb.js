@@ -303,7 +303,19 @@ export default function Capeb() {
           itemReviewed: {
             '@type': 'Product',
             name: toolData.name,
-            url: `${siteConfig.url}/marketplace/capeb`
+            url: `${siteConfig.url}/marketplace/capeb`,
+            offers: {
+              '@type': 'Offer',
+              price: '99',
+              priceCurrency: 'EUR',
+              availability: 'https://schema.org/InStock',
+              priceSpecification: {
+                '@type': 'UnitPriceSpecification',
+                price: '99',
+                priceCurrency: 'EUR',
+                valueAddedTaxIncluded: true
+              }
+            }
           },
           reviewRating: {
             '@type': 'Rating',
@@ -1025,7 +1037,19 @@ export default function Capeb() {
                         itemReviewed: {
                           '@type': 'Product',
                           name: toolData.name,
-                          url: `${siteConfig.url}/marketplace/capeb`
+                          url: `${siteConfig.url}/marketplace/capeb`,
+                          offers: {
+                            '@type': 'Offer',
+                            price: '99',
+                            priceCurrency: 'EUR',
+                            availability: 'https://schema.org/InStock',
+                            priceSpecification: {
+                              '@type': 'UnitPriceSpecification',
+                              price: '99',
+                              priceCurrency: 'EUR',
+                              valueAddedTaxIncluded: true
+                            }
+                          }
                         }
                       }}
                     />

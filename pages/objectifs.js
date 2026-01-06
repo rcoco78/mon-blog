@@ -668,8 +668,8 @@ export default function DonneesPubliques() {
       'CA Logement Atypique': 'Chiffre d\'affaires',
       'CA Logement Atypique (€)': 'Chiffre d\'affaires',
       'ARR': 'ARR',
-      'Abonnés': category?.toLowerCase().includes('logement') ? 'Abonnés Instagram' : 'Abonnés',
-      'Abonnés Instagram': 'Abonnés Instagram',
+      'Abonnés': 'Abonnés',
+      'Abonnés Instagram': 'Abonnés',
       'Vidéos publiées': category?.toLowerCase().includes('logement') ? 'Vidéos publiées' : 'Vidéos publiées',
       
       // Meetings / Appels

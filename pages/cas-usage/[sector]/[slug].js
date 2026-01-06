@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Head from 'next/head'
+import Image from 'next/image'
 import SEOHead from '../../../components/seo/SEOHead'
 import StructuredData from '../../../components/seo/StructuredData'
 import FAQ from '../../../components/FAQ'
@@ -14,6 +15,7 @@ import { list } from '@vercel/blob'
 import { useState, useEffect } from 'react'
 import CaseStudyViewCounter from '../../../components/CaseStudyViewCounter'
 import ReadingProgress from '../../../components/ReadingProgress'
+import PersonalVideo from '../../../components/PersonalVideo'
 
 export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies, relatedPosts, relatedTools, views = 0, isPopular = false, personalizedData: personalizedDataProp = null }) {
   const router = useRouter()
@@ -530,6 +532,18 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
               '@type': 'Person',
               name: siteConfig.author,
               url: siteConfig.url
+            },
+            offers: {
+              '@type': 'Offer',
+              price: '500',
+              priceCurrency: 'EUR',
+              availability: 'https://schema.org/InStock',
+              priceSpecification: {
+                '@type': 'UnitPriceSpecification',
+                price: '500',
+                priceCurrency: 'EUR',
+                valueAddedTaxIncluded: true
+              }
             }
           },
           reviewRating: {
@@ -560,21 +574,24 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
         }}
       />
 
-      {/* VideoObject Schema - Conditionnel si vidéo ajoutée */}
-      {/* TODO: Décommenter et remplir quand la vidéo sera ajoutée
+      {/* VideoObject Schema - Pour indexation dans Google Search Console */}
       <StructuredData
         type="VideoObject"
         data={{
-          name: `Vidéo explicative - ${caseStudy.title}`,
-          description: `Découvrez comment extraire des données pour ${caseStudy.sector.toLowerCase()} avec un exemple concret de données extraites et les formats de livraison disponibles.`,
-          thumbnailUrl: `${siteConfig.url}/images/video-thumbnail-${caseStudy.slug}.jpg`,
-          contentUrl: 'VIDEO_URL_ICI',
-          embedUrl: 'VIDEO_EMBED_URL_ICI',
+          name: `Un mot de Corentin sur ${caseStudy.title}`,
+          description: `Découvrez comment ce cas d'usage de scraping et d'automatisation peut s'adapter à vos besoins spécifiques pour le secteur ${caseStudy.sector.toLowerCase()}. Présentation personnalisée par Corentin Robert, expert freelance en scraping et automatisation.`,
+          thumbnailUrl: `${siteConfig.url}/images/video-thumbnail.jpg`, // À remplacer par la vraie thumbnail Tella si disponible
+          contentUrl: 'https://www.tella.tv/video/vid_cmk2d068v00xf04k15y3y0vaf',
+          embedUrl: 'https://www.tella.tv/video/vid_cmk2d068v00xf04k15y3y0vaf/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0',
           uploadDate: today,
-          duration: 'PT1M', // Durée en format ISO 8601 (ex: PT1M = 1 minute
+          duration: 'PT1M30S', // Durée approximative - à ajuster selon la vraie durée de votre vidéo
+          publisher: {
+            '@type': 'Person',
+            name: siteConfig.author,
+            url: siteConfig.url
+          }
         }}
       />
-      */}
 
       <ReadingProgress />
       
@@ -639,23 +656,10 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
             {caseStudy.description}
           </p>
 
-          {/* Vidéo explicative - Placeholder */}
-          {/* TODO: Ajouter la vidéo explicative (30-60s) montrant :
-              - Exemple de données extraites
-              - Format de livraison (CSV/API)
-              - Cas d'usage concret
-          */}
-          {/* <section className="mb-8">
-            <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-              <iframe 
-                className="absolute top-0 left-0 w-full h-full border-0"
-                src="VIDEO_EMBED_URL_ICI"
-                allowFullScreen
-                allowTransparency
-                title={`Vidéo explicative - ${caseStudy.title}`}
-              />
-            </div>
-          </section> */}
+          {/* Vidéo personnalisée - Visible dès le début */}
+          <PersonalVideo 
+            title="Un mot de Corentin sur ce cas d'usage"
+          />
           
           {/* Métriques clés - En un coup d'œil */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -1013,14 +1017,14 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
                 Besoin de ces données pour votre projet ?
               </p>
               <p className="text-sm mb-4 text-neutral-600 dark:text-neutral-400">
-                Discutons de vos besoins spécifiques et obtenez un devis personnalisé en 24h
+                On échange sur vos besoins spécifiques lors d'un appel de 20 minutes gratuit
               </p>
               <button
                 onClick={openCalendly}
                 className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 focus:ring-offset-2 transition-colors font-medium"
-                aria-label="Réserver un appel gratuit sur Calendly pour obtenir un devis personnalisé"
+                aria-label="Réserver un appel gratuit pour échanger sur votre projet"
               >
-                Obtenir un devis personnalisé
+                On échange ?
               </button>
             </div>
           </div>
@@ -1174,6 +1178,18 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
                           '@type': 'Person',
                           name: siteConfig.author,
                           url: siteConfig.url
+                        },
+                        offers: {
+                          '@type': 'Offer',
+                          price: '500',
+                          priceCurrency: 'EUR',
+                          availability: 'https://schema.org/InStock',
+                          priceSpecification: {
+                            '@type': 'UnitPriceSpecification',
+                            price: '500',
+                            priceCurrency: 'EUR',
+                            valueAddedTaxIncluded: true
+                          }
                         }
                       }
                     }}
@@ -1293,17 +1309,33 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
 
         {/* CTA principal - Style marketplace */}
         <section className="mb-12 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-center" aria-label="Contact">
-          <h2 className="font-semibold text-2xl mb-8 tracking-tighter text-neutral-900 dark:text-neutral-100">Intéressé par ce cas d'usage ?</h2>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-6">
-            Obtenez un devis personnalisé lors d'un appel de 20 minutes gratuit. Je vous expliquerai comment adapter cette solution à vos besoins spécifiques pour {caseStudy.sector.toLowerCase()}.
+          <div className="flex flex-col items-center mb-8">
+            <div className="relative mb-4">
+              <div className="w-20 h-20 rounded-full bg-white dark:bg-neutral-900 p-[2px] shadow-lg ring-2 ring-neutral-200 dark:ring-neutral-700">
+                <Image
+                  src="/images/profile-picture/cr-pp3.png"
+                  alt="Photo de profil de Corentin Robert"
+                  width={80}
+                  height={80}
+                  className="w-full h-full rounded-full object-cover"
+                  style={{ objectPosition: 'center 30%' }}
+                  priority
+                />
+              </div>
+            </div>
+            <h2 className="font-semibold text-2xl mb-4 tracking-tighter text-neutral-900 dark:text-neutral-100">Intéressé par ce cas d'usage ?</h2>
+          </div>
+          
+          <p className="text-neutral-600 dark:text-neutral-400 mb-6 max-w-xl mx-auto">
+            On échange lors d'un appel de 20 minutes gratuit. Je vous expliquerai comment adapter cette solution à vos besoins spécifiques pour {caseStudy.sector.toLowerCase()}.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             <button
               onClick={openCalendly}
               className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 focus:ring-offset-2 transition-colors font-medium"
-              aria-label="Réserver un appel gratuit sur Calendly pour obtenir un devis personnalisé"
+              aria-label="Réserver un appel gratuit pour échanger sur votre projet"
             >
-              Obtenir un devis personnalisé
+              On échange ?
             </button>
             <Link 
               href={siteConfig.social.linkedin}

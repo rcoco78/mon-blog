@@ -303,7 +303,19 @@ export default function CgpFrance() {
           itemReviewed: {
             '@type': 'Product',
             name: toolData.name,
-            url: `${siteConfig.url}/marketplace/cgp-france`
+            url: `${siteConfig.url}/marketplace/cgp-france`,
+            offers: {
+              '@type': 'Offer',
+              price: '99',
+              priceCurrency: 'EUR',
+              availability: 'https://schema.org/InStock',
+              priceSpecification: {
+                '@type': 'UnitPriceSpecification',
+                price: '99',
+                priceCurrency: 'EUR',
+                valueAddedTaxIncluded: true
+              }
+            }
           },
           reviewRating: {
             '@type': 'Rating',
@@ -980,7 +992,19 @@ export default function CgpFrance() {
                         itemReviewed: {
                           '@type': 'Product',
                           name: toolData.name,
-                          url: `${siteConfig.url}/marketplace/cgp-france`
+                          url: `${siteConfig.url}/marketplace/cgp-france`,
+                          offers: {
+                            '@type': 'Offer',
+                            price: '99',
+                            priceCurrency: 'EUR',
+                            availability: 'https://schema.org/InStock',
+                            priceSpecification: {
+                              '@type': 'UnitPriceSpecification',
+                              price: '99',
+                              priceCurrency: 'EUR',
+                              valueAddedTaxIncluded: true
+                            }
+                          }
                         }
                       }}
                     />

@@ -341,7 +341,7 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
               .filter(({ studies }) => studies.length > 0)
               .map(({ sector, studies }) => (
                 <div key={sector} className="mb-12">
-                  <div className="flex items-center justify-between mb-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                     <Link
                       href={`/cas-usage/${sectorToSlug(sector)}`}
                       className="flex items-center gap-3 group transition-colors"
@@ -353,7 +353,7 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
                         <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                       </svg>
                     </Link>
-                    <span className="text-sm text-neutral-500 dark:text-neutral-500">
+                    <span className="text-sm text-neutral-500 dark:text-neutral-500 sm:flex-shrink-0">
                       {studies.length} cas d'usage
                     </span>
                   </div>

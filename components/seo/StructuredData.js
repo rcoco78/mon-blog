@@ -184,14 +184,13 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         return aggregateRating;
 
       case 'VideoObject':
-        return {
+        const videoObject = {
           '@context': 'https://schema.org',
           '@type': 'VideoObject',
           name: data.name || 'Présentation de Corentin Robert',
           description: data.description || siteConfig.seo.defaultDescription,
           thumbnailUrl: data.thumbnailUrl || `https://img.youtube.com/vi/${data.videoId}/maxresdefault.jpg`,
           uploadDate: data.uploadDate || new Date().toISOString(),
-          duration: data.duration,
           contentUrl: data.contentUrl || `https://www.youtube.com/watch?v=${data.videoId}`,
           embedUrl: data.embedUrl || `https://www.youtube.com/embed/${data.videoId}`,
           publisher: {
@@ -200,6 +199,13 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
             url: siteConfig.url
           }
         };
+        
+        // Ajouter la durée si fournie (format ISO 8601 requis pour Google)
+        if (data.duration) {
+          videoObject.duration = data.duration;
+        }
+        
+        return videoObject;
 
       case 'Dataset':
         return {
@@ -379,6 +385,22 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           if (itemReviewed['@type'] === 'Product' && itemReviewed.brand && !itemReviewed.brand.url) {
             itemReviewed.brand.url = siteConfig.url;
           }
+          // Pour les Product, s'assurer qu'ils ont au moins une des propriétés requises : offers, review, ou aggregateRating
+          if (itemReviewed['@type'] === 'Product' && !itemReviewed.offers && !itemReviewed.review && !itemReviewed.aggregateRating) {
+            itemReviewed.offers = {
+              '@type': 'Offer',
+              price: '0',
+              priceCurrency: 'EUR',
+              availability: 'https://schema.org/InStock',
+              priceSpecification: {
+                '@type': 'UnitPriceSpecification',
+                price: '0',
+                priceCurrency: 'EUR',
+                valueAddedTaxIncluded: true,
+                description: 'Devis personnalisé gratuit. Prix sur mesure selon le volume et la complexité du projet.'
+              }
+            };
+          }
           review.itemReviewed = itemReviewed;
         } else if (data.serviceName) {
           review.itemReviewed = {
@@ -389,6 +411,19 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
               '@type': 'Person',
               name: siteConfig.author,
               url: siteConfig.url
+            },
+            offers: {
+              '@type': 'Offer',
+              price: '0',
+              priceCurrency: 'EUR',
+              availability: 'https://schema.org/InStock',
+              priceSpecification: {
+                '@type': 'UnitPriceSpecification',
+                price: '0',
+                priceCurrency: 'EUR',
+                valueAddedTaxIncluded: true,
+                description: 'Devis personnalisé gratuit. Prix sur mesure selon le volume et la complexité du projet.'
+              }
             }
           };
         } else {
@@ -401,6 +436,19 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
               '@type': 'Person',
               name: siteConfig.author,
               url: siteConfig.url
+            },
+            offers: {
+              '@type': 'Offer',
+              price: '0',
+              priceCurrency: 'EUR',
+              availability: 'https://schema.org/InStock',
+              priceSpecification: {
+                '@type': 'UnitPriceSpecification',
+                price: '0',
+                priceCurrency: 'EUR',
+                valueAddedTaxIncluded: true,
+                description: 'Devis personnalisé gratuit. Prix sur mesure selon le volume et la complexité du projet.'
+              }
             }
           };
         }

@@ -93,6 +93,8 @@ export default function Blog({ posts }) {
   const [topPostsLoading, setTopPostsLoading] = useState(true)
   const [postsLoading, setPostsLoading] = useState(true)
   const [allViews, setAllViews] = useState({})
+  const [blogStats, setBlogStats] = useState(null)
+  const [blogStatsLoading, setBlogStatsLoading] = useState(true)
 
   useEffect(() => {
     // Extraire tous les tags uniques
@@ -148,6 +150,29 @@ export default function Blog({ posts }) {
     }
 
     fetchTopPosts()
+  }, [posts])
+
+  useEffect(() => {
+    // Récupérer les statistiques du blog (nombre d'articles et vues avec croissance J-3)
+    const fetchBlogStats = async () => {
+      try {
+        setBlogStatsLoading(true)
+        const response = await fetch(`/api/blog-stats?postsCount=${posts.length}`)
+        
+        if (response.ok) {
+          const stats = await response.json()
+          setBlogStats(stats)
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des statistiques du blog:', error)
+      } finally {
+        setBlogStatsLoading(false)
+      }
+    }
+
+    if (posts.length > 0) {
+      fetchBlogStats()
+    }
   }, [posts])
 
   useEffect(() => {
@@ -373,6 +398,27 @@ export default function Blog({ posts }) {
                     : filteredPosts.reduce((sum, post) => sum + (post.views || 0), 0)
                   return `${totalViews} ${totalViews === 1 ? 'vue' : 'vues'}`
                 })()}
+                {blogStats && !blogStatsLoading && blogStats.viewsDifference !== 0 && (
+                  <>
+                    <span className="w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 flex-shrink-0"></span>
+                    <span className={`inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded ${
+                      blogStats.viewsIsPositive 
+                        ? 'text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20' 
+                        : 'text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20'
+                    }`} title={`Différence par rapport à il y a 3 jours`}>
+                      {blogStats.viewsIsPositive ? (
+                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                          <path d="M6 2L2 6H5V10H7V6H10L6 2Z" fill="currentColor" />
+                        </svg>
+                      ) : (
+                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                          <path d="M6 10L10 6H7V2H5V6H2L6 10Z" fill="currentColor" />
+                        </svg>
+                      )}
+                      <span>{blogStats.viewsIsPositive ? '+' : ''}{blogStats.viewsDifference} {blogStats.viewsDifference === 1 || blogStats.viewsDifference === -1 ? 'vue' : 'vues'} vs J-3</span>
+                    </span>
+                  </>
+                )}
               </span>
             </div>
             {selectedTag && filteredPosts.length > 0 && (
