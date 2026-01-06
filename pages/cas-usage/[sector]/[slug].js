@@ -23,6 +23,34 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
   // Utiliser les données personnalisées depuis props (Blob Storage) ou depuis caseStudy.personalized
   const [personalizedData, setPersonalizedData] = useState(personalizedDataProp || caseStudyProp?.personalized || null)
   const caseStudy = caseStudyProp
+  const [showVideo, setShowVideo] = useState(false)
+  const [videoSeen, setVideoSeen] = useState(false)
+
+  // URL de la vidéo Tella
+  const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
+  const videoEmbedUrl = 'https://www.tella.tv/video/vid_cmjylsyom00bn04la9dfs342e/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0'
+
+  // Vérifier si la vidéo a déjà été vue
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const seen = localStorage.getItem('profileVideoSeen') === 'true'
+      setVideoSeen(seen)
+    }
+  }, [])
+
+  // Ouvrir la popup vidéo
+  const handleVideoClick = () => {
+    setShowVideo(true)
+  }
+
+  // Marquer la vidéo comme vue quand on ferme la popup (après avoir regardé)
+  const handleCloseVideo = () => {
+    setShowVideo(false)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('profileVideoSeen', 'true')
+      setVideoSeen(true)
+    }
+  }
 
   useEffect(() => {
     setMounted(true)
@@ -1310,19 +1338,87 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
         {/* CTA principal - Style marketplace */}
         <section className="mb-12 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-center" aria-label="Contact">
           <div className="flex flex-col items-center mb-8">
-            <div className="relative mb-4">
-              <div className="w-20 h-20 rounded-full bg-white dark:bg-neutral-900 p-[2px] shadow-lg ring-2 ring-neutral-200 dark:ring-neutral-700">
+            <div className="relative mb-4 group cursor-pointer" onClick={handleVideoClick}>
+              <svg
+                className="absolute inset-0 w-16 h-16"
+                viewBox="0 0 70 70"
+              >
+                <defs>
+                  <linearGradient id="instagram-gradient-cas-usage-detail" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#f09433" />
+                    <stop offset="25%" stopColor="#e6683c" />
+                    <stop offset="50%" stopColor="#dc2743" />
+                    <stop offset="75%" stopColor="#cc2366" />
+                    <stop offset="100%" stopColor="#bc1888" />
+                  </linearGradient>
+                </defs>
+                <circle
+                  cx="35"
+                  cy="35"
+                  r="33"
+                  fill="none"
+                  stroke={videoSeen ? "#a3a3a3" : "url(#instagram-gradient-cas-usage-detail)"}
+                  strokeWidth="2"
+                  strokeDasharray="207.35"
+                  strokeDashoffset={videoSeen ? "0" : "207.35"}
+                  className={videoSeen ? "" : "animate-draw-circle"}
+                  style={{
+                    transformOrigin: '35px 35px',
+                    transition: videoSeen ? 'stroke 0.5s ease-out' : 'none'
+                  }}
+                />
+              </svg>
+              <div className="rounded-full bg-white dark:bg-neutral-900 p-[2px] relative z-10">
                 <Image
                   src="/images/profile-picture/cr-pp3.png"
                   alt="Photo de profil de Corentin Robert"
-                  width={80}
-                  height={80}
-                  className="w-full h-full rounded-full object-cover"
+                  width={64}
+                  height={64}
+                  className="w-16 h-16 rounded-full object-cover transition-all group-hover:opacity-90"
                   style={{ objectPosition: 'center 30%' }}
                   priority
                 />
               </div>
+              {/* Overlay grisé avec icône play au hover */}
+              <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/70 dark:bg-neutral-900/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-play text-white" viewBox="0 0 16 16">
+                  <path d="M10.804 8 5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z"/>
+                </svg>
+              </div>
             </div>
+            
+            {/* Popup vidéo */}
+            {showVideo && videoEmbedUrl && (
+              <div 
+                className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-4 bg-neutral-900/80 dark:bg-neutral-900/80 backdrop-blur-sm"
+                onClick={handleCloseVideo}
+              >
+                <div 
+                  className="relative w-full max-w-[280px] md:max-w-sm rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xl"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    onClick={handleCloseVideo}
+                    className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-neutral-900/90 dark:bg-neutral-100/90 text-white dark:text-neutral-900 hover:bg-neutral-900 dark:hover:bg-neutral-100 transition-colors"
+                    aria-label="Fermer la vidéo"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                    </svg>
+                  </button>
+                  <div style={{ position: 'relative', paddingBottom: '177.78%', height: 0 }}>
+                    <iframe
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+                      src={videoEmbedUrl}
+                      allowFullScreen
+                      allowTransparency
+                      title="Présentation de Corentin Robert"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+            
             <h2 className="font-semibold text-2xl mb-4 tracking-tighter text-neutral-900 dark:text-neutral-100">Intéressé par ce cas d'usage ?</h2>
           </div>
           
