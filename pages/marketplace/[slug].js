@@ -931,63 +931,6 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
               </div>
             </div>
             
-            {/* Taux d'enrichissement des champs de contact - Affichage positif */}
-            {(() => {
-              const contactFields = database.headers.filter(header => {
-                const headerLower = header.toLowerCase()
-                return headerLower.includes('email') || 
-                       headerLower.includes('téléphone') || 
-                       headerLower.includes('telephone') || 
-                       headerLower.includes('phone') || 
-                       headerLower.includes('whatsapp') ||
-                       (headerLower.includes('url') && (headerLower.includes('linkedin') || headerLower.includes('profil') || headerLower.includes('profile')))
-              })
-              
-              // Filtrer pour n'afficher que les champs avec un taux raisonnable (>= 20%) ou présenter de manière positive
-              const fieldsToShow = contactFields.filter(field => {
-                const completeness = contactCompleteness[field]
-                return completeness && completeness.percentage >= 20
-              })
-              
-              if (fieldsToShow.length > 0 && Object.keys(contactCompleteness).length > 0) {
-                return (
-                  <div className="mb-6 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-                    <h4 className="font-semibold text-base mb-2 text-neutral-900 dark:text-neutral-100">Contacts disponibles</h4>
-                    <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-3">
-                      Nombre de contacts disponibles dans la base de données
-                    </p>
-                    <div className="space-y-2.5">
-                      {fieldsToShow.map((field) => {
-                        const completeness = contactCompleteness[field]
-                        if (!completeness) return null
-                        
-                        // Présenter de manière positive : "X contacts disponibles" au lieu de "X% rempli"
-                        const availableCount = completeness.filled
-                        const isHighQuality = completeness.percentage >= 70
-                        
-                        return (
-                          <div key={field} className="flex items-center justify-between py-1">
-                            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{field}</span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
-                                {availableCount.toLocaleString()} disponible{availableCount > 1 ? 's' : ''}
-                              </span>
-                              {isHighQuality && (
-                                <span className="px-1.5 py-0.5 text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded whitespace-nowrap">
-                                  Complet
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )
-              }
-              return null
-            })()}
-            
             {/* Liste des champs disponibles */}
             <div className="mb-8">
               <h3 className="font-semibold text-lg mb-4 tracking-tighter">Colonnes incluses ({database.headers.length} champs)</h3>
@@ -1068,6 +1011,63 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                 )
               })()}
             </div>
+            
+            {/* Taux d'enrichissement des champs de contact - Affichage positif */}
+            {(() => {
+              const contactFields = database.headers.filter(header => {
+                const headerLower = header.toLowerCase()
+                return headerLower.includes('email') || 
+                       headerLower.includes('téléphone') || 
+                       headerLower.includes('telephone') || 
+                       headerLower.includes('phone') || 
+                       headerLower.includes('whatsapp') ||
+                       (headerLower.includes('url') && (headerLower.includes('linkedin') || headerLower.includes('profil') || headerLower.includes('profile')))
+              })
+              
+              // Filtrer pour n'afficher que les champs avec un taux raisonnable (>= 20%) ou présenter de manière positive
+              const fieldsToShow = contactFields.filter(field => {
+                const completeness = contactCompleteness[field]
+                return completeness && completeness.percentage >= 20
+              })
+              
+              if (fieldsToShow.length > 0 && Object.keys(contactCompleteness).length > 0) {
+                return (
+                  <div className="mt-6 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+                    <h4 className="font-semibold text-base mb-2 text-neutral-900 dark:text-neutral-100">Contacts disponibles</h4>
+                    <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-3">
+                      Nombre de contacts disponibles dans la base de données
+                    </p>
+                    <div className="space-y-2.5">
+                      {fieldsToShow.map((field) => {
+                        const completeness = contactCompleteness[field]
+                        if (!completeness) return null
+                        
+                        // Présenter de manière positive : "X contacts disponibles" au lieu de "X% rempli"
+                        const availableCount = completeness.filled
+                        const isHighQuality = completeness.percentage >= 70
+                        
+                        return (
+                          <div key={field} className="flex items-center justify-between py-1">
+                            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{field}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
+                                {availableCount.toLocaleString()} disponible{availableCount > 1 ? 's' : ''}
+                              </span>
+                              {isHighQuality && (
+                                <span className="px-1.5 py-0.5 text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded whitespace-nowrap">
+                                  Complet
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              }
+              return null
+            })()}
           </div>
         </section>
 
