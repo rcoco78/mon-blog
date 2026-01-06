@@ -931,7 +931,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
               </div>
             </div>
             
-            {/* Taux d'enrichissement des champs de contact */}
+            {/* Taux d'enrichissement des champs de contact - Affichage positif */}
             {(() => {
               const contactFields = database.headers.filter(header => {
                 const headerLower = header.toLowerCase()
@@ -943,44 +943,40 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                        (headerLower.includes('url') && (headerLower.includes('linkedin') || headerLower.includes('profil') || headerLower.includes('profile')))
               })
               
-              if (contactFields.length > 0 && Object.keys(contactCompleteness).length > 0) {
+              // Filtrer pour n'afficher que les champs avec un taux raisonnable (>= 20%) ou présenter de manière positive
+              const fieldsToShow = contactFields.filter(field => {
+                const completeness = contactCompleteness[field]
+                return completeness && completeness.percentage >= 20
+              })
+              
+              if (fieldsToShow.length > 0 && Object.keys(contactCompleteness).length > 0) {
                 return (
                   <div className="mb-6 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-                    <h4 className="font-semibold text-base mb-3 text-neutral-900 dark:text-neutral-100">Taux d'enrichissement des contacts</h4>
+                    <h4 className="font-semibold text-base mb-2 text-neutral-900 dark:text-neutral-100">Contacts disponibles</h4>
                     <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-3">
-                      Pourcentage de remplissage des champs de contact analysés sur {Object.values(contactCompleteness)[0]?.isEstimate ? 'un échantillon de' : 'toute'} la base de données
-                      {Object.values(contactCompleteness)[0]?.isEstimate && ` (${Object.values(contactCompleteness)[0]?.total || 0} entrées analysées sur ${database.rowCount.toLocaleString()})`}
+                      Nombre de contacts disponibles dans la base de données
                     </p>
-                    <div className="space-y-2">
-                      {contactFields.map((field) => {
+                    <div className="space-y-2.5">
+                      {fieldsToShow.map((field) => {
                         const completeness = contactCompleteness[field]
                         if (!completeness) return null
                         
+                        // Présenter de manière positive : "X contacts disponibles" au lieu de "X% rempli"
+                        const availableCount = completeness.filled
+                        const isHighQuality = completeness.percentage >= 70
+                        
                         return (
-                          <div key={field} className="flex items-center justify-between">
+                          <div key={field} className="flex items-center justify-between py-1">
                             <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{field}</span>
                             <div className="flex items-center gap-2">
-                              <div className="w-24 h-2 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
-                                <div 
-                                  className={`h-full transition-all ${
-                                    completeness.percentage >= 80 
-                                      ? 'bg-green-500 dark:bg-green-400'
-                                      : completeness.percentage >= 50
-                                      ? 'bg-yellow-500 dark:bg-yellow-400'
-                                      : 'bg-red-500 dark:bg-red-400'
-                                  }`}
-                                  style={{ width: `${completeness.percentage}%` }}
-                                />
-                              </div>
-                              <span className={`text-sm font-semibold min-w-[3rem] text-right ${
-                                completeness.percentage >= 80 
-                                  ? 'text-green-600 dark:text-green-400'
-                                  : completeness.percentage >= 50
-                                  ? 'text-yellow-600 dark:text-yellow-400'
-                                  : 'text-red-600 dark:text-red-400'
-                              }`}>
-                                {completeness.percentage}%
+                              <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
+                                {availableCount.toLocaleString()} disponible{availableCount > 1 ? 's' : ''}
                               </span>
+                              {isHighQuality && (
+                                <span className="px-1.5 py-0.5 text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded whitespace-nowrap">
+                                  Complet
+                                </span>
+                              )}
                             </div>
                           </div>
                         )
@@ -1034,31 +1030,34 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                           </svg>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <p className={`${isContact ? 'font-semibold' : 'font-medium'} text-neutral-900 dark:text-neutral-100`}>
+                              <p className={`${isContact ? 'font-semibold' : 'font-medium'} text-neutral-900 dark:text-neutral-100 leading-normal`}>
                                 {header}
                               </p>
                               {isContact && (
                                 <>
-                                  <span className="px-1.5 py-0.5 text-xs font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded">
+                                  <span className="px-1.5 py-0.5 text-xs font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded whitespace-nowrap">
                                     Contact
                                   </span>
-                                  {completeness && (
-                                    <span className={`px-1.5 py-0.5 text-xs font-medium rounded ${
+                                  {completeness && completeness.percentage >= 50 && (
+                                    <span className={`px-1.5 py-0.5 text-xs font-medium rounded whitespace-nowrap ${
                                       completeness.percentage >= 80 
                                         ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                                        : completeness.percentage >= 50
-                                        ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
-                                        : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                                        : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
                                     }`}>
-                                      {completeness.percentage}% rempli
+                                      {completeness.percentage}% disponible
+                                    </span>
+                                  )}
+                                  {completeness && completeness.percentage < 50 && completeness.filled > 0 && (
+                                    <span className="px-1.5 py-0.5 text-xs font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded whitespace-nowrap">
+                                      {completeness.filled.toLocaleString()} disponible{completeness.filled > 1 ? 's' : ''}
                                     </span>
                                   )}
                                 </>
                               )}
                             </div>
-                            {isContact && completeness && (
-                              <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
-                                {completeness.filled.toLocaleString()} sur {completeness.total.toLocaleString()} entrées{completeness.isEstimate ? ' (échantillon)' : ''}
+                            {isContact && completeness && completeness.percentage >= 50 && (
+                              <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1 leading-normal">
+                                {completeness.filled.toLocaleString()} contacts disponibles
                               </p>
                             )}
                           </div>
