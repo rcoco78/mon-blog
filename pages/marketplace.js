@@ -162,18 +162,18 @@ export default function Marketplace({ dynamicDatabases = [] }) {
     questions: [
       {
         '@type': 'Question',
-        name: 'Comment utiliser concrètement vos outils gratuits ?',
+        name: 'Comment utiliser concrètement les bases de données ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'C\'est très simple : 1) Cliquez sur l\'outil qui vous intéresse dans la marketplace, 2) Sur la page de l\'outil, entrez votre email pour recevoir l\'accès (gratuit, sans engagement), 3) Une fois connecté, vous accédez à l\'interface de l\'outil avec des instructions claires, 4) Utilisez l\'outil directement dans votre navigateur, sans installation. Par exemple, le Générateur de Templates d\'Emails : vous sélectionnez le type de message (outreach, follow-up, etc.), vous personnalisez le contenu, et vous copiez-collez le template généré. L\'Extracteur LinkedIn : vous entrez vos critères de recherche, vous lancez l\'extraction, et vous téléchargez les résultats en CSV. Aucune compétence technique requise.'
+          text: 'C\'est très simple : 1) Cliquez sur la base de données qui vous intéresse dans la marketplace, 2) Sur la page de la base, cliquez sur "Acheter la base de données" pour accéder à la page de paiement, 3) Choisissez entre l\'achat unique ou l\'abonnement annuel (même prix), 4) Après le paiement, vous recevez un accès à la base de données complète sur Google Sheets, 5) Vous pouvez exporter les données dans le format de votre choix (CSV, Excel, etc.) ou les utiliser directement dans Google Sheets. Les données sont prêtes à l\'emploi pour votre CRM, votre outil de prospection ou vos analyses. Aucune compétence technique requise.'
         }
       },
       {
         '@type': 'Question',
-        name: 'Les outils sont-ils vraiment gratuits ? Y a-t-il des limites ?',
+        name: 'Quelle est la qualité et la fraîcheur des données ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Oui, la plupart des outils sont 100% gratuits, sans limite de temps ni de nombre d\'utilisations. Certains outils ont des limites raisonnables pour éviter les abus : l\'Extracteur LinkedIn est limité à 50 profils par jour (gratuit), ce qui couvre largement les besoins de prospection d\'une TPE-PME. Si vous avez besoin de volumes plus importants, je peux développer une version sur-mesure. Les bases de données payantes (comme Dentistes Parisiens) sont clairement indiquées avec leurs prix. Aucun piège, tout est transparent.'
+          text: 'Toutes les bases de données sont régulièrement mises à jour et enrichies. Chaque base indique sa date de dernière mise à jour. Les données sont vérifiées et structurées pour garantir leur qualité. Les taux de complétude des champs de contact (email, téléphone, etc.) sont indiqués sur chaque page de base de données. Si vous choisissez l\'abonnement annuel, vous recevez automatiquement les mises à jour chaque année avec de nouvelles données, des corrections et des enrichissements. Les bases sont conçues pour être directement utilisables dans vos outils de prospection et CRM.'
         }
       },
       {
@@ -181,15 +181,15 @@ export default function Marketplace({ dynamicDatabases = [] }) {
         name: 'Quelle est la différence entre l\'achat unique et l\'abonnement annuel pour les bases de données ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Les deux options sont au même prix. L\'achat unique : vous recevez la base de données une fois, sans mise à jour. L\'abonnement annuel : vous recevez la base de données initiale + une mise à jour automatique chaque année (nouvelles données, corrections, enrichissements). Exemple : Base Dentistes Parisiens à 79€ - avec l\'abonnement, vous recevez la version 2024 maintenant, puis automatiquement la version 2025 dans un an, puis 2026, etc. L\'abonnement est recommandé si vous utilisez les données sur le long terme et voulez garder vos fichiers à jour sans avoir à racheter chaque année.'
+          text: 'Les deux options sont au même prix. L\'achat unique : vous recevez la base de données une fois, sans mise à jour. L\'abonnement annuel : vous recevez la base de données initiale + une mise à jour automatique chaque année (nouvelles données, corrections, enrichissements). Exemple : Base de données à 149€ - avec l\'abonnement, vous recevez la version actuelle maintenant, puis automatiquement la version mise à jour dans un an, puis l\'année suivante, etc. L\'abonnement est recommandé si vous utilisez les données sur le long terme et voulez garder vos fichiers à jour sans avoir à racheter chaque année.'
         }
       },
       {
         '@type': 'Question',
-        name: 'Puis-je avoir un outil sur-mesure adapté à mon business ?',
+        name: 'Puis-je avoir une base de données sur-mesure adaptée à mon secteur ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Absolument ! Si vos besoins sont spécifiques, je développe des outils sur-mesure. Exemples : un extracteur adapté à votre secteur d\'activité, un générateur de contenu pour votre industrie, une automatisation de votre workflow spécifique. Le processus : 1) On discute de votre besoin (appel de 20 min gratuit), 2) Je vous propose une solution technique avec devis et délais, 3) Développement et livraison en moins d\'une semaine, 4) Formation et support inclus. Tarifs : à partir de 2000€ selon la complexité. Contactez-moi pour discuter de votre projet.'
+          text: 'Absolument ! Si vous avez besoin d\'une base de données spécifique pour votre secteur d\'activité, je peux la créer sur-mesure. Le processus : 1) On discute de votre besoin (appel de 20 min gratuit), 2) Je vous propose une solution avec devis et délais, 3) Collecte et structuration des données selon vos critères, 4) Livraison dans le format de votre choix (Google Sheets, CSV, Excel, API). Tarifs : à partir de 2000€ selon la complexité et le volume. Contactez-moi pour discuter de votre projet.'
         }
       }
     ]
@@ -237,7 +237,7 @@ export default function Marketplace({ dynamicDatabases = [] }) {
             name: siteConfig.author,
             url: siteConfig.url
           },
-          reviewBody: 'Marketplace d\'outils scraping et automatisation gratuits et payants. Outils testés, documentés et prêts à l\'emploi pour automatiser vos processus business.',
+          reviewBody: 'Marketplace de bases de données pour la prospection et l\'analyse business. Bases de données vérifiées, structurées et régulièrement mises à jour, prêtes à l\'emploi pour enrichir vos CRM et optimiser vos campagnes de prospection.',
           datePublished: new Date().toISOString().split('T')[0]
         }}
       />
@@ -249,7 +249,7 @@ export default function Marketplace({ dynamicDatabases = [] }) {
             Marketplace
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
-            Outils et bases de données développés pour automatiser vos processus business, générer des leads et optimiser votre productivité. Une sélection d'<strong className="text-neutral-900 dark:text-neutral-100">outils scraping et automatisation</strong> ainsi que de <strong className="text-neutral-900 dark:text-neutral-100">bases de données</strong> prêtes pour des analyses métiers ou de la prospection.
+            Bases de données développées pour automatiser vos processus business, générer des leads et optimiser votre productivité. Une sélection de <strong className="text-neutral-900 dark:text-neutral-100">bases de données</strong> prêtes pour des analyses métiers ou de la prospection, avec des données vérifiées et régulièrement mises à jour.
           </p>
 
           {/* Filtres */}
@@ -406,24 +406,24 @@ export default function Marketplace({ dynamicDatabases = [] }) {
           <FAQ
             items={[
               {
-                question: "Comment utiliser concrètement vos outils gratuits ?",
-                answer: "C'est très simple : 1) Cliquez sur l'outil qui vous intéresse dans la marketplace, 2) Sur la page de l'outil, entrez votre email pour recevoir l'accès (gratuit, sans engagement), 3) Une fois connecté, vous accédez à l'interface de l'outil avec des instructions claires, 4) Utilisez l'outil directement dans votre navigateur, sans installation. Par exemple, le Générateur de Templates d'Emails : vous sélectionnez le type de message (outreach, follow-up, etc.), vous personnalisez le contenu, et vous copiez-collez le template généré. L'Extracteur LinkedIn : vous entrez vos critères de recherche, vous lancez l'extraction, et vous téléchargez les résultats en CSV. Aucune compétence technique requise."
+                question: "Comment utiliser concrètement les bases de données ?",
+                answer: "C'est très simple : 1) Cliquez sur la base de données qui vous intéresse dans la marketplace, 2) Sur la page de la base, cliquez sur \"Acheter la base de données\" pour accéder à la page de paiement, 3) Choisissez entre l'achat unique ou l'abonnement annuel (même prix), 4) Après le paiement, vous recevez un accès à la base de données complète sur Google Sheets, 5) Vous pouvez exporter les données dans le format de votre choix (CSV, Excel, etc.) ou les utiliser directement dans Google Sheets. Les données sont prêtes à l'emploi pour votre CRM, votre outil de prospection ou vos analyses. Aucune compétence technique requise."
               },
               {
-                question: "Les outils sont-ils vraiment gratuits ? Y a-t-il des limites ?",
-                answer: "Oui, la plupart des outils sont 100% gratuits, sans limite de temps ni de nombre d'utilisations. Certains outils ont des limites raisonnables pour éviter les abus : l'Extracteur LinkedIn est limité à 50 profils par jour (gratuit), ce qui couvre largement les besoins de prospection d'une TPE-PME. Si vous avez besoin de volumes plus importants, je peux développer une version sur-mesure. Les bases de données payantes (comme Dentistes Parisiens) sont clairement indiquées avec leurs prix. Aucun piège, tout est transparent."
+                question: "Quelle est la qualité et la fraîcheur des données ?",
+                answer: "Toutes les bases de données sont régulièrement mises à jour et enrichies. Chaque base indique sa date de dernière mise à jour. Les données sont vérifiées et structurées pour garantir leur qualité. Les taux de complétude des champs de contact (email, téléphone, etc.) sont indiqués sur chaque page de base de données. Si vous choisissez l'abonnement annuel, vous recevez automatiquement les mises à jour chaque année avec de nouvelles données, des corrections et des enrichissements. Les bases sont conçues pour être directement utilisables dans vos outils de prospection et CRM."
               },
               {
                 question: "Quelle est la différence entre l'achat unique et l'abonnement annuel pour les bases de données ?",
-                answer: "Les deux options sont au même prix. L'achat unique : vous recevez la base de données une fois, sans mise à jour. L'abonnement annuel : vous recevez la base de données initiale + une mise à jour automatique chaque année (nouvelles données, corrections, enrichissements). Exemple : Base Dentistes Parisiens à 79€ - avec l'abonnement, vous recevez la version 2024 maintenant, puis automatiquement la version 2025 dans un an, puis 2026, etc. L'abonnement est recommandé si vous utilisez les données sur le long terme et voulez garder vos fichiers à jour sans avoir à racheter chaque année."
+                answer: "Les deux options sont au même prix. L'achat unique : vous recevez la base de données une fois, sans mise à jour. L'abonnement annuel : vous recevez la base de données initiale + une mise à jour automatique chaque année (nouvelles données, corrections, enrichissements). Exemple : Base de données à 149€ - avec l'abonnement, vous recevez la version actuelle maintenant, puis automatiquement la version mise à jour dans un an, puis l'année suivante, etc. L'abonnement est recommandé si vous utilisez les données sur le long terme et voulez garder vos fichiers à jour sans avoir à racheter chaque année."
               },
               {
-                question: "Puis-je avoir un outil sur-mesure adapté à mon business ?",
-                answer: "Absolument ! Si vos besoins sont spécifiques, je développe des outils sur-mesure. Exemples : un extracteur adapté à votre secteur d'activité, un générateur de contenu pour votre industrie, une automatisation de votre workflow spécifique. Le processus : 1) On discute de votre besoin (appel de 20 min gratuit), 2) Je vous propose une solution technique avec devis et délais, 3) Développement et livraison en moins d'une semaine, 4) Formation et support inclus. Tarifs : à partir de 2000€ selon la complexité. Contactez-moi pour discuter de votre projet."
+                question: "Puis-je avoir une base de données sur-mesure adaptée à mon secteur ?",
+                answer: "Absolument ! Si vous avez besoin d'une base de données spécifique pour votre secteur d'activité, je peux la créer sur-mesure. Le processus : 1) On discute de votre besoin (appel de 20 min gratuit), 2) Je vous propose une solution avec devis et délais, 3) Collecte et structuration des données selon vos critères, 4) Livraison dans le format de votre choix (Google Sheets, CSV, Excel, API). Tarifs : à partir de 2000€ selon la complexité et le volume. Contactez-moi pour discuter de votre projet."
               },
               {
-                question: "Puis-je intégrer vos outils avec mes outils existants (CRM, Excel, etc.) ?",
-                answer: "Oui, la plupart des outils exportent en formats standards (CSV, Excel, JSON) que vous pouvez importer dans n'importe quel CRM (HubSpot, Salesforce, Pipedrive), Excel, Google Sheets, ou base de données. Pour des intégrations automatiques (API, webhooks, Zapier), je peux développer une version sur-mesure qui se connecte directement à vos outils. Exemple : un scraper qui alimente automatiquement votre CRM toutes les semaines, ou un outil qui synchronise avec votre Google Sheets en temps réel. On discute de votre stack technique et je propose la meilleure solution d'intégration."
+                question: "Puis-je intégrer les bases de données avec mes outils existants (CRM, Excel, etc.) ?",
+                answer: "Oui, toutes les bases de données sont livrées dans des formats standards (Google Sheets, CSV, Excel) que vous pouvez importer directement dans n'importe quel CRM (HubSpot, Salesforce, Pipedrive), Excel, Google Sheets, ou base de données. Pour des intégrations automatiques (API, webhooks, Zapier), je peux développer une solution sur-mesure qui synchronise automatiquement les données avec vos outils. Exemple : une base de données qui s'alimente automatiquement dans votre CRM toutes les semaines. On discute de votre stack technique et je propose la meilleure solution d'intégration."
               }
             ]}
           />
@@ -521,10 +521,10 @@ export default function Marketplace({ dynamicDatabases = [] }) {
               </div>
             )}
             
-            <h2 className="font-semibold text-xl mb-4 tracking-tighter">Besoin d'un outil sur-mesure ?</h2>
+            <h2 className="font-semibold text-xl mb-4 tracking-tighter">Besoin d'une base de données sur-mesure ?</h2>
           </div>
           <p className="text-neutral-600 dark:text-neutral-400 mb-6 max-w-xl mx-auto">
-            Si vous avez besoin d'un outil personnalisé pour votre business, je peux développer une solution adaptée à vos besoins spécifiques.
+            Si vous avez besoin d'une base de données personnalisée pour votre secteur d'activité, je peux créer une base adaptée à vos besoins spécifiques.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             <button
