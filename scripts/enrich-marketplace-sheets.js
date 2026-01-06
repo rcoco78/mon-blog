@@ -209,12 +209,18 @@ ${JSON.stringify(sheetData.analysisRows?.slice(0, 100) || [], null, 2)}
 ### 1. Recherche et compréhension de l'entreprise (CRITIQUE)
 - Si le nom contient un nom d'entreprise/domaine (ex: "Ichard.fr", "Amazon", "Leroy Merlin", etc.), utilise tes connaissances pour identifier cette entreprise
 - Exemple : "Ichard.fr" = site e-commerce français spécialisé en bricolage, jardinage, outillage, quincaillerie
+- **EXEMPLES SPÉCIFIQUES SECTEUR IMMOBILIER :**
+  * "Safti" = réseau d'agences immobilières en France → catégorie "Immobilier"
+  * "IAD" = réseau d'agences immobilières en France (IAD France) → catégorie "Immobilier"
+  * Si le nom contient "immobilier", "agence immobilière", "notaire", "bien immobilier" → catégorie "Immobilier"
+  * Si les colonnes contiennent "prix", "surface", "chambres", "ville", "code postal", "type bien" → probablement "Immobilier"
 - Comprends le secteur d'activité, le type de business, la taille, le positionnement marché
 - Identifie le type de données selon l'entreprise : 
   * Si e-commerce → données produits (prix, catégories, disponibilité, etc.)
-  * Si B2B → contacts, entreprises, coordonnées
+  * Si immobilier → biens immobiliers, agences, notaires, transactions immobilières → catégorie "Immobilier"
+  * Si B2B → contacts, entreprises, coordonnées (mais PAS si c'est immobilier)
   * Si services → données de prestations, tarifs, etc.
-- IMPORTANT : Adapte toute ton analyse selon l'entreprise identifiée
+- IMPORTANT : Adapte toute ton analyse selon l'entreprise identifiée. Si c'est immobilier, utilise TOUJOURS la catégorie "Immobilier" et non "B2B"
 
 ### 2. Analyse approfondie des données
 - Analyse les colonnes pour comprendre EXACTEMENT ce que contient la base
@@ -277,7 +283,13 @@ IMPORTANT :
 
 ### 8. Catégorie
 - Choisis parmi : Finance, Artisanat, E-commerce, Retail, B2B, Services, Immobilier, etc.
-- Sois précis selon le secteur réel
+- **RÈGLES STRICTES pour la catégorie :**
+  * Si le nom contient "Safti", "IAD", "immobilier", "agence immobilière", "notaire" → catégorie "Immobilier"
+  * Si les colonnes contiennent "prix", "surface", "chambres", "ville", "code postal", "type bien", "bien immobilier" → catégorie "Immobilier"
+  * Si c'est un réseau d'agences immobilières → catégorie "Immobilier" (PAS "B2B")
+  * Si c'est des contacts d'entreprises mais dans le secteur immobilier → catégorie "Immobilier"
+  * "B2B" est pour les contacts d'entreprises génériques, PAS pour l'immobilier
+- Sois précis selon le secteur réel. Ne confonds PAS "Immobilier" avec "B2B"
 
 ### 8b. Slug SEO-optimisé (CRITIQUE)
 Génère un slug URL-friendly et optimisé SEO avec des mots-clés pertinents.
@@ -289,6 +301,7 @@ RÈGLES STRICTES :
    - Artisanat → "artisans", "rge", "batiment", "france"
    - E-commerce → "produits", "ecommerce", "catalogue"
    - Finance → "cgp", "conseil-gestion-patrimoine", "france"
+   - Immobilier → "agences-immobilieres", "biens-immobiliers", "france", "notaires"
    - B2B → "contacts", "entreprises", "prospection"
 4. Inclure "base-donnees" sauf si déjà dans le nom
 5. Exemples :
@@ -357,7 +370,14 @@ EXEMPLES DE BONNES QUESTIONS selon le type :
   * "Les images produits sont-elles incluses ?"
   * "Les métadonnées SEO (metaTitle, metaDescription) sont-elles présentes ?"
   
-- Pour B2B/Contacts :
+- Pour Immobilier/Agences immobilières :
+  * "Quelles agences immobilières sont incluses dans la base ?"
+  * "Les coordonnées complètes (adresse, téléphone, email) sont-elles présentes ?"
+  * "Puis-je filtrer par région ou département ?"
+  * "Les données incluent-elles les informations sur les biens immobiliers ?"
+  * "Les agences sont-elles certifiées ou membres d'un réseau spécifique ?"
+  
+- Pour B2B/Contacts (génériques, PAS immobilier) :
   * "Les emails sont-ils vérifiés et valides ?"
   * "Puis-je filtrer par secteur d'activité ?"
   * "Les numéros SIRET sont-ils inclus ?"
@@ -605,14 +625,39 @@ function analyzeColumns(headers, sampleRows) {
   const contactIndicators = ['email', 'phone', 'name', 'address', 'city', 'zip', 'contact', 'siret']
   const financialIndicators = ['amount', 'revenue', 'profit', 'transaction', 'invoice', 'tax']
   const ecommerceIndicators = ['url', 'meta', 'title', 'description', 'imageurl', 'productcategory']
+  const realEstateIndicators = ['surface', 'chambres', 'pieces', 'bien', 'immobilier', 'agence', 'notaire', 'prix', 'ville', 'code postal', 'type bien', 'appartement', 'maison', 'local commercial']
   
   const hasProducts = productIndicators.some(ind => headers.some(h => h.toLowerCase().includes(ind)))
   const hasContacts = contactIndicators.some(ind => headers.some(h => h.toLowerCase().includes(ind)))
   const hasFinancial = financialIndicators.some(ind => headers.some(h => h.toLowerCase().includes(ind)))
   const hasEcommerce = ecommerceIndicators.some(ind => headers.some(h => h.toLowerCase().includes(ind)))
+  const hasRealEstate = realEstateIndicators.some(ind => headers.some(h => h.toLowerCase().includes(ind)))
   
-  // Détection plus précise
-  if (hasProducts && hasEcommerce) {
+  // Détection plus précise - IMMOBILIER EN PRIORITÉ
+  if (hasRealEstate) {
+    analysis.push("🔍 TYPE DE DONNÉES: IMMOBILIER / AGENCES IMMOBILIÈRES")
+    analysis.push("")
+    analysis.push("Colonnes immobilières détectées:")
+    headers.filter(h => {
+      const lower = h.toLowerCase()
+      return realEstateIndicators.some(ind => lower.includes(ind)) || contactIndicators.some(ind => lower.includes(ind))
+    }).forEach(h => {
+      analysis.push(`  ✓ ${h}`)
+    })
+    analysis.push("")
+    analysis.push("VALEUR BUSINESS:")
+    analysis.push("- Base de données complète d'agences immobilières, notaires ou biens immobiliers")
+    analysis.push("- Coordonnées complètes (adresse, téléphone, email) pour prospection")
+    analysis.push("- Données géographiques (ville, code postal, région) pour ciblage")
+    analysis.push("- Informations sur les biens immobiliers si présentes (surface, prix, type)")
+    analysis.push("")
+    analysis.push("CAS D'USAGE TYPIQUES:")
+    analysis.push("- Prospection d'agences immobilières pour partenariats")
+    analysis.push("- Enrichissement CRM pour professionnels de l'immobilier")
+    analysis.push("- Analyse de marché immobilier par région")
+    analysis.push("- Campagnes marketing ciblées secteur immobilier")
+    analysis.push("⚠️ IMPORTANT: Catégorie = 'Immobilier' (PAS 'B2B')")
+  } else if (hasProducts && hasEcommerce) {
     analysis.push("🔍 TYPE DE DONNÉES: PRODUITS E-COMMERCE")
     analysis.push("")
     analysis.push("Colonnes produits e-commerce détectées:")
