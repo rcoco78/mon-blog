@@ -862,18 +862,13 @@ async function loadDatabases() {
         if (response.ok) {
           const data = await response.json()
           if (data.databases && Array.isArray(data.databases)) {
-            console.log(cyan(`  📥 ${data.databases.length} base(s) existante(s) chargée(s) depuis Blob Storage`))
             return data.databases
           }
           // Format ancien (tableau direct)
           if (Array.isArray(data)) {
-            console.log(cyan(`  📥 ${data.length} base(s) existante(s) chargée(s) depuis Blob Storage (format ancien)`))
             return data
           }
         }
-        console.warn(yellow('⚠️  Blob Storage existe mais format invalide'))
-      } else {
-        console.log(cyan('  📥 Aucune base existante dans Blob Storage (première exécution)'))
       }
     } catch (error) {
       console.warn(yellow('⚠️  Erreur chargement Blob Storage, fallback local:'), error.message)
@@ -921,7 +916,6 @@ async function saveDatabases(databases) {
         allowOverwrite: true
       })
       
-      console.log(cyan(`  💾 ${databases.length} base(s) sauvegardée(s) dans Blob Storage`))
       return true
     } catch (error) {
       console.error(red('Erreur sauvegarde Blob Storage:'), error.message)
