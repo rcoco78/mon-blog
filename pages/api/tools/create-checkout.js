@@ -34,11 +34,11 @@ export default async function handler(req, res) {
   if (!tool) {
     try {
       const { getDatabaseBySlug } = await import('../../../lib/marketplace-databases')
-      const database = getDatabaseBySlug(toolId)
+      const database = await getDatabaseBySlug(toolId)
       
       if (database) {
         tool = {
-          name: `Base de données - ${database.name}`,
+          name: database.name, // Le nom contient déjà "Base de données -"
           price: database.price,
           description: database.shortDescription || database.description,
           image: undefined,
