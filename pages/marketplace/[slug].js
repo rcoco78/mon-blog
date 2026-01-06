@@ -966,7 +966,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
           return realTestimonials.length > 0 ? (
             <section className="mb-16">
               <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                   <h2 className="font-semibold text-xl tracking-tighter">
                     Ce qu'en disent les utilisateurs
                   </h2>
