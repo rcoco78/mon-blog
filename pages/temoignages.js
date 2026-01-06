@@ -4,6 +4,7 @@ import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
+import { testimonials } from '../lib/testimonials'
 
 // Fonction helper pour obtenir le logo d'une entreprise
 const getCompanyLogo = (companyName) => {
@@ -40,113 +41,7 @@ export default function Temoignages() {
     keywords: ['témoignages', 'avis clients', 'recommandations', 'Malt', 'Fiverr', 'LinkedIn']
   })
 
-  // Données des témoignages pour le Review Schema
-  const testimonials = [
-    {
-      authorName: 'Jean Paul Crenn',
-      authorJob: 'Dirigeant VUCA Strategy',
-      reviewBody: "Cela fait plusieurs missions de scrapping que nous confions à Corentin depuis maintenant 1 an et nous avons toujours été ravis de travailler avec lui tant au niveau de la qualité des résultats que de la rapidité de la livraison. Un point important à souligner, Corentin est également force de proposition et c'est un véritable dialogue qui se construit autour de chacun des projets, en toute fluidité, au bénéfice d'une grande efficience. Nous recommandons Vivement.",
-      source: 'Fiverr',
-      ratingValue: '5',
-      datePublished: '2025-01-03'
-    },
-    {
-      authorName: 'Adnane Amahou',
-      authorJob: 'Responsable CX @ NGI',
-      reviewBody: "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ.",
-      source: 'LinkedIn',
-      ratingValue: '5',
-      datePublished: '2024-01-15'
-    },
-    {
-      authorName: 'lampro74',
-      authorJob: 'Belgique',
-      reviewBody: "Corentin did an excellent job and my cooperation with him was smooth and easy. He delivered what he promised, he was very open and quick to discuss revisions and delivered even them in no time. My project was not a simple one, as it required collecting information from different places. I'm 100% satisfied with the result.",
-      source: 'Fiverr',
-      ratingValue: '5',
-      datePublished: '2024-01-10'
-    },
-    {
-      authorName: 'Mohamed-Amine Zaghdoud',
-      authorJob: 'Fondateur Kent',
-      reviewBody: "Prestation de scraping impeccable : compréhension rapide du besoin, extraction propre et structurée, délais respectés. Les données livrées sont exploitables immédiatement (format clair, colonnes cohérentes, pas de doublons). Communication fluide et réactif tout au long du projet.",
-      source: 'LinkedIn',
-      ratingValue: '5',
-      datePublished: '2024-01-05'
-    },
-    {
-      authorName: 'Denis',
-      authorJob: 'Inovesta',
-      reviewBody: "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande.",
-      source: 'Malt',
-      ratingValue: '5',
-      datePublished: '2023-12-20'
-    },
-    {
-      authorName: 'Hugues Chavrier',
-      authorJob: 'Président @ Assursafe',
-      reviewBody: "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !",
-      source: 'LinkedIn',
-      ratingValue: '5',
-      datePublished: '2023-12-15'
-    },
-    {
-      authorName: 'tigerparts',
-      authorJob: 'Pays-Bas',
-      reviewBody: "Corentin has been exceptionally fast at delivering that order. Great level of expertise! Kudos Corentin.",
-      source: 'Fiverr',
-      ratingValue: '5',
-      datePublished: '2023-12-10'
-    },
-    {
-      authorName: 'Chris Rydahl',
-      authorJob: 'Cofounder & CTO @ Parallel',
-      reviewBody: "Je recommande vivement Corentin pour sa réactivité et son professionnalisme. J'ai eu la chance de faire appel à lui à deux reprises, et à chaque fois, son accompagnement a été exemplaire.",
-      source: 'LinkedIn',
-      ratingValue: '5',
-      datePublished: '2023-12-05'
-    },
-    {
-      authorName: 'Charlotte',
-      authorJob: 'Agence Canopée',
-      reviewBody: "Corentin est très pro. Il connait son métier, est de très bon conseils, et force de proposition.",
-      source: 'Malt',
-      ratingValue: '5',
-      datePublished: '2023-11-25'
-    },
-    {
-      authorName: 'Julien Vabre',
-      authorJob: 'Dirigeant InXpress Gironde',
-      reviewBody: "Nous travaillons avec Corentin depuis plus de 3 ans. Il a toujours été de très bons conseils, réactif et appliqué. Je recommande à 💯 % !",
-      source: 'LinkedIn',
-      ratingValue: '5',
-      datePublished: '2023-11-20'
-    },
-    {
-      authorName: 'jma225845',
-      authorJob: 'France',
-      reviewBody: "Nous sommes extrêmement satisfaits du travail réalisé. Corentin a fait preuve d'un grand professionnalisme, d'une excellente réactivité et d'un sens du détail remarquable. La communication a toujours été fluide et agréable, et le résultat final dépasse largement nos attentes.",
-      source: 'Fiverr',
-      ratingValue: '5',
-      datePublished: '2023-11-15'
-    },
-    {
-      authorName: 'Arthur Dalaise',
-      authorJob: 'Co-fondateur @ La Biche-Renard',
-      reviewBody: "Corentin est redoutablement efficace, il comprend vite et travaille vite. Un plaisir.",
-      source: 'LinkedIn',
-      ratingValue: '5',
-      datePublished: '2023-11-10'
-    },
-    {
-      authorName: 'buzzinsider',
-      authorJob: 'États-Unis',
-      reviewBody: "For any scraping needs, he is amazing, was able to scrape 400K companies from a complex site.",
-      source: 'Fiverr',
-      ratingValue: '5',
-      datePublished: '2023-11-05'
-    }
-  ]
+  // Les témoignages sont maintenant importés depuis lib/testimonials.js
 
   return (
     <>

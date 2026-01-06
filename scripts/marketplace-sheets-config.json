@@ -1,0 +1,28 @@
+{
+  "folderId": null,
+  "defaultCategory": "Finance",
+  "defaultPrice": 99,
+  "defaultIsPaid": true,
+  "mappings": {
+    "SHEET_ID_1": {
+      "category": "Finance",
+      "price": 99,
+      "isPaid": true,
+      "description": "Description personnalisée pour ce sheet"
+    },
+    "SHEET_ID_2": {
+      "category": "Artisanat",
+      "price": 79,
+      "isPaid": true,
+      "description": "Autre description personnalisée"
+    }
+  },
+  "instructions": {
+    "folderId": "ID du dossier Google Drive à scanner (optionnel, peut être passé en argument)",
+    "defaultCategory": "Catégorie par défaut pour les nouveaux sheets",
+    "defaultPrice": "Prix par défaut en euros (TTC)",
+    "defaultIsPaid": "Par défaut, les sheets sont payants",
+    "mappings": "Métadonnées personnalisées par sheet (clé = sheetId)"
+  }
+}
+

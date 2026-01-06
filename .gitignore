@@ -28,6 +28,14 @@ yarn-error.log*
 .env.development
 .env
 
+# Google Service Account keys (sensitive)
+service-account-key.json
+credentials.json
+token.json
+
+# Marketplace databases (généré automatiquement)
+data/marketplace-databases.json
+
 # vercel
 .vercel
 

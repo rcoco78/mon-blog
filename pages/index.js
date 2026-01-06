@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { getAllPosts } from '../lib/notion'
 import { useState, useEffect, useRef } from 'react'
 import { siteConfig } from '../lib/config'
-import { getRecentTools } from '../lib/tools'
+import { tools } from '../lib/tools'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
@@ -32,7 +32,7 @@ const getCompanyLogo = (companyName) => {
   return null
 }
 
-export default function Home({ posts }) {
+export default function Home({ posts, dynamicDatabases = [] }) {
   const [topPosts, setTopPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [metrics, setMetrics] = useState(siteConfig.metrics)
@@ -957,7 +957,17 @@ export default function Home({ posts }) {
           Ressources gratuites que j'ai développées et que je mets à disposition — générateurs, extracteurs, templates et bases de données pour vous aider dans votre quotidien.
         </p>
         <div className="flex flex-col space-y-4">
-          {getRecentTools(3).map((tool) => (
+          {(() => {
+            // Fusionner les outils statiques et les bases de données dynamiques
+            const allTools = [...(dynamicDatabases || []), ...tools]
+            return allTools
+              .sort((a, b) => {
+                const dateA = a.date ? new Date(a.date) : new Date(0)
+                const dateB = b.date ? new Date(b.date) : new Date(0)
+                return dateB - dateA
+              })
+              .slice(0, 3)
+              .map((tool) => (
             <Link
               key={tool.name}
               href={tool.link}
@@ -1035,7 +1045,8 @@ export default function Home({ posts }) {
                 </div>
               </div>
             </Link>
-          ))}
+              ))
+            })()}
         </div>
         <div className="mt-6 text-center">
           <Link
@@ -1253,10 +1264,15 @@ export default function Home({ posts }) {
 
 export async function getStaticProps() {
   const posts = await getAllPosts()
+  
+  // Charger les bases de données dynamiques
+  const { getDatabasesAsTools } = await import('../lib/marketplace-databases')
+  const dynamicDatabases = getDatabasesAsTools()
 
   return {
     props: {
       posts,
+      dynamicDatabases,
     },
     revalidate: 60,
   }

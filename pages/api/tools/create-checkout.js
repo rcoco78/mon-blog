@@ -19,37 +19,43 @@ export default async function handler(req, res) {
   // Déterminer le type de paiement
   const isSubscription = subscriptionType === 'annual'
 
-  // Mapping des outils avec leurs prix et options
+  // Mapping des outils avec leurs prix et options (outils statiques)
+  // NOTE: Les bases de données marketplace sont maintenant gérées dynamiquement
+  // Ce mapping est uniquement pour les outils non-marketplace
   const toolPrices = {
-    'cgp-france': {
-      name: 'Base de données - CGP France',
-      price: 99, // Prix en euros (paiement unique)
-      description: 'Base de données complète des conseillers CGP France (Conseillers en Gestion de Patrimoine)',
-      image: undefined, // Image du produit (à ajouter si disponible)
-      features: [
-        'Tous les conseillers CGP France',
-        '20+ champs par entrée',
-        'Format : Google Sheets',
-        'Données complètes : ORIAS, SIREN, coordonnées, spécialités, informations manager, etc.',
-        'Mise à jour régulière'
-      ]
-    },
-    'capeb': {
-      name: 'Base de données - Artisans CAPEB',
-      price: 99, // Prix en euros (paiement unique)
-      description: 'Base de données complète des artisans de France (CAPEB)',
-      image: undefined, // Image du produit (à ajouter si disponible)
-      features: [
-        'Tous les artisans CAPEB de France',
-        '22 champs par entrée',
-        'Format : Google Sheets',
-        'Données complètes : SIRET, géolocalisation, labels RGE, activités, etc.',
-        'Mise à jour régulière'
-      ]
-    }
+    // Les bases de données marketplace (capeb, cgp-france, etc.) sont maintenant dans marketplace-databases.json
+    // et sont récupérées dynamiquement ci-dessous
   }
 
-  const tool = toolPrices[toolId]
+  // Vérifier d'abord dans les outils statiques
+  let tool = toolPrices[toolId]
+  
+  // Si pas trouvé, chercher dans les bases de données dynamiques
+  if (!tool) {
+    try {
+      const { getDatabaseBySlug } = await import('../../../lib/marketplace-databases')
+      const database = getDatabaseBySlug(toolId)
+      
+      if (database) {
+        tool = {
+          name: `Base de données - ${database.name}`,
+          price: database.price,
+          description: database.shortDescription || database.description,
+          image: undefined,
+          features: [
+            `${database.rowCount.toLocaleString()} entrées`,
+            `${database.headers.length} champs par entrée`,
+            'Format : Google Sheets',
+            `Catégorie : ${database.category}`,
+            'Mise à jour régulière'
+          ]
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération de la base de données:', error)
+    }
+  }
+  
   if (!tool) {
     return res.status(404).json({ error: 'Tool not found' })
   }
@@ -92,8 +98,18 @@ export default async function handler(req, res) {
         },
       ],
       mode: isSubscription ? 'subscription' : 'payment',
-      success_url: `${req.headers.origin}${toolId.startsWith('capeb') || toolId.startsWith('cgp-france') ? '/marketplace' : '/outils'}/${toolId}?payment=success&session_id={CHECKOUT_SESSION_ID}&type=${isSubscription ? 'subscription' : 'one-time'}`,
-      cancel_url: `${req.headers.origin}${toolId.startsWith('capeb') || toolId.startsWith('cgp-france') ? '/marketplace' : '/outils'}/${toolId}?payment=cancelled`,
+      // Déterminer si c'est une base de données marketplace (dynamique)
+      // Si l'outil n'est pas dans toolPrices, c'est une base de données dynamique
+      success_url: (() => {
+        const isMarketplaceTool = toolPrices[toolId] === undefined
+        const basePath = isMarketplaceTool ? '/marketplace' : '/outils'
+        return `${req.headers.origin}${basePath}/${toolId}?payment=success&session_id={CHECKOUT_SESSION_ID}&type=${isSubscription ? 'subscription' : 'one-time'}`
+      })(),
+      cancel_url: (() => {
+        const isMarketplaceTool = toolPrices[toolId] === undefined
+        const basePath = isMarketplaceTool ? '/marketplace' : '/outils'
+        return `${req.headers.origin}${basePath}/${toolId}?payment=cancelled`
+      })(),
       // Stripe collecte automatiquement l'email du client lors du checkout
       // customer_email n'est nécessaire que si on veut pré-remplir (optionnel)
       allow_promotion_codes: true,
@@ -101,11 +117,12 @@ export default async function handler(req, res) {
       metadata: {
         toolId: toolId,
         subscriptionType: isSubscription ? 'annual' : 'one-time',
+        toolName: tool.name,
         // email sera automatiquement disponible dans session.customer_email après le paiement
       },
       // Champ "Format préféré" uniquement pour les outils qui proposent plusieurs formats
-      // CAPEB utilise uniquement Google Sheets, donc pas besoin de ce champ
-      ...(toolId !== 'capeb' ? {
+      // Les bases de données marketplace utilisent uniquement Google Sheets
+      ...(toolPrices[toolId] !== undefined ? {
         custom_fields: [
           {
             key: 'format_preference',

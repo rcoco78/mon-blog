@@ -9,7 +9,7 @@ import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { tools } from '../lib/tools'
 
-export default function Marketplace() {
+export default function Marketplace({ dynamicDatabases = [] }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedType, setSelectedType] = useState(null) // 'outil' | 'database' | null
   const [selectedPricing, setSelectedPricing] = useState(null) // 'gratuit' | 'payant' | null
@@ -43,11 +43,21 @@ export default function Marketplace() {
     }
   }
 
-  const categories = ['Finance', 'Artisanat']
   const types = ['outil', 'database']
   const pricingOptions = ['gratuit', 'payant']
 
-  const filteredTools = tools
+  // Fusionner les outils statiques et les bases de données dynamiques
+  const allTools = [...(dynamicDatabases || []), ...tools]
+  
+  // Extraire les catégories uniques dynamiquement depuis les outils et bases de données
+  const categories = Array.from(
+    new Set(
+      allTools
+        .map(tool => tool.category)
+        .filter(category => category && category.trim() !== '')
+    )
+  ).sort() // Trier par ordre alphabétique
+  const filteredTools = allTools
     .filter(tool => {
       const matchesCategory = selectedCategory === null || tool.category === selectedCategory
       const matchesType = selectedType === null || tool.type === selectedType
@@ -99,8 +109,8 @@ export default function Marketplace() {
   const toolsStructuredData = {
     name: 'Marketplace - Outils et Bases de Données',
     description: 'Collection d\'outils scraping, automatisation et bases de données pour automatiser vos processus business',
-    numberOfItems: tools.length,
-    items: tools.map((tool, index) => {
+    numberOfItems: allTools.length,
+    items: allTools.map((tool, index) => {
       const item = {
         '@type': tool.type === 'database' ? 'Dataset' : 'SoftwareApplication',
         name: tool.name,
@@ -608,5 +618,18 @@ export default function Marketplace() {
     </main>
     </>
   )
+}
+
+// Charger les bases de données dynamiques côté serveur
+export async function getStaticProps() {
+  const { getDatabasesAsTools } = await import('../lib/marketplace-databases')
+  const dynamicDatabases = getDatabasesAsTools()
+  
+  return {
+    props: {
+      dynamicDatabases
+    },
+    revalidate: 3600 // Revalider toutes les heures
+  }
 }
 
