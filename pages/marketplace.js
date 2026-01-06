@@ -623,13 +623,16 @@ export default function Marketplace({ dynamicDatabases = [] }) {
 // Charger les bases de données dynamiques côté serveur
 // Utiliser getServerSideProps pour charger les données à chaque requête depuis Blob Storage
 export async function getServerSideProps() {
+  console.log('🚀 getServerSideProps marketplace appelé')
   const { getDatabasesAsTools } = await import('../lib/marketplace-databases')
   let dynamicDatabases = []
   
   try {
     dynamicDatabases = await getDatabasesAsTools()
+    console.log(`✅ ${dynamicDatabases.length} base(s) de données chargée(s) dans getServerSideProps`)
   } catch (error) {
-    console.error('Erreur lors du chargement des bases de données:', error)
+    console.error('❌ Erreur lors du chargement des bases de données:', error)
+    console.error('Stack:', error.stack)
     // Continuer avec un tableau vide en cas d'erreur
   }
   
