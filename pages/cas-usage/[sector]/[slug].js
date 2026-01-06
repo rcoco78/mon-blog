@@ -369,14 +369,9 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
       }
     },
     datePublished: today,
-    dateModified: today,
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '5',
-      reviewCount: '270',
-      bestRating: '5',
-      worstRating: '1'
-    }
+    dateModified: today
+    // Note: aggregateRating retiré du Service car Google n'accepte pas Service pour Review snippets
+    // Les avis sont gérés via les Review schemas séparés avec Product comme itemReviewed
   }
 
   // Breadcrumb pour SEO uniquement (invisible)
