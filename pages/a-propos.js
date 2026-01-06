@@ -25,6 +25,7 @@ export default function About() {
   const [currentScrollIndex, setCurrentScrollIndex] = useState(0)
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
+  const [photosLoading, setPhotosLoading] = useState(true)
 
   // URL de la vidéo Tella
   const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
@@ -65,7 +66,15 @@ export default function About() {
     updateItemsPerView()
     window.addEventListener('resize', updateItemsPerView)
     
-    return () => window.removeEventListener('resize', updateItemsPerView)
+    // Simuler un délai de chargement pour les photos/vidéos
+    const loadingTimer = setTimeout(() => {
+      setPhotosLoading(false)
+    }, 500) // Délai court pour un effet de chargement naturel
+    
+    return () => {
+      window.removeEventListener('resize', updateItemsPerView)
+      clearTimeout(loadingTimer)
+    }
   }, [])
   
   const openCalendly = () => {
@@ -293,40 +302,57 @@ export default function About() {
             </Link>
           </div>
           <div className="relative overflow-hidden">
-            <div 
-              ref={scrollContainerRef}
-              className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-            >
-              {/* Vidéo YouTube en première position */}
-              <div className="relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start">
-                <iframe
-                  src="https://www.youtube.com/embed/53pisKcp9Vc?rel=0&modestbranding=1"
-                  title="Présentation de Corentin Robert - Freelance Scraping et Automatisation"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  className="absolute top-0 left-0 w-full h-full"
-                  loading="lazy"
-                />
+            {photosLoading ? (
+              // Skeleton pendant le chargement
+              <div 
+                className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+              >
+                {/* Skeleton pour la vidéo */}
+                <div className="relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start bg-neutral-200 dark:bg-neutral-800 animate-pulse" />
+                {/* Skeleton pour les photos */}
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start bg-neutral-200 dark:bg-neutral-800 animate-pulse"
+                  />
+                ))}
               </div>
-              
-              {/* Photos */}
-              {recentPhotos.map((photo, index) => (
-                <Link
-                  key={index}
-                  href="/photos"
-                  className="group relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start"
-                  aria-label={photo.alt || `Photo ${index + 1} - ${photo.location || 'Moment capturé'}`}
-                >
-                  <Image
-                    src={photo.src}
-                    alt={photo.alt || `Photo ${photo.location ? `à ${photo.location}` : 'Moment capturé'}`}
-                    fill
-                    className="object-cover transition-transform group-hover:scale-105"
+            ) : (
+              <div 
+                ref={scrollContainerRef}
+                className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+              >
+                {/* Vidéo YouTube en première position */}
+                <div className="relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start">
+                  <iframe
+                    src="https://www.youtube.com/embed/53pisKcp9Vc?rel=0&modestbranding=1"
+                    title="Présentation de Corentin Robert - Freelance Scraping et Automatisation"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="absolute top-0 left-0 w-full h-full"
                     loading="lazy"
                   />
-                </Link>
-              ))}
-            </div>
+                </div>
+                
+                {/* Photos */}
+                {recentPhotos.map((photo, index) => (
+                  <Link
+                    key={index}
+                    href="/photos"
+                    className="group relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start"
+                    aria-label={photo.alt || `Photo ${index + 1} - ${photo.location || 'Moment capturé'}`}
+                  >
+                    <Image
+                      src={photo.src}
+                      alt={photo.alt || `Photo ${photo.location ? `à ${photo.location}` : 'Moment capturé'}`}
+                      fill
+                      className="object-cover transition-transform group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  </Link>
+                ))}
+              </div>
+            )}
             
             {/* Indicateurs de navigation */}
             {(recentPhotos.length + 1) > (isMobile ? 1.5 : 1) && (
