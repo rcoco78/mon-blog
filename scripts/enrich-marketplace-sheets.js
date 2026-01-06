@@ -308,6 +308,25 @@ ${JSON.stringify(sheetData.analysisRows?.slice(0, 100) || [], null, 2)}
 - Inclut des mots-clés SEO naturels
 - Sois spécifique : ne dis pas juste "base de données", dis "base de données produits e-commerce Ichard.fr avec prix, disponibilité, catégories..."
 
+### 3a. Titre optimisé (CRITIQUE - NOUVEAU)
+Génère un titre accrocheur et informatif pour la base de données.
+
+RÈGLES STRICTES :
+1. Format : Le titre sera automatiquement préfixé par "Base de données - " dans le code
+2. Donc génère UNIQUEMENT la partie après "Base de données - "
+3. Le titre doit être :
+   - Informatif : mentionne le type de données et la source si pertinente
+   - Accrocheur : met en avant la valeur ou le secteur
+   - Concis : 40-60 caractères (sans compter le préfixe)
+   - SEO-friendly : inclut des mots-clés recherchés
+4. Exemples de bons titres :
+   - "Conseillers immobiliers Safti France" (au lieu de juste "Safti France")
+   - "Artisans du bâtiment CAPEB certifiés RGE" (au lieu de juste "Capeb")
+   - "Produits e-commerce Ichard.fr accessoires auto" (au lieu de juste "Ichard.fr")
+   - "Contacts IAD France agents immobiliers" (au lieu de juste "IAD France")
+5. Évite les dates (2026, 2025) sauf si vraiment pertinent
+6. Priorise les mots-clés qui aident à comprendre immédiatement le contenu
+
 ### 3b. Description courte (80-120 mots, 2-3 phrases) - CRITIQUE
 Génère une description courte mais ÉTOFFÉE avec contexte et utilité concrète.
 
@@ -473,6 +492,7 @@ IMPORTANT : Chaque question doit être UNIQUE et montrer une compréhension appr
 
 Réponds UNIQUEMENT en JSON avec cette structure exacte:
 {
+  "title": "Titre optimisé (sans le préfixe 'Base de données -', max 60 caractères, informatif et accrocheur avec mots-clés SEO)",
   "description": "Description SEO optimisée de 200-250 mots, très précise sur le contenu réel (pour meta description)",
   "shortDescription": "Description courte de 80-120 mots (2-3 phrases) avec contexte et utilité. 1ère phrase : présentation (nombre, type, source). 2ème phrase : contexte et utilité (à quoi ça sert, pour qui). 3ème phrase (optionnelle) : cas d'usage ou valeur ajoutée.",
   "category": "E-commerce|Finance|Artisanat|...",
@@ -494,7 +514,7 @@ Réponds UNIQUEMENT en JSON avec cette structure exacte:
     {"header1": "valeur réelle ligne 1", "header2": "valeur réelle ligne 1", ...},
     {"header1": "valeur réelle ligne 2", "header2": "valeur réelle ligne 2", ...},
     {"header1": "valeur réelle ligne 3", "header2": "valeur réelle ligne 3", ...}
-  ]
+  ],
   "testimonials": [
     {"name": "Prénom N.", "role": "Rôle", "comment": "Commentaire réaliste", "date": "01-01-2026", "tags": "Tag1 • Tag2"},
     {"name": "Prénom N.", "role": "Rôle", "comment": "Commentaire réaliste", "date": "01-01-2026", "tags": "Tag1 • Tag2"}
@@ -573,6 +593,7 @@ IMPORTANT :
     const contactCompleteness = calculateContactCompleteness(sheetData.headers, sheetData.analysisRows, sheetData.rowCount)
     
     return {
+      title: response.title || null, // Titre optimisé généré par GPT (sans le préfixe "Base de données -")
       description: response.description || getDefaultEnrichment(sheetData).description,
       shortDescription: response.shortDescription || getDefaultEnrichment(sheetData).shortDescription,
       category: response.category || 'Finance',
@@ -604,6 +625,7 @@ IMPORTANT :
 // Données par défaut si GPT n'est pas disponible
 function getDefaultEnrichment(sheetData) {
   return {
+    title: null, // Pas de titre optimisé en fallback, on utilisera le nom du sheet
     description: `Base de données complète avec ${sheetData.rowCount.toLocaleString()} entrées. ${sheetData.headers.length} champs par entrée : ${sheetData.headers.slice(0, 5).join(', ')}${sheetData.headers.length > 5 ? '...' : ''}. Idéal pour la prospection et l'analyse de marché.`,
     shortDescription: `Base de données complète de ${sheetData.rowCount.toLocaleString()} entrées avec ${sheetData.headers.length} champs par entrée (${sheetData.headers.slice(0, 3).join(', ')}${sheetData.headers.length > 3 ? '...' : ''}). Idéale pour la prospection, l'analyse de marché et l'enrichissement de bases de données CRM. Les données sont structurées et prêtes à l'emploi pour vos outils d'analyse ou de prospection.`,
     category: 'Finance',
@@ -1137,16 +1159,16 @@ async function main() {
         continue
       }
       
-    // Ajouter systématiquement le préfixe "Base de données -" avant le nom
-    // Le préfixe est utile pour identifier clairement le type de contenu
-    let cleanName = analysis.name.trim()
+    // Utiliser le titre optimisé généré par GPT, ou fallback vers le nom du sheet
+    let cleanName = enrichment.title || analysis.name.trim()
     
-    // Si le nom est vide, utiliser un nom par défaut
+    // Si le titre est vide, utiliser le nom du sheet comme fallback
     if (!cleanName || cleanName.length === 0) {
-      cleanName = 'Base de données'
+      cleanName = analysis.name.trim() || 'Base de données'
     }
     
-    // Ajouter le préfixe "Base de données -" s'il n'est pas déjà présent
+    // Ajouter systématiquement le préfixe "Base de données -" avant le titre
+    // Le préfixe est utile pour identifier clairement le type de contenu
     if (!cleanName.toLowerCase().startsWith('base de données')) {
       cleanName = `Base de données - ${cleanName}`
     }

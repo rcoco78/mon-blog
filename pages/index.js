@@ -960,13 +960,23 @@ export default function Home({ posts, dynamicDatabases = [] }) {
           {(() => {
             // Fusionner les outils statiques et les bases de données dynamiques
             const allTools = [...(dynamicDatabases || []), ...tools]
-            return allTools
-              .sort((a, b) => {
-                const dateA = a.date ? new Date(a.date) : new Date(0)
-                const dateB = b.date ? new Date(b.date) : new Date(0)
-                return dateB - dateA
-              })
-              .slice(0, 3)
+            // Trier par date décroissante (les plus récents en premier) pour afficher les nouveaux arrivants
+            const sortedTools = allTools.sort((a, b) => {
+              // Utiliser lastEnriched si disponible (format ISO complet), sinon date
+              const getDate = (tool) => {
+                if (tool.lastEnriched) {
+                  // lastEnriched est au format ISO (ex: "2026-01-06T14:11:05.265Z")
+                  return new Date(tool.lastEnriched)
+                }
+                return tool.date ? new Date(tool.date) : new Date(0) // Si pas de date, mettre en fin
+              }
+              const dateA = getDate(a)
+              const dateB = getDate(b)
+              // Tri décroissant : les plus récents en premier
+              return dateB - dateA
+            })
+            // Prendre les 3 plus récents (nouveaux arrivants)
+            return sortedTools.slice(0, 3)
               .map((tool) => (
             <Link
               key={tool.name}
@@ -1037,9 +1047,14 @@ export default function Home({ posts, dynamicDatabases = [] }) {
                       <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                     </svg>
                   </div>
-                  {tool.date && (
+                  {tool.lastEnriched && (
                     <span className="text-xs text-neutral-500 dark:text-neutral-500 flex-shrink-0">
-                      {new Date(tool.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                      {new Date(tool.lastEnriched).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })} {new Date(tool.lastEnriched).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
+                  {!tool.lastEnriched && tool.date && (
+                    <span className="text-xs text-neutral-500 dark:text-neutral-500 flex-shrink-0">
+                      {new Date(tool.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })} {new Date(tool.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   )}
                 </div>

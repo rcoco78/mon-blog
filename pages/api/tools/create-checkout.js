@@ -4,6 +4,76 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2024-12-18.acacia',
 })
 
+// Fonction pour envoyer une notification Telegram
+async function sendTelegramNotification(data) {
+  const botToken = process.env.TELEGRAM_BOT_TOKEN
+  const chatId = process.env.TELEGRAM_CHAT_ID
+
+  if (!botToken || !chatId) {
+    console.log('Variables Telegram non configurées, notification non envoyée')
+    return
+  }
+
+  try {
+    const now = new Date()
+    const dateStr = now.toLocaleDateString('fr-FR', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+
+    let telegramMessage = `💳 *Nouveau clic sur bouton Stripe !*\n\n`
+    telegramMessage += `🌐 *Site :* corentinrobert.fr\n`
+    telegramMessage += `📊 *Informations :*\n`
+    telegramMessage += `• Date : ${dateStr}\n`
+    telegramMessage += `• Base de données : ${data.toolName || data.toolId}\n`
+    telegramMessage += `• Type : ${data.subscriptionType === 'one-time' ? 'Achat unique' : 'Abonnement annuel'}\n`
+    telegramMessage += `• Prix : ${data.price}€\n`
+    telegramMessage += `• Slug : ${data.toolId}\n`
+
+    const tgUrl = `https://api.telegram.org/bot${botToken}/sendMessage`
+    const tgPayload = {
+      chat_id: chatId,
+      text: telegramMessage,
+      parse_mode: 'Markdown',
+      disable_web_page_preview: true
+    }
+
+    const tgResp = await fetch(tgUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(tgPayload)
+    })
+
+    const responseBody = await tgResp.text()
+    let parsedBody
+    try {
+      parsedBody = JSON.parse(responseBody)
+    } catch {
+      parsedBody = responseBody
+    }
+
+    if (tgResp.ok) {
+      console.log('✅ Notification Telegram envoyée avec succès:', parsedBody)
+    } else {
+      console.error('❌ Telegram API erreur:', {
+        status: tgResp.status,
+        statusText: tgResp.statusText,
+        response: parsedBody,
+        url: tgUrl.replace(botToken, '***'),
+        chatId
+      })
+    }
+  } catch (error) {
+    console.error('❌ Erreur envoi notification Telegram:', {
+      message: error.message,
+      stack: error.stack
+    })
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -145,6 +215,23 @@ export default async function handler(req, res) {
     }
     
     const session = await stripe.checkout.sessions.create(sessionConfig)
+
+    // Logger et envoyer notification Telegram
+    console.log('💳 Clic sur bouton Stripe:', {
+      toolId,
+      toolName: tool.name,
+      subscriptionType,
+      price,
+      sessionId: session.id
+    })
+
+    // Envoyer notification Telegram
+    await sendTelegramNotification({
+      toolId,
+      toolName: tool.name,
+      subscriptionType,
+      price
+    })
 
     return res.status(200).json({ sessionId: session.id, url: session.url })
   } catch (error) {
