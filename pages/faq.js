@@ -170,21 +170,16 @@ export default function FAQPage() {
           }
         }}
       />
-      {/* Service Schema avec AggregateRating intégré */}
+      {/* Service Schema - aggregateRating retiré car Google n'accepte pas Service pour Review snippets */}
       <StructuredData
         type="Service"
         data={{
           name: 'Scraping et Automatisation',
           serviceType: 'Web Scraping, Data Automation, Outbound Marketing',
           description: 'Expert freelance en scraping web et automatisation. Services de scraping et automatisation sur-mesure.',
-          url: `${siteConfig.url}/faq`,
-          aggregateRating: {
-            '@type': 'AggregateRating',
-            ratingValue: '5',
-            reviewCount: '100',
-            bestRating: '5',
-            worstRating: '1'
-          }
+          url: `${siteConfig.url}/faq`
+          // Note: aggregateRating retiré du Service car Google n'accepte pas Service pour Review snippets
+          // Les avis sont gérés via les Review schemas séparés avec Product comme itemReviewed
         }}
       />
 

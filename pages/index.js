@@ -392,14 +392,9 @@ export default function Home({ posts }) {
             availability: 'https://schema.org/InStock',
             priceCurrency: 'EUR',
             description: 'Services de scraping et automatisation sur-mesure'
-          },
-          aggregateRating: {
-            '@type': 'AggregateRating',
-            ratingValue: '5',
-            reviewCount: '270',
-            bestRating: '5',
-            worstRating: '1'
           }
+          // Note: aggregateRating retiré du Service car Google n'accepte pas Service pour Review snippets
+          // Les avis sont gérés via les Review schemas séparés avec Product comme itemReviewed
         }} 
       />
       {/* Review Schema 5* par défaut pour le service */}
