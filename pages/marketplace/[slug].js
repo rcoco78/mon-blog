@@ -148,8 +148,10 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
     return strValue
   }
 
-  // Calculer le taux d'enrichissement pour les champs de contact
-  const calculateContactCompleteness = () => {
+  // Utiliser le taux d'enrichissement calculé lors de l'enrichissement (sur toute la base)
+  // Si non disponible, calculer depuis les sampleData (moins précis)
+  const contactCompleteness = database.enrichedData?.contactCompleteness || (() => {
+    // Fallback : calculer depuis les sampleData si contactCompleteness n'existe pas
     const sampleData = database.enrichedData?.sampleData || []
     if (sampleData.length === 0) return {}
     
@@ -171,13 +173,11 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
         return value && String(value).trim() !== '' && String(value).trim() !== '-'
       }).length
       const percentage = sampleData.length > 0 ? Math.round((filled / sampleData.length) * 100) : 0
-      completeness[field] = { filled, total: sampleData.length, percentage }
+      completeness[field] = { filled, total: sampleData.length, percentage, isEstimate: true }
     })
     
     return completeness
-  }
-  
-  const contactCompleteness = calculateContactCompleteness()
+  })()
 
   // Préparer les données pour l'affichage
   const toolData = {
@@ -948,7 +948,8 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                   <div className="mb-6 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
                     <h4 className="font-semibold text-base mb-3 text-neutral-900 dark:text-neutral-100">Taux d'enrichissement des contacts</h4>
                     <p className="text-xs text-neutral-600 dark:text-neutral-400 mb-3">
-                      Pourcentage de remplissage des champs de contact dans les exemples analysés
+                      Pourcentage de remplissage des champs de contact analysés sur {Object.values(contactCompleteness)[0]?.isEstimate ? 'un échantillon de' : 'toute'} la base de données
+                      {Object.values(contactCompleteness)[0]?.isEstimate && ` (${Object.values(contactCompleteness)[0]?.total || 0} entrées analysées sur ${database.rowCount.toLocaleString()})`}
                     </p>
                     <div className="space-y-2">
                       {contactFields.map((field) => {
@@ -1057,7 +1058,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                             </div>
                             {isContact && completeness && (
                               <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
-                                {completeness.filled} sur {completeness.total} exemples
+                                {completeness.filled.toLocaleString()} sur {completeness.total.toLocaleString()} entrées{completeness.isEstimate ? ' (échantillon)' : ''}
                               </p>
                             )}
                           </div>

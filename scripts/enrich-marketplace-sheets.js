@@ -112,6 +112,13 @@ async function analyzeSheet(sheets, sheetId) {
     })
     const headers = headersResponse.data.values?.[0] || []
     
+    // Compter les lignes d'abord
+    const countResponse = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'A:A'
+    })
+    const rowCount = (countResponse.data.values?.length || 1) - 1
+    
     // Obtenir un échantillon de données (premières 10 lignes)
     const sampleResponse = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
@@ -119,20 +126,31 @@ async function analyzeSheet(sheets, sheetId) {
     })
     const sampleRows = sampleResponse.data.values || []
     
-    // Obtenir plus de données pour l'analyse statistique (jusqu'à 1000 lignes)
-    const maxRowsForAnalysis = Math.min(1000, 1000)
-    const analysisResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: `2:${maxRowsForAnalysis + 1}`
-    })
-    const analysisRows = analysisResponse.data.values || []
-    
-    // Compter les lignes
-    const countResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: 'A:A'
-    })
-    const rowCount = (countResponse.data.values?.length || 1) - 1
+    // Obtenir toutes les données pour l'analyse statistique et le calcul du taux d'enrichissement
+    // Essayer de charger toutes les lignes, sinon se limiter à 1000
+    let analysisRows = []
+    try {
+      // Essayer de charger toutes les lignes (max 10000 pour éviter les timeouts)
+      const maxRowsToLoad = Math.min(rowCount, 10000)
+      if (maxRowsToLoad > 0) {
+        const allRowsResponse = await sheets.spreadsheets.values.get({
+          spreadsheetId: sheetId,
+          range: `2:${maxRowsToLoad + 1}` // Toutes les lignes sauf le header
+        })
+        analysisRows = allRowsResponse.data.values || []
+      }
+    } catch (error) {
+      // Si erreur (trop de données), charger seulement 1000 lignes
+      console.log(yellow(`  ⚠️  Chargement partiel (1000 lignes max) pour l'analyse`))
+      const maxRowsForAnalysis = Math.min(1000, rowCount)
+      if (maxRowsForAnalysis > 0) {
+        const analysisResponse = await sheets.spreadsheets.values.get({
+          spreadsheetId: sheetId,
+          range: `2:${maxRowsForAnalysis + 1}`
+        })
+        analysisRows = analysisResponse.data.values || []
+      }
+    }
     
     return {
       sheetId,
@@ -147,6 +165,58 @@ async function analyzeSheet(sheets, sheetId) {
     console.error(red(`Erreur analyse sheet ${sheetId}:`), error.message)
     return null
   }
+}
+
+// Calculer le taux d'enrichissement des champs de contact
+function calculateContactCompleteness(headers, rows, totalRowCount) {
+  if (!rows || rows.length === 0 || !headers || headers.length === 0) {
+    return {}
+  }
+  
+  // Identifier les champs de contact avec leur index
+  const contactFields = headers.map((header, index) => {
+    const headerLower = String(header).toLowerCase()
+    const isContact = headerLower.includes('email') || 
+                      headerLower.includes('téléphone') || 
+                      headerLower.includes('telephone') || 
+                      headerLower.includes('phone') || 
+                      headerLower.includes('whatsapp') ||
+                      (headerLower.includes('url') && (headerLower.includes('linkedin') || headerLower.includes('profil') || headerLower.includes('profile')))
+    return isContact ? { header: String(header), index } : null
+  }).filter(Boolean)
+  
+  if (contactFields.length === 0) {
+    return {}
+  }
+  
+  const completeness = {}
+  const rowsToAnalyze = rows.length // Utiliser toutes les lignes disponibles dans analysisRows
+  
+  contactFields.forEach(({ header, index }) => {
+    let filled = 0
+    
+    rows.forEach(row => {
+      if (row && row.length > index) {
+        const value = row[index]
+        // Considérer comme rempli si la valeur existe, n'est pas vide, et n'est pas juste "-"
+        if (value && String(value).trim() !== '' && String(value).trim() !== '-') {
+          filled++
+        }
+      }
+    })
+    
+    const percentage = rowsToAnalyze > 0 ? Math.round((filled / rowsToAnalyze) * 100) : 0
+    
+    completeness[header] = {
+      filled,
+      total: rowsToAnalyze,
+      percentage,
+      // Note: si on analyse seulement un échantillon, indiquer que c'est une estimation
+      isEstimate: rowsToAnalyze < totalRowCount
+    }
+  })
+  
+  return completeness
 }
 
 // Enrichir avec GPT-4o mini
@@ -499,6 +569,9 @@ IMPORTANT :
         .substring(0, 60)
     }
     
+    // Calculer le taux d'enrichissement des champs de contact
+    const contactCompleteness = calculateContactCompleteness(sheetData.headers, sheetData.analysisRows, sheetData.rowCount)
+    
     return {
       description: response.description || getDefaultEnrichment(sheetData).description,
       shortDescription: response.shortDescription || getDefaultEnrichment(sheetData).shortDescription,
@@ -514,6 +587,7 @@ IMPORTANT :
         useCases: response.useCases || [],
         keywords: response.keywords || [],
       statistics: response.statistics || null,
+      contactCompleteness: contactCompleteness, // Taux d'enrichissement des champs de contact
       sampleData: response.sampleData && response.sampleData.length > 0 
         ? response.sampleData 
         : generateSampleDataFromRows(sheetData.sampleRows, headersFR), // Fallback : générer depuis les vraies données
