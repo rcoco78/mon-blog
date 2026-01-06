@@ -73,17 +73,63 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
     }
   }
 
-  // Fonction pour flouter les emails dans les exemples
-  const blurEmail = (email) => {
-    if (!email) return '-'
-    const [localPart, domain] = email.split('@')
-    if (!domain) return email
-    const blurredLocal = localPart.length > 1 ? localPart[0] + '***' : '***'
-    const domainParts = domain.split('.')
-    const blurredDomain = domainParts.length > 0 
-      ? domainParts[0].substring(0, 2) + '***.' + domainParts.slice(1).join('.')
-      : domain
-    return `${blurredLocal}@${blurredDomain}`
+  // Fonction pour anonymiser les données sensibles dans les exemples
+  const anonymizeValue = (value, key) => {
+    if (!value) return '-'
+    const strValue = String(value).trim()
+    const lowerKey = key.toLowerCase()
+    const lowerValue = strValue.toLowerCase()
+    
+    // Anonymiser les emails
+    if (lowerKey.includes('email') || lowerKey.includes('mail') || strValue.includes('@')) {
+      const [localPart, domain] = strValue.split('@')
+      if (!domain) return strValue
+      const blurredLocal = localPart.length > 1 ? localPart[0] + '***' : '***'
+      const domainParts = domain.split('.')
+      const blurredDomain = domainParts.length > 0 
+        ? domainParts[0].substring(0, 2) + '***.' + domainParts.slice(1).join('.')
+        : domain
+      return `${blurredLocal}@${blurredDomain}`
+    }
+    
+    // Anonymiser les téléphones (numéros avec +, espaces, tirets, etc.)
+    if (lowerKey.includes('phone') || lowerKey.includes('téléphone') || lowerKey.includes('tel') || 
+        lowerKey.includes('whatsapp') || lowerKey.includes('mobile') || lowerKey.includes('contact') ||
+        /^[\+]?[\d\s\-\(\)]{8,}$/.test(strValue.replace(/\s/g, ''))) {
+      // Garder les 2 premiers et 2 derniers chiffres, masquer le reste
+      const digits = strValue.replace(/\D/g, '')
+      if (digits.length >= 4) {
+        const prefix = digits.substring(0, 2)
+        const suffix = digits.substring(digits.length - 2)
+        return `+${prefix}***${suffix}`
+      }
+      return '***'
+    }
+    
+    // Anonymiser les URLs de contact ou profils personnels
+    if (lowerKey.includes('url') && (lowerValue.includes('profile') || lowerValue.includes('contact') || 
+        lowerValue.includes('agent') || lowerValue.includes('real-estate-agent'))) {
+      const urlParts = strValue.split('/')
+      if (urlParts.length > 0) {
+        const lastPart = urlParts[urlParts.length - 1]
+        if (lastPart.length > 3) {
+          return urlParts.slice(0, -1).join('/') + '/' + lastPart.substring(0, 3) + '***'
+        }
+      }
+      return strValue
+    }
+    
+    // Anonymiser les adresses complètes (si le champ contient "adresse" ou "address")
+    if ((lowerKey.includes('adresse') || lowerKey.includes('address')) && strValue.length > 10) {
+      const parts = strValue.split(',')
+      if (parts.length > 0) {
+        return parts[0].substring(0, 5) + '***' + (parts.length > 1 ? ', ' + parts[parts.length - 1] : '')
+      }
+      return strValue.substring(0, 5) + '***'
+    }
+    
+    // Retourner la valeur originale si ce n'est pas un champ sensible
+    return strValue
   }
 
   // Préparer les données pour l'affichage
@@ -815,9 +861,8 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                         <tr key={rowIdx} className="hover:bg-neutral-100 dark:hover:bg-neutral-800/50 transition-colors">
                           {Object.keys(database.enrichedData.sampleData[0] || {}).map((key, colIdx) => {
                             const value = row[key] || ''
-                            const strValue = String(value)
-                            // Flouter les emails
-                            const displayValue = strValue.includes('@') ? blurEmail(strValue) : strValue
+                            // Anonymiser les champs sensibles (email, téléphone, WhatsApp, etc.)
+                            const displayValue = anonymizeValue(value, key)
                             return (
                               <td key={colIdx} className="px-4 py-3 text-neutral-900 dark:text-neutral-100 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">
                                 {displayValue}
