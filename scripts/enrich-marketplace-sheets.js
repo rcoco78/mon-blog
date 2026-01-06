@@ -1063,13 +1063,18 @@ async function main() {
         continue
       }
       
-    // Conserver le nom tel quel (avec "Base de données -" si présent)
-    // Le préfixe "Base de données -" est utile pour identifier clairement le type de contenu
+    // Ajouter systématiquement le préfixe "Base de données -" avant le nom
+    // Le préfixe est utile pour identifier clairement le type de contenu
     let cleanName = analysis.name.trim()
     
     // Si le nom est vide, utiliser un nom par défaut
     if (!cleanName || cleanName.length === 0) {
       cleanName = 'Base de données'
+    }
+    
+    // Ajouter le préfixe "Base de données -" s'il n'est pas déjà présent
+    if (!cleanName.toLowerCase().startsWith('base de données')) {
+      cleanName = `Base de données - ${cleanName}`
     }
     
     // Utiliser le slug SEO-optimisé généré par GPT (ou fallback automatique)
