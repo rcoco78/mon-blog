@@ -38,7 +38,10 @@ const sheetIdArg = args.find(arg => arg.startsWith('--sheet-id='))
 const sheetId = sheetIdArg ? sheetIdArg.split('=')[1] : null
 const allSheets = args.includes('--all')
 const limitArg = args.find(arg => arg.startsWith('--limit='))
-const limit = limitArg ? parseInt(limitArg.split('=')[1]) : null
+const limit = limitArg ? (() => {
+  const value = parseInt(limitArg.split('=')[1], 10)
+  return isNaN(value) ? null : value
+})() : null
 
 // Initialiser OpenAI
 let openai = null
@@ -1019,7 +1022,9 @@ async function main() {
     // Limiter le nombre de sheets à traiter (pour éviter timeout sur Vercel)
     // IMPORTANT: Maximum 2 sheets par exécution, s'arrêter définitivement après
     // Par défaut, limite à 2 sheets même si --limit n'est pas spécifié (sauf si --all est utilisé)
-    const maxSheets = allSheets ? (limit || sheetsToEnrich.length) : (limit || 2)
+    const maxSheets = allSheets 
+      ? (limit !== null && limit !== undefined ? limit : sheetsToEnrich.length) 
+      : (limit !== null && limit !== undefined ? limit : 2)
     const sheetsToProcessLimited = sheetsToEnrich.slice(0, maxSheets)
     
     console.log(blue(`\n📝 ${sheetsToProcessLimited.length} sheet(s) à enrichir sur ${sheetsToEnrich.length} trouvé(s) (limite: ${maxSheets})\n`))
@@ -1033,20 +1038,30 @@ async function main() {
         break
       }
       
-      processedCount++
       console.log(cyan(`\n📄 ${sheet.name}...`))
       
       // Analyser
       const analysis = await analyzeSheet(sheets, sheet.id)
       if (!analysis) {
         console.log(red(`  ❌ Erreur lors de l'analyse`))
+        // Ne pas incrémenter le compteur si l'analyse échoue
         continue
       }
       
       console.log(`  ${analysis.rowCount.toLocaleString()} lignes, ${analysis.headers.length} colonnes`)
       
       // Enrichir avec GPT
-      const enrichment = await enrichWithGPT(analysis)
+      let enrichment
+      try {
+        enrichment = await enrichWithGPT(analysis)
+        if (!enrichment) {
+          console.log(red(`  ❌ Erreur lors de l'enrichissement GPT`))
+          continue
+        }
+      } catch (error) {
+        console.error(red(`  ❌ Erreur lors de l'enrichissement GPT: ${error.message}`))
+        continue
+      }
       
     // Conserver le nom tel quel (avec "Base de données -" si présent)
     // Le préfixe "Base de données -" est utile pour identifier clairement le type de contenu
@@ -1092,6 +1107,9 @@ async function main() {
       // Sauvegarder après chaque traitement pour éviter de perdre le travail en cas de timeout
       await saveDatabases(databases)
       console.log(cyan(`  💾 Sauvegardé (${databases.length} base(s) au total)`))
+      
+      // Incrémenter le compteur seulement après un traitement réussi
+      processedCount++
       
       // S'arrêter définitivement après avoir traité maxSheets
       if (processedCount >= maxSheets) {
