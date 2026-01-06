@@ -112,13 +112,16 @@ export default async function handler(req, res) {
     const description = mapping.description || 
       `Base de données complète avec ${sheetData.rowCount.toLocaleString()} entrées. ${sheetData.headers.length} champs par entrée : ${sheetData.headers.slice(0, 5).join(', ')}${sheetData.headers.length > 5 ? '...' : ''}. Idéal pour la prospection et l'analyse de marché.`
 
+    // Importer categoryToSlug pour construire le lien avec catégorie
+    const { categoryToSlug } = await import('../../../lib/marketplace-helpers')
+    
     const toolEntry = {
       name: `Base de données - ${sheetName}`,
       description,
       category,
       type: 'database',
       iconSvg: 'search',
-      link: `/marketplace/${slug}`,
+      link: `/marketplace/${categoryToSlug(category)}/${slug}`,
       isPaid,
       price: isPaid ? price : undefined,
       isNew: true,

@@ -6,16 +6,17 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import SEOHead from '../../components/seo/SEOHead'
-import StructuredData from '../../components/seo/StructuredData'
-import FAQ from '../../components/FAQ'
-import Toast, { useToast } from '../../components/Toast'
-import DownloadCounter from '../../components/DownloadCounter'
-import MarketplaceViewCounter from '../../components/MarketplaceViewCounter'
-import { generatePageSEO } from '../../lib/seo'
-import { siteConfig } from '../../lib/config'
-import { getRelevantTestimonials } from '../../lib/testimonials'
-import Breadcrumb from '../../components/Breadcrumb'
+import SEOHead from '../../../components/seo/SEOHead'
+import StructuredData from '../../../components/seo/StructuredData'
+import FAQ from '../../../components/FAQ'
+import Toast, { useToast } from '../../../components/Toast'
+import DownloadCounter from '../../../components/DownloadCounter'
+import MarketplaceViewCounter from '../../../components/MarketplaceViewCounter'
+import { generatePageSEO } from '../../../lib/seo'
+import { siteConfig } from '../../../lib/config'
+import { getRelevantTestimonials } from '../../../lib/testimonials'
+import Breadcrumb from '../../../components/Breadcrumb'
+import { categoryToSlug } from '../../../lib/marketplace-helpers'
 
 export default function MarketplaceDatabase({ database, relatedDatabases, notFound }) {
   const [email, setEmail] = useState('')
@@ -265,10 +266,11 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
   }
 
   // SEO
+  const categorySlug = categoryToSlug(database.category)
   const pageSEO = generatePageSEO({
     title: `${toolData.name} - Base de Données | ${database.price}€`,
     description: `${toolData.fullDescription} Achetez la base de données complète avec ${database.rowCount.toLocaleString()} entrées. Format Google Sheets.`,
-    path: `/marketplace/${database.slug}`,
+    path: `/marketplace/${categorySlug}/${database.slug}`,
     keywords: database.enrichedData?.keywords || [database.name, 'base de données', 'prospection']
   })
 
@@ -276,7 +278,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
   const datasetStructuredData = {
     name: toolData.name,
     description: database.description,
-    url: `${siteConfig.url}/marketplace/${database.slug}`,
+    url: `${siteConfig.url}/marketplace/${categorySlug}/${database.slug}`,
     datePublished: database.date,
     dateModified: database.lastEnriched,
     keywords: database.enrichedData?.keywords || [],
@@ -325,7 +327,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
         data={{
           name: toolData.name,
           description: toolData.fullDescription,
-          url: `${siteConfig.url}/marketplace/${database.slug}`,
+          url: `${siteConfig.url}/marketplace/${categorySlug}/${database.slug}`,
           image: siteConfig.ogImage,
           brand: {
             '@type': 'Person',
@@ -436,14 +438,14 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
         <nav className="mb-6" aria-label="Fil d'Ariane">
           <ol className="flex items-center space-x-2 text-sm text-neutral-600 dark:text-neutral-400">
             <li>
-              <Link href="/" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
-                Accueil
+              <Link href="/marketplace" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+                Marketplace
               </Link>
             </li>
             <li className="flex items-center space-x-2">
               <span className="mx-1">/</span>
-              <Link href="/marketplace" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
-                Marketplace
+              <Link href={`/marketplace/${categorySlug}`} className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+                {database.category}
               </Link>
             </li>
             <li className="flex items-center space-x-2">
@@ -463,20 +465,20 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
               {
                 '@type': 'ListItem',
                 position: 1,
-                name: 'Accueil',
-                item: siteConfig.url
-              },
-              {
-                '@type': 'ListItem',
-                position: 2,
                 name: 'Marketplace',
                 item: `${siteConfig.url}/marketplace`
               },
               {
                 '@type': 'ListItem',
+                position: 2,
+                name: database.category,
+                item: `${siteConfig.url}/marketplace/${categorySlug}`
+              },
+              {
+                '@type': 'ListItem',
                 position: 3,
                 name: toolData.name,
-                item: `${siteConfig.url}/marketplace/${database.slug}`
+                item: `${siteConfig.url}/marketplace/${categorySlug}/${database.slug}`
               }
             ]
           }}
@@ -1378,7 +1380,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                 {relatedDatabases.map((related) => (
                   <Link
                     key={related.slug}
-                    href={`/marketplace/${related.slug}`}
+                    href={`/marketplace/${categoryToSlug(related.category)}/${related.slug}`}
                     className="group flex items-center justify-between py-3 border-b border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
                   >
                     <div>
@@ -1415,11 +1417,15 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
 
 // Génération statique des pages
 export async function getStaticPaths() {
-  const { getAllDatabases } = await import('../../lib/marketplace-databases')
+  const { getAllDatabases } = await import('../../../lib/marketplace-databases')
+  const { categoryToSlug } = await import('../../../lib/marketplace-helpers')
   const databases = await getAllDatabases() // Utiliser await car getAllDatabases est async
   
   const paths = databases.map(db => ({
-    params: { slug: db.slug }
+    params: { 
+      category: categoryToSlug(db.category),
+      slug: db.slug 
+    }
   }))
 
   return {
@@ -1429,11 +1435,28 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-  const { getDatabaseBySlug, getRelatedDatabases } = await import('../../lib/marketplace-databases')
+  const { getDatabaseBySlug, getRelatedDatabases } = await import('../../../lib/marketplace-databases')
+  const { slugToCategory, categoryToSlug } = await import('../../../lib/marketplace-helpers')
+  
+  // Vérifier que la catégorie correspond à la base de données
+  const category = slugToCategory(params.category)
+  
+  if (!category) {
+    return {
+      notFound: true
+    }
+  }
   
   const database = await getDatabaseBySlug(params.slug)
   
   if (!database) {
+    return {
+      notFound: true
+    }
+  }
+  
+  // Vérifier que le secteur correspond bien à la base de données
+  if (database.category !== category) {
     return {
       notFound: true
     }

@@ -45,8 +45,6 @@ export default function Home({ posts, dynamicDatabases = [] }) {
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
   const testimonialScrollRef = useRef(null)
-  const [topDatabases, setTopDatabases] = useState([])
-  const [topDatabasesLoading, setTopDatabasesLoading] = useState(true)
 
   // URL de la vidéo Tella
   const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
@@ -121,25 +119,6 @@ export default function Home({ posts, dynamicDatabases = [] }) {
     fetchViews()
   }, [posts])
 
-  // Charger le top 3 des bases de données les plus vues
-  useEffect(() => {
-    const fetchTopDatabases = async () => {
-      try {
-        setTopDatabasesLoading(true)
-        const response = await fetch('/api/marketplace-views/top?limit=3')
-        if (response.ok) {
-          const data = await response.json()
-          setTopDatabases(data)
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération du top des bases de données:', error)
-      } finally {
-        setTopDatabasesLoading(false)
-      }
-    }
-
-    fetchTopDatabases()
-  }, [])
 
   // Charger les métriques depuis l'API et enrichir avec les Key Results
   useEffect(() => {
@@ -1002,48 +981,10 @@ export default function Home({ posts, dynamicDatabases = [] }) {
               .map((tool) => (
             <Link
               key={tool.name}
-              href={tool.link}
-              className="relative flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+              href={tool.link || '#'}
+              className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
             >
               <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
-                {tool.iconSvg ? (
-                  <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-600 dark:text-neutral-400">
-                    {tool.iconSvg === 'email' && (
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
-                        <path d="M8.47 1.318a1 1 0 0 0-.94 0l-6 3.2A1 1 0 0 0 1 5.4v.817l5.75 3.45L8 8.917l1.25.75L15 6.217V5.4a1 1 0 0 0-.53-.882zM15 7.383l-4.778 2.867L15 13.117zm-.035 6.88L8 10.082l-6.965 4.18A1 1 0 0 0 2 15h12a1 1 0 0 0 .965-.738ZM1 13.116l4.778-2.867L1 7.383v5.734ZM7.059.435a2 2 0 0 1 1.882 0l6 3.2A2 2 0 0 1 16 5.4V14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V5.4a2 2 0 0 1 1.059-1.765z"/>
-                      </svg>
-                    )}
-                    {tool.iconSvg === 'search' && (
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
-                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                      </svg>
-                    )}
-                    {tool.iconSvg === 'house' && (
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
-                        <path d="M8 6.982C9.664 5.309 13.825 8.236 8 12 2.175 8.236 6.336 5.309 8 6.982"/>
-                        <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.707L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.646a.5.5 0 0 0 .708-.707L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"/>
-                      </svg>
-                    )}
-                    {tool.iconSvg === 'grid' && (
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
-                        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm15 2h-4v3h4zm0 4h-4v3h4zm0 4h-4v3h3a1 1 0 0 0 1-1zm-5 3v-3H6v3zm-5 0v-3H1v2a1 1 0 0 0 1 1zm-4-4h4V7H1zm0-4h4V3H1a1 1 0 0 0-1 1zm5 0v3h4V3zm4 4H6v3h4z"/>
-                      </svg>
-                    )}
-                  </div>
-                ) : tool.icon && tool.icon.startsWith('/') ? (
-                  <div className="flex-shrink-0 w-6 h-6">
-                    <Image
-                      src={tool.icon}
-                      alt={`${tool.name} - ${tool.description}`}
-                      width={24}
-                      height={24}
-                      loading="lazy"
-                      className="w-6 h-6 rounded-lg object-contain"
-                    />
-                  </div>
-                ) : tool.icon ? (
-                  <span className="flex-shrink-0 text-2xl">{tool.icon}</span>
-                ) : null}
                 <div className="flex-1 min-w-0">
                   <div className="mb-1">
                     <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
@@ -1059,8 +1000,6 @@ export default function Home({ posts, dynamicDatabases = [] }) {
               {/* Séparateur fin et prix */}
               <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
                 <div className="flex items-center justify-between gap-3">
-                  {/* Espaceur pour aligner avec l'icône */}
-                  <div className="flex-shrink-0 w-6 h-6"></div>
                   <div className="flex-1 min-w-0 flex items-center gap-2">
                     <span className="text-xs text-neutral-500 dark:text-neutral-500">
                       {tool.isPaid ? `À partir de ${tool.annualPrice || tool.price || 0}€` : 'Gratuit'}
@@ -1098,76 +1037,6 @@ export default function Home({ posts, dynamicDatabases = [] }) {
         </div>
       </section>
 
-      {/* Section Top 3 Bases de données les plus vues */}
-      {topDatabases.length > 0 && (
-        <section className="mt-12" aria-label="Bases de données les plus consultées">
-          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Les plus consultées</h2>
-          <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Les bases de données les plus consultées par les visiteurs.
-          </p>
-          <div className="flex flex-col space-y-4">
-            {topDatabasesLoading ? (
-              // Skeleton pendant le chargement
-              Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="relative flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                  <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-                    <div className="flex-1 min-w-0">
-                      <div className="h-5 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
-                      <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              topDatabases.map((db) => (
-                <Link
-                  key={db.slug}
-                  href={`/marketplace/${db.slug}`}
-                  className="relative flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-                >
-                  <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
-                    <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-600 dark:text-neutral-400">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
-                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                      </svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="mb-1">
-                        <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
-                          {db.name}
-                        </h2>
-                      </div>
-                      <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
-                        {db.description}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Séparateur fin et prix + vues */}
-                  <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex-shrink-0 w-6 h-6"></div>
-                      <div className="flex-1 min-w-0 flex items-center gap-2">
-                        <span className="text-xs text-neutral-500 dark:text-neutral-500">
-                          {db.isPaid ? `À partir de ${db.price || 0}€` : 'Gratuit'}
-                        </span>
-                        <span className="text-xs text-neutral-500 dark:text-neutral-500">
-                          • {db.views} vues
-                        </span>
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
-                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))
-            )}
-          </div>
-        </section>
-      )}
-      
       {/* Section Partenaires */}
       <section className="mt-12" aria-label="Partenaires">
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Partenaires</h2>

@@ -278,7 +278,7 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
                 {topDatabases.map((db, index) => (
                   <Link
                     key={db.slug}
-                    href={`/marketplace/${db.slug}`}
+                    href={db.link || '#'}
                     className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
                   >
                     <div className="flex items-start justify-between gap-4 mb-3">
@@ -391,8 +391,8 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
               {filteredTools.map((tool) => (
                 <Link
                   key={tool.name}
-                  href={tool.link}
-                  className="relative flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+                  href={tool.link || '#'}
+                  className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
                 >
                   <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
                     {tool.iconSvg ? (
@@ -725,15 +725,24 @@ export async function getServerSideProps() {
             })
             .slice(0, 3)
           
-          topDatabases = sorted.map(db => ({
-            slug: db.slug || null,
-            name: db.name || '',
-            description: db.shortDescription || db.description || '',
-            category: db.category || null,
-            views: db.views || 0,
-            price: db.price || 0,
-            isPaid: db.isPaid !== undefined ? db.isPaid : false
-          }))
+          // Importer categoryToSlug pour construire les liens
+          const { categoryToSlug } = await import('../lib/marketplace-helpers')
+          
+          topDatabases = sorted.map(db => {
+            const category = db.category || 'autres'
+            const categorySlug = categoryToSlug(category) || 'autres'
+            
+            return {
+              slug: db.slug || null,
+              name: db.name || '',
+              description: db.shortDescription || db.description || '',
+              category: category,
+              link: `/marketplace/${categorySlug}/${db.slug}`,
+              views: db.views || 0,
+              price: db.price || 0,
+              isPaid: db.isPaid !== undefined ? db.isPaid : false
+            }
+          })
         }
       }
     } catch (error) {
