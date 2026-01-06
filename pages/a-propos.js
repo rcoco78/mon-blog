@@ -801,49 +801,58 @@ export default function About() {
       {/* Call-to-Action */}
       <section className="mb-16 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-center" aria-label="Contact">
         <div className="flex flex-col items-center mb-6">
-          <div className="relative mb-4 group cursor-pointer" onClick={handleVideoClick}>
-              <svg
-                className="absolute inset-0 w-16 h-16"
-                viewBox="0 0 70 70"
-              >
-                <defs>
-                  <linearGradient id="instagram-gradient-about" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#f09433" />
-                    <stop offset="25%" stopColor="#e6683c" />
-                    <stop offset="50%" stopColor="#dc2743" />
-                    <stop offset="75%" stopColor="#cc2366" />
-                    <stop offset="100%" stopColor="#bc1888" />
-                  </linearGradient>
-                </defs>
-                <circle
-                  cx="35"
-                  cy="35"
-                  r="33"
-                  fill="none"
-                  stroke={videoSeen ? "#a3a3a3" : "url(#instagram-gradient-about)"}
-                  strokeWidth="2"
-                  strokeDasharray="207.35"
-                  strokeDashoffset={videoSeen ? "0" : "207.35"}
-                  className={videoSeen ? "" : "animate-draw-circle"}
-                  style={{
-                    transformOrigin: '35px 35px',
-                    transition: videoSeen ? 'stroke 0.5s ease-out' : 'none'
-                  }}
-                />
-              </svg>
-              <div className="rounded-full bg-white dark:bg-neutral-900 p-[2px] relative z-10">
-                <Image
-                  src="/images/profile-picture/cr-pp3.png"
-                  alt="Photo de profil de Corentin Robert"
-                  width={64}
-                  height={64}
-                  className="w-16 h-16 rounded-full object-cover transition-all group-hover:opacity-90"
-                  style={{ objectPosition: 'center 30%' }}
-                  priority
-                />
-              </div>
+          <div 
+            className="relative inline-block mb-4 group cursor-pointer p-[2px] rounded-full"
+            onClick={handleVideoClick}
+          >
+            <svg 
+              className="absolute inset-0"
+              style={{ 
+                width: 'calc(100% + 4px)', 
+                height: 'calc(100% + 4px)',
+                margin: '-2px',
+                transform: 'rotate(-90deg)'
+              }}
+              viewBox="0 0 70 70"
+            >
+              <defs>
+                <linearGradient id="instagram-gradient-about" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#f09433" />
+                  <stop offset="25%" stopColor="#e6683c" />
+                  <stop offset="50%" stopColor="#dc2743" />
+                  <stop offset="75%" stopColor="#cc2366" />
+                  <stop offset="100%" stopColor="#bc1888" />
+                </linearGradient>
+              </defs>
+              <circle
+                cx="35"
+                cy="35"
+                r="33"
+                fill="none"
+                stroke={videoSeen ? "#a3a3a3" : "url(#instagram-gradient-about)"}
+                strokeWidth="2"
+                strokeDasharray="207.35"
+                strokeDashoffset={videoSeen ? "0" : "207.35"}
+                className={videoSeen ? "" : "animate-draw-circle"}
+                style={{
+                  transformOrigin: '35px 35px',
+                  transition: videoSeen ? 'stroke 0.5s ease-out' : 'none'
+                }}
+              />
+            </svg>
+            <div className="rounded-full bg-white dark:bg-neutral-900 p-[2px]">
+              <Image
+                src="/images/profile-picture/cr-pp3.png"
+                alt="Photo de profil de Corentin Robert"
+                width={64}
+                height={64}
+                className="w-16 h-16 rounded-full object-cover transition-all group-hover:opacity-90"
+                style={{ objectPosition: 'center 30%' }}
+                priority
+              />
+            </div>
             {/* Overlay grisé avec icône play au hover */}
-            <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/70 dark:bg-neutral-900/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-20">
+            <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/70 dark:bg-neutral-900/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-play text-white" viewBox="0 0 16 16">
                 <path d="M10.804 8 5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z"/>
               </svg>
