@@ -950,7 +950,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
           <div className="border-t border-neutral-200 dark:border-neutral-800 pt-10">
             <div className="flex items-center gap-3 mb-4">
               <h2 className="font-semibold text-xl tracking-tighter text-neutral-900 dark:text-neutral-100">
-                Données extractibles
+                Données extractibles :
               </h2>
               <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
                 {(() => {
