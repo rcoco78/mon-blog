@@ -144,9 +144,20 @@ export default function FAQPage() {
         type="Review"
         data={{
           itemReviewed: {
-            '@type': 'CreativeWork',
+            '@type': 'Product',
             name: 'FAQ - Questions fréquentes',
-            url: `${siteConfig.url}/faq`
+            url: `${siteConfig.url}/faq`,
+            brand: {
+              '@type': 'Person',
+              name: siteConfig.author,
+              url: siteConfig.url
+            },
+            offers: {
+              '@type': 'Offer',
+              price: '0',
+              priceCurrency: 'EUR',
+              availability: 'https://schema.org/InStock'
+            }
           },
           reviewRating: {
             '@type': 'Rating',

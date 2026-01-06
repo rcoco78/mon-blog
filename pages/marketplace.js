@@ -187,13 +187,19 @@ export default function Marketplace() {
         type="Review"
         data={{
           itemReviewed: {
-            '@type': 'Service',
+            '@type': 'Product',
             name: 'Marketplace - Outils et Bases de Données',
             url: `${siteConfig.url}/marketplace`,
-            provider: {
+            brand: {
               '@type': 'Person',
               name: siteConfig.author,
               url: siteConfig.url
+            },
+            offers: {
+              '@type': 'Offer',
+              price: '0',
+              priceCurrency: 'EUR',
+              availability: 'https://schema.org/InStock'
             }
           },
           reviewRating: {

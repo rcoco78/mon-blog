@@ -379,13 +379,33 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         if (data.itemReviewed && typeof data.itemReviewed === 'object') {
           // S'assurer que itemReviewed a une URL si c'est un Service ou Product
           const itemReviewed = { ...data.itemReviewed };
-          if ((itemReviewed['@type'] === 'Service' || itemReviewed['@type'] === 'Product') && !itemReviewed.url) {
+          
+          // Google n'accepte pas Service, CreativeWork, etc. pour Review snippets
+          // Convertir automatiquement en Product (type accepté)
+          if (itemReviewed['@type'] === 'Service' || itemReviewed['@type'] === 'CreativeWork' || 
+              (itemReviewed['@type'] && !['Product', 'Organization', 'LocalBusiness', 'SoftwareApplication', 
+                'Book', 'Course', 'Event', 'Game', 'HowTo', 'MediaObject', 'Movie', 
+                'MusicPlaylist', 'MusicRecording', 'Recipe'].includes(itemReviewed['@type']))) {
+            // Convertir Service en Product
+            itemReviewed['@type'] = 'Product';
+            // Convertir provider en brand si présent
+            if (itemReviewed.provider && !itemReviewed.brand) {
+              itemReviewed.brand = itemReviewed.provider;
+              delete itemReviewed.provider;
+            }
+            // S'assurer qu'il y a un brand
+            if (!itemReviewed.brand) {
+              itemReviewed.brand = {
+                '@type': 'Person',
+                name: siteConfig.author,
+                url: siteConfig.url
+              };
+            }
+          }
+          
+          if ((itemReviewed['@type'] === 'Product') && !itemReviewed.url) {
             // Si pas d'URL fournie, utiliser l'URL du site par défaut
             itemReviewed.url = data.url || siteConfig.url;
-          }
-          // S'assurer que le provider a une URL si c'est un Service
-          if (itemReviewed['@type'] === 'Service' && itemReviewed.provider && !itemReviewed.provider.url) {
-            itemReviewed.provider.url = siteConfig.url;
           }
           // S'assurer que le brand a une URL si c'est un Product
           if (itemReviewed['@type'] === 'Product' && itemReviewed.brand && !itemReviewed.brand.url) {
