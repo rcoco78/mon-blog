@@ -14,6 +14,7 @@ import DownloadCounter from '../../components/DownloadCounter'
 import { generatePageSEO } from '../../lib/seo'
 import { siteConfig } from '../../lib/config'
 import { getRelevantTestimonials } from '../../lib/testimonials'
+import Breadcrumb from '../../components/Breadcrumb'
 
 export default function MarketplaceDatabase({ database, relatedDatabases, notFound }) {
   const [email, setEmail] = useState('')
@@ -271,6 +272,40 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
     <>
       <SEOHead {...pageSEO} ogType="product" />
       
+      {/* Product Schema avec aggregateRating pour afficher les étoiles dans Google */}
+      <StructuredData
+        type="Product"
+        data={{
+          name: toolData.name,
+          description: toolData.fullDescription,
+          url: `${siteConfig.url}/marketplace/${database.slug}`,
+          image: siteConfig.ogImage,
+          brand: {
+            '@type': 'Person',
+            name: siteConfig.author
+          },
+          offers: {
+            '@type': 'Offer',
+            price: database.price.toString(),
+            priceCurrency: 'EUR',
+            availability: 'https://schema.org/InStock',
+            priceSpecification: {
+              '@type': 'UnitPriceSpecification',
+              price: database.price.toString(),
+              priceCurrency: 'EUR',
+              valueAddedTaxIncluded: true
+            }
+          },
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: '5',
+            reviewCount: '1',
+            bestRating: '5',
+            worstRating: '1'
+          }
+        }}
+      />
+      
       {/* Review Schema */}
       <StructuredData
         type="Review"
@@ -278,19 +313,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
           itemReviewed: {
             '@type': 'Product',
             name: toolData.name,
-            url: `${siteConfig.url}/marketplace/${database.slug}`,
-            offers: {
-              '@type': 'Offer',
-              price: database.price.toString(),
-              priceCurrency: 'EUR',
-              availability: 'https://schema.org/InStock',
-              priceSpecification: {
-                '@type': 'UnitPriceSpecification',
-                price: database.price.toString(),
-                priceCurrency: 'EUR',
-                valueAddedTaxIncluded: true
-              }
-            }
+            url: `${siteConfig.url}/marketplace/${database.slug}`
           },
           reviewRating: {
             '@type': 'Rating',
@@ -362,6 +385,56 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
       {toast && <Toast {...toast} onClose={hideToast} />}
       
       <main className="min-w-0 mt-6 flex flex-col">
+        {/* Breadcrumb */}
+        <nav className="mb-6" aria-label="Fil d'Ariane">
+          <ol className="flex items-center space-x-2 text-sm text-neutral-600 dark:text-neutral-400">
+            <li>
+              <Link href="/" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+                Accueil
+              </Link>
+            </li>
+            <li className="flex items-center space-x-2">
+              <span className="mx-1">/</span>
+              <Link href="/marketplace" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+                Marketplace
+              </Link>
+            </li>
+            <li className="flex items-center space-x-2">
+              <span className="mx-1">/</span>
+              <span className="text-neutral-900 dark:text-neutral-100 font-medium line-clamp-1">
+                {toolData.name}
+              </span>
+            </li>
+          </ol>
+        </nav>
+        
+        {/* Breadcrumb Schema */}
+        <StructuredData
+          type="BreadcrumbList"
+          data={{
+            items: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Accueil',
+                item: siteConfig.url
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Marketplace',
+                item: `${siteConfig.url}/marketplace`
+              },
+              {
+                '@type': 'ListItem',
+                position: 3,
+                name: toolData.name,
+                item: `${siteConfig.url}/marketplace/${database.slug}`
+              }
+            ]
+          }}
+        />
+        
         {/* Section principale */}
         <section className="mb-16">
           {/* Header - Mobile first */}
@@ -525,14 +598,16 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                     </div>
 
                     {/* Texte descriptif selon le choix */}
-                    <div className="text-xs text-neutral-600 dark:text-neutral-400">
+                    <div className="text-xs text-neutral-600 dark:text-neutral-400 space-y-1">
                       {subscriptionType === 'api' ? (
                         <div>
-                          <span><strong className="text-neutral-700 dark:text-neutral-300">Accès API récurrent :</strong> Accès mensuel à la base de données via API Apify. La base sera partagée sur <a href="https://apify.com?fpr=0n7ukq" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">apify.com</a> pour un accès récurrent.</span>
+                          <p><strong className="text-neutral-700 dark:text-neutral-300">Accès API :</strong> Un script récupère automatiquement les données et les met à jour régulièrement. Vous avez accès à une base de données dynamique qui évolue dans le temps.</p>
+                          <p className="text-neutral-500 dark:text-neutral-500 mt-1">La base sera partagée sur <a href="https://apify.com?fpr=0n7ukq" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">apify.com</a> pour un accès mensuel récurrent.</p>
                         </div>
                       ) : (
                         <div>
-                          <span><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Accès immédiat à la base de données complète via Google Sheets, sans renouvellement.</span>
+                          <p><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Vous recevez un accès immédiat à la base de données complète à l'instant T, avec toutes les données disponibles au moment de l'achat.</p>
+                          <p className="text-neutral-500 dark:text-neutral-500 mt-1">Format Google Sheets, sans renouvellement. Les données sont figées au moment de l'achat.</p>
                         </div>
                       )}
                     </div>
@@ -547,14 +622,20 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                 {toolData.isPaid && (
                   <>
                     <div className="flex items-start justify-between">
-                      <span className="text-neutral-500 dark:text-neutral-500">Achat unique</span>
+                      <div className="flex-1">
+                        <span className="text-neutral-500 dark:text-neutral-500 block">Achat unique</span>
+                        <span className="text-xs text-neutral-400 dark:text-neutral-500 block mt-0.5">Données à l'instant T</span>
+                      </div>
                       <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
                         <div>{toolData.priceLabel}</div>
                         <div className="text-xs text-neutral-500 dark:text-neutral-500">{toolData.priceLabelHT}</div>
                       </span>
                     </div>
                     <div className="flex items-start justify-between">
-                      <span className="text-neutral-500 dark:text-neutral-500">Accès API récurrent</span>
+                      <div className="flex-1">
+                        <span className="text-neutral-500 dark:text-neutral-500 block">Accès API</span>
+                        <span className="text-xs text-neutral-400 dark:text-neutral-500 block mt-0.5">Mise à jour régulière</span>
+                      </div>
                       <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
                         <div>Me demander</div>
                         <div className="text-xs text-neutral-500 dark:text-neutral-500">Via Apify</div>
@@ -669,14 +750,16 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                     </button>
 
                     {/* Texte descriptif selon le choix */}
-                    <div className="text-xs text-neutral-600 dark:text-neutral-400">
+                    <div className="text-xs text-neutral-600 dark:text-neutral-400 space-y-1">
                       {subscriptionType === 'api' ? (
                         <div>
-                          <span><strong className="text-neutral-700 dark:text-neutral-300">Accès API récurrent :</strong> Accès mensuel à la base de données via API Apify. La base sera partagée sur <a href="https://apify.com?fpr=0n7ukq" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">apify.com</a> pour un accès récurrent.</span>
+                          <p><strong className="text-neutral-700 dark:text-neutral-300">Accès API :</strong> Un script récupère automatiquement les données et les met à jour régulièrement. Vous avez accès à une base de données dynamique qui évolue dans le temps.</p>
+                          <p className="text-neutral-500 dark:text-neutral-500 mt-1">La base sera partagée sur <a href="https://apify.com?fpr=0n7ukq" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">apify.com</a> pour un accès mensuel récurrent.</p>
                         </div>
                       ) : (
                         <div>
-                          <span><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Accès immédiat à la base de données complète via Google Sheets, sans renouvellement.</span>
+                          <p><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Vous recevez un accès immédiat à la base de données complète à l'instant T, avec toutes les données disponibles au moment de l'achat.</p>
+                          <p className="text-neutral-500 dark:text-neutral-500 mt-1">Format Google Sheets, sans renouvellement. Les données sont figées au moment de l'achat.</p>
                         </div>
                       )}
                     </div>
@@ -694,14 +777,20 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                 {toolData.isPaid && (
                   <>
                     <div className="flex items-start justify-between">
-                      <span className="text-neutral-500 dark:text-neutral-500">Achat unique</span>
+                      <div className="flex-1">
+                        <span className="text-neutral-500 dark:text-neutral-500 block">Achat unique</span>
+                        <span className="text-xs text-neutral-400 dark:text-neutral-500 block mt-0.5">Données à l'instant T</span>
+                      </div>
                       <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
                         <div>{toolData.priceLabel}</div>
                         <div className="text-xs text-neutral-500 dark:text-neutral-500">{toolData.priceLabelHT}</div>
                       </span>
                     </div>
                     <div className="flex items-start justify-between">
-                      <span className="text-neutral-500 dark:text-neutral-500">Accès API récurrent</span>
+                      <div className="flex-1">
+                        <span className="text-neutral-500 dark:text-neutral-500 block">Accès API</span>
+                        <span className="text-xs text-neutral-400 dark:text-neutral-500 block mt-0.5">Mise à jour régulière</span>
+                      </div>
                       <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
                         <div>Me demander</div>
                         <div className="text-xs text-neutral-500 dark:text-neutral-500">Via Apify</div>
