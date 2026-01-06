@@ -1048,16 +1048,13 @@ async function main() {
       // Enrichir avec GPT
       const enrichment = await enrichWithGPT(analysis)
       
-    // Nettoyer le nom : retirer "Base de données" ou " - Base de données"
-    let cleanName = analysis.name
-      .replace(/\s*-\s*Base\s+de\s+données/gi, '') // Retire " - Base de données"
-      .replace(/Base\s+de\s+données\s*-\s*/gi, '') // Retire "Base de données - "
-      .replace(/Base\s+de\s+données/gi, '') // Retire "Base de données" seul
-      .trim()
+    // Conserver le nom tel quel (avec "Base de données -" si présent)
+    // Le préfixe "Base de données -" est utile pour identifier clairement le type de contenu
+    let cleanName = analysis.name.trim()
     
-    // Si le nom est vide après nettoyage, utiliser le nom original
+    // Si le nom est vide, utiliser un nom par défaut
     if (!cleanName || cleanName.length === 0) {
-      cleanName = analysis.name
+      cleanName = 'Base de données'
     }
     
     // Utiliser le slug SEO-optimisé généré par GPT (ou fallback automatique)
