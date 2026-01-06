@@ -12,7 +12,7 @@ import { tools } from '../lib/tools'
 export default function Marketplace({ dynamicDatabases = [] }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedType, setSelectedType] = useState(null) // 'outil' | 'database' | null
-  const [selectedPricing, setSelectedPricing] = useState(null) // 'gratuit' | 'payant' | null
+  const [selectedPricing, setSelectedPricing] = useState(null) // 'gratuit' | '<100' | '100-200' | '200+' | null
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
@@ -44,7 +44,12 @@ export default function Marketplace({ dynamicDatabases = [] }) {
   }
 
   const types = ['outil', 'database']
-  const pricingOptions = ['gratuit', 'payant']
+  const pricingRanges = [
+    { value: 'gratuit', label: 'Gratuit', min: 0, max: 0 },
+    { value: '<100', label: '< 100€', min: 1, max: 99 },
+    { value: '100-200', label: '100-200€', min: 100, max: 200 },
+    { value: '200+', label: '200€+', min: 201, max: Infinity }
+  ]
 
   // Fusionner les outils statiques et les bases de données dynamiques
   const allTools = [...(dynamicDatabases || []), ...tools]
@@ -61,9 +66,21 @@ export default function Marketplace({ dynamicDatabases = [] }) {
     .filter(tool => {
       const matchesCategory = selectedCategory === null || tool.category === selectedCategory
       const matchesType = selectedType === null || tool.type === selectedType
-      const matchesPricing = selectedPricing === null || 
-        (selectedPricing === 'gratuit' && !tool.isPaid) ||
-        (selectedPricing === 'payant' && tool.isPaid)
+      
+      // Filtrage par palier de prix
+      let matchesPricing = true
+      if (selectedPricing !== null) {
+        const priceRange = pricingRanges.find(r => r.value === selectedPricing)
+        if (priceRange) {
+          if (selectedPricing === 'gratuit') {
+            matchesPricing = !tool.isPaid
+          } else {
+            const toolPrice = tool.annualPrice || tool.price || 0
+            matchesPricing = tool.isPaid && toolPrice >= priceRange.min && toolPrice <= priceRange.max
+          }
+        }
+      }
+      
       return matchesCategory && matchesType && matchesPricing
     })
     .sort((a, b) => {
@@ -295,26 +312,19 @@ export default function Marketplace({ dynamicDatabases = [] }) {
                 >
                   Tous
                 </button>
-                <button
-                  onClick={() => setSelectedPricing('gratuit')}
-                  className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
-                    selectedPricing === 'gratuit'
-                      ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
-                      : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
-                  }`}
-                >
-                  Gratuit
-                </button>
-                <button
-                  onClick={() => setSelectedPricing('payant')}
-                  className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
-                    selectedPricing === 'payant'
-                      ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
-                      : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
-                  }`}
-                >
-                  Payant
-                </button>
+                {pricingRanges.map((range) => (
+                  <button
+                    key={range.value}
+                    onClick={() => setSelectedPricing(range.value)}
+                    className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
+                      selectedPricing === range.value
+                        ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
+                        : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
+                    }`}
+                  >
+                    {range.label}
+                  </button>
+                ))}
               </div>
             </div>
 
