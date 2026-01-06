@@ -10,10 +10,6 @@
  */
 
 const { main } = require('../../../scripts/enrich-marketplace-sheets')
-const { getAllDatabases } = require('../../../lib/marketplace-databases')
-const { put } = require('@vercel/blob')
-
-const BLOB_FILENAME = 'marketplace-databases.json'
 
 export default async function handler(req, res) {
   // Vérifier que la requête vient de Vercel Cron
@@ -45,47 +41,9 @@ export default async function handler(req, res) {
     process.argv = ['node', 'enrich-marketplace-sheets.js', '--limit=2']
     
     // Exécuter l'enrichissement
-    await main()
-    
-    // Synchroniser vers Blob Storage si disponible
     // NOTE: Le script enrich-marketplace-sheets.js sauvegarde déjà dans Blob Storage après chaque traitement
-    // Cette synchronisation finale sert juste à s'assurer que tout est bien synchronisé
-    // On charge depuis le fichier local (qui est mis à jour par le script) plutôt que depuis Blob Storage
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
-      try {
-        // Charger depuis le fichier local qui vient d'être mis à jour par le script
-        const fs = require('fs')
-        const path = require('path')
-        const localFile = path.join(process.cwd(), 'data', 'marketplace-databases.json')
-        
-        let databases = []
-        if (fs.existsSync(localFile)) {
-          const data = fs.readFileSync(localFile, 'utf8')
-          const parsed = JSON.parse(data)
-          databases = Array.isArray(parsed) ? parsed : (parsed.databases || [])
-        } else {
-          // Fallback : charger depuis Blob Storage si fichier local n'existe pas
-          databases = await getAllDatabases()
-        }
-        
-        const dataToSave = {
-          databases,
-          lastUpdated: new Date().toISOString(),
-          count: databases.length
-        }
-        
-        await put(BLOB_FILENAME, JSON.stringify(dataToSave, null, 2), {
-          access: 'public',
-          contentType: 'application/json',
-          allowOverwrite: true
-        })
-        
-        console.log(`✅ ${databases.length} base(s) de données synchronisée(s) vers Blob Storage`)
-      } catch (blobError) {
-        console.error('❌ Erreur lors de la synchronisation vers Blob Storage:', blobError.message)
-        // Ne pas faire échouer le cron si Blob Storage échoue
-      }
-    }
+    // Pas besoin de synchronisation finale, le script le fait déjà
+    await main()
     
     console.log('✅ Cron job d\'enrichissement terminé avec succès')
     
