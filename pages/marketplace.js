@@ -623,7 +623,7 @@ export default function Marketplace({ dynamicDatabases = [] }) {
 // Charger les bases de données dynamiques côté serveur
 export async function getStaticProps() {
   const { getDatabasesAsTools } = await import('../lib/marketplace-databases')
-  const dynamicDatabases = getDatabasesAsTools()
+  const dynamicDatabases = await getDatabasesAsTools()
   
   return {
     props: {
