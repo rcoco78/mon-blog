@@ -937,6 +937,10 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
               
               {/* Fonction pour détecter si une colonne est un contact */}
               {(() => {
+                // Vérifier si on a des données réelles de complétude
+                const hasRealData = database.enrichedData?.contactCompleteness && 
+                                    Object.keys(database.enrichedData.contactCompleteness).length > 0
+                
                 const isContactField = (header) => {
                   const headerLower = header.toLowerCase()
                   return headerLower.includes('email') || 
@@ -948,8 +952,9 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                          (headerLower.includes('url') && (headerLower.includes('linkedin') || headerLower.includes('profil') || headerLower.includes('profile')))
                 }
                 
-                // Trier : contacts en premier, puis les autres
+                // Trier : contacts en premier, puis les autres (seulement si on a des données réelles)
                 const sortedHeaders = [...database.headers].sort((a, b) => {
+                  if (!hasRealData) return 0 // Pas de tri si pas de données
                   const aIsContact = isContactField(a)
                   const bIsContact = isContactField(b)
                   if (aIsContact && !bIsContact) return -1
@@ -962,26 +967,28 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                     {sortedHeaders.map((header, index) => {
                       const isContact = isContactField(header)
                       const completeness = contactCompleteness[header]
+                      // Ne montrer les tags de contact que si on a des données réelles
+                      const showContactTags = hasRealData && isContact && completeness && !completeness.isEstimate
                       
                       return (
                         <div 
                           key={index} 
-                          className={`flex items-start gap-2 min-h-[2.5rem] ${isContact ? 'font-semibold' : ''}`}
+                          className={`flex items-start gap-2 min-h-[2.5rem] ${showContactTags ? 'font-semibold' : ''}`}
                         >
                           <svg className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                           <div className="flex-1 min-w-0 flex flex-col justify-center">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <p className={`${isContact ? 'font-semibold' : 'font-medium'} text-neutral-900 dark:text-neutral-100 leading-tight`}>
+                              <p className={`${showContactTags ? 'font-semibold' : 'font-medium'} text-neutral-900 dark:text-neutral-100 leading-tight`}>
                                 {header}
                               </p>
-                              {isContact && (
+                              {showContactTags && (
                                 <>
                                   <span className="px-1.5 py-0.5 text-xs font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded whitespace-nowrap">
                                     Contact
                                   </span>
-                                  {completeness && completeness.percentage >= 50 && (
+                                  {completeness.percentage >= 50 && (
                                     <span className={`px-1.5 py-0.5 text-xs font-medium rounded whitespace-nowrap ${
                                       completeness.percentage >= 80 
                                         ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
@@ -990,7 +997,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                                       {completeness.percentage}% disponible
                                     </span>
                                   )}
-                                  {completeness && completeness.percentage < 50 && completeness.filled > 0 && (
+                                  {completeness.percentage < 50 && completeness.filled > 0 && (
                                     <span className="px-1.5 py-0.5 text-xs font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded whitespace-nowrap">
                                       {completeness.filled.toLocaleString()} disponible{completeness.filled > 1 ? 's' : ''}
                                     </span>
@@ -998,7 +1005,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                                 </>
                               )}
                             </div>
-                            {isContact && completeness && completeness.percentage >= 50 && (
+                            {showContactTags && completeness.percentage >= 50 && (
                               <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-0.5 leading-tight">
                                 {completeness.filled.toLocaleString()} contacts disponibles
                               </p>
