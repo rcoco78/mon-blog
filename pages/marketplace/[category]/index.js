@@ -270,11 +270,16 @@ export async function getStaticProps({ params }) {
 
   // Convertir en format tools pour avoir les liens avec catégorie
   const databasesAsTools = await getDatabasesAsTools()
+  const { categoryToSlug } = await import('../../../lib/marketplace-helpers')
+  const categorySlug = categoryToSlug(category) || 'autres'
+  
   const categoryDatabasesWithLinks = categoryDatabases.map(db => {
     const tool = databasesAsTools.find(t => t.slug === db.slug)
+    // S'assurer que link est toujours défini (string ou null, jamais undefined)
+    const link = tool?.link || (db.slug ? `/marketplace/${categorySlug}/${db.slug}` : null)
     return {
       ...db,
-      link: tool?.link,
+      link: link || null, // Forcer null au lieu de undefined pour la sérialisation JSON
       description: tool?.description || db.description || db.shortDescription || ''
     }
   })
@@ -312,19 +317,31 @@ export async function getStaticProps({ params }) {
       })
       .slice(0, 3)
 
-    topDatabases = sorted
+    topDatabases = sorted.map(db => ({
+      ...db,
+      link: db.link || null // S'assurer que link n'est jamais undefined
+    }))
   } catch (error) {
     console.error('Erreur lors du calcul des top databases:', error)
     // Fallback : les 3 premiers sans vues
-    topDatabases = categoryDatabasesWithLinks.slice(0, 3).map(db => ({ ...db, views: 0 }))
+    topDatabases = categoryDatabasesWithLinks.slice(0, 3).map(db => ({ 
+      ...db, 
+      views: 0,
+      link: db.link || null // S'assurer que link n'est jamais undefined
+    }))
   }
 
   return {
     props: {
       category,
-      categoryDatabases: categoryDatabasesWithLinks,
-      topDatabases,
-      viewsMap
+      categoryDatabases: categoryDatabasesWithLinks.map(db => ({
+        ...db,
+        link: db.link || null // S'assurer que link n'est jamais undefined dans les props
+      })),
+      topDatabases: topDatabases.map(db => ({
+        ...db,
+        link: db.link || null // S'assurer que link n'est jamais undefined dans les props
+      }))
     },
     revalidate: 3600
   }
