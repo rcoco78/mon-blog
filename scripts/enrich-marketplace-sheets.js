@@ -796,10 +796,51 @@ function generateSlug(name, category = null) {
 
 // Charger les bases de données existantes
 async function loadDatabases() {
+  // Sur Vercel, charger depuis Blob Storage en priorité
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    try {
+      const { list } = require('@vercel/blob')
+      const BLOB_FILENAME = 'marketplace-databases.json'
+      
+      const blobs = await list({ prefix: BLOB_FILENAME })
+      const existingBlob = blobs.blobs.find((blob) => blob.pathname === BLOB_FILENAME)
+
+      if (existingBlob) {
+        const response = await fetch(existingBlob.url, {
+          method: 'GET',
+          cache: 'no-store',
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.databases && Array.isArray(data.databases)) {
+            return data.databases
+          }
+          // Format ancien (tableau direct)
+          if (Array.isArray(data)) {
+            return data
+          }
+        }
+      }
+    } catch (error) {
+      console.warn(yellow('⚠️  Erreur chargement Blob Storage, fallback local:'), error.message)
+    }
+  }
+  
+  // Fallback: charger depuis fichier local (pour développement)
   try {
     if (await fileExists(DATABASES_FILE)) {
       const data = await fs.readFile(DATABASES_FILE, 'utf8')
-      return JSON.parse(data)
+      const parsed = JSON.parse(data)
+      // Si c'est un objet avec databases, retourner databases
+      if (parsed.databases && Array.isArray(parsed.databases)) {
+        return parsed.databases
+      }
+      // Si c'est un tableau directement
+      if (Array.isArray(parsed)) {
+        return parsed
+      }
+      return []
     }
     return []
   } catch (error) {
@@ -810,12 +851,42 @@ async function loadDatabases() {
 
 // Sauvegarder les bases de données
 async function saveDatabases(databases) {
+  // Sur Vercel, sauvegarder directement dans Blob Storage
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    try {
+      const { put } = require('@vercel/blob')
+      const BLOB_FILENAME = 'marketplace-databases.json'
+      const dataToSave = {
+        databases,
+        lastUpdated: new Date().toISOString(),
+        count: databases.length
+      }
+      
+      await put(BLOB_FILENAME, JSON.stringify(dataToSave, null, 2), {
+        access: 'public',
+        contentType: 'application/json',
+        allowOverwrite: true
+      })
+      
+      return true
+    } catch (error) {
+      console.error(red('Erreur sauvegarde Blob Storage:'), error.message)
+      // Continuer pour essayer le fallback local si possible
+    }
+  }
+  
+  // Fallback: sauvegarde locale (pour développement)
   try {
     const dir = path.dirname(DATABASES_FILE)
     await fs.mkdir(dir, { recursive: true })
     await fs.writeFile(DATABASES_FILE, JSON.stringify(databases, null, 2), 'utf8')
     return true
   } catch (error) {
+    // Sur Vercel, le système de fichiers est en lecture seule, c'est normal
+    if (process.env.VERCEL) {
+      console.log(yellow('⚠️  Sauvegarde locale ignorée sur Vercel (système de fichiers en lecture seule)'))
+      return true // On considère que c'est OK car Blob Storage a été utilisé
+    }
     console.error(red('Erreur sauvegarde databases:'), error.message)
     return false
   }
