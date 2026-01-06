@@ -349,6 +349,11 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         };
 
       case 'Review':
+        // S'assurer que data existe et est un objet
+        if (!data || typeof data !== 'object') {
+          data = {};
+        }
+        
         const review = {
           '@context': 'https://schema.org',
           '@type': 'Review',
@@ -369,8 +374,9 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           }
         };
         
+        // itemReviewed est OBLIGATOIRE pour Google - toujours l'ajouter
         // Ajouter itemReviewed si fourni (obligatoire pour Google)
-        if (data.itemReviewed) {
+        if (data.itemReviewed && typeof data.itemReviewed === 'object') {
           // S'assurer que itemReviewed a une URL si c'est un Service ou Product
           const itemReviewed = { ...data.itemReviewed };
           if ((itemReviewed['@type'] === 'Service' || itemReviewed['@type'] === 'Product') && !itemReviewed.url) {
@@ -428,10 +434,12 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           };
         } else {
           // Par défaut : Service de scraping et automatisation
+          // Utiliser data.url si disponible (URL de la page spécifique), sinon siteConfig.url
+          const defaultUrl = data.url || siteConfig.url
           review.itemReviewed = {
             '@type': 'Product',
-            name: 'Services de Scraping et Automatisation',
-            url: siteConfig.url,
+            name: data.serviceName || 'Services de Scraping et Automatisation',
+            url: defaultUrl,
             brand: {
               '@type': 'Person',
               name: siteConfig.author,
