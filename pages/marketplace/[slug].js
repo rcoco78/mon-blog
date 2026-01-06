@@ -81,6 +81,20 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
     const lowerKey = key.toLowerCase()
     const lowerValue = strValue.toLowerCase()
     
+    // Anonymiser les noms et prénoms
+    if (lowerKey.includes('nom') || lowerKey.includes('name') || lowerKey.includes('prénom') || lowerKey.includes('firstname') || lowerKey.includes('lastname')) {
+      // Si c'est un nom composé ou avec plusieurs mots, garder la première lettre de chaque mot
+      const words = strValue.split(/\s+/)
+      if (words.length > 1) {
+        return words.map(word => word.length > 0 ? word[0] + '**' : '**').join(' ')
+      }
+      // Sinon, garder les 2 premières lettres et masquer le reste
+      if (strValue.length > 2) {
+        return strValue.substring(0, 2) + '**'
+      }
+      return '**'
+    }
+    
     // Anonymiser les emails
     if (lowerKey.includes('email') || lowerKey.includes('mail') || strValue.includes('@')) {
       const [localPart, domain] = strValue.split('@')
@@ -107,12 +121,13 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
       return '***'
     }
     
-    // Anonymiser les URLs de contact ou profils personnels
-    if (lowerKey.includes('url') && (lowerValue.includes('profile') || lowerValue.includes('contact') || 
-        lowerValue.includes('agent') || lowerValue.includes('real-estate-agent'))) {
+    // Anonymiser les URLs LinkedIn et autres profils personnels
+    if (lowerValue.includes('linkedin.com/in/') || lowerValue.includes('linkedin.com/company/') ||
+        (lowerKey.includes('url') && (lowerValue.includes('profile') || lowerValue.includes('contact') || 
+        lowerValue.includes('agent') || lowerValue.includes('real-estate-agent') || lowerValue.includes('linkedin')))) {
       const urlParts = strValue.split('/')
       if (urlParts.length > 0) {
-        const lastPart = urlParts[urlParts.length - 1]
+        const lastPart = urlParts[urlParts.length - 1].split('?')[0] // Enlever les query params
         if (lastPart.length > 3) {
           return urlParts.slice(0, -1).join('/') + '/' + lastPart.substring(0, 3) + '***'
         }
@@ -898,7 +913,8 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                          headerLower.includes('telephone') || 
                          headerLower.includes('phone') || 
                          headerLower.includes('whatsapp') ||
-                         headerLower.includes('contact')
+                         headerLower.includes('contact') ||
+                         (headerLower.includes('url') && (headerLower.includes('linkedin') || headerLower.includes('profil') || headerLower.includes('profile')))
                 }
                 
                 // Trier : contacts en premier, puis les autres
