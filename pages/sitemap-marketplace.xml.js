@@ -8,12 +8,20 @@ export const getServerSideProps = async ({ res }) => {
   const today = new Date().toISOString().split('T')[0]
 
   // Charger les outils statiques et les bases de données dynamiques
-  const dynamicDatabases = getDatabasesAsTools()
-  const allTools = [...dynamicDatabases, ...tools]
+  let dynamicDatabases = []
+  try {
+    dynamicDatabases = await getDatabasesAsTools()
+  } catch (error) {
+    console.error('Erreur lors du chargement des bases de données pour le sitemap:', error)
+    // Continuer avec les outils statiques uniquement
+  }
+  
+  const allTools = [...(dynamicDatabases || []), ...tools]
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   ${allTools
+    .filter((tool) => tool && tool.link) // Filtrer les outils sans lien
     .map((tool) => {
       return `
   <url>
