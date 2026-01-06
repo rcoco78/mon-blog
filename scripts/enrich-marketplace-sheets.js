@@ -1017,12 +1017,23 @@ async function main() {
     }
     
     // Limiter le nombre de sheets à traiter (pour éviter timeout sur Vercel)
-    const sheetsToProcessLimited = limit ? sheetsToEnrich.slice(0, limit) : sheetsToEnrich
+    // IMPORTANT: Maximum 2 sheets par exécution, s'arrêter définitivement après
+    // Par défaut, limite à 2 sheets même si --limit n'est pas spécifié (sauf si --all est utilisé)
+    const maxSheets = allSheets ? (limit || sheetsToEnrich.length) : (limit || 2)
+    const sheetsToProcessLimited = sheetsToEnrich.slice(0, maxSheets)
     
-    console.log(blue(`\n📝 ${sheetsToProcessLimited.length} sheet(s) à enrichir sur ${sheetsToEnrich.length} trouvé(s)${limit ? ` (limite: ${limit})` : ''}\n`))
+    console.log(blue(`\n📝 ${sheetsToProcessLimited.length} sheet(s) à enrichir sur ${sheetsToEnrich.length} trouvé(s) (limite: ${maxSheets})\n`))
     
-    // Traiter chaque sheet à enrichir (limité)
+    // Traiter chaque sheet à enrichir (limité) - S'ARRÊTER APRÈS maxSheets
+    let processedCount = 0
     for (const sheet of sheetsToProcessLimited) {
+      // S'arrêter définitivement après avoir traité maxSheets
+      if (processedCount >= maxSheets) {
+        console.log(yellow(`\n⏸️  Limite de ${maxSheets} sheet(s) atteinte. Arrêt du traitement.\n`))
+        break
+      }
+      
+      processedCount++
       console.log(cyan(`\n📄 ${sheet.name}...`))
       
       // Analyser
@@ -1084,16 +1095,22 @@ async function main() {
       // Sauvegarder après chaque traitement pour éviter de perdre le travail en cas de timeout
       await saveDatabases(databases)
       console.log(cyan(`  💾 Sauvegardé (${databases.length} base(s) au total)`))
+      
+      // S'arrêter définitivement après avoir traité maxSheets
+      if (processedCount >= maxSheets) {
+        console.log(yellow(`\n⏸️  Limite de ${maxSheets} sheet(s) atteinte. Arrêt du traitement.\n`))
+        break
+      }
     }
     
     // Sauvegarder final (au cas où)
     await saveDatabases(databases)
     
-    if (limit && sheetsToEnrich.length > limit) {
-      const remaining = sheetsToEnrich.length - limit
-      console.log(yellow(`\n⚠️  ${remaining} sheet(s) restant(s) à traiter lors du prochain cron\n`))
+    const remaining = sheetsToEnrich.length - processedCount
+    if (remaining > 0) {
+      console.log(yellow(`\n⚠️  ${remaining} sheet(s) restant(s) à traiter lors du prochain cron (${processedCount}/${sheetsToEnrich.length} traités)\n`))
     } else {
-      console.log(green(`\n✅ ${databases.length} base(s) de données sauvegardée(s)\n`))
+      console.log(green(`\n✅ ${databases.length} base(s) de données sauvegardée(s) (${processedCount} sheet(s) traité(s))\n`))
     }
     
   } catch (error) {
