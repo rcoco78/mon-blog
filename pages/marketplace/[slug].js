@@ -799,18 +799,75 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
             {/* Liste des champs disponibles */}
             <div className="mb-8">
               <h3 className="font-semibold text-lg mb-4 tracking-tighter">Colonnes incluses ({database.headers.length} champs)</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {database.headers.map((header, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    <svg className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <div>
-                      <p className="font-medium text-neutral-900 dark:text-neutral-100">{header}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              
+              {/* Fonction pour détecter si une colonne est un contact */}
+              {(() => {
+                const isContactField = (header) => {
+                  const headerLower = header.toLowerCase()
+                  return headerLower.includes('email') || 
+                         headerLower.includes('téléphone') || 
+                         headerLower.includes('telephone') || 
+                         headerLower.includes('phone') || 
+                         headerLower.includes('whatsapp') ||
+                         headerLower.includes('contact')
+                }
+                
+                const contactFields = database.headers.filter(isContactField)
+                const otherFields = database.headers.filter(h => !isContactField(h))
+                
+                return (
+                  <>
+                    {/* Section Informations de contact en avant */}
+                    {contactFields.length > 0 && (
+                      <div className="mb-6">
+                        <div className="flex items-center gap-2 mb-3">
+                          <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          <h4 className="font-semibold text-base text-blue-600 dark:text-blue-400">Informations de contact</h4>
+                          <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded">
+                            {contactFields.length} champ{contactFields.length > 1 ? 's' : ''}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                          {contactFields.map((header, index) => (
+                            <div key={`contact-${index}`} className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                              <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                              </svg>
+                              <div className="flex-1">
+                                <p className="font-semibold text-blue-900 dark:text-blue-100">{header}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Autres champs */}
+                    {otherFields.length > 0 && (
+                      <div>
+                        {contactFields.length > 0 && (
+                          <h4 className="font-semibold text-base mb-3 text-neutral-700 dark:text-neutral-300">Autres informations</h4>
+                        )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {otherFields.map((header, index) => (
+                            <div key={`other-${index}`} className="flex items-start gap-2">
+                              <svg className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                              <div>
+                                <p className="font-medium text-neutral-900 dark:text-neutral-100">{header}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
             </div>
           </div>
         </section>
