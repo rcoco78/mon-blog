@@ -369,7 +369,14 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
       }
     },
     datePublished: today,
-    dateModified: today
+    dateModified: today,
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '5',
+      reviewCount: '270',
+      bestRating: '5',
+      worstRating: '1'
+    }
   }
 
   // Breadcrumb pour SEO uniquement (invisible)
@@ -498,17 +505,6 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
           name: `Comment obtenir un scraping ${caseStudy.sector.toLowerCase()} sur-mesure`,
           description: `Processus étape par étape pour obtenir un scraping personnalisé pour ${caseStudy.sector.toLowerCase()}`,
           steps: howToSteps
-        }}
-      />
-
-      {/* AggregateRating Schema */}
-      <StructuredData
-        type="AggregateRating"
-        data={{
-          ratingValue: '5',
-          reviewCount: '270',
-          bestRating: '5',
-          worstRating: '1'
         }}
       />
 

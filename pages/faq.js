@@ -159,14 +159,21 @@ export default function FAQPage() {
           }
         }}
       />
+      {/* Service Schema avec AggregateRating intégré */}
       <StructuredData
-        type="AggregateRating"
+        type="Service"
         data={{
-          '@type': 'AggregateRating',
-          ratingValue: '5',
-          reviewCount: '100',
-          bestRating: '5',
-          worstRating: '1'
+          name: 'Scraping et Automatisation',
+          serviceType: 'Web Scraping, Data Automation, Outbound Marketing',
+          description: 'Expert freelance en scraping web et automatisation. Services de scraping et automatisation sur-mesure.',
+          url: `${siteConfig.url}/faq`,
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: '5',
+            reviewCount: '100',
+            bestRating: '5',
+            worstRating: '1'
+          }
         }}
       />
 
