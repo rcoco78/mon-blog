@@ -11,7 +11,6 @@ import { tools } from '../lib/tools'
 
 export default function Marketplace({ dynamicDatabases = [] }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
-  const [selectedType, setSelectedType] = useState(null) // 'outil' | 'database' | null
   const [selectedPricing, setSelectedPricing] = useState(null) // 'gratuit' | '<100' | '100-200' | '200+' | null
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
@@ -43,7 +42,6 @@ export default function Marketplace({ dynamicDatabases = [] }) {
     }
   }
 
-  const types = ['outil', 'database']
   const pricingRanges = [
     { value: 'gratuit', label: 'Gratuit', min: 0, max: 0 },
     { value: '<100', label: '< 100€', min: 1, max: 99 },
@@ -65,7 +63,6 @@ export default function Marketplace({ dynamicDatabases = [] }) {
   const filteredTools = allTools
     .filter(tool => {
       const matchesCategory = selectedCategory === null || tool.category === selectedCategory
-      const matchesType = selectedType === null || tool.type === selectedType
       
       // Filtrage par palier de prix
       let matchesPricing = true
@@ -81,7 +78,7 @@ export default function Marketplace({ dynamicDatabases = [] }) {
         }
       }
       
-      return matchesCategory && matchesType && matchesPricing
+      return matchesCategory && matchesPricing
     })
     .sort((a, b) => {
       // Trier par date : du plus récent au plus ancien
@@ -257,45 +254,6 @@ export default function Marketplace({ dynamicDatabases = [] }) {
 
           {/* Filtres */}
           <div className="space-y-4 mb-8">
-            {/* Filtre par Type */}
-            <div>
-              <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                Type
-              </label>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => setSelectedType(null)}
-                  className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
-                    selectedType === null
-                      ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
-                      : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
-                  }`}
-                >
-                  Tous
-                </button>
-                <button
-                  onClick={() => setSelectedType('outil')}
-                  className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
-                    selectedType === 'outil'
-                      ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
-                      : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
-                  }`}
-                >
-                  Outils
-                </button>
-                <button
-                  onClick={() => setSelectedType('database')}
-                  className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
-                    selectedType === 'database'
-                      ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
-                      : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
-                  }`}
-                >
-                  Bases de données
-                </button>
-              </div>
-            </div>
-
             {/* Filtre par Prix */}
             <div>
               <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
@@ -351,7 +309,6 @@ export default function Marketplace({ dynamicDatabases = [] }) {
               <button
                 onClick={() => {
                   setSelectedCategory(null)
-                  setSelectedType(null)
                   setSelectedPricing(null)
                 }}
                 className="text-sm text-neutral-900 dark:text-neutral-100 underline hover:no-underline"
