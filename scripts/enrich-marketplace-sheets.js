@@ -315,17 +315,31 @@ RÈGLES STRICTES :
 1. Format : Le titre sera automatiquement préfixé par "Base de données - " dans le code
 2. Donc génère UNIQUEMENT la partie après "Base de données - "
 3. Le titre doit être :
-   - Informatif : mentionne le type de données et la source si pertinente
-   - Accrocheur : met en avant la valeur ou le secteur
-   - Concis : 40-60 caractères (sans compter le préfixe)
-   - SEO-friendly : inclut des mots-clés recherchés
-4. Exemples de bons titres :
-   - "Conseillers immobiliers Safti France" (au lieu de juste "Safti France")
-   - "Artisans du bâtiment CAPEB certifiés RGE" (au lieu de juste "Capeb")
-   - "Produits e-commerce Ichard.fr accessoires auto" (au lieu de juste "Ichard.fr")
-   - "Contacts IAD France agents immobiliers" (au lieu de juste "IAD France")
-5. Évite les dates (2026, 2025) sauf si vraiment pertinent
-6. Priorise les mots-clés qui aident à comprendre immédiatement le contenu
+   - TRÈS CONCIS : 25-40 caractères maximum (sans compter le préfixe)
+   - PRÉCIS : mentionne uniquement l'essentiel (type de données + source/zone géographique si pertinent)
+   - DIRECT : va droit au but, pas de détails superflus
+   - SEO-friendly : inclut les mots-clés principaux recherchés
+4. Exemples de BONS titres (courts et précis) :
+   - "Agences immobilières et notaires France" (au lieu de "Agences immobilières et notaires en France")
+   - "Contacts agences immobilières France" (au lieu de "Contacts d'agences immobilières et notaires en France")
+   - "Produits Staycation Londres" (au lieu de "Produits e-commerce Staycation avec prix et expériences")
+   - "Contacts acheteurs vin Wine Paris 2025" (au lieu de "Contacts acheteurs et importateurs vin Wine Paris 2025")
+   - "Exposants Millésime Bio Europe" (au lieu de "Contacts B2B Millésime Bio Exposants Européens")
+   - "Agences immobilières et syndics France" (au lieu de "Agences immobilières France - Syndic de copropriété")
+   - "Administrateurs judiciaires France" (au lieu de "Contacts Administrateurs Judiciaires France")
+   - "Avocats droit des sociétés France" (au lieu de "Avocats spécialisés Droit des sociétés Bourg En Bresse")
+5. Exemples de MAUVAIS titres (trop longs, trop détaillés) :
+   - ❌ "Agences immobilières et notaires en France" (trop long)
+   - ❌ "Contacts d'agences immobilières et notaires en France" (trop long, "d'" inutile)
+   - ❌ "Produits e-commerce Staycation avec prix et expériences" (trop de détails)
+   - ❌ "Contacts B2B Millésime Bio Exposants Européens" (trop de mots)
+6. RÈGLES DE CONCISION :
+   - Évite les articles superflus ("d'", "de", "des", "du" sauf si nécessaire pour la compréhension)
+   - Évite les détails techniques dans le titre ("avec prix", "incluant", "comprenant")
+   - Évite les dates (2026, 2025) sauf si vraiment essentiel pour différencier
+   - Évite les adjectifs superflus ("complet", "exhaustif", "détaillé")
+   - Priorise : [Type de données] + [Source/Zone] (ex: "Agences immobilières France")
+7. Priorise les mots-clés qui aident à comprendre immédiatement le contenu, mais reste concis
 
 ### 3b. Description courte (80-120 mots, 2-3 phrases) - CRITIQUE
 Génère une description courte mais ÉTOFFÉE avec contexte et utilité concrète.
@@ -492,7 +506,7 @@ IMPORTANT : Chaque question doit être UNIQUE et montrer une compréhension appr
 
 Réponds UNIQUEMENT en JSON avec cette structure exacte:
 {
-  "title": "Titre optimisé (sans le préfixe 'Base de données -', max 60 caractères, informatif et accrocheur avec mots-clés SEO)",
+  "title": "Titre optimisé TRÈS CONCIS (sans le préfixe 'Base de données -', 25-40 caractères MAXIMUM, précis et direct, pas de détails superflus, ex: 'Agences immobilières France' plutôt que 'Agences immobilières et notaires en France')",
   "description": "Description SEO optimisée de 200-250 mots, très précise sur le contenu réel (pour meta description)",
   "shortDescription": "Description courte de 80-120 mots (2-3 phrases) avec contexte et utilité. 1ère phrase : présentation (nombre, type, source). 2ème phrase : contexte et utilité (à quoi ça sert, pour qui). 3ème phrase (optionnelle) : cas d'usage ou valeur ajoutée.",
   "category": "E-commerce|Finance|Artisanat|...",
