@@ -53,6 +53,21 @@ const enrichOffer = (offer) => {
       };
     }
     
+    // Ajouter hasMerchantReturnPolicy si manquant (politique de retour/remboursement)
+    if (!enrichedOffer.hasMerchantReturnPolicy) {
+      enrichedOffer.hasMerchantReturnPolicy = {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: {
+          '@type': 'Country',
+          name: 'FR'
+        },
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 14,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/FreeReturn'
+      };
+    }
+    
     return enrichedOffer;
   }
   return offer;
