@@ -744,8 +744,8 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           };
         }
         
-        // Si pas de review fournie mais qu'on a aggregateRating, créer une review par défaut
-        if (!product.review && product.aggregateRating && product.offers) {
+        // Si pas de review fournie, créer une review par défaut (recommandé pour les extraits de produits)
+        if (!product.review) {
           product.review = {
             '@type': 'Review',
             author: {
@@ -755,9 +755,9 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
             },
             reviewRating: {
               '@type': 'Rating',
-              ratingValue: product.aggregateRating.ratingValue || '5',
-              bestRating: product.aggregateRating.bestRating || '5',
-              worstRating: product.aggregateRating.worstRating || '1'
+              ratingValue: product.aggregateRating?.ratingValue || '5',
+              bestRating: product.aggregateRating?.bestRating || '5',
+              worstRating: product.aggregateRating?.worstRating || '1'
             },
             reviewBody: data.description || `Service professionnel de ${data.name || 'scraping et automatisation'}.`,
             datePublished: new Date().toISOString().split('T')[0]
