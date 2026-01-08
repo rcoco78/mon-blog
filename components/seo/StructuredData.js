@@ -7,17 +7,53 @@ const getPriceValidUntil = () => {
   return date.toISOString().split('T')[0]; // Format YYYY-MM-DD
 };
 
-// Fonction pour enrichir un offer avec priceValidUntil si manquant
+// Fonction pour enrichir un offer avec priceValidUntil et shippingDetails si manquants
 const enrichOffer = (offer) => {
   if (!offer || typeof offer !== 'object') {
     return offer;
   }
-  // Si c'est un Offer et qu'il n'a pas déjà priceValidUntil, l'ajouter
-  if (offer['@type'] === 'Offer' && !offer.priceValidUntil) {
-    return {
-      ...offer,
-      priceValidUntil: getPriceValidUntil()
-    };
+  // Si c'est un Offer, enrichir avec les champs manquants
+  if (offer['@type'] === 'Offer') {
+    const enrichedOffer = { ...offer };
+    
+    // Ajouter priceValidUntil si manquant
+    if (!enrichedOffer.priceValidUntil) {
+      enrichedOffer.priceValidUntil = getPriceValidUntil();
+    }
+    
+    // Ajouter shippingDetails si manquant (pour services numériques, livraison instantanée)
+    if (!enrichedOffer.shippingDetails) {
+      enrichedOffer.shippingDetails = {
+        '@type': 'OfferShippingDetails',
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: '0',
+          currency: 'EUR'
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          businessDays: {
+            '@type': 'OpeningHoursSpecification',
+            dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+          },
+          cutoffTime: '23:59',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 0,
+            maxValue: 0,
+            unitCode: 'DAY'
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 0,
+            maxValue: 0,
+            unitCode: 'DAY'
+          }
+        }
+      };
+    }
+    
+    return enrichedOffer;
   }
   return offer;
 };
