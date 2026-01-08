@@ -1467,26 +1467,9 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
   )
 }
 
-// Génération statique des pages
-export async function getStaticPaths() {
-  const { getAllDatabases } = await import('../../../lib/marketplace-databases')
-  const { categoryToSlug } = await import('../../../lib/marketplace-helpers')
-  const databases = await getAllDatabases() // Utiliser await car getAllDatabases est async
-  
-  const paths = databases.map(db => ({
-    params: { 
-      category: categoryToSlug(db.category),
-      slug: db.slug 
-    }
-  }))
-
-  return {
-    paths,
-    fallback: 'blocking'
-  }
-}
-
-export async function getStaticProps({ params }) {
+// Utiliser getServerSideProps pour charger les données depuis Blob Storage à chaque requête
+// Cela permet d'avoir les bases de données les plus récentes même si elles ont été ajoutées après le build
+export async function getServerSideProps({ params }) {
   const { getDatabaseBySlug, getRelatedDatabases } = await import('../../../lib/marketplace-databases')
   const { slugToCategory, categoryToSlug, validateCategory } = await import('../../../lib/marketplace-helpers')
   
@@ -1537,7 +1520,6 @@ export async function getStaticProps({ params }) {
     props: {
       database,
       relatedDatabases
-    },
-    revalidate: 3600
+    }
   }
 }
