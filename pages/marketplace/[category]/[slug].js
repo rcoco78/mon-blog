@@ -1488,7 +1488,7 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const { getDatabaseBySlug, getRelatedDatabases } = await import('../../../lib/marketplace-databases')
-  const { slugToCategory, categoryToSlug } = await import('../../../lib/marketplace-helpers')
+  const { slugToCategory, categoryToSlug, validateCategory } = await import('../../../lib/marketplace-helpers')
   
   // Vérifier que la catégorie correspond à la base de données
   const category = slugToCategory(params.category)
@@ -1502,16 +1502,33 @@ export async function getStaticProps({ params }) {
   const database = await getDatabaseBySlug(params.slug)
   
   if (!database) {
+    // Si la base de données n'existe pas, vérifier si elle existe avec un slug similaire
+    // ou si elle a été supprimée
     return {
       notFound: true
     }
   }
   
-  // Vérifier que le secteur correspond bien à la base de données
-  if (database.category !== category) {
+  // Normaliser les deux catégories pour la comparaison (évite les problèmes de casse/variantes)
+  const normalizedUrlCategory = validateCategory(category)
+  const normalizedDbCategory = validateCategory(database.category)
+  
+  // Vérifier que le secteur correspond bien à la base de données (après normalisation)
+  if (normalizedDbCategory !== normalizedUrlCategory) {
+    // Si la catégorie ne correspond pas, rediriger vers la bonne URL avec la catégorie correcte
+    // Cela gère les cas où la catégorie a été normalisée (ex: "Ecommerce" -> "E-commerce")
+    const correctCategorySlug = categoryToSlug(normalizedDbCategory)
     return {
-      notFound: true
+      redirect: {
+        destination: `/marketplace/${correctCategorySlug}/${database.slug}`,
+        permanent: true
+      }
     }
+  }
+  
+  // Si la catégorie de la base de données était invalide, la corriger
+  if (database.category !== normalizedDbCategory) {
+    database.category = normalizedDbCategory
   }
 
   const relatedDatabases = await getRelatedDatabases(params.slug, 3)
