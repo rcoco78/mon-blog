@@ -388,14 +388,42 @@ IMPORTANT :
 - Adapte au secteur et au type de données
 
 ### 8. Catégorie
-- Choisis parmi : Finance, Artisanat, E-commerce, Retail, B2B, Services, Immobilier, etc.
+- **IMPORTANT : Tu DOIS choisir UNIQUEMENT parmi ces catégories valides :**
+  * Immobilier
+  * Artisanat
+  * B2B
+  * Finance
+  * E-commerce
+  * Retail
+  * Services
+  * Santé
+  * Éducation
+  * Sport & Loisirs
+  * Beauté & Bien-être
+  * Automobile
+  * Hôtellerie
+  * Juridique
+  * Transport & Logistique
+  * Tourisme & Voyage
+  * Automatisation
+  * Autres
+  * Développement
+  * IA & Machine Learning
+  * Médias & Actualités
+  * Recrutement & RH
+  * Réseaux Sociaux & Lead Generation
+  * SEO & Analytics
+  * VC (ou Venture Capital, Capital Risque)
+
 - **RÈGLES STRICTES pour la catégorie :**
   * Si le nom contient "Safti", "IAD", "immobilier", "agence immobilière", "notaire" → catégorie "Immobilier"
   * Si les colonnes contiennent "prix", "surface", "chambres", "ville", "code postal", "type bien", "bien immobilier" → catégorie "Immobilier"
   * Si c'est un réseau d'agences immobilières → catégorie "Immobilier" (PAS "B2B")
   * Si c'est des contacts d'entreprises mais dans le secteur immobilier → catégorie "Immobilier"
   * "B2B" est pour les contacts d'entreprises génériques, PAS pour l'immobilier
+  * Si aucune catégorie ne correspond exactement, utilise "Autres" (PAS de catégories inventées)
 - Sois précis selon le secteur réel. Ne confonds PAS "Immobilier" avec "B2B"
+- **NE CRÉE JAMAIS de nouvelles catégories** - utilise uniquement celles listées ci-dessus
 
 ### 8b. Slug SEO-optimisé (CRITIQUE)
 Génère un slug URL-friendly et optimisé SEO avec des mots-clés pertinents.
@@ -509,7 +537,7 @@ Réponds UNIQUEMENT en JSON avec cette structure exacte:
   "title": "Titre optimisé TRÈS CONCIS (sans le préfixe 'Base de données -', 25-40 caractères MAXIMUM, précis et direct, pas de détails superflus, ex: 'Agences immobilières France' plutôt que 'Agences immobilières et notaires en France')",
   "description": "Description SEO optimisée de 200-250 mots, très précise sur le contenu réel (pour meta description)",
   "shortDescription": "Description courte de 80-120 mots (2-3 phrases) avec contexte et utilité. 1ère phrase : présentation (nombre, type, source). 2ème phrase : contexte et utilité (à quoi ça sert, pour qui). 3ème phrase (optionnelle) : cas d'usage ou valeur ajoutée.",
-  "category": "E-commerce|Finance|Artisanat|...",
+  "category": "Une catégorie parmi : Immobilier, Artisanat, B2B, Finance, E-commerce, Retail, Services, Santé, Éducation, Sport & Loisirs, Beauté & Bien-être, Automobile, Hôtellerie, Juridique, Transport & Logistique, Tourisme & Voyage, Automatisation, Autres, Développement, IA & Machine Learning, Médias & Actualités, Recrutement & RH, Réseaux Sociaux & Lead Generation, SEO & Analytics, VC",
   "slug": "slug-seo-optimise-avec-mots-cles-pertinents",
   "price": 99,
   "isPaid": true,
@@ -606,11 +634,26 @@ IMPORTANT :
     // Calculer le taux d'enrichissement des champs de contact
     const contactCompleteness = calculateContactCompleteness(sheetData.headers, sheetData.analysisRows, sheetData.rowCount)
     
+    // Valider la catégorie pour éviter les catégories invalides qui créeraient des 404
+    let validatedCategory = 'Finance' // Fallback par défaut
+    try {
+      // Importer dynamiquement validateCategory (module ES dans un script CommonJS)
+      const { validateCategory } = await import('../lib/marketplace-helpers.js')
+      validatedCategory = validateCategory(response.category || 'Finance')
+      
+      // Avertir si la catégorie a été modifiée
+      if (response.category && response.category !== validatedCategory) {
+        console.log(yellow(`⚠️  Catégorie "${response.category}" non valide, remplacée par "${validatedCategory}"`))
+      }
+    } catch (error) {
+      console.error(yellow(`⚠️  Erreur lors de la validation de la catégorie, utilisation du fallback: ${error.message}`))
+    }
+    
     return {
       title: response.title || null, // Titre optimisé généré par GPT (sans le préfixe "Base de données -")
       description: response.description || getDefaultEnrichment(sheetData).description,
       shortDescription: response.shortDescription || getDefaultEnrichment(sheetData).shortDescription,
-      category: response.category || 'Finance',
+      category: validatedCategory, // Catégorie validée (évite les 404)
       slug: optimizedSlug, // Slug SEO-optimisé
       price: finalPrice,
       isPaid: response.isPaid !== undefined ? response.isPaid : true,
