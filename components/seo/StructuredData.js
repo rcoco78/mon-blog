@@ -531,7 +531,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           name: data.name,
           description: data.description,
           url: data.url,
-          image: data.image,
+          image: data.image || siteConfig.ogImage, // Image obligatoire pour Product schema
           brand: data.brand,
           aggregateRating: data.aggregateRating,
           offers: data.offers ? enrichOffer(data.offers) : undefined,

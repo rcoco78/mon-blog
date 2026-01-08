@@ -24,6 +24,16 @@ const getPriceValidUntil = () => {
   return date.toISOString().split('T')[0]; // Format YYYY-MM-DD
 };
 
+// Fonction helper pour générer l'image du case study avec fallback
+const getCaseStudyImage = (caseStudy, personalizedData) => {
+  if (personalizedData?.dataExample) {
+    return `${siteConfig.url}/images/case-studies/${caseStudy.slug}-data-example.png`;
+  }
+  // Fallback vers l'image du secteur, puis vers ogImage
+  const sectorImage = `${siteConfig.url}/images/case-studies/${caseStudy.sector.toLowerCase()}.jpg`;
+  return sectorImage || siteConfig.ogImage;
+};
+
 export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies, relatedPosts, relatedTools, views = 0, isPopular = false, personalizedData: personalizedDataProp = null }) {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
@@ -553,9 +563,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
           name: caseStudy.title,
           description: `Service de scraping et automatisation pour ${caseStudy.sector.toLowerCase()}`,
           url: pageUrl,
-          image: personalizedData?.dataExample 
-            ? `${siteConfig.url}/images/case-studies/${caseStudy.slug}-data-example.png`
-            : `${siteConfig.url}/images/case-studies/${caseStudy.sector.toLowerCase()}.jpg`,
+          image: getCaseStudyImage(caseStudy, personalizedData),
           brand: {
             '@type': 'Person',
             name: siteConfig.author,
@@ -602,6 +610,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
             name: caseStudy.title,
             url: pageUrl,
             description: `Service de scraping et automatisation pour ${caseStudy.sector.toLowerCase()}`,
+            image: getCaseStudyImage(caseStudy, personalizedData),
             brand: {
               '@type': 'Person',
               name: siteConfig.author,
@@ -1249,6 +1258,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
                         '@type': 'Product',
                         name: caseStudy.title,
                         url: pageUrl,
+                        image: getCaseStudyImage(caseStudy, personalizedData),
                         brand: {
                           '@type': 'Person',
                           name: siteConfig.author,
