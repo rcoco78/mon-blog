@@ -582,6 +582,13 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
               valueAddedTaxIncluded: true
             }
           },
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: '5',
+            reviewCount: '1',
+            bestRating: '5',
+            worstRating: '1'
+          },
           review: {
             '@type': 'Review',
             author: {

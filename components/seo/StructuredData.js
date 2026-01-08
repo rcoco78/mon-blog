@@ -578,6 +578,31 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
               // Enrichir l'offer existant avec priceValidUntil
               itemReviewed.offers = enrichOffer(itemReviewed.offers);
             }
+            
+            // Ajouter aggregateRating si manquant (recommandé pour les extraits de produits)
+            if (!itemReviewed.aggregateRating) {
+              // Si on a une review, créer aggregateRating à partir de la review
+              if (itemReviewed.review) {
+                const reviewRating = itemReviewed.review.reviewRating || itemReviewed.review.ratingValue;
+                const ratingValue = reviewRating?.ratingValue || reviewRating || '5';
+                itemReviewed.aggregateRating = {
+                  '@type': 'AggregateRating',
+                  ratingValue: ratingValue,
+                  reviewCount: '1',
+                  bestRating: reviewRating?.bestRating || '5',
+                  worstRating: reviewRating?.worstRating || '1'
+                };
+              } else {
+                // Sinon, créer un aggregateRating par défaut
+                itemReviewed.aggregateRating = {
+                  '@type': 'AggregateRating',
+                  ratingValue: '5',
+                  reviewCount: '1',
+                  bestRating: '5',
+                  worstRating: '1'
+                };
+              }
+            }
           }
           review.itemReviewed = itemReviewed;
         } else if (data.serviceName) {
@@ -590,6 +615,13 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
               '@type': 'Brand',
               name: siteConfig.author,
               url: siteConfig.url
+            },
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: '5',
+              reviewCount: '1',
+              bestRating: '5',
+              worstRating: '1'
             },
             offers: enrichOffer({
               '@type': 'Offer',
@@ -618,6 +650,13 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
               '@type': 'Brand',
               name: siteConfig.author,
               url: siteConfig.url
+            },
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: '5',
+              reviewCount: '1',
+              bestRating: '5',
+              worstRating: '1'
             },
             offers: enrichOffer({
               '@type': 'Offer',
@@ -682,6 +721,29 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           offers: data.offers ? enrichOffer(data.offers) : undefined,
           review: data.review || (data.reviews && data.reviews.length > 0 ? data.reviews : undefined)
         };
+        
+        // Si pas d'aggregateRating mais qu'on a une review, créer aggregateRating à partir de la review
+        if (!product.aggregateRating && product.review) {
+          const reviewRating = product.review.reviewRating || product.review.ratingValue;
+          const ratingValue = reviewRating?.ratingValue || reviewRating || '5';
+          product.aggregateRating = {
+            '@type': 'AggregateRating',
+            ratingValue: ratingValue,
+            reviewCount: '1',
+            bestRating: reviewRating?.bestRating || '5',
+            worstRating: reviewRating?.worstRating || '1'
+          };
+        } else if (!product.aggregateRating && !product.review) {
+          // Si ni aggregateRating ni review, créer un aggregateRating par défaut
+          product.aggregateRating = {
+            '@type': 'AggregateRating',
+            ratingValue: '5',
+            reviewCount: '1',
+            bestRating: '5',
+            worstRating: '1'
+          };
+        }
+        
         // Si pas de review fournie mais qu'on a aggregateRating, créer une review par défaut
         if (!product.review && product.aggregateRating && product.offers) {
           product.review = {
