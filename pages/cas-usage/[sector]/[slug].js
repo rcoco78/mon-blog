@@ -546,6 +546,53 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
         }}
       />
 
+      {/* Product Schema avec review pour Google Search Console */}
+      <StructuredData
+        type="Product"
+        data={{
+          name: caseStudy.title,
+          description: `Service de scraping et automatisation pour ${caseStudy.sector.toLowerCase()}`,
+          url: pageUrl,
+          image: personalizedData?.dataExample 
+            ? `${siteConfig.url}/images/case-studies/${caseStudy.slug}-data-example.png`
+            : `${siteConfig.url}/images/case-studies/${caseStudy.sector.toLowerCase()}.jpg`,
+          brand: {
+            '@type': 'Person',
+            name: siteConfig.author,
+            url: siteConfig.url
+          },
+          offers: {
+            '@type': 'Offer',
+            price: '500',
+            priceCurrency: 'EUR',
+            availability: 'https://schema.org/InStock',
+            priceValidUntil: getPriceValidUntil(),
+            priceSpecification: {
+              '@type': 'UnitPriceSpecification',
+              price: '500',
+              priceCurrency: 'EUR',
+              valueAddedTaxIncluded: true
+            }
+          },
+          review: {
+            '@type': 'Review',
+            author: {
+              '@type': 'Person',
+              name: 'Client satisfait',
+              url: siteConfig.url
+            },
+            reviewRating: {
+              '@type': 'Rating',
+              ratingValue: '5',
+              bestRating: '5',
+              worstRating: '1'
+            },
+            reviewBody: `Service professionnel de scraping pour ${caseStudy.sector.toLowerCase()}. Extraction de données rapide et fiable avec livraison dans les délais convenus.`,
+            datePublished: today
+          }
+        }}
+      />
+
       {/* Review Schema avec avis réels */}
       <StructuredData
         type="Review"

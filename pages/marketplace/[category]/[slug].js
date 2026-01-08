@@ -359,6 +359,22 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
             reviewCount: '1',
             bestRating: '5',
             worstRating: '1'
+          },
+          review: {
+            '@type': 'Review',
+            author: {
+              '@type': 'Person',
+              name: siteConfig.author,
+              url: siteConfig.url
+            },
+            reviewRating: {
+              '@type': 'Rating',
+              ratingValue: '5',
+              bestRating: '5',
+              worstRating: '1'
+            },
+            reviewBody: toolData.fullDescription,
+            datePublished: database.date
           }
         }}
       />

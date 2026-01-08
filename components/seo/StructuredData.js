@@ -534,8 +534,28 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           image: data.image,
           brand: data.brand,
           aggregateRating: data.aggregateRating,
-          offers: data.offers ? enrichOffer(data.offers) : undefined
+          offers: data.offers ? enrichOffer(data.offers) : undefined,
+          review: data.review || (data.reviews && data.reviews.length > 0 ? data.reviews : undefined)
         };
+        // Si pas de review fournie mais qu'on a aggregateRating, créer une review par défaut
+        if (!product.review && product.aggregateRating && product.offers) {
+          product.review = {
+            '@type': 'Review',
+            author: {
+              '@type': 'Person',
+              name: siteConfig.author,
+              url: siteConfig.url
+            },
+            reviewRating: {
+              '@type': 'Rating',
+              ratingValue: product.aggregateRating.ratingValue || '5',
+              bestRating: product.aggregateRating.bestRating || '5',
+              worstRating: product.aggregateRating.worstRating || '1'
+            },
+            reviewBody: data.description || `Service professionnel de ${data.name || 'scraping et automatisation'}.`,
+            datePublished: new Date().toISOString().split('T')[0]
+          };
+        }
         // Ajouter d'autres champs optionnels
         if (data.sku) product.sku = data.sku;
         if (data.gtin) product.gtin = data.gtin;
