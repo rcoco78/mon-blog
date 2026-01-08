@@ -470,6 +470,11 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
               itemReviewed.url = data.url || siteConfig.url;
             }
             
+            // Description obligatoire pour Product
+            if (!itemReviewed.description) {
+              itemReviewed.description = data.description || `Service professionnel de ${itemReviewed.name || 'scraping et automatisation'}.`;
+            }
+            
             // Brand obligatoire pour Product
             if (!itemReviewed.brand) {
               itemReviewed.brand = {
@@ -512,6 +517,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           review.itemReviewed = {
             '@type': 'Product',
             name: data.serviceName,
+            description: data.description || `Service professionnel de ${data.serviceName}.`,
             url: data.url || siteConfig.url,
             brand: {
               '@type': 'Person',
@@ -539,6 +545,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           review.itemReviewed = {
             '@type': 'Product',
             name: data.serviceName || 'Services de Scraping et Automatisation',
+            description: data.description || 'Services professionnels de scraping et automatisation sur-mesure pour votre entreprise.',
             url: defaultUrl,
             brand: {
               '@type': 'Person',
@@ -584,7 +591,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           '@context': 'https://schema.org',
           '@type': 'Product',
           name: data.name,
-          description: data.description,
+          description: data.description || `Service professionnel de ${data.name || 'scraping et automatisation'}.`,
           url: data.url,
           image: data.image || siteConfig.ogImage, // Image obligatoire pour Product schema
           brand: data.brand,

@@ -1345,6 +1345,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                           itemReviewed: {
                             '@type': 'Product',
                             name: toolData.name,
+                            description: toolData.fullDescription || toolData.description,
                             url: `${siteConfig.url}/marketplace/${categorySlug}/${database.slug}`,
                             image: siteConfig.ogImage,
                             brand: {

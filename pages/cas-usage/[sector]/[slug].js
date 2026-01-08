@@ -1257,6 +1257,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
                       itemReviewed: {
                         '@type': 'Product',
                         name: caseStudy.title,
+                        description: `Service de scraping et automatisation pour ${caseStudy.sector.toLowerCase()}`,
                         url: pageUrl,
                         image: getCaseStudyImage(caseStudy, personalizedData),
                         brand: {
