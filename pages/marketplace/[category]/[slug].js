@@ -386,7 +386,20 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
           itemReviewed: {
             '@type': 'Product',
             name: toolData.name,
-            url: `${siteConfig.url}/marketplace/${database.slug}`
+            url: `${siteConfig.url}/marketplace/${categorySlug}/${database.slug}`,
+            image: siteConfig.ogImage,
+            brand: {
+              '@type': 'Person',
+              name: siteConfig.author,
+              url: siteConfig.url
+            },
+            offers: {
+              '@type': 'Offer',
+              price: database.price.toString(),
+              priceCurrency: 'EUR',
+              availability: 'https://schema.org/InStock',
+              priceValidUntil: getPriceValidUntil()
+            }
           },
           reviewRating: {
             '@type': 'Rating',
@@ -1332,7 +1345,20 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                           itemReviewed: {
                             '@type': 'Product',
                             name: toolData.name,
-                            url: `${siteConfig.url}/marketplace/${database.slug}`
+                            url: `${siteConfig.url}/marketplace/${categorySlug}/${database.slug}`,
+                            image: siteConfig.ogImage,
+                            brand: {
+                              '@type': 'Person',
+                              name: siteConfig.author,
+                              url: siteConfig.url
+                            },
+                            offers: {
+                              '@type': 'Offer',
+                              price: database.price.toString(),
+                              priceCurrency: 'EUR',
+                              availability: 'https://schema.org/InStock',
+                              priceValidUntil: getPriceValidUntil()
+                            }
                           }
                         }}
                       />

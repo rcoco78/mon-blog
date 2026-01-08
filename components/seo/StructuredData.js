@@ -425,32 +425,49 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
             }
           }
           
-          if ((itemReviewed['@type'] === 'Product') && !itemReviewed.url) {
-            // Si pas d'URL fournie, utiliser l'URL du site par défaut
-            itemReviewed.url = data.url || siteConfig.url;
-          }
-          // S'assurer que le brand a une URL si c'est un Product
-          if (itemReviewed['@type'] === 'Product' && itemReviewed.brand && !itemReviewed.brand.url) {
-            itemReviewed.brand.url = siteConfig.url;
-          }
-          // Pour les Product, s'assurer qu'ils ont au moins une des propriétés requises : offers, review, ou aggregateRating
-          if (itemReviewed['@type'] === 'Product' && !itemReviewed.offers && !itemReviewed.review && !itemReviewed.aggregateRating) {
-            itemReviewed.offers = enrichOffer({
-              '@type': 'Offer',
-              price: '0',
-              priceCurrency: 'EUR',
-              availability: 'https://schema.org/InStock',
-              priceSpecification: {
-                '@type': 'UnitPriceSpecification',
+          // Pour les Product, s'assurer qu'ils ont toutes les propriétés requises
+          if (itemReviewed['@type'] === 'Product') {
+            // URL obligatoire
+            if (!itemReviewed.url) {
+              itemReviewed.url = data.url || siteConfig.url;
+            }
+            
+            // Brand obligatoire pour Product
+            if (!itemReviewed.brand) {
+              itemReviewed.brand = {
+                '@type': 'Person',
+                name: siteConfig.author,
+                url: siteConfig.url
+              };
+            } else if (!itemReviewed.brand.url) {
+              // S'assurer que le brand a une URL
+              itemReviewed.brand.url = siteConfig.url;
+            }
+            
+            // Image obligatoire pour Product (pour les extraits de produits)
+            if (!itemReviewed.image) {
+              itemReviewed.image = data.image || siteConfig.ogImage;
+            }
+            
+            // Au moins une des propriétés requises : offers, review, ou aggregateRating
+            if (!itemReviewed.offers && !itemReviewed.review && !itemReviewed.aggregateRating) {
+              itemReviewed.offers = enrichOffer({
+                '@type': 'Offer',
                 price: '0',
                 priceCurrency: 'EUR',
-                valueAddedTaxIncluded: true,
-                description: 'Devis personnalisé gratuit. Prix sur mesure selon le volume et la complexité du projet.'
-              }
-            });
-          } else if (itemReviewed['@type'] === 'Product' && itemReviewed.offers) {
-            // Enrichir l'offer existant avec priceValidUntil
-            itemReviewed.offers = enrichOffer(itemReviewed.offers);
+                availability: 'https://schema.org/InStock',
+                priceSpecification: {
+                  '@type': 'UnitPriceSpecification',
+                  price: '0',
+                  priceCurrency: 'EUR',
+                  valueAddedTaxIncluded: true,
+                  description: 'Devis personnalisé gratuit. Prix sur mesure selon le volume et la complexité du projet.'
+                }
+              });
+            } else if (itemReviewed.offers) {
+              // Enrichir l'offer existant avec priceValidUntil
+              itemReviewed.offers = enrichOffer(itemReviewed.offers);
+            }
           }
           review.itemReviewed = itemReviewed;
         } else if (data.serviceName) {
