@@ -206,25 +206,42 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         return aggregateRating;
 
       case 'VideoObject':
-        // Normaliser uploadDate au format ISO 8601 complet (YYYY-MM-DDTHH:mm:ss.sssZ)
+        // Normaliser uploadDate au format ISO 8601 complet avec fuseau horaire (YYYY-MM-DDTHH:mm:ss.sssZ)
+        // toISOString() garantit toujours le format avec fuseau horaire UTC (Z)
         let normalizedUploadDate = new Date().toISOString();
         if (data.uploadDate) {
           try {
-            // Si c'est déjà une chaîne ISO 8601 complète, l'utiliser
-            if (typeof data.uploadDate === 'string' && data.uploadDate.includes('T')) {
-              normalizedUploadDate = new Date(data.uploadDate).toISOString();
-            } else if (typeof data.uploadDate === 'string' && data.uploadDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            let parsedDate;
+            if (typeof data.uploadDate === 'string') {
               // Si c'est seulement une date (YYYY-MM-DD), ajouter l'heure à minuit UTC
-              normalizedUploadDate = new Date(data.uploadDate + 'T00:00:00Z').toISOString();
+              if (data.uploadDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                parsedDate = new Date(data.uploadDate + 'T00:00:00.000Z');
+              } else if (data.uploadDate.includes('T')) {
+                // Si c'est déjà une chaîne ISO 8601 avec T, parser et reconvertir pour garantir le fuseau horaire
+                parsedDate = new Date(data.uploadDate);
+              } else {
+                // Autre format, essayer de parser
+                parsedDate = new Date(data.uploadDate);
+              }
             } else {
-              // Essayer de parser la date
-              normalizedUploadDate = new Date(data.uploadDate).toISOString();
+              // Si c'est un objet Date ou autre, utiliser directement
+              parsedDate = new Date(data.uploadDate);
             }
+            
+            // toISOString() garantit toujours le format ISO 8601 avec fuseau horaire UTC (Z)
+            normalizedUploadDate = parsedDate.toISOString();
           } catch (error) {
-            // En cas d'erreur, utiliser la date actuelle
+            // En cas d'erreur, utiliser la date actuelle (toISOString() inclut toujours le Z)
             console.warn('Erreur de formatage uploadDate:', error);
             normalizedUploadDate = new Date().toISOString();
           }
+        }
+        
+        // Vérification finale : s'assurer que la date se termine par Z (UTC) ou a un offset
+        // toISOString() devrait toujours retourner un format avec Z, mais vérification de sécurité
+        if (!normalizedUploadDate.endsWith('Z') && !normalizedUploadDate.match(/[+-]\d{2}:\d{2}$/)) {
+          // Si pas de fuseau horaire détecté, forcer la conversion via Date pour garantir le Z
+          normalizedUploadDate = new Date(normalizedUploadDate).toISOString();
         }
         
         const videoObject = {
