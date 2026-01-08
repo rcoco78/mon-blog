@@ -206,13 +206,34 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         return aggregateRating;
 
       case 'VideoObject':
+        // Normaliser uploadDate au format ISO 8601 complet (YYYY-MM-DDTHH:mm:ss.sssZ)
+        let normalizedUploadDate = new Date().toISOString();
+        if (data.uploadDate) {
+          try {
+            // Si c'est déjà une chaîne ISO 8601 complète, l'utiliser
+            if (typeof data.uploadDate === 'string' && data.uploadDate.includes('T')) {
+              normalizedUploadDate = new Date(data.uploadDate).toISOString();
+            } else if (typeof data.uploadDate === 'string' && data.uploadDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+              // Si c'est seulement une date (YYYY-MM-DD), ajouter l'heure à minuit UTC
+              normalizedUploadDate = new Date(data.uploadDate + 'T00:00:00Z').toISOString();
+            } else {
+              // Essayer de parser la date
+              normalizedUploadDate = new Date(data.uploadDate).toISOString();
+            }
+          } catch (error) {
+            // En cas d'erreur, utiliser la date actuelle
+            console.warn('Erreur de formatage uploadDate:', error);
+            normalizedUploadDate = new Date().toISOString();
+          }
+        }
+        
         const videoObject = {
           '@context': 'https://schema.org',
           '@type': 'VideoObject',
           name: data.name || 'Présentation de Corentin Robert',
           description: data.description || siteConfig.seo.defaultDescription,
           thumbnailUrl: data.thumbnailUrl || `https://img.youtube.com/vi/${data.videoId}/maxresdefault.jpg`,
-          uploadDate: data.uploadDate || new Date().toISOString(),
+          uploadDate: normalizedUploadDate,
           contentUrl: data.contentUrl || `https://www.youtube.com/watch?v=${data.videoId}`,
           embedUrl: data.embedUrl || `https://www.youtube.com/embed/${data.videoId}`,
           publisher: {

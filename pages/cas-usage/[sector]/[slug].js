@@ -169,7 +169,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
 
   const sectorSlug = sectorToSlug(caseStudy.sector)
   const pageUrl = `${siteConfig.url}/cas-usage/${sectorSlug}/${caseStudy.slug}`
-  const today = new Date().toISOString().split('T')[0]
+  const today = new Date().toISOString() // Format ISO 8601 complet pour uploadDate
 
   // Vérifier si les données extraites sont des contacts (pour afficher l'option outbound)
   // Priorité : données personnalisées > données du case study
