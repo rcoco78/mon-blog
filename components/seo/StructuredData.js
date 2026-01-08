@@ -603,6 +603,26 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
                 };
               }
             }
+            
+            // Ajouter review si manquant (recommandé pour les extraits de produits)
+            if (!itemReviewed.review) {
+              itemReviewed.review = {
+                '@type': 'Review',
+                author: {
+                  '@type': 'Person',
+                  name: siteConfig.author,
+                  url: siteConfig.url
+                },
+                reviewRating: {
+                  '@type': 'Rating',
+                  ratingValue: itemReviewed.aggregateRating?.ratingValue || '5',
+                  bestRating: itemReviewed.aggregateRating?.bestRating || '5',
+                  worstRating: itemReviewed.aggregateRating?.worstRating || '1'
+                },
+                reviewBody: itemReviewed.description || `Service professionnel de ${itemReviewed.name || 'scraping et automatisation'}.`,
+                datePublished: new Date().toISOString().split('T')[0]
+              };
+            }
           }
           review.itemReviewed = itemReviewed;
         } else if (data.serviceName) {
