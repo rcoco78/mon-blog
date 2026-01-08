@@ -565,7 +565,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
           url: pageUrl,
           image: getCaseStudyImage(caseStudy, personalizedData),
           brand: {
-            '@type': 'Person',
+            '@type': 'Brand',
             name: siteConfig.author,
             url: siteConfig.url
           },

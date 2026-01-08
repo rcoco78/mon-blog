@@ -337,8 +337,9 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
           url: `${siteConfig.url}/marketplace/${categorySlug}/${database.slug}`,
           image: siteConfig.ogImage,
           brand: {
-            '@type': 'Person',
-            name: siteConfig.author
+            '@type': 'Brand',
+            name: siteConfig.author,
+            url: siteConfig.url
           },
           offers: {
             '@type': 'Offer',

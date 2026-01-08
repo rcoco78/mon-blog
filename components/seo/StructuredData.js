@@ -453,12 +453,19 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
               itemReviewed.brand = itemReviewed.provider;
               delete itemReviewed.provider;
             }
-            // S'assurer qu'il y a un brand
+            // S'assurer qu'il y a un brand - utiliser Brand au lieu de Person
             if (!itemReviewed.brand) {
               itemReviewed.brand = {
-                '@type': 'Person',
+                '@type': 'Brand',
                 name: siteConfig.author,
                 url: siteConfig.url
+              };
+            } else if (itemReviewed.brand['@type'] === 'Person') {
+              // Convertir Person en Brand
+              itemReviewed.brand = {
+                '@type': 'Brand',
+                name: itemReviewed.brand.name || siteConfig.author,
+                url: itemReviewed.brand.url || siteConfig.url
               };
             }
           }
@@ -475,16 +482,25 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
               itemReviewed.description = data.description || `Service professionnel de ${itemReviewed.name || 'scraping et automatisation'}.`;
             }
             
-            // Brand obligatoire pour Product
+            // Brand obligatoire pour Product - utiliser Brand au lieu de Person
             if (!itemReviewed.brand) {
               itemReviewed.brand = {
-                '@type': 'Person',
+                '@type': 'Brand',
                 name: siteConfig.author,
                 url: siteConfig.url
               };
-            } else if (!itemReviewed.brand.url) {
-              // S'assurer que le brand a une URL
-              itemReviewed.brand.url = siteConfig.url;
+            } else {
+              // Convertir Person en Brand si nécessaire
+              if (itemReviewed.brand['@type'] === 'Person') {
+                itemReviewed.brand = {
+                  '@type': 'Brand',
+                  name: itemReviewed.brand.name || siteConfig.author,
+                  url: itemReviewed.brand.url || siteConfig.url
+                };
+              } else if (!itemReviewed.brand.url) {
+                // S'assurer que le brand a une URL
+                itemReviewed.brand.url = siteConfig.url;
+              }
             }
             
             // Image obligatoire pour Product (pour les extraits de produits)
@@ -520,7 +536,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
             description: data.description || `Service professionnel de ${data.serviceName}.`,
             url: data.url || siteConfig.url,
             brand: {
-              '@type': 'Person',
+              '@type': 'Brand',
               name: siteConfig.author,
               url: siteConfig.url
             },
@@ -548,7 +564,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
             description: data.description || 'Services professionnels de scraping et automatisation sur-mesure pour votre entreprise.',
             url: defaultUrl,
             brand: {
-              '@type': 'Person',
+              '@type': 'Brand',
               name: siteConfig.author,
               url: siteConfig.url
             },
@@ -587,6 +603,22 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         };
 
       case 'Product':
+        // Normaliser le brand : convertir Person en Brand pour les Product schemas
+        let normalizedBrand = data.brand;
+        if (normalizedBrand && normalizedBrand['@type'] === 'Person') {
+          normalizedBrand = {
+            '@type': 'Brand',
+            name: normalizedBrand.name || siteConfig.author,
+            url: normalizedBrand.url || siteConfig.url
+          };
+        } else if (!normalizedBrand) {
+          normalizedBrand = {
+            '@type': 'Brand',
+            name: siteConfig.author,
+            url: siteConfig.url
+          };
+        }
+        
         const product = {
           '@context': 'https://schema.org',
           '@type': 'Product',
@@ -594,7 +626,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           description: data.description || `Service professionnel de ${data.name || 'scraping et automatisation'}.`,
           url: data.url,
           image: data.image || siteConfig.ogImage, // Image obligatoire pour Product schema
-          brand: data.brand,
+          brand: normalizedBrand,
           aggregateRating: data.aggregateRating,
           offers: data.offers ? enrichOffer(data.offers) : undefined,
           review: data.review || (data.reviews && data.reviews.length > 0 ? data.reviews : undefined)

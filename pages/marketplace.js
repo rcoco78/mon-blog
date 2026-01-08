@@ -234,7 +234,7 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
             description: 'Marketplace de bases de données pour la prospection et l\'analyse business. Bases de données vérifiées, structurées et régulièrement mises à jour, prêtes à l\'emploi pour enrichir vos CRM et optimiser vos campagnes de prospection.',
             url: `${siteConfig.url}/marketplace`,
             brand: {
-              '@type': 'Person',
+              '@type': 'Brand',
               name: siteConfig.author,
               url: siteConfig.url
             },
