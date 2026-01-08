@@ -643,6 +643,22 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
               bestRating: '5',
               worstRating: '1'
             },
+            review: {
+              '@type': 'Review',
+              author: {
+                '@type': 'Person',
+                name: siteConfig.author,
+                url: siteConfig.url
+              },
+              reviewRating: {
+                '@type': 'Rating',
+                ratingValue: '5',
+                bestRating: '5',
+                worstRating: '1'
+              },
+              reviewBody: data.description || `Service professionnel de ${data.serviceName}.`,
+              datePublished: new Date().toISOString().split('T')[0]
+            },
             offers: enrichOffer({
               '@type': 'Offer',
               price: '0',
@@ -677,6 +693,22 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
               reviewCount: '1',
               bestRating: '5',
               worstRating: '1'
+            },
+            review: {
+              '@type': 'Review',
+              author: {
+                '@type': 'Person',
+                name: siteConfig.author,
+                url: siteConfig.url
+              },
+              reviewRating: {
+                '@type': 'Rating',
+                ratingValue: '5',
+                bestRating: '5',
+                worstRating: '1'
+              },
+              reviewBody: data.description || 'Services professionnels de scraping et automatisation sur-mesure pour votre entreprise.',
+              datePublished: new Date().toISOString().split('T')[0]
             },
             offers: enrichOffer({
               '@type': 'Offer',
