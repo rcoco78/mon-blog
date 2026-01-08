@@ -1,5 +1,27 @@
 import { siteConfig } from '../../lib/config';
 
+// Fonction helper pour générer priceValidUntil (1 an dans le futur)
+const getPriceValidUntil = () => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() + 1);
+  return date.toISOString().split('T')[0]; // Format YYYY-MM-DD
+};
+
+// Fonction pour enrichir un offer avec priceValidUntil si manquant
+const enrichOffer = (offer) => {
+  if (!offer || typeof offer !== 'object') {
+    return offer;
+  }
+  // Si c'est un Offer et qu'il n'a pas déjà priceValidUntil, l'ajouter
+  if (offer['@type'] === 'Offer' && !offer.priceValidUntil) {
+    return {
+      ...offer,
+      priceValidUntil: getPriceValidUntil()
+    };
+  }
+  return offer;
+};
+
 export default function StructuredData({ type = 'WebSite', data = {} }) {
   const getStructuredData = () => {
     switch (type) {
@@ -256,13 +278,13 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           name: data.name,
           applicationCategory: data.applicationCategory || 'BusinessApplication',
           operatingSystem: data.operatingSystem || 'Web',
-          offers: {
+          offers: enrichOffer({
             '@type': 'Offer',
             price: data.price || '0',
             priceCurrency: data.priceCurrency || 'EUR',
             availability: data.availability || 'https://schema.org/InStock',
             url: data.downloadUrl || data.url
-          },
+          }),
           aggregateRating: data.aggregateRating || {
             '@type': 'AggregateRating',
             ratingValue: '4.8',
@@ -413,7 +435,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           }
           // Pour les Product, s'assurer qu'ils ont au moins une des propriétés requises : offers, review, ou aggregateRating
           if (itemReviewed['@type'] === 'Product' && !itemReviewed.offers && !itemReviewed.review && !itemReviewed.aggregateRating) {
-            itemReviewed.offers = {
+            itemReviewed.offers = enrichOffer({
               '@type': 'Offer',
               price: '0',
               priceCurrency: 'EUR',
@@ -425,7 +447,10 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
                 valueAddedTaxIncluded: true,
                 description: 'Devis personnalisé gratuit. Prix sur mesure selon le volume et la complexité du projet.'
               }
-            };
+            });
+          } else if (itemReviewed['@type'] === 'Product' && itemReviewed.offers) {
+            // Enrichir l'offer existant avec priceValidUntil
+            itemReviewed.offers = enrichOffer(itemReviewed.offers);
           }
           review.itemReviewed = itemReviewed;
         } else if (data.serviceName) {
@@ -438,7 +463,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
               name: siteConfig.author,
               url: siteConfig.url
             },
-            offers: {
+            offers: enrichOffer({
               '@type': 'Offer',
               price: '0',
               priceCurrency: 'EUR',
@@ -450,7 +475,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
                 valueAddedTaxIncluded: true,
                 description: 'Devis personnalisé gratuit. Prix sur mesure selon le volume et la complexité du projet.'
               }
-            }
+            })
           };
         } else {
           // Par défaut : Service de scraping et automatisation
@@ -465,7 +490,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
               name: siteConfig.author,
               url: siteConfig.url
             },
-            offers: {
+            offers: enrichOffer({
               '@type': 'Offer',
               price: '0',
               priceCurrency: 'EUR',
@@ -477,7 +502,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
                 valueAddedTaxIncluded: true,
                 description: 'Devis personnalisé gratuit. Prix sur mesure selon le volume et la complexité du projet.'
               }
-            }
+            })
           };
         }
         
@@ -498,6 +523,24 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
             url: step.url
           }))
         };
+
+      case 'Product':
+        const product = {
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: data.name,
+          description: data.description,
+          url: data.url,
+          image: data.image,
+          brand: data.brand,
+          aggregateRating: data.aggregateRating,
+          offers: data.offers ? enrichOffer(data.offers) : undefined
+        };
+        // Ajouter d'autres champs optionnels
+        if (data.sku) product.sku = data.sku;
+        if (data.gtin) product.gtin = data.gtin;
+        if (data.category) product.category = data.category;
+        return product;
       
       default:
         return data;

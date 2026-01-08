@@ -18,6 +18,13 @@ import { getRelevantTestimonials } from '../../../lib/testimonials'
 import Breadcrumb from '../../../components/Breadcrumb'
 import { categoryToSlug } from '../../../lib/marketplace-helpers'
 
+// Fonction helper pour générer priceValidUntil (1 an dans le futur)
+const getPriceValidUntil = () => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() + 1);
+  return date.toISOString().split('T')[0]; // Format YYYY-MM-DD
+};
+
 export default function MarketplaceDatabase({ database, relatedDatabases, notFound }) {
   const [email, setEmail] = useState('')
   const [emailSubmitted, setEmailSubmitted] = useState(false)
@@ -338,6 +345,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
             price: database.price.toString(),
             priceCurrency: 'EUR',
             availability: 'https://schema.org/InStock',
+            priceValidUntil: getPriceValidUntil(),
             priceSpecification: {
               '@type': 'UnitPriceSpecification',
               price: database.price.toString(),
@@ -436,21 +444,21 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
       <main className="min-w-0 mt-6 flex flex-col">
         {/* Breadcrumb */}
         <nav className="mb-6" aria-label="Fil d'Ariane">
-          <ol className="flex items-center space-x-2 text-sm text-neutral-600 dark:text-neutral-400">
-            <li>
-              <Link href="/marketplace" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+          <ol className="flex items-center flex-wrap gap-x-1.5 sm:gap-x-2 gap-y-1 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
+            <li className="flex items-center">
+              <Link href="/marketplace" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors whitespace-nowrap">
                 Marketplace
               </Link>
             </li>
-            <li className="flex items-center space-x-2">
-              <span className="mx-1">/</span>
-              <Link href={`/marketplace/${categorySlug}`} className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+            <li className="flex items-center gap-x-1.5 sm:gap-x-2">
+              <span className="text-neutral-400 dark:text-neutral-600">/</span>
+              <Link href={`/marketplace/${categorySlug}`} className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors whitespace-nowrap">
                 {database.category}
               </Link>
             </li>
-            <li className="flex items-center space-x-2">
-              <span className="mx-1">/</span>
-              <span className="text-neutral-900 dark:text-neutral-100 font-medium line-clamp-1">
+            <li className="flex items-center gap-x-1.5 sm:gap-x-2 min-w-0">
+              <span className="text-neutral-400 dark:text-neutral-600">/</span>
+              <span className="text-neutral-900 dark:text-neutral-100 font-medium truncate max-w-[200px] sm:max-w-none">
                 {toolData.name}
               </span>
             </li>

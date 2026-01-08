@@ -17,6 +17,13 @@ import CaseStudyViewCounter from '../../../components/CaseStudyViewCounter'
 import ReadingProgress from '../../../components/ReadingProgress'
 import PersonalVideo from '../../../components/PersonalVideo'
 
+// Fonction helper pour générer priceValidUntil (1 an dans le futur)
+const getPriceValidUntil = () => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() + 1);
+  return date.toISOString().split('T')[0]; // Format YYYY-MM-DD
+};
+
 export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies, relatedPosts, relatedTools, views = 0, isPopular = false, personalizedData: personalizedDataProp = null }) {
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
@@ -361,6 +368,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
       price: '500',
       priceCurrency: 'EUR',
       availability: 'https://schema.org/InStock',
+      priceValidUntil: getPriceValidUntil(),
       priceSpecification: {
         '@type': 'UnitPriceSpecification',
         price: '500',
@@ -557,6 +565,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
               price: '500',
               priceCurrency: 'EUR',
               availability: 'https://schema.org/InStock',
+              priceValidUntil: getPriceValidUntil(),
               priceSpecification: {
                 '@type': 'UnitPriceSpecification',
                 price: '500',
@@ -1203,6 +1212,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
                           price: '500',
                           priceCurrency: 'EUR',
                           availability: 'https://schema.org/InStock',
+                          priceValidUntil: getPriceValidUntil(),
                           priceSpecification: {
                             '@type': 'UnitPriceSpecification',
                             price: '500',

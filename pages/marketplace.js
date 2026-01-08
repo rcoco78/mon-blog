@@ -147,7 +147,12 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
           '@type': 'Offer',
           price: tool.isPaid ? (tool.annualPrice || tool.price || 0).toString() : '0',
           priceCurrency: 'EUR',
-          availability: tool.isPaid ? 'https://schema.org/InStock' : 'https://schema.org/InStock'
+          availability: tool.isPaid ? 'https://schema.org/InStock' : 'https://schema.org/InStock',
+          priceValidUntil: (() => {
+            const date = new Date();
+            date.setFullYear(date.getFullYear() + 1);
+            return date.toISOString().split('T')[0];
+          })()
         },
         url: `${siteConfig.url}${tool.link}`
       }
@@ -236,7 +241,12 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
               '@type': 'Offer',
               price: '0',
               priceCurrency: 'EUR',
-              availability: 'https://schema.org/InStock'
+              availability: 'https://schema.org/InStock',
+              priceValidUntil: (() => {
+                const date = new Date();
+                date.setFullYear(date.getFullYear() + 1);
+                return date.toISOString().split('T')[0];
+              })()
             }
           },
           reviewRating: {

@@ -103,7 +103,12 @@ export default function Outils() {
           '@type': 'Offer',
           price: tool.isPaid ? tool.price.toString() : '0',
           priceCurrency: 'EUR',
-          availability: tool.isPaid ? 'https://schema.org/InStock' : 'https://schema.org/InStock'
+          availability: tool.isPaid ? 'https://schema.org/InStock' : 'https://schema.org/InStock',
+          priceValidUntil: (() => {
+            const date = new Date();
+            date.setFullYear(date.getFullYear() + 1);
+            return date.toISOString().split('T')[0];
+          })()
         },
         url: `${siteConfig.url}${tool.link}`
       }

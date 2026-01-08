@@ -156,7 +156,12 @@ export default function FAQPage() {
               '@type': 'Offer',
               price: '0',
               priceCurrency: 'EUR',
-              availability: 'https://schema.org/InStock'
+              availability: 'https://schema.org/InStock',
+              priceValidUntil: (() => {
+                const date = new Date();
+                date.setFullYear(date.getFullYear() + 1);
+                return date.toISOString().split('T')[0];
+              })()
             }
           },
           reviewRating: {

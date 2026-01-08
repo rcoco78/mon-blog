@@ -392,7 +392,12 @@ export default function Home({ posts, dynamicDatabases = [] }) {
             '@type': 'Offer',
             availability: 'https://schema.org/InStock',
             priceCurrency: 'EUR',
-            description: 'Services de scraping et automatisation sur-mesure'
+            description: 'Services de scraping et automatisation sur-mesure',
+            priceValidUntil: (() => {
+              const date = new Date();
+              date.setFullYear(date.getFullYear() + 1);
+              return date.toISOString().split('T')[0];
+            })()
           }
           // Note: aggregateRating retiré du Service car Google n'accepte pas Service pour Review snippets
           // Les avis sont gérés via les Review schemas séparés avec Product comme itemReviewed
