@@ -30,6 +30,10 @@ const enrichOffer = (offer) => {
           value: '0',
           currency: 'EUR'
         },
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'FR'
+        },
         deliveryTime: {
           '@type': 'ShippingDeliveryTime',
           businessDays: {
@@ -50,6 +54,12 @@ const enrichOffer = (offer) => {
             unitCode: 'DAY'
           }
         }
+      };
+    } else if (enrichedOffer.shippingDetails && !enrichedOffer.shippingDetails.shippingDestination) {
+      // Si shippingDetails existe mais n'a pas shippingDestination, l'ajouter
+      enrichedOffer.shippingDetails.shippingDestination = {
+        '@type': 'DefinedRegion',
+        addressCountry: 'FR'
       };
     }
     
