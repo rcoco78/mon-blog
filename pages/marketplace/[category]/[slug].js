@@ -335,7 +335,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
           name: toolData.name,
           description: toolData.fullDescription,
           url: `${siteConfig.url}/marketplace/${categorySlug}/${database.slug}`,
-          image: siteConfig.ogImage,
+          image: siteConfig.ogImage || `${siteConfig.url}/og-image.jpg`,
           brand: {
             '@type': 'Brand',
             name: siteConfig.author,
@@ -352,6 +352,46 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
               price: database.price.toString(),
               priceCurrency: 'EUR',
               valueAddedTaxIncluded: true
+            },
+            shippingDetails: {
+              '@type': 'OfferShippingDetails',
+              shippingRate: {
+                '@type': 'MonetaryAmount',
+                value: '0',
+                currency: 'EUR'
+              },
+              shippingDestination: {
+                '@type': 'DefinedRegion',
+                addressCountry: 'FR'
+              },
+              deliveryTime: {
+                '@type': 'ShippingDeliveryTime',
+                businessDays: {
+                  '@type': 'OpeningHoursSpecification',
+                  dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+                },
+                cutoffTime: '14:00',
+                handlingTime: {
+                  '@type': 'QuantitativeValue',
+                  minValue: 1,
+                  maxValue: 7,
+                  unitCode: 'DAY'
+                },
+                transitTime: {
+                  '@type': 'QuantitativeValue',
+                  minValue: 0,
+                  maxValue: 0,
+                  unitCode: 'DAY'
+                }
+              }
+            },
+            hasMerchantReturnPolicy: {
+              '@type': 'MerchantReturnPolicy',
+              applicableCountry: 'FR',
+              returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+              merchantReturnDays: 14,
+              returnMethod: 'https://schema.org/ReturnByMail',
+              returnFees: 'https://schema.org/FreeReturn'
             }
           },
           aggregateRating: {
@@ -388,9 +428,9 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
             '@type': 'Product',
             name: toolData.name,
             url: `${siteConfig.url}/marketplace/${categorySlug}/${database.slug}`,
-            image: siteConfig.ogImage,
+            image: siteConfig.ogImage || `${siteConfig.url}/og-image.jpg`,
             brand: {
-              '@type': 'Person',
+              '@type': 'Brand',
               name: siteConfig.author,
               url: siteConfig.url
             },

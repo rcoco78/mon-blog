@@ -31,7 +31,8 @@ const getCaseStudyImage = (caseStudy, personalizedData) => {
   }
   // Fallback vers l'image du secteur, puis vers ogImage
   const sectorImage = `${siteConfig.url}/images/case-studies/${caseStudy.sector.toLowerCase()}.jpg`;
-  return sectorImage || siteConfig.ogImage;
+  // Toujours retourner une URL valide (fallback vers ogImage si nécessaire)
+  return sectorImage || siteConfig.ogImage || `${siteConfig.url}/og-image.jpg`;
 };
 
 export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies, relatedPosts, relatedTools, views = 0, isPopular = false, personalizedData: personalizedDataProp = null }) {
@@ -563,7 +564,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
           name: caseStudy.title,
           description: `Service de scraping et automatisation pour ${caseStudy.sector.toLowerCase()}`,
           url: pageUrl,
-          image: getCaseStudyImage(caseStudy, personalizedData),
+          image: getCaseStudyImage(caseStudy, personalizedData) || siteConfig.ogImage,
           brand: {
             '@type': 'Brand',
             name: siteConfig.author,
@@ -580,6 +581,46 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
               price: '500',
               priceCurrency: 'EUR',
               valueAddedTaxIncluded: true
+            },
+            shippingDetails: {
+              '@type': 'OfferShippingDetails',
+              shippingRate: {
+                '@type': 'MonetaryAmount',
+                value: '0',
+                currency: 'EUR'
+              },
+              shippingDestination: {
+                '@type': 'DefinedRegion',
+                addressCountry: 'FR'
+              },
+              deliveryTime: {
+                '@type': 'ShippingDeliveryTime',
+                businessDays: {
+                  '@type': 'OpeningHoursSpecification',
+                  dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+                },
+                cutoffTime: '14:00',
+                handlingTime: {
+                  '@type': 'QuantitativeValue',
+                  minValue: 1,
+                  maxValue: 7,
+                  unitCode: 'DAY'
+                },
+                transitTime: {
+                  '@type': 'QuantitativeValue',
+                  minValue: 0,
+                  maxValue: 0,
+                  unitCode: 'DAY'
+                }
+              }
+            },
+            hasMerchantReturnPolicy: {
+              '@type': 'MerchantReturnPolicy',
+              applicableCountry: 'FR',
+              returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+              merchantReturnDays: 14,
+              returnMethod: 'https://schema.org/ReturnByMail',
+              returnFees: 'https://schema.org/FreeReturn'
             }
           },
           aggregateRating: {
@@ -617,9 +658,9 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
             name: caseStudy.title,
             url: pageUrl,
             description: `Service de scraping et automatisation pour ${caseStudy.sector.toLowerCase()}`,
-            image: getCaseStudyImage(caseStudy, personalizedData),
+            image: getCaseStudyImage(caseStudy, personalizedData) || siteConfig.ogImage,
             brand: {
-              '@type': 'Person',
+              '@type': 'Brand',
               name: siteConfig.author,
               url: siteConfig.url
             },
