@@ -23,14 +23,13 @@
     {
       "path": "/api/cron/marketplace-enrich",
       "schedule": "0 */3 * * *"
+    },
+    {
+      "path": "/api/cron/apify-actors-sync",
+      "schedule": "0 11 * * *"
     }
   ],
   "redirects": [
-    {
-      "source": "/outils",
-      "destination": "/marketplace",
-      "permanent": true
-    },
     {
       "source": "/donnees-publiques",
       "destination": "/objectifs",
