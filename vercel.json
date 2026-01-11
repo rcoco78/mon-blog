@@ -37,6 +37,26 @@
       "permanent": true
     },
     {
+      "source": "/cas-usage/sector",
+      "destination": "/cas-usage",
+      "permanent": true
+    },
+    {
+      "source": "/cas-usage/sector/:path*",
+      "destination": "/cas-usage",
+      "permanent": true
+    },
+    {
+      "source": "/marketplace/category",
+      "destination": "/marketplace",
+      "permanent": true
+    },
+    {
+      "source": "/marketplace/category/:path*",
+      "destination": "/marketplace",
+      "permanent": true
+    },
+    {
       "source": "/(.*)",
       "has": [
         {
