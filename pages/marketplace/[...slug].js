@@ -1,36 +1,13 @@
 // Page catch-all pour rediriger les anciennes URLs vers la nouvelle structure hiérarchique
 // Gère : /marketplace/[slug] -> /marketplace/[category]/[slug]
+// Utilise une redirection serveur (301) pour éviter les problèmes de contenu dupliqué dans Google Search Console
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/router'
 import { getDatabaseBySlug } from '../../lib/marketplace-databases'
 import { categoryToSlug } from '../../lib/marketplace-helpers'
 
-export default function MarketplaceRedirect({ database, categorySlug, notFound }) {
-  const router = useRouter()
-
-  useEffect(() => {
-    if (notFound) {
-      router.replace('/marketplace')
-      return
-    }
-
-    if (database && categorySlug) {
-      // Rediriger vers la nouvelle URL avec la catégorie
-      router.replace(`/marketplace/${categorySlug}/${database.slug}`)
-    } else {
-      // Si la base de données n'existe pas, rediriger vers la page principale
-      router.replace('/marketplace')
-    }
-  }, [database, categorySlug, notFound, router])
-
-  return (
-    <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-12">
-      <p className="text-neutral-600 dark:text-neutral-400">
-        Redirection en cours...
-      </p>
-    </div>
-  )
+export default function MarketplaceRedirect() {
+  // Cette page ne devrait jamais être rendue car la redirection se fait côté serveur
+  return null
 }
 
 export async function getServerSideProps({ params }) {
@@ -45,8 +22,9 @@ export async function getServerSideProps({ params }) {
 
   if (!slug) {
     return {
-      props: {
-        notFound: true
+      redirect: {
+        destination: '/marketplace',
+        permanent: true
       }
     }
   }
@@ -55,21 +33,21 @@ export async function getServerSideProps({ params }) {
   
   if (!database) {
     return {
-      props: {
-        notFound: true
+      redirect: {
+        destination: '/marketplace',
+        permanent: true
       }
     }
   }
 
   const categorySlug = categoryToSlug(database.category)
 
+  // Redirection serveur permanente (301) vers l'URL avec catégorie
+  // Cela évite les problèmes de contenu dupliqué dans Google Search Console
   return {
-    props: {
-      database: {
-        slug: database.slug
-      },
-      categorySlug,
-      notFound: false
+    redirect: {
+      destination: `/marketplace/${categorySlug}/${database.slug}`,
+      permanent: true // 301 redirect
     }
   }
 }
