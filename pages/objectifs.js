@@ -542,15 +542,13 @@ export default function DonneesPubliques() {
         'Échanges grâce au blog'
       ],
       'Blog': [
-        'Elo chess.com',
-        'Classement échecs chess.com',
         'Articles publiés',
         'Visiteurs organiques blog',
         'Impressions Google',
         'Échanges grâce au blog'
       ],
       'Logement Atypique': [
-        'Vidéos publiées',
+        'Vidéos publiées Instagram',
         'Abonnés Instagram',
         'Impressions Google',
         'ARR'
@@ -656,11 +654,15 @@ export default function DonneesPubliques() {
       // Lemlist / Affiliation
       'Lemlist affiliation': 'Revenus d\'affiliation Lemlist',
       'Lemlist affiliation ($)': 'Revenus d\'affiliation Lemlist',
-      'Chiffre d\'affaires affiliation': 'Revenus d\'affiliation',
+      'Chiffre d\'affaires affiliation': 'Revenus d\'affiliation total',
       'Coaching Lemlist': 'Coaching Lemlist',
       'Revenus d\'affiliation Lemlist': 'Revenus d\'affiliation Lemlist',
-      'CA affiliation': 'Revenus d\'affiliation',
-      'Chiffre d\'affaires affiliation (€)': 'Revenus d\'affiliation',
+      'CA affiliation': 'Revenus d\'affiliation total',
+      'Chiffre d\'affaires affiliation (€)': 'Revenus d\'affiliation total',
+      'Revenus d\'affiliation CA': 'Revenus d\'affiliation total',
+      'Revenus d\'affiliation Chiffre d\'affaires': 'Revenus d\'affiliation total',
+      'CA Revenus d\'affiliation': 'Revenus d\'affiliation total',
+      'Chiffre d\'affaires Revenus d\'affiliation': 'Revenus d\'affiliation total',
       'Zapmail affiliation': 'Revenus d\'affiliation Zapmail',
       'Apify affiliation': 'Revenus d\'affiliation Apify',
       
@@ -670,7 +672,7 @@ export default function DonneesPubliques() {
       'ARR': 'ARR',
       'Abonnés': 'Abonnés',
       'Abonnés Instagram': 'Abonnés',
-      'Vidéos publiées': category?.toLowerCase().includes('logement') ? 'Vidéos publiées' : 'Vidéos publiées',
+      'Vidéos publiées': category?.toLowerCase().includes('logement') ? 'Vidéos publiées Instagram' : 'Vidéos publiées',
       
       // Meetings / Appels
       'Meetings Call': 'Rendez-vous et appels clients',
@@ -712,9 +714,11 @@ export default function DonneesPubliques() {
       'CA': 'Chiffre d\'affaires',
     }
     
-    // Appliquer les améliorations spécifiques
+    // Appliquer les améliorations spécifiques (vérifier d'abord le titre original, puis la version améliorée)
     if (improvements[title]) {
       improved = improvements[title]
+    } else if (improvements[improved]) {
+      improved = improvements[improved]
     } else {
       // Détection flexible pour les affiliations (ex: "Apify affiliation", "Zapmail affiliation")
       const affiliationMatch = improved.match(/^(.+?)\s+affiliation$/i)
@@ -730,10 +734,21 @@ export default function DonneesPubliques() {
         const translatedService = serviceTranslations[serviceName] || serviceName
         improved = `Revenus d'affiliation ${translatedService}`
       } else {
-        // Améliorations génériques
-        improved = improved.replace(/\bCA\b/gi, 'Chiffre d\'affaires')
-        improved = improved.replace(/\b€\b/g, '')
-        improved = improved.replace(/\$\b/g, '')
+        // Détection spécifique pour "Revenus d'affiliation CA" ou variations (AVANT les remplacements génériques)
+        if (/Revenus\s+d['']affiliation\s+CA/i.test(improved)) {
+          improved = 'Revenus d\'affiliation total'
+        } else {
+          // Améliorations génériques
+          improved = improved.replace(/\bCA\b/gi, 'Chiffre d\'affaires')
+          improved = improved.replace(/\b€\b/g, '')
+          improved = improved.replace(/\$\b/g, '')
+          
+          // Nettoyer "Revenus d'affiliation" suivi de "Chiffre d'affaires" (après remplacement de CA)
+          improved = improved.replace(/Revenus\s+d['']affiliation\s+Chiffre\s+d['']affaires/gi, 'Revenus d\'affiliation total')
+          
+          // Détection finale pour "Revenus d'affiliation CA" (au cas où CA n'a pas été remplacé)
+          improved = improved.replace(/Revenus\s+d['']affiliation\s+CA/gi, 'Revenus d\'affiliation total')
+        }
         
         // Supprimer "custom" qui est redondant
         improved = improved.replace(/\s+custom\s*/gi, '')
@@ -763,6 +778,11 @@ export default function DonneesPubliques() {
     
     // Nettoyer les espaces multiples
     improved = improved.replace(/\s+/g, ' ').trim()
+    
+    // Détection finale pour "Revenus d'affiliation" suivi de "CA" ou "Chiffre d'affaires" (après tous les traitements)
+    if (/Revenus\s+d['']affiliation\s+(CA|Chiffre\s+d['']affaires)/i.test(improved)) {
+      improved = 'Revenus d\'affiliation total'
+    }
     
     return improved
   }
