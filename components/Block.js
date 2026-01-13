@@ -35,15 +35,18 @@ export default function Block({ block }) {
         </p>
       )
     case 'heading_1':
+      // IMPORTANT SEO : Convertir heading_1 en H2 dans le contenu
+      // Car les pages ont déjà un H1 pour le titre principal
+      // Un seul H1 par page est requis pour un bon SEO
       if (!value.rich_text || !Array.isArray(value.rich_text) || value.rich_text.length === 0) {
         return null
       }
       return (
-        <h1 className="text-3xl font-bold mb-4">
+        <h2 className="text-3xl font-bold mb-4">
           {value.rich_text.map((text, i) => (
             <span key={i}>{text?.plain_text || ''}</span>
           ))}
-        </h1>
+        </h2>
       )
     case 'heading_2':
       if (!value.rich_text || !Array.isArray(value.rich_text) || value.rich_text.length === 0) {

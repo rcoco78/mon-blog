@@ -445,6 +445,22 @@ export default function Home({ posts, dynamicDatabases = [] }) {
         }} 
       />
       
+      {/* Structured Data WebPage - Pour améliorer l'indexation de la page d'accueil */}
+      <StructuredData 
+        type="WebPage" 
+        data={{
+          url: siteConfig.url,
+          name: 'Corentin Robert - Expert Freelance Scraping & Automatisation',
+          title: 'Corentin Robert - Expert Freelance Scraping & Automatisation | 424+ Projets',
+          description: 'Corentin Robert - Expert freelance en scraping et automatisation à Paris. 424+ projets réalisés, livraison en 7 jours. Spécialisé scraping immobilier et santé.',
+          image: siteConfig.ogImage,
+          about: {
+            '@type': 'Thing',
+            name: 'Scraping et Automatisation'
+          }
+        }} 
+      />
+      
       {/* Structured Data pour SEO */}
       <StructuredData 
         type="Service" 

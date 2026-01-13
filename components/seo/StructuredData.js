@@ -103,6 +103,34 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           }
         };
       
+      case 'WebPage':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'WebPage',
+          '@id': data.url || siteConfig.url,
+          url: data.url || siteConfig.url,
+          name: data.name || data.title || siteConfig.name,
+          description: data.description || siteConfig.description,
+          inLanguage: 'fr-FR',
+          isPartOf: {
+            '@type': 'WebSite',
+            name: siteConfig.name,
+            url: siteConfig.url
+          },
+          about: data.about || {
+            '@type': 'Thing',
+            name: 'Scraping et Automatisation'
+          },
+          primaryImageOfPage: data.image ? {
+            '@type': 'ImageObject',
+            url: data.image,
+            width: 1200,
+            height: 630
+          } : undefined,
+          breadcrumb: data.breadcrumb,
+          mainEntity: data.mainEntity
+        };
+      
       case 'Organization':
         return {
           '@context': 'https://schema.org',
