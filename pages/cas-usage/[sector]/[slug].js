@@ -706,24 +706,9 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
         }}
       />
 
-      {/* VideoObject Schema - Pour indexation dans Google Search Console */}
-      <StructuredData
-        type="VideoObject"
-        data={{
-          name: `Un mot de Corentin sur ${caseStudy.title}`,
-          description: `Découvrez comment ce cas d'usage de scraping et d'automatisation peut s'adapter à vos besoins spécifiques pour le secteur ${caseStudy.sector.toLowerCase()}. Présentation personnalisée par Corentin Robert, expert freelance en scraping et automatisation.`,
-          thumbnailUrl: `${siteConfig.url}/images/video-thumbnail.jpg`, // À remplacer par la vraie thumbnail Tella si disponible
-          contentUrl: 'https://www.tella.tv/video/vid_cmk2d068v00xf04k15y3y0vaf',
-          embedUrl: 'https://www.tella.tv/video/vid_cmk2d068v00xf04k15y3y0vaf/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0',
-          uploadDate: today,
-          duration: 'PT1M30S', // Durée approximative - à ajuster selon la vraie durée de votre vidéo
-          publisher: {
-            '@type': 'Person',
-            name: siteConfig.author,
-            url: siteConfig.url
-          }
-        }}
-      />
+      {/* VideoObject Schema retiré : la vidéo est en popup (contenu complémentaire), pas le contenu principal de la page.
+          Google n'indexe que les vidéos qui sont le contenu principal sur une page de lecture.
+          Pour indexer les vidéos, il faudrait les afficher directement sur la page (pas en popup). */}
 
       <ReadingProgress />
       
