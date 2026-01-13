@@ -31,6 +31,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         
+        {/* Sitemap - Référence explicite pour Google Search Console */}
+        <link rel="sitemap" type="application/xml" href="https://www.corentinrobert.fr/sitemap.xml" />
+        
         {/* Robots */}
         <meta name="robots" content="index, follow" />
       </Head>

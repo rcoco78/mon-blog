@@ -109,9 +109,29 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           '@type': 'Organization',
           name: siteConfig.name,
           url: siteConfig.url,
-          logo: siteConfig.ogLogo,
-          sameAs: [
-            siteConfig.social.linkedin
+          logo: {
+            '@type': 'ImageObject',
+            url: siteConfig.ogLogo,
+            width: 512,
+            height: 512
+          },
+          description: data.description || siteConfig.seo.defaultDescription,
+          founder: {
+            '@type': 'Person',
+            name: siteConfig.author,
+            url: siteConfig.url
+          },
+          contactPoint: {
+            '@type': 'ContactPoint',
+            contactType: 'Customer Service',
+            email: data.email || 'contact@corentinrobert.fr',
+            availableLanguage: ['French', 'English']
+          },
+          sameAs: data.sameAs || [
+            siteConfig.social.linkedin,
+            siteConfig.social.malt,
+            siteConfig.social.github,
+            'https://apify.com?fpr=0n7ukq'
           ]
         };
       
@@ -200,18 +220,37 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           '@context': 'https://schema.org',
           '@type': 'Person',
           name: data.name || siteConfig.author,
+          alternateName: data.alternateName || 'Corentin Robert',
           url: data.url || siteConfig.url,
           jobTitle: data.jobTitle || 'Consultant Freelance en Scraping et Automatisation',
           description: data.description || siteConfig.seo.defaultDescription,
-          knowsAbout: data.knowsAbout || ['Web Scraping', 'Data Automation', 'Outbound Marketing'],
+          knowsAbout: data.knowsAbout || ['Web Scraping', 'Data Automation', 'Outbound Marketing', 'Growth Hacking', 'Web Scraping', 'Freelance'],
           alumniOf: data.alumniOf,
+          email: data.email,
+          telephone: data.telephone,
+          address: data.address || {
+            '@type': 'PostalAddress',
+            addressCountry: 'FR',
+            addressLocality: 'Paris'
+          },
+          worksFor: data.worksFor || {
+            '@type': 'Organization',
+            name: siteConfig.name,
+            url: siteConfig.url
+          },
           sameAs: data.sameAs || [
             siteConfig.social.linkedin,
             siteConfig.social.malt,
+            siteConfig.social.fiverr,
             'https://apify.com?fpr=0n7ukq',
-            'https://github.com/rcoco78'
+            siteConfig.social.github
           ],
-          image: data.image || siteConfig.ogLogo
+          image: {
+            '@type': 'ImageObject',
+            url: data.image || siteConfig.ogLogo,
+            width: 512,
+            height: 512
+          }
         };
       
       case 'BreadcrumbList':

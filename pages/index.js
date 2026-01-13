@@ -371,15 +371,80 @@ export default function Home({ posts, dynamicDatabases = [] }) {
   }, [])
 
   const pageSEO = generatePageSEO({
-    title: siteConfig.seo.pages.home.title,
-    description: siteConfig.seo.pages.home.description,
+    title: 'Corentin Robert - Expert Freelance Scraping & Automatisation | 424+ Projets',
+    description: 'Corentin Robert - Expert freelance en scraping et automatisation à Paris. 424+ projets réalisés, livraison en 7 jours. Spécialisé scraping immobilier et santé. Consultant scraping pour TPE-PME.',
     path: '/',
-    keywords: siteConfig.seo.pages.home.keywords
+    keywords: ['Corentin Robert', 'scraping freelance', 'automatisation', 'consultant scraping', 'web scraping', 'data automation', 'freelance scraping France', 'freelance scraping Paris', 'consultant scraping TPE-PME', 'scraping immobilier', 'automatisation processus business']
   })
 
   return (
     <>
       <SEOHead {...pageSEO} />
+      
+      {/* Structured Data Organization - Complet pour Google */}
+      <StructuredData 
+        type="Organization" 
+        data={{
+          description: 'Expert freelance en scraping et automatisation. 424+ projets réalisés via Malt et Fiverr, livraison en 7 jours.',
+          email: 'contact@corentinrobert.fr',
+          sameAs: [
+            siteConfig.social.linkedin,
+            siteConfig.social.malt,
+            siteConfig.social.fiverr,
+            siteConfig.social.github,
+            'https://apify.com?fpr=0n7ukq'
+          ]
+        }} 
+      />
+      
+      {/* Structured Data Person - Optimisé pour "Corentin Robert" */}
+      <StructuredData 
+        type="Person" 
+        data={{
+          name: 'Corentin Robert',
+          alternateName: 'Corentin Robert',
+          jobTitle: 'Expert Freelance en Scraping et Automatisation',
+          description: 'Corentin Robert - Expert freelance en scraping et automatisation. 424+ projets réalisés, 270+ avis positifs. Spécialisé scraping immobilier et santé pour TPE-PME.',
+          knowsAbout: ['Web Scraping', 'Data Automation', 'Outbound Marketing', 'Growth Hacking', 'Freelance', 'Scraping Immobilier', 'Scraping Santé'],
+          sameAs: [
+            siteConfig.social.linkedin,
+            siteConfig.social.malt,
+            siteConfig.social.fiverr,
+            siteConfig.social.github,
+            'https://apify.com?fpr=0n7ukq'
+          ]
+        }} 
+      />
+      
+      {/* Structured Data FAQPage - Questions principales */}
+      <StructuredData 
+        type="FAQPage" 
+        data={{
+          questions: [
+            {
+              question: "Qu'est-ce que le scraping et comment ça peut aider mon business ?",
+              answer: "Le scraping (ou web scraping) est une technique qui permet d'extraire automatiquement des données depuis des sites web. Concrètement, cela vous permet de : collecter des données concurrentielles (prix, produits, avis), générer des leads qualifiés (contacts, profils LinkedIn), automatiser votre veille marché, enrichir vos bases de données existantes."
+            },
+            {
+              question: "Quel est le délai de livraison réel ?",
+              answer: "Livraison en moins d'une semaine pour 90% des projets. Concrètement : un scraping simple (1 site, données structurées) : 2-3 jours, un scraping complexe (multi-sites, anti-bot) : 5-7 jours, une automatisation complète : 5-7 jours."
+            },
+            {
+              question: "Combien coûte un projet de scraping ou d'automatisation ?",
+              answer: "Les prix varient selon la complexité : un scraping simple (1 site, données structurées) : 500-1500€, un scraping complexe (multi-sites, données dynamiques, anti-bot) : 1500-5000€, une automatisation complète (outil sur-mesure + intégration) : 2000-8000€. La plupart des projets se livrent en moins d'une semaine."
+            },
+            {
+              question: "Pourquoi choisir Corentin Robert plutôt qu'une agence ou un dev interne ?",
+              answer: "3 avantages clés : 1) Rapidité : livraison en moins d'une semaine vs 1-2 mois pour une agence, 2) Coûts maîtrisés : pas de frais de structure, tarifs transparents, 3) Expertise ciblée : 424+ projets en scraping/automatisation vs un dev interne qui doit tout apprendre."
+            },
+            {
+              question: "Est-ce légal de scraper des sites web ?",
+              answer: "Oui, le scraping est légal dans la plupart des cas, à condition de respecter : 1) Les robots.txt et conditions d'utilisation du site, 2) Le RGPD si vous collectez des données personnelles, 3) Les bonnes pratiques (ne pas surcharger les serveurs, respecter les limites de taux)."
+            }
+          ]
+        }} 
+      />
+      
       {/* Structured Data pour SEO */}
       <StructuredData 
         type="Service" 

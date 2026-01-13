@@ -15,8 +15,36 @@ function MyApp({ Component, pageProps }) {
         keywords="développement web, outils, projets open source, blog, Corentin Robert"
       />
       <StructuredData type="WebSite" />
-      <StructuredData type="Organization" />
-      <StructuredData type="Person" />
+      <StructuredData 
+        type="Organization" 
+        data={{
+          description: siteConfig.seo.defaultDescription,
+          email: 'contact@corentinrobert.fr',
+          sameAs: [
+            siteConfig.social.linkedin,
+            siteConfig.social.malt,
+            siteConfig.social.fiverr,
+            siteConfig.social.github,
+            'https://apify.com?fpr=0n7ukq'
+          ]
+        }} 
+      />
+      <StructuredData 
+        type="Person" 
+        data={{
+          name: 'Corentin Robert',
+          jobTitle: 'Expert Freelance en Scraping et Automatisation',
+          description: siteConfig.seo.defaultDescription,
+          knowsAbout: ['Web Scraping', 'Data Automation', 'Outbound Marketing', 'Growth Hacking', 'Freelance'],
+          sameAs: [
+            siteConfig.social.linkedin,
+            siteConfig.social.malt,
+            siteConfig.social.fiverr,
+            siteConfig.social.github,
+            'https://apify.com?fpr=0n7ukq'
+          ]
+        }} 
+      />
       <Layout>
         <Component {...pageProps} />
       </Layout>
