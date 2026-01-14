@@ -61,6 +61,41 @@
       "permanent": true
     },
     {
+      "source": "/cas-usage/\\[sector\\]",
+      "destination": "/404",
+      "permanent": true
+    },
+    {
+      "source": "/cas-usage/\\[sector\\]/:path*",
+      "destination": "/404",
+      "permanent": true
+    },
+    {
+      "source": "/cas-usage/:path*/\\[slug\\]",
+      "destination": "/404",
+      "permanent": true
+    },
+    {
+      "source": "/marketplace/\\[category\\]",
+      "destination": "/404",
+      "permanent": true
+    },
+    {
+      "source": "/marketplace/\\[category\\]/:path*",
+      "destination": "/404",
+      "permanent": true
+    },
+    {
+      "source": "/marketplace/:path*/\\[slug\\]",
+      "destination": "/404",
+      "permanent": true
+    },
+    {
+      "source": "/blog/\\[slug\\]",
+      "destination": "/404",
+      "permanent": true
+    },
+    {
       "source": "/(.*)",
       "has": [
         {

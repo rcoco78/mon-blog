@@ -13,8 +13,25 @@ export default function MarketplaceRedirect() {
 export async function getServerSideProps({ params }) {
   const slug = params.slug?.[0] // Prendre le premier élément du tableau slug
   
+  // PROTECTION SEO : Rejeter les URLs avec patterns littéraux [category] ou [slug]
+  // Ces URLs ne doivent jamais être indexées par Google
+  if (slug && (slug.includes('[category]') || slug.includes('[slug]') || slug === '[category]' || slug === '[slug]')) {
+    return {
+      notFound: true
+    }
+  }
+  
   // Si c'est déjà une route avec catégorie (2 éléments), ne pas traiter ici
   if (params.slug && params.slug.length > 1) {
+    // PROTECTION SEO : Rejeter aussi si les patterns sont dans les segments
+    const hasInvalidPattern = params.slug.some(segment => 
+      segment && (segment.includes('[category]') || segment.includes('[slug]'))
+    )
+    if (hasInvalidPattern) {
+      return {
+        notFound: true
+      }
+    }
     return {
       notFound: true
     }

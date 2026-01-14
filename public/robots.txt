@@ -44,6 +44,17 @@ Allow: /blog/*
 # PAGES TO EXCLUDE FROM INDEXING
 # ============================================
 
+# PROTECTION SEO : Bloquer les URLs avec patterns littéraux [sector], [slug], [category]
+# Ces URLs ne doivent jamais être indexées par Google
+Disallow: /*\[sector\]*
+Disallow: /*\[slug\]*
+Disallow: /*\[category\]*
+Disallow: /cas-usage/\[sector\]*
+Disallow: /cas-usage/*/\[slug\]*
+Disallow: /marketplace/\[category\]*
+Disallow: /marketplace/*/\[slug\]*
+Disallow: /blog/\[slug\]*
+
 # Pages with query parameters (duplications)
 Disallow: /blog?*
 Disallow: /marketplace?*

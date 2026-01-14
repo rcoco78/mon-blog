@@ -424,6 +424,14 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
+  // PROTECTION SEO : Rejeter les URLs avec patterns littéraux [slug]
+  // Ces URLs ne doivent jamais être indexées par Google
+  if (params.slug && (params.slug.includes('[slug]') || params.slug === '[slug]')) {
+    return {
+      notFound: true
+    }
+  }
+  
   // Essayer de récupérer depuis Blob Storage directement, sinon fallback vers Notion
   let post = null
   let blocks = null
