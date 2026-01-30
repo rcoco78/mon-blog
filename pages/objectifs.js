@@ -865,6 +865,16 @@ export default function DonneesPubliques() {
     )
   }
 
+  // Indices des barres pour lesquelles afficher date et valeur (max 8, répartis pour lisibilité)
+  const getChartLabelIndices = (n, maxLabels = 8) => {
+    if (n <= maxLabels) return new Set(Array.from({ length: n }, (_, i) => i))
+    const indices = new Set([0, n - 1])
+    for (let i = 1; i < maxLabels - 1; i++) {
+      indices.add(Math.round((i / (maxLabels - 1)) * (n - 1)))
+    }
+    return indices
+  }
+
   // Composant réutilisable pour les graphiques de croissance
   const GrowthChart = ({ title, description, history, loading, colorFrom = 'blue', colorTo = 'blue', insight, targetValue }) => {
     // Couleurs pastel/claires comme dans MiniGrowthChart
@@ -906,120 +916,110 @@ export default function DonneesPubliques() {
             <div className="sr-only">
               <p>Graphique en barres représentant l'évolution de {title.toLowerCase()}. Les données sont affichées chronologiquement de gauche à droite.</p>
             </div>
-            <div className="flex items-end justify-between gap-0.5 md:gap-2 h-80 md:h-72 relative overflow-x-hidden overflow-y-visible" role="img" aria-label={`Graphique de ${title.toLowerCase()}`}>
-              {(() => {
-                // Calcul de l'échelle pour mieux visualiser la progression
-                const minValue = Math.min(...history.map(h => h.valeur))
-                const maxValue = Math.max(...history.map(h => h.valeur))
-                const range = maxValue - minValue
-                
-                // Ne pas utiliser l'objectif si il est trop éloigné des valeurs réelles (plus de 3x le max)
-                // Cela permet de mieux visualiser les différences entre les valeurs réelles
-                const shouldUseTarget = targetValue && targetValue > maxValue && targetValue <= maxValue * 3
-                
-                // Si la plage est très petite par rapport au max, utiliser une échelle amplifiée
-                const useAmplifiedScale = range > 0 && range < maxValue * 0.15 // Si la plage est inférieure à 15% du max
-                
-                const scaleMax = shouldUseTarget
-                  ? targetValue 
-                  : useAmplifiedScale
-                    ? maxValue + (range * 0.03) // Petite marge pour amplifier
-                    : maxValue + (range > 0 ? range * 0.05 : maxValue * 0.05)
-                
-                // Commencer au minimum réel avec une marge minimale pour maximiser la visibilité des différences
-                const scaleMin = useAmplifiedScale
-                  ? Math.max(0, minValue - (range * 0.02)) // Marge très petite pour amplification
-                  : Math.max(0, minValue - (range > 0 ? range * 0.02 : minValue * 0.02))
-                
-                const scaleRange = scaleMax - scaleMin
-                
-                return (
-                  <>
-                    {/* Ligne d'objectif si targetValue est fourni et dans la plage visible */}
-                    {targetValue && scaleMax > 0 && shouldUseTarget && (
-                      <div 
-                        className="absolute left-0 right-0 border-t-2 border-dashed border-neutral-400 dark:border-neutral-500 z-10"
-                        style={{ bottom: `${((targetValue - scaleMin) / scaleRange) * 100}%` }}
-                        title={`Objectif: ${formatNumber(targetValue)}`}
-                      >
-                        {/* Label desktop : à droite de la ligne */}
-                        <div className="hidden md:block absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-full ml-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap shadow-lg">
-                          Objectif: {formatNumber(targetValue)}
-                        </div>
-                        {/* Label mobile : au-dessus de la ligne à gauche */}
-                        <div className="md:hidden absolute left-0 top-0 transform -translate-y-full -mt-1 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap shadow-lg z-20">
-                          Objectif: {formatNumber(targetValue)}
-                        </div>
-                      </div>
-                    )}
-                    {history.map((item, index) => {
-                      const height = scaleRange > 0 ? ((item.valeur - scaleMin) / scaleRange) * 100 : 0
-                      const isFirst = index === 0
-                      const isLast = index === history.length - 1
-                      const isVisibleOnMobile = isFirst || isLast
-                      // Formater la date pour desktop : seulement jour/mois si beaucoup de données
-                      const formatDateForDesktop = (dateStr) => {
-                        try {
-                          const date = new Date(dateStr)
-                          if (!isNaN(date.getTime())) {
-                            if (history.length > 8) {
-                              // Format court : 23/12 au lieu de 23-12-2025
-                              return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`
-                            }
-                            // Format complet : dd-mm-yyyy
-                            return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`
-                          }
-                        } catch (e) {
-                          // Si erreur, retourner la date originale
-                        }
-                        return dateStr
-                      }
-                      
-                      // Formater la date pour le tooltip : dd-mm-yyyy
-                      const formatDateForTooltip = (dateStr) => {
-                        try {
-                          const date = new Date(dateStr)
-                          if (!isNaN(date.getTime())) {
-                            return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`
-                          }
-                        } catch (e) {
-                          // Si erreur, retourner la date originale
-                        }
-                        return dateStr
-                      }
-                
-                return (
-                  <div key={item.id} className="flex-1 flex flex-col items-center min-w-0 relative overflow-visible group/bar" style={{ height: '100%' }}>
-                    <div className="relative w-full flex items-end justify-center flex-1" style={{ minHeight: '240px', maxHeight: '240px' }}>
-                      <div 
-                        className={`w-full ${colorClass} rounded-t transition-all duration-500 group relative shadow-sm hover:shadow-md hover:opacity-90`}
-                        style={{ 
-                          height: `${height}%`, 
-                          minHeight: height > 0 ? '8px' : '0',
-                          width: 'calc(100% - 4px)',
-                          margin: '0 2px'
-                        }}
-                        title={`${formatDateForTooltip(item.date)}: ${formatNumber(item.valeur)}`}
-                      >
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-lg" style={{ zIndex: 9999, isolation: 'isolate' }}>
-                          <div className="flex flex-col items-center">
-                            <div>{formatDateForTooltip(item.date)}</div>
-                            <div className="font-semibold">{formatNumber(item.valeur)}</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className={`text-xs text-neutral-600 dark:text-neutral-400 mt-2 min-w-0 w-full px-0.5 overflow-visible text-center md:text-center ${isFirst ? 'text-right md:text-center' : ''} ${isLast ? 'text-left md:text-center' : ''}`} style={{ minHeight: '2.5rem', flexShrink: 0, position: 'relative', zIndex: isVisibleOnMobile ? 10 : 1 }}>
-                      <div className={`font-medium ${isVisibleOnMobile ? 'whitespace-nowrap' : 'truncate'} ${isVisibleOnMobile ? '' : 'invisible sm:visible'} ${isVisibleOnMobile ? 'relative z-10 bg-neutral-50 dark:bg-neutral-900/50 px-1 rounded inline-block' : ''}`}>{formatNumber(item.valeur)}</div>
-                      <div className="hidden md:block text-[9px] mt-1 leading-tight whitespace-nowrap">{formatDateForDesktop(item.date)}</div>
+            {(() => {
+              const minValue = Math.min(...history.map(h => h.valeur))
+              const maxValue = Math.max(...history.map(h => h.valeur))
+              const range = maxValue - minValue
+              const shouldUseTarget = targetValue && targetValue > maxValue && targetValue <= maxValue * 3
+              const useAmplifiedScale = range > 0 && range < maxValue * 0.15
+              const scaleMax = shouldUseTarget ? targetValue : useAmplifiedScale ? maxValue + (range * 0.03) : maxValue + (range > 0 ? range * 0.05 : maxValue * 0.05)
+              const scaleMin = useAmplifiedScale ? Math.max(0, minValue - (range * 0.02)) : Math.max(0, minValue - (range > 0 ? range * 0.02 : minValue * 0.02))
+              const scaleRange = scaleMax - scaleMin
+              const labelIndices = getChartLabelIndices(history.length, 8)
+              const yTicks = [scaleMin, scaleMin + scaleRange * 0.25, scaleMin + scaleRange * 0.5, scaleMin + scaleRange * 0.75, scaleMax].map(v => Math.round(v))
+              const uniqueYTicks = [...new Set(yTicks)].sort((a, b) => a - b)
+              const yTicksTopToBottom = [...uniqueYTicks].reverse()
+              return (
+                <div className="flex gap-3">
+                  {/* Axe Y : valeurs (nomenclature) */}
+                  <div className="flex flex-col justify-between text-right shrink-0 py-0.5" style={{ minHeight: '240px' }} aria-hidden="true">
+                    <span className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Valeur</span>
+                    <div className="flex-1 flex flex-col justify-between mt-1">
+                      {yTicksTopToBottom.map((tick, i) => (
+                        <span key={i} className="text-[11px] text-neutral-600 dark:text-neutral-400 tabular-nums">{formatNumber(tick)}</span>
+                      ))}
                     </div>
                   </div>
-                    )
-                  })}
-                  </>
-                )
-              })()}
-            </div>
+                  {/* Zone graphique + axe X */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-end justify-between gap-0.5 md:gap-2 h-80 md:h-72 relative overflow-x-hidden overflow-y-visible" role="img" aria-label={`Graphique de ${title.toLowerCase()}`}>
+                      {(() => {
+                        return (
+                          <>
+                            {targetValue && scaleMax > 0 && shouldUseTarget && (
+                              <div 
+                                className="absolute left-0 right-0 border-t-2 border-dashed border-neutral-400 dark:border-neutral-500 z-10"
+                                style={{ bottom: `${((targetValue - scaleMin) / scaleRange) * 100}%` }}
+                                title={`Objectif: ${formatNumber(targetValue)}`}
+                              >
+                                <div className="hidden md:block absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-full ml-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap shadow-lg">
+                                  Objectif: {formatNumber(targetValue)}
+                                </div>
+                                <div className="md:hidden absolute left-0 top-0 transform -translate-y-full -mt-1 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap shadow-lg z-20">
+                                  Objectif: {formatNumber(targetValue)}
+                                </div>
+                              </div>
+                            )}
+                            {history.map((item, index) => {
+                              const height = scaleRange > 0 ? ((item.valeur - scaleMin) / scaleRange) * 100 : 0
+                              const isFirst = index === 0
+                              const isLast = index === history.length - 1
+                              const showLabel = labelIndices.has(index)
+                              const formatDateForDesktop = (dateStr) => {
+                                try {
+                                  const date = new Date(dateStr)
+                                  if (!isNaN(date.getTime())) {
+                                    if (history.length > 12) return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`
+                                    return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getFullYear()).slice(-2)}`
+                                  }
+                                } catch (e) {}
+                                return dateStr
+                              }
+                              const formatDateForTooltip = (dateStr) => {
+                                try {
+                                  const date = new Date(dateStr)
+                                  if (!isNaN(date.getTime())) return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`
+                                } catch (e) {}
+                                return dateStr
+                              }
+                              return (
+                                <div key={item.id} className="flex-1 flex flex-col items-center min-w-0 relative overflow-visible group/bar" style={{ height: '100%' }}>
+                                  <div className="relative w-full flex items-end justify-center flex-1" style={{ minHeight: '240px', maxHeight: '240px' }}>
+                                    <div 
+                                      className={`w-full ${colorClass} rounded-t transition-all duration-500 group relative shadow-sm hover:shadow-md hover:opacity-90`}
+                                      style={{ height: `${height}%`, minHeight: height > 0 ? '8px' : '0', width: 'calc(100% - 4px)', margin: '0 2px' }}
+                                      title={`${formatDateForTooltip(item.date)}: ${formatNumber(item.valeur)}`}
+                                    >
+                                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-lg" style={{ zIndex: 9999, isolation: 'isolate' }}>
+                                        <div className="flex flex-col items-center">
+                                          <div>{formatDateForTooltip(item.date)}</div>
+                                          <div className="font-semibold">{formatNumber(item.valeur)}</div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="text-xs text-neutral-600 dark:text-neutral-400 mt-2 min-w-0 w-full px-0.5 text-center" style={{ minHeight: '2.5rem', flexShrink: 0 }}>
+                                    {showLabel ? (
+                                      <>
+                                        <div className="font-medium whitespace-nowrap">{formatNumber(item.valeur)}</div>
+                                        <div className="text-[10px] mt-0.5 leading-tight whitespace-nowrap text-neutral-500 dark:text-neutral-500">{formatDateForDesktop(item.date)}</div>
+                                      </>
+                                    ) : (
+                                      <div className="h-5" aria-hidden="true" />
+                                    )}
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </>
+                        )
+                      })()}
+                    </div>
+                    <div className="mt-1 text-[10px] text-neutral-500 dark:text-neutral-500 text-center font-medium uppercase tracking-wider">Date (période)</div>
+                  </div>
+                </div>
+              )
+            })()}
             
             {/* Ligne de tendance */}
             {history.length > 1 && (
