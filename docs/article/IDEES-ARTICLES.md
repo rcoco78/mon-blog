@@ -3,6 +3,25 @@
 ## 🎯 Objectif
 Créer du contenu qui renforce le personal brand, partage des connaissances et crée de la connexion avec la communauté.
 
+### 📊 Stratégie validée par Search Console (fév. 2026)
+- **Référence** : [STRATEGIE-BLOG-SEARCH-CONSOLE.md](../SEO/STRATEGIE-BLOG-SEARCH-CONSOLE.md)
+- Les **articles de blog** (guides techniques + récits freelance) génèrent le plus d’impressions et de clics.
+- **Format qui marche** : « Guide [sujet] 2026 » / « Comment [faire X] » (ex. scraping LinkedIn guide 2026).
+- **Priorité** : doubler sur le blog, 1–2 articles solides/mois, mix technique + freelance.
+
+---
+
+## 📁 Dossiers d'articles (docs/article/)
+
+| Dossier | Sujet | Statut |
+|--------|--------|--------|
+| [scraping-linkedin/](scraping-linkedin/README.md) | Scraping LinkedIn 10 000 profils | Publié |
+| [prospection-logement-atypique/](prospection-logement-atypique/README.md) | Prospection Airbnb pour Logement Atypique (Apify, GPT, Resend, Telegram) | Rédigé, à publier |
+| [scraping-immobilier-recruitement/](scraping-immobilier-recruitement/README.md) | Scraping immobilier & recrutement | Trame |
+| [marketplace-automation/](marketplace-automation/) | Marketplace & orchestration | Draft |
+| [pinterest-100k-impressions/](pinterest-100k-impressions/README.md) | Pinterest 100k impressions | Trame |
+| [pseo-6500-pages/](pseo-6500-pages/README.md) | PSEO 6500 pages | Article |
+
 ---
 
 ## 📊 Articles Techniques / Cas d'usage (Expertise)
@@ -290,14 +309,31 @@ Créer du contenu qui renforce le personal brand, partage des connaissances et c
 
 ---
 
+## 🧩 Articles storytelling + valeur (pas que du storytelling)
+
+*Référence : [STRATEGIE-BLOG-SEARCH-CONSOLE.md](../SEO/STRATEGIE-BLOG-SEARCH-CONSOLE.md) — principe « pas que du storytelling ».*
+
+Chaque article perso doit apporter **une valeur claire au lecteur** (leçons, framework, angle pratique). En fin d’article : section « Ce que tu peux en retenir » ou « 3 idées à appliquer ».
+
+| Idée | Angle valeur pour le lecteur | Tags possibles |
+|------|------------------------------|----------------|
+| **De CDI à freelance : comment mes revenus ont dépassé mon salaire en X mois** | Chiffres, étapes, erreurs évitées, timeline — comment reproduire ou s’en inspirer | `freelance`, `transition`, `réflexion` |
+| **Scraping santé : Doctolib et professionnels de santé — guide 2026** | Guide pratique + cas d’usage (données, limites, outils). Maillage vers page Doctolib (4 clics, 71 imp.) | `scraping`, `santé`, `doctolib`, `guide` |
+| **Mon plan pour percer sur ComeUp** (2 acteurs = 90 % du marché, moi jamais réussi) | Stratégie pour se développer sur un marché dominé ; ce que je vais tester ; critères de choix plateforme | `freelance`, `comeup`, `stratégie`, `plateformes` |
+| **Ce qu’Airbnb m’a appris (et comment ça a changé ma carrière)** — Airbnb → InstaNinja → Hetic | Parcours + leçons transférables : hospitality → product → école → freelance ; ce qui sert encore aujourd’hui | `parcours`, `airbnb`, `hetic`, `leçons` |
+| **10 ans de handball pro jeune : le lien que je n’avais pas vu avec l’entrepreneuriat** | Ce que le sport (discipline, équipe, pression, objectifs) m’a appris sans que je le sache, appliqué à l’entrepreneuriat / freelance | `sport`, `handball`, `mindset`, `entrepreneuriat` |
+
+---
+
 ## 💡 Notes
 
 - **Rythme idéal** : 1-2 articles par semaine
 - **Mieux vaut 1 bon article que 5 articles vides**
 - **L'authenticité crée la connexion**
 - **Partager des connaissances > Vendre**
+- **Storytelling = hook ; valeur = ce qu’il repart avec** (leçons, actions, repères)
 
 ---
 
-*Dernière mise à jour : ${new Date().toLocaleDateString('fr-FR')}*
+*Dernière mise à jour : Février 2026*
 

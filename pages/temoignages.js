@@ -133,6 +133,60 @@ export default function Temoignages() {
                 <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
               </div>
             </div>
+            {/* LinkedIn - Aymeric Faillenot */}
+            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">1ère collaboration • Rapide et efficace • Économie de plusieurs milliers d&apos;euros</p>
+              </div>
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
+                  &quot;1ère collaboration avec Corentin et grande satisfaction. Rapide et efficace dans l&apos;exécution de la mission, qui m&apos;a fait économiser plusieurs milliers d&apos;euros et un projet casse-tête ! Je recommande ;)&quot;
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Aymeric Faillenot</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">DG & Associé @ Atelier du Drainage Lymphatique</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
+              </div>
+            </div>
+            {/* LinkedIn - Boris Fievet */}
+            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Pro et efficace • Je recommande</p>
+              </div>
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
+                  &quot;Pro et efficace ! Je ne peux que recommander Corentin&quot;
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Boris Fievet</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Founder @ Iziday</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
+              </div>
+            </div>
+            {/* LinkedIn - Céline Arethens */}
+            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Réactif • Travail de qualité • Plaisir de travailler ensemble</p>
+              </div>
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
+                  &quot;C&apos;est toujours un plaisir de travailler avec Corentin, il est très réactif et délivre du travail de qualité !&quot;
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Céline Arethens</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">CEO @ WW Technologies | Forbes 30U30 | Founder @ LANE</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
+              </div>
+            </div>
             {/* LinkedIn */}
             <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
               <div className="mb-3">

@@ -5,6 +5,41 @@ import { put, list } from '@vercel/blob'
 
 const BLOB_FILENAME = 'newsletter-subscribers.json'
 
+// Limites anti-bot (patterns observés sur les fakes)
+const MAX_DOTS_IN_LOCAL = 3           // ex. prenom.nom.ok, pas a.b.c.d.e.66.4
+const MAX_LOCAL_PART_LENGTH = 40       // partie avant @
+const MAX_SEGMENTS = 5                 // segments séparés par des points (prenom.nom = 2)
+const MAX_SINGLE_CHAR_SEGMENTS = 2     // au plus 2 segments d’1 seul caractère
+
+/**
+ * Rejette les emails qui ressemblent à des inscriptions bot (beaucoup de points, motifs aléatoires).
+ */
+function isLikelyBotEmail(email) {
+  const local = email.split('@')[0]
+  if (!local) return true
+
+  // Trop long
+  if (local.length > MAX_LOCAL_PART_LENGTH) return true
+
+  const dots = (local.match(/\./g) || []).length
+  if (dots > MAX_DOTS_IN_LOCAL) return true
+
+  // Fin en .chiffre.chiffre (ex. .66.4, .31.5) = pattern bot fréquent
+  if (/\.\d+\.\d+$/.test(local)) return true
+
+  const segments = local.split('.')
+  if (segments.length > MAX_SEGMENTS) return true
+
+  const singleCharSegments = segments.filter((s) => s.length === 1).length
+  if (singleCharSegments > MAX_SINGLE_CHAR_SEGMENTS) return true
+
+  // Beaucoup de segments très courts (ex. lu.sug.iz.ah.ay64.0)
+  const shortSegments = segments.filter((s) => s.length <= 2).length
+  if (segments.length >= 4 && shortSegments >= 3) return true
+
+  return false
+}
+
 // Fonction pour envoyer une notification Telegram
 async function sendTelegramNotification(email, success = true) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN
@@ -60,6 +95,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Email invalide' })
   }
 
+  const emailLower = email.toLowerCase().trim()
+  if (isLikelyBotEmail(emailLower)) {
+    // Réponse volontairement neutre pour ne pas aider les bots
+    return res.status(400).json({ error: 'Email invalide' })
+  }
+
   try {
     // Récupérer les abonnés existants
     let subscribers = []
@@ -88,7 +129,6 @@ export default async function handler(req, res) {
     }
 
     // Vérifier si l'email existe déjà
-    const emailLower = email.toLowerCase().trim()
     const existingSubscriber = subscribers.find((sub) => sub.email.toLowerCase() === emailLower)
     
     if (existingSubscriber) {

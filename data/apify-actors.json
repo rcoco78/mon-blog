@@ -1,0 +1,1001 @@
+{
+  "actors": [
+    {
+      "id": "corent1robert/airbnb-professional-host-scraper",
+      "username": "corent1robert",
+      "name": "airbnb-professional-host-scraper",
+      "title": "Airbnb Pro Host Business Email Scraper",
+      "description": "Découvrez notre puissant outil de scraping Airbnb qui vous permet d'extraire des informations professionnelles sur les hôtes, notamment les noms d'entreprises, adresses e-mail, numéros de téléphone et détails d'enregistrement. Idéal pour les entreprises B2B cherchant à générer des leads qualifiés et à optimiser leur stratégie marketing.",
+      "stats": {
+        "runs": 0,
+        "users": 63,
+        "successRate": 83.1
+      },
+      "url": "https://apify.com/corent1robert/airbnb-professional-host-scraper",
+      "isPublic": true,
+      "enrichedData": {
+        "useCases": [
+          "Pour les agences immobilières qui veulent élargir leur portefeuille, cet outil permet d'identifier et de contacter des hôtes professionnels sur Airbnb.",
+          "Pour les marketers B2B qui souhaitent automatiser leur prospection, cet outil permet d'extraire des données de contact précises et ciblées.",
+          "Pour les développeurs d'applications de gestion de propriétés, cet outil permet d'obtenir des informations sur les hôtes pour des intégrations améliorées."
+        ],
+        "problem": [
+          "Vous perdez du temps à rechercher manuellement des hôtes Airbnb alors que vous pourriez automatiser cette tâche.",
+          "Vous avez du mal à trouver des leads qualifiés pour vos campagnes marketing.",
+          "Vous manquez d'informations précises sur les hôtes professionnels pour établir un contact efficace."
+        ],
+        "solution": [
+          "Extrayez des données précises d'hôtes Airbnb en quelques minutes au lieu de passer des heures à chercher manuellement.",
+          "Accédez à une base de données d'hôtes professionnels, vous permettant de cibler vos efforts de marketing plus efficacement.",
+          "Obtenez des informations à jour sur les hôtes, pour maximiser vos chances de conversion."
+        ],
+        "keywords": [
+          "scraping Airbnb",
+          "génération de leads",
+          "outils B2B",
+          "extraction de données",
+          "hôtes professionnels",
+          "automatisation marketing",
+          "prospection efficace",
+          "données commerciales"
+        ],
+        "shortDescription": "Générez des leads B2B avec notre scraper Airbnb performant !",
+        "category": "Génération de leads",
+        "targetAudience": [
+          "Agences immobilières",
+          "Marketers B2B",
+          "Développeurs d'applications",
+          "Entrepreneurs dans le secteur de l'hébergement"
+        ],
+        "valueProposition": "Transformez votre stratégie de génération de leads avec notre scraper Airbnb, l'outil indispensable pour les entreprises B2B.",
+        "objections": [
+          "Est-ce que ça fonctionne vraiment ?",
+          "Les données sont-elles à jour et précises ?",
+          "Est-ce facile à utiliser pour les non-techniques ?"
+        ],
+        "objectionsAnswers": [
+          "Oui, notre outil a un taux de réussite de 83,1%, prouvant son efficacité.",
+          "Nous garantissons que les données sont régulièrement mises à jour pour assurer leur précision.",
+          "Notre interface est conviviale et nécessite peu de compétences techniques pour être utilisée."
+        ],
+        "howToSteps": [
+          {
+            "name": "Inscription",
+            "text": "Créez un compte sur Apify pour accéder à l'outil."
+          },
+          {
+            "name": "Configuration",
+            "text": "Configurez vos paramètres de scraping selon vos besoins spécifiques."
+          },
+          {
+            "name": "Lancement",
+            "text": "Lancez le scraping pour extraire les données des hôtes professionnels."
+          },
+          {
+            "name": "Analyse",
+            "text": "Analysez les données extraites pour identifier vos prospects."
+          },
+          {
+            "name": "Contact",
+            "text": "Contactez directement vos leads via les informations collectées."
+          }
+        ],
+        "expectedResults": "Après utilisation, attendez-vous à une liste de leads qualifiés, prêts à être contactés pour vos offres de services."
+      },
+      "lastEnriched": "2026-01-11T13:49:43.870Z"
+    },
+    {
+      "id": "corent1robert/airbnb-property-scraper",
+      "username": "corent1robert",
+      "name": "airbnb-property-scraper",
+      "title": "Airbnb Property Scraper",
+      "description": "Découvrez l'Airbnb Property Scraper, un outil performant conçu pour extraire des données précises sur les propriétés Airbnb. Grâce à sa gestion optimisée de la pagination et de la mémoire, cet outil vous permet d'accéder rapidement aux informations essentielles pour améliorer votre stratégie de location ou d'investissement immobilier.",
+      "stats": {
+        "runs": 0,
+        "users": 14,
+        "successRate": 95.5
+      },
+      "url": "https://apify.com/corent1robert/airbnb-property-scraper",
+      "isPublic": true,
+      "enrichedData": {
+        "useCases": [
+          "Pour les agences immobilières qui veulent analyser le marché locatif, cet outil permet d'extraire des données sur les prix et la disponibilité des propriétés.",
+          "Pour les investisseurs en immobilier qui cherchent à optimiser leurs investissements, cet outil permet de suivre les tendances du marché en temps réel.",
+          "Pour les professionnels du marketing qui souhaitent cibler des clients potentiels, cet outil permet d'identifier les propriétés les plus attractives à promouvoir."
+        ],
+        "problem": [
+          "Vous perdez du temps à rechercher manuellement des informations sur les propriétés Airbnb alors que vous pourriez automatiser ce processus.",
+          "Vous avez du mal à obtenir des données fiables et à jour sur les locations alors que cela est essentiel pour votre stratégie.",
+          "Vous passez trop de temps à comparer les prix des propriétés alors qu'un outil automatisé pourrait le faire en quelques minutes."
+        ],
+        "solution": [
+          "Extrayez des données de propriétés Airbnb en quelques minutes au lieu de passer des heures à les chercher manuellement.",
+          "Obtenez des informations à jour et fiables sur les tendances du marché locatif sans effort supplémentaire.",
+          "Accédez rapidement à des analyses comparatives de prix pour prendre des décisions éclairées en matière d'investissement."
+        ],
+        "keywords": [
+          "scraping Airbnb",
+          "données immobilières",
+          "automatisation",
+          "analyse de marché",
+          "investissement immobilier",
+          "location saisonnière",
+          "données en temps réel",
+          "outil de scraping"
+        ],
+        "shortDescription": "Scraper performant pour des données Airbnb fiables et rapides.",
+        "category": "Scraping & Automatisation",
+        "targetAudience": [
+          "Agences immobilières",
+          "Investisseurs en immobilier",
+          "Professionnels du marketing",
+          "Analystes de données"
+        ],
+        "valueProposition": "Optimisez vos recherches immobilières grâce à un scraping automatisé et précis des données Airbnb.",
+        "objections": [
+          "Est-ce que ça fonctionne vraiment ?",
+          "Les données sont-elles fiables et à jour ?",
+          "Quelle est la courbe d'apprentissage pour utiliser cet outil ?"
+        ],
+        "objectionsAnswers": [
+          "Oui, notre outil a un taux de réussite de 95.5% basé sur les retours des utilisateurs.",
+          "Oui, les données sont extraites en temps réel, ce qui garantit leur fiabilité.",
+          "L'interface est intuitive et nous proposons des tutoriels pour vous aider à démarrer rapidement."
+        ],
+        "howToSteps": [
+          {
+            "name": "Inscription",
+            "text": "Créez un compte sur Apify pour accéder à l'outil."
+          },
+          {
+            "name": "Configuration",
+            "text": "Définissez vos critères de recherche pour les propriétés Airbnb."
+          },
+          {
+            "name": "Lancement",
+            "text": "Démarrez le scraper et laissez-le travailler pour vous."
+          },
+          {
+            "name": "Analyse",
+            "text": "Téléchargez les données extraites et commencez votre analyse."
+          }
+        ],
+        "expectedResults": "Après utilisation, attendez-vous à obtenir des données précises et exploitables sur des milliers de propriétés Airbnb, facilitant ainsi vos décisions stratégiques."
+      },
+      "lastEnriched": "2026-01-11T13:49:56.531Z"
+    },
+    {
+      "id": "corent1robert/airbnb-reviews-scraper",
+      "username": "corent1robert",
+      "name": "airbnb-reviews-scraper",
+      "title": "Airbnb Reviews Scraper",
+      "description": "Collectez automatiquement les avis Airbnb de n'importe quelle annonce grâce à cet outil puissant. Récupérez facilement le nom de l'auteur, la note, la date et le commentaire pour enrichir votre stratégie d'analyse de marché et améliorer votre offre.",
+      "stats": {
+        "runs": 0,
+        "users": 13,
+        "successRate": 92.6
+      },
+      "url": "https://apify.com/corent1robert/airbnb-reviews-scraper",
+      "isPublic": true,
+      "enrichedData": {
+        "useCases": [
+          "Pour un gestionnaire d'annonces qui veut améliorer la qualité de son service, cet outil permet de récolter des avis clients en un clic.",
+          "Pour une agence de voyages qui souhaite analyser les tendances, cet outil permet de collecter des retours d'expérience sur plusieurs listings.",
+          "Pour un investisseur immobilier qui veut évaluer le potentiel d'un bien, cet outil permet d'extraire des avis pour comprendre la satisfaction des clients."
+        ],
+        "problem": [
+          "Vous perdez du temps à lire manuellement chaque avis sur Airbnb alors que vous pourriez automatiser cette tâche.",
+          "Vous avez du mal à centraliser les avis clients pour en tirer des conclusions pertinentes.",
+          "Vous n'arrivez pas à suivre l'évolution des notes de vos annonces au fil du temps."
+        ],
+        "solution": [
+          "Extrayez les avis clients en quelques minutes au lieu de passer des heures à les lire un par un.",
+          "Centralisez toutes les données des avis dans un format exploitable pour vos analyses.",
+          "Suivez facilement les variations de notes et commentaires pour ajuster votre offre."
+        ],
+        "keywords": [
+          "Scraping",
+          "Automatisation",
+          "Avis Airbnb",
+          "Analyse de données",
+          "Immobilier",
+          "Gestion des avis",
+          "Marketing",
+          "Insights clients"
+        ],
+        "shortDescription": "Récupérez les avis Airbnb en un clin d'œil !",
+        "category": "Scraping & Automatisation",
+        "targetAudience": [
+          "Propriétaires de logements",
+          "Agences immobilières",
+          "Analystes de marché",
+          "Gestionnaires de biens"
+        ],
+        "valueProposition": "Obtenez des insights précieux sur les avis Airbnb en quelques clics, sans effort manuel.",
+        "objections": [
+          "Est-ce que ça fonctionne vraiment ?",
+          "Est-ce sécurisé pour mes données ?",
+          "Combien de temps faut-il pour mettre en place l'outil ?"
+        ],
+        "objectionsAnswers": [
+          "Oui, cet outil est testé et approuvé par de nombreux utilisateurs avec un taux de réussite élevé.",
+          "Toutes les données sont traitées en toute sécurité et conformément aux réglementations de confidentialité.",
+          "L'installation est rapide et intuitive, vous pouvez commencer à l'utiliser en moins de 10 minutes."
+        ],
+        "howToSteps": [
+          {
+            "name": "Visitez la page de l'outil",
+            "text": "Accédez à l'URL de l'outil sur Apify."
+          },
+          {
+            "name": "Entrez l'URL de l'annonce",
+            "text": "Copiez et collez l'URL de la page Airbnb dont vous souhaitez extraire les avis."
+          },
+          {
+            "name": "Lancez le scraping",
+            "text": "Cliquez sur le bouton pour démarrer le processus d'extraction des avis."
+          },
+          {
+            "name": "Téléchargez vos données",
+            "text": "Une fois le scraping terminé, téléchargez les avis au format souhaité."
+          }
+        ],
+        "expectedResults": "Vous obtiendrez une base de données complète des avis clients, vous permettant d'analyser rapidement les tendances et d'améliorer vos offres."
+      },
+      "lastEnriched": "2026-01-11T13:50:09.526Z"
+    },
+    {
+      "id": "corent1robert/era-immobilier-scraper",
+      "username": "corent1robert",
+      "name": "era-immobilier-scraper",
+      "title": "Era Immobilier Scraper",
+      "description": "L'outil Era Immobilier Scraper permet d'extraire des données complètes des agences ERA Immobilier, incluant des informations sur les agences et les agents. Grâce à une technologie de scraping avancée, cet outil vous aide à collecter rapidement des données précieuses pour optimiser votre activité immobilière.",
+      "stats": {
+        "runs": 0,
+        "users": 2,
+        "successRate": 92.9
+      },
+      "url": "https://apify.com/corent1robert/era-immobilier-scraper",
+      "isPublic": true,
+      "enrichedData": {
+        "useCases": [
+          "Pour les agents immobiliers qui veulent augmenter leur réseau, cet outil permet de collecter les coordonnées des agents ERA dans leur région.",
+          "Pour les investisseurs immobiliers qui souhaitent analyser le marché, cet outil permet d'extraire des données sur les biens disponibles et leurs prix.",
+          "Pour les équipes marketing qui veulent cibler des prospects, cet outil permet d'accéder aux informations des agences et agents afin de réaliser des campagnes ciblées."
+        ],
+        "problem": [
+          "Vous perdez du temps à chercher manuellement des informations sur les agences ERA alors que vous pourriez automatiser ce processus.",
+          "Vous avez du mal à obtenir des données précises et à jour sur le marché immobilier, ce qui complique vos analyses.",
+          "Vous peinez à créer des listes de contacts d'agents immobiliers, limitant ainsi vos opportunités de collaboration."
+        ],
+        "solution": [
+          "Extrayez les données des agences ERA en quelques minutes au lieu de passer des heures à les rechercher manuellement.",
+          "Accédez à des données à jour et précises sur le marché immobilier, ce qui facilite la prise de décision.",
+          "Générez des listes de prospects qualifiés rapidement, augmentant vos chances de succès dans vos campagnes marketing."
+        ],
+        "keywords": [
+          "scraping immobilier",
+          "données ERA Immobilier",
+          "automatisation de la collecte de données",
+          "agents immobiliers",
+          "investissement immobilier",
+          "marketing B2B",
+          "analyse de marché",
+          "prospection immobilière"
+        ],
+        "shortDescription": "Collectez facilement des données des agences ERA Immobilier.",
+        "category": "Scraping & Automatisation",
+        "targetAudience": [
+          "Agences immobilières",
+          "Investisseurs immobiliers",
+          "Équipes marketing",
+          "Analystes de marché"
+        ],
+        "valueProposition": "Accédez à des données complètes et précises des agences ERA Immobilier en un temps record, pour optimiser votre stratégie immobilière.",
+        "objections": [
+          "Est-ce que ça fonctionne vraiment ?",
+          "Les données sont-elles à jour et fiables ?",
+          "Est-ce compliqué à utiliser ?"
+        ],
+        "objectionsAnswers": [
+          "Oui, nous avons une base d'utilisateurs active avec un taux de réussite de 92,9%.",
+          "L'outil extrait les données directement des sites des agences, garantissant leur actualité et leur fiabilité.",
+          "L'interface est intuitive et facile à utiliser, même pour ceux qui ne sont pas technophiles."
+        ],
+        "howToSteps": [
+          {
+            "name": "Inscription",
+            "text": "Créez un compte sur la plateforme Apify pour accéder à l'outil."
+          },
+          {
+            "name": "Configuration",
+            "text": "Définissez vos critères de recherche pour cibler les agences ERA spécifiques."
+          },
+          {
+            "name": "Lancement du scraping",
+            "text": "Démarrez le processus de scraping pour extraire les données souhaitées."
+          },
+          {
+            "name": "Téléchargement des données",
+            "text": "Téléchargez les données extraites au format souhaité (CSV, JSON)."
+          },
+          {
+            "name": "Analyse",
+            "text": "Utilisez les données pour optimiser vos stratégies commerciales et marketing."
+          }
+        ],
+        "expectedResults": "Après utilisation, vous obtiendrez une base de données actualisée des agences ERA, facilitant vos démarches commerciales et vos analyses de marché."
+      },
+      "lastEnriched": "2026-01-11T13:50:26.218Z"
+    },
+    {
+      "id": "corent1robert/cote-particuliers-scraper",
+      "username": "corent1robert",
+      "name": "cote-particuliers-scraper",
+      "title": "Cote Particuliers Scraper",
+      "description": "Le Cote Particuliers Scraper est un outil puissant permettant d'extraire des données complètes sur les agences Côté Particuliers. Avec une interface conviviale, vous pourrez obtenir des informations clés sur les agences et leurs collaborateurs, facilitant ainsi votre prise de décision dans le secteur immobilier.",
+      "stats": {
+        "runs": 0,
+        "users": 2,
+        "successRate": 100
+      },
+      "url": "https://apify.com/corent1robert/cote-particuliers-scraper",
+      "isPublic": true,
+      "enrichedData": {
+        "useCases": [
+          "Pour un agent immobilier qui veut élargir son réseau, cet outil permet de récupérer les contacts des agences Côté Particuliers.",
+          "Pour un développeur de logiciels qui souhaite intégrer des données immobilières, cet outil facilite l'accès à des informations pertinentes.",
+          "Pour un marketer B2B qui cherche à cibler des prospects, cet outil permet d'extraire des données sur des agences ciblées.",
+          "Pour un analyste de marché qui veut étudier la concurrence, cet outil offre une vue d'ensemble des agences et de leurs collaborateurs."
+        ],
+        "problem": [
+          "Vous perdez du temps à chercher manuellement des informations sur les agences immobilières alors que vous pourriez automatiser.",
+          "Vous passez des heures à compiler des données éparses sur les collaborateurs des agences, ce qui ralentit votre processus de travail.",
+          "Vous avez du mal à obtenir des informations à jour et fiables, ce qui nuit à vos décisions stratégiques.",
+          "Vous êtes frustré par le manque d'efficacité des méthodes traditionnelles de collecte de données."
+        ],
+        "solution": [
+          "Extrayez des informations complètes sur les agences et leurs collaborateurs en quelques minutes au lieu de plusieurs heures.",
+          "Accédez à des données fiables et à jour, ce qui améliore la qualité de vos analyses et décisions.",
+          "Automatisez la collecte d'informations pour vous concentrer sur des tâches à plus forte valeur ajoutée.",
+          "Gagnez en efficacité en réduisant les erreurs humaines liées à la saisie manuelle des données."
+        ],
+        "keywords": [
+          "scraping immobilier",
+          "extraction de données",
+          "agences Côté Particuliers",
+          "automatisation",
+          "data scraping",
+          "optimisation des processus",
+          "leads immobiliers",
+          "analyse de marché"
+        ],
+        "shortDescription": "Extrayez des données précises des agences Côté Particuliers en un clin d'œil.",
+        "category": "Scraping & Automatisation",
+        "targetAudience": [
+          "Agences immobilières",
+          "Développeurs web",
+          "Marketers B2B",
+          "Analystes de marché"
+        ],
+        "valueProposition": "Obtenez des données précises des agences Côté Particuliers rapidement et facilement, boostant ainsi votre productivité.",
+        "objections": [
+          "Est-ce que ça fonctionne vraiment ?",
+          "Y a-t-il un risque de données inexactes ?",
+          "Quel est le coût de cet outil par rapport à d'autres solutions ?"
+        ],
+        "objectionsAnswers": [
+          "Oui, notre outil a un taux de réussite de 100% avec des utilisateurs satisfaits.",
+          "Nous garantissons des données fiables et à jour, extraites de sources vérifiées.",
+          "Notre solution est compétitive et vous fera économiser du temps et de l'argent à long terme."
+        ],
+        "howToSteps": [
+          {
+            "name": "Inscription",
+            "text": "Créez un compte sur la plateforme Apify pour accéder à l'outil."
+          },
+          {
+            "name": "Configuration",
+            "text": "Personnalisez vos paramètres de recherche selon vos besoins spécifiques."
+          },
+          {
+            "name": "Lancement",
+            "text": "Démarrez le scraper pour extraire les données des agences Côté Particuliers."
+          },
+          {
+            "name": "Téléchargement",
+            "text": "Téléchargez les données extraites au format souhaité pour une utilisation ultérieure."
+          },
+          {
+            "name": "Analyse",
+            "text": "Analysez les données pour en tirer des insights précieux pour votre stratégie."
+          }
+        ],
+        "expectedResults": "Après utilisation, attendez-vous à obtenir des données complètes et pertinentes sur les agences, prêtes à être intégrées dans vos projets."
+      },
+      "lastEnriched": "2026-01-11T13:50:44.661Z"
+    },
+    {
+      "id": "corent1robert/keymex-scraper",
+      "username": "corent1robert",
+      "name": "keymex-scraper",
+      "title": "Keymex Scraper",
+      "description": "Le Keymex Scraper d'Apify est l'outil idéal pour extraire des données complètes des centres Keymex. Que vous recherchiez des informations sur les centres ou des détails sur les collaborateurs, cet outil vous permet d'automatiser la collecte de données, vous faisant gagner un temps précieux tout en garantissant des résultats précis et fiables.",
+      "stats": {
+        "runs": 0,
+        "users": 2,
+        "successRate": 100
+      },
+      "url": "https://apify.com/corent1robert/keymex-scraper",
+      "isPublic": true,
+      "enrichedData": {
+        "useCases": [
+          "Pour un agent immobilier qui veut identifier des opportunités, cet outil permet de récolter les informations des centres Keymex rapidement.",
+          "Pour un analyste de marché qui veut étudier la concurrence, cet outil permet d'accéder aux détails des collaborateurs et de leur performance.",
+          "Pour un responsable marketing qui veut cibler ses campagnes, cet outil permet d'extraire des données sur les centres et leur localisation.",
+          "Pour un consultant qui veut optimiser ses stratégies, cet outil permet de collecter des informations pertinentes sur le réseau Keymex."
+        ],
+        "problem": [
+          "Vous perdez du temps à collecter manuellement des données sur les centres Keymex alors que vous pourriez automatiser.",
+          "Vous avez des difficultés à obtenir des informations précises sur les collaborateurs et leur performance.",
+          "Vous êtes frustré par la lenteur du processus de recherche d'informations sectorielles pertinentes.",
+          "Vous n'avez pas accès à une base de données fiable et à jour sur les centres Keymex."
+        ],
+        "solution": [
+          "Extrayez des informations détaillées sur les centres Keymex en quelques minutes au lieu de passer des heures à chercher.",
+          "Accédez à des données fiables sur les collaborateurs, vous permettant de mieux comprendre le marché.",
+          "Automatisez la collecte de données pour vous concentrer sur des tâches à plus forte valeur ajoutée.",
+          "Recevez des mises à jour régulières sur les centres et les collaborateurs pour rester à jour dans votre secteur."
+        ],
+        "keywords": [
+          "scraping Keymex",
+          "extraction de données",
+          "automatisation",
+          "centre Keymex",
+          "collaborateurs Keymex",
+          "agences immobilières",
+          "données précises",
+          "analyse de marché"
+        ],
+        "shortDescription": "Extraire des données clés des centres Keymex en toute simplicité.",
+        "category": "Scraping & Automatisation",
+        "targetAudience": [
+          "Agences immobilières",
+          "Analystes de marché",
+          "Responsables marketing",
+          "Consultants en stratégie"
+        ],
+        "valueProposition": "Optimisez votre collecte de données sur les centres Keymex pour des décisions éclairées et rapides.",
+        "objections": [
+          "Est-ce que ça fonctionne vraiment ?",
+          "Est-ce que les données sont à jour ?",
+          "Est-ce compliqué à utiliser ?"
+        ],
+        "objectionsAnswers": [
+          "Oui, notre outil a un taux de réussite de 100% et est testé par des utilisateurs.",
+          "Les données sont extraites en temps réel, vous assurant de toujours avoir les informations les plus récentes.",
+          "L'outil est conçu pour être intuitif et facile à utiliser, même sans compétences techniques."
+        ],
+        "howToSteps": [
+          {
+            "name": "Inscription",
+            "text": "Créez un compte sur Apify pour accéder à l'outil Keymex Scraper."
+          },
+          {
+            "name": "Configuration",
+            "text": "Configurez vos paramètres de scraping selon vos besoins spécifiques."
+          },
+          {
+            "name": "Lancement",
+            "text": "Lancez le scraping et laissez l'outil collecter les données automatiquement."
+          },
+          {
+            "name": "Analyse",
+            "text": "Accédez aux données extraites et analysez-les pour prendre des décisions éclairées."
+          }
+        ],
+        "expectedResults": "Après utilisation, vous disposerez d'une base de données complète et à jour sur les centres Keymex et leurs collaborateurs, facilitant votre prise de décision."
+      },
+      "lastEnriched": "2026-01-11T13:50:58.594Z"
+    },
+    {
+      "id": "corent1robert/lgm-immobilier-scraper",
+      "username": "corent1robert",
+      "name": "lgm-immobilier-scraper",
+      "title": "Lgm Immobilier Scraper",
+      "description": "Découvrez Lgm Immobilier Scraper, l'outil ultime pour extraire des données complètes des conseillers LGM Immobilier. Accédez à des informations précises telles que les coordonnées, les données de localisation et des détails professionnels, vous permettant de cibler efficacement vos efforts commerciaux et d'optimiser vos stratégies de marketing.",
+      "stats": {
+        "runs": 0,
+        "users": 2,
+        "successRate": 100
+      },
+      "url": "https://apify.com/corent1robert/lgm-immobilier-scraper",
+      "isPublic": true,
+      "enrichedData": {
+        "useCases": [
+          "Pour les agences immobilières qui veulent enrichir leur base de données, cet outil permet d'extraire des contacts et des informations de localisation.",
+          "Pour les marketeurs B2B qui désirent segmenter leur audience, cet outil facilite l'accès à des informations professionnelles précises.",
+          "Pour les développeurs web qui cherchent à automatiser des tâches répétitives, cet outil permet d'extraire des données sans intervention manuelle.",
+          "Pour les chefs d'entreprise qui veulent optimiser leurs campagnes, cet outil permet de collecter des données fiables pour des décisions éclairées."
+        ],
+        "problem": [
+          "Vous perdez du temps à rechercher manuellement des informations sur les conseillers immobiliers alors que vous pourriez automatiser ce processus.",
+          "Vous avez du mal à obtenir des données précises et à jour pour vos campagnes marketing.",
+          "Vous passez trop de temps à compiler des listes de contacts au lieu de vous concentrer sur vos ventes.",
+          "Vous manquez d'informations clés pour cibler efficacement vos prospects."
+        ],
+        "solution": [
+          "Extrayez des données complètes sur les conseillers LGM Immobilier en quelques minutes au lieu de passer des heures à les chercher manuellement.",
+          "Accédez à des informations à jour et fiables, garantissant des campagnes marketing plus efficaces.",
+          "Automatisez la collecte de données pour vous concentrer sur l'essentiel : votre activité.",
+          "Obtenez des listes de contacts ciblées et pertinentes, améliorant votre taux de conversion."
+        ],
+        "keywords": [
+          "scraping immobilier",
+          "extraction de données",
+          "LGM Immobilier",
+          "automatisation marketing",
+          "génération de leads",
+          "données immobilières",
+          "prospection B2B",
+          "outils d'automatisation"
+        ],
+        "shortDescription": "Extraction facile des données des conseillers LGM Immobilier.",
+        "category": "Scraping & Automatisation",
+        "targetAudience": [
+          "Agences immobilières",
+          "Marketers B2B",
+          "Développeurs web",
+          "Chefs d'entreprise"
+        ],
+        "valueProposition": "Lgm Immobilier Scraper vous permet d'extraire rapidement des données précises pour booster votre stratégie commerciale.",
+        "objections": [
+          "Est-ce que ça fonctionne vraiment ?",
+          "Les données sont-elles fiables ?",
+          "Est-ce compliqué à utiliser ?"
+        ],
+        "objectionsAnswers": [
+          "Oui, notre outil a un taux de réussite de 100%, prouvant son efficacité.",
+          "Oui, nous garantissons que toutes les données extraites sont à jour et vérifiées.",
+          "Non, l'outil est conçu pour être intuitif et facile à utiliser, même pour les débutants."
+        ],
+        "howToSteps": [
+          {
+            "name": "Inscription",
+            "text": "Créez un compte sur Apify pour accéder à l'outil Lgm Immobilier Scraper."
+          },
+          {
+            "name": "Configuration",
+            "text": "Configurez les paramètres de scraping selon vos besoins spécifiques."
+          },
+          {
+            "name": "Lancement",
+            "text": "Lancez l'outil pour commencer l'extraction des données souhaitées."
+          },
+          {
+            "name": "Téléchargement",
+            "text": "Téléchargez les données extraites au format désiré pour une utilisation future."
+          }
+        ],
+        "expectedResults": "Après utilisation, attendez-vous à des listes de contacts précises et à jour qui boostent votre efficacité commerciale."
+      },
+      "lastEnriched": "2026-01-11T13:51:12.269Z"
+    },
+    {
+      "id": "corent1robert/actulegales-scraper",
+      "username": "corent1robert",
+      "name": "actulegales-scraper",
+      "title": "Actulegales Scraper",
+      "description": "Actulegales Scraper est l'outil idéal pour extraire des annonces légales complètes depuis Actulegales.fr. Profitez d'un processus automatisé et rapide pour collecter des informations juridiques essentielles, vous permettant ainsi de vous concentrer sur des tâches à plus forte valeur ajoutée.",
+      "stats": {
+        "runs": 0,
+        "users": 2,
+        "successRate": 91.7
+      },
+      "url": "https://apify.com/corent1robert/actulegales-scraper",
+      "isPublic": true,
+      "enrichedData": {
+        "useCases": [
+          "Pour les avocats qui veulent suivre les nouvelles annonces légales, cet outil permet d'extraire automatiquement les données pertinentes.",
+          "Pour les entrepreneurs qui souhaitent rester informés des évolutions juridiques, cet outil permet d'obtenir des alertes sur les annonces légales.",
+          "Pour les entreprises de conseil qui veulent analyser les tendances du marché, cet outil permet de collecter des données historiques sur les annonces légales."
+        ],
+        "problem": [
+          "Vous perdez du temps à parcourir manuellement des sites d'annonces légales alors que vous pourriez automatiser cette tâche.",
+          "Vous risquez de manquer des informations cruciales en raison d'une recherche manuelle laborieuse.",
+          "Vous devez consacrer des heures à la collecte de données alors que vous pourriez utiliser ce temps pour développer votre activité."
+        ],
+        "solution": [
+          "Extrayez des annonces légales en quelques minutes au lieu de passer des heures à chercher manuellement.",
+          "Recevez des notifications instantanées sur les nouvelles annonces pertinentes, vous permettant de réagir rapidement.",
+          "Accédez à des données organisées et structurées, facilitant ainsi l'analyse et la prise de décision."
+        ],
+        "keywords": [
+          "scraping",
+          "annonces légales",
+          "automatisation",
+          "extraction de données",
+          "Actulegales",
+          "données juridiques",
+          "outil juridique",
+          "efficacité"
+        ],
+        "shortDescription": "Automatisez l'extraction d'annonces légales avec Actulegales Scraper.",
+        "category": "Scraping & Automatisation",
+        "targetAudience": [
+          "Avocats",
+          "Entrepreneurs",
+          "Entreprises de conseil",
+          "Marketers B2B"
+        ],
+        "valueProposition": "Actulegales Scraper vous permet d'automatiser l'extraction d'annonces légales pour gagner du temps et rester informé des évolutions juridiques.",
+        "objections": [
+          "Est-ce que ça fonctionne vraiment ?",
+          "L'outil est-il facile à utiliser ?",
+          "Quels types de données puis-je extraire ?"
+        ],
+        "objectionsAnswers": [
+          "Oui, cet outil a un taux de réussite de 91.7%, prouvant son efficacité.",
+          "L'interface est intuitive, et des guides sont disponibles pour vous aider.",
+          "Vous pouvez extraire toutes les annonces légales pertinentes disponibles sur Actulegales.fr."
+        ],
+        "howToSteps": [
+          {
+            "name": "Inscription",
+            "text": "Créez un compte sur Apify pour accéder à l'outil Actulegales Scraper."
+          },
+          {
+            "name": "Configuration",
+            "text": "Configurez les paramètres de l'outil selon vos besoins d'extraction."
+          },
+          {
+            "name": "Lancement",
+            "text": "Lancez le scraper pour commencer à extraire les données des annonces légales."
+          },
+          {
+            "name": "Analyse",
+            "text": "Téléchargez les résultats et analysez les informations extraites."
+          }
+        ],
+        "expectedResults": "Après utilisation, attendez-vous à des données juridiques complètes et à jour, vous permettant de prendre des décisions éclairées rapidement."
+      },
+      "lastEnriched": "2026-01-11T13:51:27.669Z"
+    },
+    {
+      "id": "corent1robert/reseau-expertimo-scraper",
+      "username": "corent1robert",
+      "name": "reseau-expertimo-scraper",
+      "title": "Reseau Expertimo Scraper",
+      "description": "Le Reseau Expertimo Scraper est un outil puissant qui vous permet d'extraire des données complètes des agences et mandataires du réseau Expertimo. Récupérez facilement les informations de contact, les données de localisation et les renseignements professionnels pour optimiser vos campagnes de marketing et améliorer votre prospection.",
+      "stats": {
+        "runs": 0,
+        "users": 2,
+        "successRate": 100
+      },
+      "url": "https://apify.com/corent1robert/reseau-expertimo-scraper",
+      "isPublic": true,
+      "enrichedData": {
+        "useCases": [
+          "Pour les agences immobilières qui veulent enrichir leur base de données, cet outil permet de récupérer des contacts qualifiés.",
+          "Pour les marketeurs B2B qui cherchent à générer des leads ciblés, cet outil offre des informations précises et à jour sur le marché.",
+          "Pour les développeurs d'applications qui souhaitent intégrer des données immobilières, cet outil facilite l'accès à des données structurées.",
+          "Pour les entrepreneurs qui veulent analyser leurs concurrents, cet outil permet d'obtenir des informations détaillées sur les mandataires."
+        ],
+        "problem": [
+          "Vous perdez du temps à rechercher manuellement des contacts dans le réseau Expertimo alors que vous pourriez automatiser cette tâche.",
+          "Vous avez du mal à obtenir des données à jour sur les agences et mandataires, ce qui nuit à vos campagnes marketing.",
+          "Vous passez trop de temps à trier des informations dispersées au lieu de disposer d'une base de données centralisée.",
+          "Vous manquez de visibilité sur le marché immobilier local, rendant vos décisions moins éclairées."
+        ],
+        "solution": [
+          "Extrayez des informations de contact en quelques minutes au lieu de passer des heures à les chercher manuellement.",
+          "Accédez à une base de données complète et à jour des agences Expertimo, vous permettant d'optimiser vos efforts de prospection.",
+          "Obtenez des données structurées prêtes à l'emploi pour vos analyses de marché et vos campagnes de communication.",
+          "Automatisez la collecte d'informations afin de vous concentrer sur l'essentiel : la conversion des prospects."
+        ],
+        "keywords": [
+          "scraping immobilier",
+          "automatisation des données",
+          "génération de leads",
+          "Expertimo",
+          "extraction de données",
+          "prospection immobilière",
+          "marketing B2B",
+          "agences immobilières"
+        ],
+        "shortDescription": "Scrapez les données des agences Expertimo facilement et efficacement.",
+        "category": "Scraping & Automatisation",
+        "targetAudience": [
+          "Agences immobilières",
+          "Développeurs web",
+          "Marketers B2B",
+          "Entrepreneurs",
+          "Analystes de marché"
+        ],
+        "valueProposition": "Accélérez votre prospection immobilière en extrayant facilement des données précises des agences Expertimo.",
+        "objections": [
+          "Est-ce que ça fonctionne vraiment ?",
+          "Les données sont-elles fiables et à jour ?",
+          "Puis-je personnaliser les informations extraites ?"
+        ],
+        "objectionsAnswers": [
+          "Oui, notre outil a un taux de réussite de 100% avec une satisfaction client garantie.",
+          "Oui, les données sont extraites directement des sources officielles et mises à jour régulièrement.",
+          "Oui, vous pouvez définir des critères spécifiques pour personnaliser l'extraction des informations."
+        ],
+        "howToSteps": [
+          {
+            "name": "Inscription",
+            "text": "Créez un compte sur Apify pour accéder à l'outil Reseau Expertimo Scraper."
+          },
+          {
+            "name": "Configurer l'extraction",
+            "text": "Définissez vos critères d'extraction selon vos besoins spécifiques."
+          },
+          {
+            "name": "Lancer le scraping",
+            "text": "Démarrez le processus d'extraction et laissez l'outil travailler pour vous."
+          },
+          {
+            "name": "Télécharger les données",
+            "text": "Une fois le scraping terminé, téléchargez les données au format souhaité."
+          },
+          {
+            "name": "Analyser et agir",
+            "text": "Utilisez les données extraites pour optimiser vos campagnes et votre prospection."
+          }
+        ],
+        "expectedResults": "Après utilisation, attendez-vous à une base de données enrichie et à des opportunités de prospection accrues, vous permettant de maximiser vos conversions."
+      },
+      "lastEnriched": "2026-01-11T13:51:44.458Z"
+    },
+    {
+      "id": "corent1robert/ikami-scraper",
+      "username": "corent1robert",
+      "name": "ikami-scraper",
+      "title": "Ikami Scraper",
+      "description": "Découvrez Ikami Scraper, l'outil idéal pour extraire des données complètes sur les conseillers Ikami. Obtenez des informations détaillées, des coordonnées, des données de localisation et le nombre d'annonces actives en un clin d'œil. Optimisez votre démarche commerciale avec des données précises et à jour.",
+      "stats": {
+        "runs": 0,
+        "users": 2,
+        "successRate": 100
+      },
+      "url": "https://apify.com/corent1robert/ikami-scraper",
+      "isPublic": true,
+      "enrichedData": {
+        "useCases": [
+          "Pour les agences immobilières qui veulent enrichir leur base de données, cet outil permet de collecter des informations sur les conseillers Ikami.",
+          "Pour les marketeurs B2B qui cherchent à cibler des conseillers, cet outil permet d'accéder rapidement aux coordonnées des conseillers actifs.",
+          "Pour les développeurs d'applications qui veulent intégrer des données immobilières, cet outil permet de récupérer des listings en temps réel."
+        ],
+        "problem": [
+          "Vous perdez du temps à rechercher manuellement des informations sur les conseillers Ikami alors que vous pourriez automatiser ce processus.",
+          "Vous n'arrivez pas à obtenir des données fiables et à jour sur les conseillers, ce qui freine votre développement commercial.",
+          "Vous avez du mal à suivre le nombre d'annonces actives et à cibler vos efforts de marketing efficacement."
+        ],
+        "solution": [
+          "Extrayez des informations détaillées sur les conseillers en quelques minutes au lieu de passer des heures à chercher manuellement.",
+          "Accédez à des données fiables et à jour pour améliorer vos campagnes marketing.",
+          "Suivez facilement le nombre d'annonces actives pour ajuster votre stratégie commerciale."
+        ],
+        "keywords": [
+          "scraping",
+          "automatisation",
+          "données immobilières",
+          "Ikami",
+          "conseillers",
+          "extraction de données",
+          "B2B",
+          "marketing"
+        ],
+        "shortDescription": "Extrayez facilement des données complètes sur les conseillers Ikami.",
+        "category": "Scraping & Automatisation",
+        "targetAudience": [
+          "Agences immobilières",
+          "Développeurs web",
+          "Marketers B2B"
+        ],
+        "valueProposition": "Ikami Scraper vous permet d'extraire des données précises et complètes sur les conseillers Ikami pour optimiser votre stratégie commerciale.",
+        "objections": [
+          "Est-ce que ça fonctionne vraiment ?",
+          "Est-ce compliqué à utiliser ?",
+          "Puis-je faire confiance aux données extraites ?"
+        ],
+        "objectionsAnswers": [
+          "Oui, notre outil a un taux de réussite de 100% selon nos utilisateurs.",
+          "L'utilisation est simple et intuitive, même pour les non-techniciens.",
+          "Les données extraites sont fiables et mises à jour régulièrement."
+        ],
+        "howToSteps": [
+          {
+            "name": "Inscription",
+            "text": "Créez un compte sur la plateforme Apify."
+          },
+          {
+            "name": "Configuration",
+            "text": "Configurez vos paramètres de scraping selon vos besoins."
+          },
+          {
+            "name": "Lancement",
+            "text": "Lancez l'extraction de données sur les conseillers Ikami."
+          },
+          {
+            "name": "Analyse",
+            "text": "Analysez les données extraites et intégrez-les dans votre CRM."
+          },
+          {
+            "name": "Optimisation",
+            "text": "Utilisez les données pour optimiser vos campagnes marketing."
+          }
+        ],
+        "expectedResults": "Après utilisation, attendez-vous à disposer de données précises et à jour sur les conseillers Ikami, prêtes à être exploitées pour vos projets."
+      },
+      "lastEnriched": "2026-01-11T13:51:56.543Z"
+    },
+    {
+      "id": "corent1robert/investorlift-scraper",
+      "username": "corent1robert",
+      "name": "investorlift-scraper",
+      "title": "Investorlift Scraper",
+      "description": "L'Investorlift Scraper est l'outil idéal pour extraire des données détaillées des propriétés du marché InvestorLift, incluant les caractéristiques des biens, les prix, les informations de localisation et les données de compte. Grâce à cette solution, optimisez votre recherche immobilière et gagnez un temps précieux.",
+      "stats": {
+        "runs": 0,
+        "users": 2,
+        "successRate": 0
+      },
+      "url": "https://apify.com/corent1robert/investorlift-scraper",
+      "isPublic": true,
+      "enrichedData": {
+        "useCases": [
+          "Pour les agents immobiliers qui veulent obtenir rapidement des informations sur les propriétés, cet outil permet de récupérer tous les détails nécessaires en quelques clics.",
+          "Pour les investisseurs qui veulent analyser le marché immobilier, cet outil permet de collecter des données précises sur les prix et les emplacements.",
+          "Pour les analystes de données qui souhaitent automatiser leur processus de recherche, cet outil permet d'extraire des données en temps réel sans intervention manuelle.",
+          "Pour les professionnels de la vente qui veulent mieux comprendre leur marché cible, cet outil permet de rassembler des informations clés sur le comportement des acheteurs."
+        ],
+        "problem": [
+          "Vous perdez du temps à chercher manuellement des propriétés sur InvestorLift alors que vous pourriez automatiser cette tâche.",
+          "Vous êtes frustré par le manque de données précises concernant les prix et les emplacements des biens immobiliers.",
+          "Vous passez trop de temps à analyser des informations dispersées au lieu d'avoir tout centralisé.",
+          "Vous avez des difficultés à suivre les tendances du marché immobilier sans outils d'extraction adaptés."
+        ],
+        "solution": [
+          "Extrayez des informations complètes sur les propriétés en quelques minutes au lieu de passer des heures à naviguer sur le site.",
+          "Accédez à des données précises sur les prix et les localisations en temps réel, vous permettant d'optimiser vos investissements.",
+          "Automatisez la recherche d'informations immobilières pour gagner du temps et améliorer votre productivité.",
+          "Centralisez toutes vos données dans un seul endroit pour une analyse plus facile et efficace."
+        ],
+        "keywords": [
+          "scraping immobilier",
+          "automatisation des données",
+          "investissement immobilier",
+          "extraction de données",
+          "analytique immobilière",
+          "propriétés InvestorLift",
+          "optimisation de la recherche",
+          "données en temps réel"
+        ],
+        "shortDescription": "Optimisez votre recherche immobilière avec l'Investorlift Scraper !",
+        "category": "Scraping & Automatisation",
+        "targetAudience": [
+          "Agents immobiliers",
+          "Investisseurs",
+          "Analystes de données",
+          "Professionnels de la vente"
+        ],
+        "valueProposition": "L'Investorlift Scraper vous permet d'extraire des données immobilières précises et détaillées rapidement, vous faisant gagner un temps précieux.",
+        "objections": [
+          "Est-ce que ça fonctionne vraiment ?",
+          "Les données sont-elles à jour et fiables ?",
+          "Quel est le coût d'utilisation de cet outil ?"
+        ],
+        "objectionsAnswers": [
+          "Oui, cet outil est conçu pour fournir des résultats précis et fiables grâce à une technologie de scraping avancée.",
+          "Les données extraites proviennent directement de la plateforme InvestorLift et sont mises à jour régulièrement.",
+          "L'Investorlift Scraper propose un modèle tarifaire compétitif, offrant un excellent retour sur investissement."
+        ],
+        "howToSteps": [
+          {
+            "name": "Inscription",
+            "text": "Créez un compte sur la plateforme Apify."
+          },
+          {
+            "name": "Configuration de l'outil",
+            "text": "Paramétrez l'Investorlift Scraper selon vos besoins spécifiques."
+          },
+          {
+            "name": "Lancement du scraping",
+            "text": "Démarrez le processus d'extraction des données en un clic."
+          },
+          {
+            "name": "Analyse des résultats",
+            "text": "Consultez les données extraites et analysez-les pour vos décisions d'investissement."
+          }
+        ],
+        "expectedResults": "Après utilisation, attendez-vous à disposer d'une base de données complète et à jour des propriétés, facilitant vos analyses et décisions d'investissement."
+      },
+      "lastEnriched": "2026-01-11T13:52:17.822Z"
+    },
+    {
+      "id": "corent1robert/startupticker-scraper",
+      "username": "corent1robert",
+      "name": "startupticker-scraper",
+      "title": "Startupticker.ch Investors Scraper",
+      "description": "Découvrez l'outil de scraping Startupticker.ch Investors Scraper, conçu pour extraire des données complètes sur les investisseurs. Idéal pour les startups et les entrepreneurs en Suisse, cet outil facilite l'accès à des informations clés pour optimiser votre recherche de financements et développer votre réseau d'investisseurs.",
+      "stats": {
+        "runs": 0,
+        "users": 2,
+        "successRate": 0
+      },
+      "url": "https://apify.com/corent1robert/startupticker-scraper",
+      "isPublic": true,
+      "enrichedData": {
+        "useCases": [
+          "Pour les fondateurs de startups qui veulent attirer des investisseurs, cet outil permet de cibler les bonnes personnes rapidement.",
+          "Pour les analystes financiers qui souhaitent suivre les tendances d'investissement, cet outil facilite la collecte d'informations précises.",
+          "Pour les agences de marketing B2B qui cherchent à enrichir leurs bases de données, cet outil permet d'accéder à des contacts clés dans l'écosystème startup."
+        ],
+        "problem": [
+          "Vous perdez du temps à rechercher manuellement des investisseurs alors que vous pourriez automatiser cette tâche.",
+          "Vous avez du mal à trouver des informations fiables sur les investisseurs en Suisse.",
+          "Vous passez des heures à compiler des listes d'investisseurs, ce qui vous empêche de vous concentrer sur votre activité principale."
+        ],
+        "solution": [
+          "Extrayez des données d'investisseurs en quelques minutes au lieu de plusieurs heures de recherche manuelle.",
+          "Accédez à des informations fiables et à jour pour cibler efficacement vos efforts de financement.",
+          "Automatisez la collecte de données et concentrez-vous sur l'engagement avec les investisseurs."
+        ],
+        "keywords": [
+          "scraping",
+          "investisseurs",
+          "startups",
+          "données",
+          "automatisation",
+          "écosystème startup",
+          "Suisse",
+          "financement"
+        ],
+        "shortDescription": "Obtenez des données d'investisseurs suisses en un clic !",
+        "category": "Scraping & Automatisation",
+        "targetAudience": [
+          "Startups",
+          "Entrepreneurs",
+          "Analystes financiers",
+          "Agences de marketing B2B",
+          "Investisseurs"
+        ],
+        "valueProposition": "Accédez facilement à des données précieuses sur les investisseurs suisses et optimisez votre processus de recherche de financements.",
+        "objections": [
+          "Est-ce que ça fonctionne vraiment ?",
+          "Les données sont-elles à jour et fiables ?",
+          "Comment puis-je être sûr de la pertinence des informations collectées ?"
+        ],
+        "objectionsAnswers": [
+          "Oui, notre outil est conçu pour offrir des résultats précis et exploitables.",
+          "Les données sont régulièrement mises à jour pour garantir leur fiabilité.",
+          "L'outil extrait des informations directement de startupticker.ch, une source reconnue dans l'écosystème startup."
+        ],
+        "howToSteps": [
+          {
+            "name": "Inscription",
+            "text": "Créez un compte sur Apify pour accéder à l'outil de scraping."
+          },
+          {
+            "name": "Configuration",
+            "text": "Configurez les paramètres de scraping selon vos besoins spécifiques."
+          },
+          {
+            "name": "Lancer le scraping",
+            "text": "Démarrez le processus d'extraction des données d'investisseurs."
+          },
+          {
+            "name": "Télécharger les données",
+            "text": "Téléchargez les résultats au format souhaité pour une utilisation facile."
+          }
+        ],
+        "expectedResults": "Après utilisation, attendez-vous à obtenir une liste complète et à jour d'investisseurs potentiels, prête à être exploitée pour vos démarches de financement."
+      },
+      "lastEnriched": "2026-01-11T13:52:32.697Z"
+    }
+  ],
+  "lastUpdated": "2026-01-11T13:52:32.699Z"
+}

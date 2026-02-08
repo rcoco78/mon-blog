@@ -1,6 +1,7 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Image from 'next/image'
+import BlogImageLightbox from './BlogImageLightbox'
 
 export default function MarkdownRenderer({ children }) {
   if (!children) return null
@@ -101,32 +102,32 @@ export default function MarkdownRenderer({ children }) {
               altText = 'Image illustrative de l\'article'
             }
 
-            // Si c'est une URL externe, utiliser img normal
+            // Si c'est une URL externe, utiliser img normal + lightbox au clic
             if (src.startsWith('http://') || src.startsWith('https://')) {
               return (
-                <span className="block my-6">
+                <BlogImageLightbox src={src} alt={altText}>
                   <img
                     src={src}
                     alt={altText}
-                    className="rounded-lg w-full h-auto"
+                    className="rounded-lg w-full h-auto cursor-zoom-in"
                     loading="lazy"
                   />
-                </span>
+                </BlogImageLightbox>
               )
             }
 
-            // Sinon, essayer avec Next.js Image (pour les images locales)
+            // Sinon, essayer avec Next.js Image (pour les images locales) + lightbox au clic
             return (
-              <span className="block my-6">
+              <BlogImageLightbox src={src} alt={altText}>
                 <Image
                   src={src}
                   alt={altText}
                   width={800}
                   height={600}
-                  className="rounded-lg w-full h-auto"
+                  className="rounded-lg w-full h-auto cursor-zoom-in"
                   loading="lazy"
                 />
-              </span>
+              </BlogImageLightbox>
             )
           },
           // Titres avec IDs pour le sommaire

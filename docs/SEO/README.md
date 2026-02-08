@@ -65,6 +65,13 @@
 - Templates et exemples concrets
 - Les 10 commandements pour un article parfait
 
+### 📈 [Stratégie Blog & Search Console](./STRATEGIE-BLOG-SEARCH-CONSOLE.md)
+**Learnings Search Console et priorisation contenu (fév. 2026)**
+- Métriques (clics, impressions, position moyenne)
+- Pages les plus populaires (blog vs cas d'usage vs homepage)
+- Conclusions : doubler sur le blog, format « guide », cas d'usage en support
+- Quick wins (requêtes, CTR, CTA en fin d'article)
+
 ---
 
 ## 🎯 Quick Start

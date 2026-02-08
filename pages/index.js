@@ -8,6 +8,7 @@ import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import ProjectClickCounter from '../components/ProjectClickCounter'
+import { testimonials } from '../lib/testimonials'
 
 // Fonction helper pour obtenir le logo d'une entreprise
 const getCompanyLogo = (companyName) => {
@@ -895,7 +896,18 @@ export default function Home({ posts, dynamicDatabases = [] }) {
         </div>
       </section>
       
-      {/* Carousel de témoignages */}
+      {/* Carousel de témoignages — triés par date (dernier avis en premier) */}
+      {(() => {
+        const homeTestimonials = [...testimonials]
+          .sort((a, b) => new Date(b.datePublished) - new Date(a.datePublished))
+          .slice(0, 5)
+        const getSourceBadgeClass = (source) => {
+          if (source === 'LinkedIn') return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+          if (source === 'Fiverr') return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+          if (source === 'Malt') return 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+          return 'bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300'
+        }
+        return (
       <section className="mt-12 mb-8 relative" aria-label="Témoignages clients">
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Témoignages</h2>
         <div className="relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-live="polite" aria-atomic="true">
@@ -903,96 +915,29 @@ export default function Home({ posts, dynamicDatabases = [] }) {
             ref={testimonialScrollRef}
             className="flex overflow-x-auto scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
-            {/* Témoignage Fiverr - JP */}
-            <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
-              <div className="mb-3">
-                <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">1 an de collaboration • Qualité • Rapidité • Force de proposition</p>
-              </div>
-              <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
-                "Cela fait plusieurs missions de scrapping que nous confions à Corentin depuis maintenant 1 an et nous avons toujours été ravis de travailler avec lui tant au niveau de la qualité des résultats que de la rapidité de la livraison. Un point important à souligner, Corentin est également force de proposition et c'est un véritable dialogue qui se construit autour de chacun des projets, en toute fluidité, au bénéfice d'une grande efficience. Nous recommandons Vivement."
-              </p>
-              <div className="flex items-center justify-between mt-auto">
-                <div>
-                  <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Jean Paul Crenn</p>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-500">Dirigeant VUCA Strategy</p>
+            {homeTestimonials.map((t, i) => (
+              <div key={i} className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
+                <div className="mb-3">
+                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">{t.tags}</p>
                 </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
-              </div>
-            </div>
-            
-            {/* Témoignage LinkedIn */}
-            <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
-              <div className="mb-3">
-                <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Automatisation • Compréhension immédiate • Valeur apportée dès le départ</p>
-              </div>
-              <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
-                "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ."
-              </p>
-              <div className="flex items-center justify-between mt-auto">
-                <div>
-                  <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Adnane Amahou</p>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-500">Responsable CX @ NGI</p>
+                <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
+                  &quot;{t.reviewBody}&quot;
+                </p>
+                <div className="flex items-center justify-between mt-auto">
+                  <div>
+                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">{t.authorName}</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">{t.authorJob}</p>
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getSourceBadgeClass(t.source)}`}>{t.source}</span>
                 </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
               </div>
-            </div>
-            
-            {/* Témoignage LinkedIn - Assursafe */}
-            <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
-              <div className="mb-3">
-                <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Plusieurs missions • Professionnel • À l'écoute</p>
-              </div>
-              <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
-                "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !"
-              </p>
-              <div className="flex items-center justify-between mt-auto">
-                <div>
-                  <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Hugues Chavrier</p>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
-              </div>
-            </div>
-            
-            {/* Témoignage Fiverr */}
-            <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
-              <div className="mb-3">
-                <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Projet complexe • Révisions rapides • 100% satisfait</p>
-              </div>
-              <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
-                "Corentin did an excellent job and my cooperation with him was smooth and easy. He delivered what he promised, he was very open and quick to discuss revisions and delivered even them in no time. My project was not a simple one, as it required collecting information from different places. I'm 100% satisfied with the result."
-              </p>
-              <div className="flex items-center justify-between mt-auto">
-                <div>
-                  <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">lampro74</p>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-500">Belgique</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
-              </div>
-            </div>
-            
-            {/* Témoignage Malt */}
-            <div className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
-              <div className="mb-3">
-                <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">Délais respectés • Clarté dès le départ • Professionnalisme</p>
-              </div>
-              <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
-                "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
-              </p>
-              <div className="flex items-center justify-between mt-auto">
-                <div>
-                  <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Denis</p>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-500">Inovesta</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">Malt</span>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
         
         {/* Indicateurs de navigation */}
         <div className="flex justify-center gap-2 mt-4">
-          {[0, 1, 2, 3, 4].map((index) => {
+          {homeTestimonials.map((_, index) => {
             const isActive = isMobile ? currentTestimonialScrollIndex === index : testimonialIndex === index
             return (
             <button
@@ -1036,6 +981,8 @@ export default function Home({ posts, dynamicDatabases = [] }) {
           </Link>
         </div>
       </section>
+        )
+      })()}
       
       {/* Section Marketplace */}
       <section className="mt-12" aria-label="Marketplace">

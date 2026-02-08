@@ -252,7 +252,7 @@ export default function Post({ post, allPosts }) {
                     {post.tags.map((tag, index) => (
                       <button
                         key={index}
-                        className="px-1.5 py-0.5 rounded text-xs transition-colors bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                        className="px-1.5 py-0.5 rounded text-xs transition-colors bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700"
                       >
                         {tag}
                       </button>
@@ -268,9 +268,9 @@ export default function Post({ post, allPosts }) {
               </div>
             </div>
 
-            {/* Version desktop */}
+            {/* Version desktop — date, vues, temps, tags en enfants directs pour alignement identique */}
             <div className="hidden md:flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center space-x-2 flex-wrap">
+              <div className="flex items-center flex-wrap gap-x-2 gap-y-1">
                 <time 
                   dateTime={post.date} 
                   className="text-sm text-neutral-600 dark:text-neutral-400 whitespace-nowrap"
@@ -283,29 +283,27 @@ export default function Post({ post, allPosts }) {
                     return `${day}-${month}-${year}`
                   })()}
                 </time>
-                <span className="text-neutral-400">•</span>
+                <span className="text-neutral-400 shrink-0">•</span>
                 <ViewCounter slug={post.slug} />
-                <span className="text-neutral-400">•</span>
+                <span className="text-neutral-400 shrink-0">•</span>
                 {loadingMarkdown ? (
                   <div className="h-5 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
                 ) : (
                   <span className="text-sm text-neutral-600 dark:text-neutral-400 whitespace-nowrap">
-                  {readingTime} min de lecture
-                </span>
+                    {readingTime} min de lecture
+                  </span>
                 )}
                 {post.tags && post.tags.length > 0 && (
                   <>
-                    <span className="text-neutral-400">•</span>
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {post.tags.map((tag, index) => (
-                        <button
-                          key={index}
-                          className="px-1.5 py-0.5 rounded text-xs transition-colors bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700 whitespace-nowrap"
-                        >
-                          {tag}
-                        </button>
-                      ))}
-                    </div>
+                    <span className="text-neutral-400 shrink-0">•</span>
+                    {post.tags.map((tag, index) => (
+                      <button
+                        key={index}
+                        className="px-1.5 py-0.5 rounded text-xs leading-none transition-colors bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700 whitespace-nowrap"
+                      >
+                        {tag}
+                      </button>
+                    ))}
                   </>
                 )}
               </div>

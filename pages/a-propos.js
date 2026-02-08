@@ -307,34 +307,21 @@ export default function About() {
               <div 
                 className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
               >
-                {/* Skeleton pour la vidéo */}
-                <div className="relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start bg-neutral-200 dark:bg-neutral-800 animate-pulse" />
-                {/* Skeleton pour les photos */}
+                {/* Skeleton : photos puis vidéo */}
                 {Array.from({ length: 3 }).map((_, index) => (
                   <div
                     key={index}
                     className="relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start bg-neutral-200 dark:bg-neutral-800 animate-pulse"
                   />
                 ))}
+                <div className="relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start bg-neutral-200 dark:bg-neutral-800 animate-pulse" />
               </div>
             ) : (
               <div 
                 ref={scrollContainerRef}
                 className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
               >
-                {/* Vidéo YouTube en première position */}
-                <div className="relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start">
-                  <iframe
-                    src="https://www.youtube.com/embed/53pisKcp9Vc?rel=0&modestbranding=1"
-                    title="Présentation de Corentin Robert - Freelance Scraping et Automatisation"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    className="absolute top-0 left-0 w-full h-full"
-                    loading="lazy"
-                  />
-                </div>
-                
-                {/* Photos */}
+                {/* Photos d'abord (les plus récentes), puis vidéo décembre 2025 */}
                 {recentPhotos.map((photo, index) => (
                   <Link
                     key={index}
@@ -351,6 +338,17 @@ export default function About() {
                     />
                   </Link>
                 ))}
+                {/* Vidéo YouTube en dernière position (décembre 2025) */}
+                <div className="relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start">
+                  <iframe
+                    src="https://www.youtube.com/embed/53pisKcp9Vc?rel=0&modestbranding=1"
+                    title="Présentation de Corentin Robert - Freelance Scraping et Automatisation"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="absolute top-0 left-0 w-full h-full"
+                    loading="lazy"
+                  />
+                </div>
               </div>
             )}
             

@@ -125,6 +125,33 @@ export default async function handler(req, res) {
       console.error('Erreur lors de la récupération de la base de données:', error)
     }
   }
+
+  // Si toujours pas trouvé, chercher dans les outils Apify
+  if (!tool) {
+    try {
+      const { getAllEnrichedActors } = await import('../../../lib/apify-actors-enriched')
+      const { apifyActorToTool } = await import('../../../lib/apify-actors')
+      const actors = await getAllEnrichedActors()
+      const actor = actors.find(a => (a.slug || a.name) === toolId)
+      
+      if (actor) {
+        const toolFormatted = apifyActorToTool(actor)
+        tool = {
+          name: toolFormatted.name,
+          price: 5, // Prix fixe de 5€ pour l'accès aux résultats complets
+          description: toolFormatted.description,
+          image: undefined,
+          features: [
+            'Accès à tous les résultats',
+            'Export des données',
+            'Support prioritaire'
+          ]
+        }
+      }
+    } catch (error) {
+      console.error('Erreur chargement outil Apify:', error)
+    }
+  }
   
   if (!tool) {
     return res.status(404).json({ error: 'Tool not found' })
@@ -168,14 +195,30 @@ export default async function handler(req, res) {
         },
       ],
       mode: isSubscription ? 'subscription' : 'payment',
-      // Déterminer si c'est une base de données marketplace (dynamique)
-      // Si l'outil n'est pas dans toolPrices, c'est une base de données dynamique
+      // Déterminer l'URL de retour selon le type d'outil
       success_url: (() => {
+        // Vérifier si c'est un outil Apify (chercher dans les actors enrichis)
+        try {
+          const { getAllEnrichedActors } = await import('../../../lib/apify-actors-enriched')
+          // On vérifie de manière synchrone si possible, sinon on utilise une heuristique
+          const isApifyTool = !toolPrices[toolId] && (toolId.includes('-scraper') || toolId.includes('airbnb') || toolId.includes('immobilier'))
+          if (isApifyTool) {
+            return `${req.headers.origin}/marketplace/outils/${toolId}?payment=success&session_id={CHECKOUT_SESSION_ID}&type=${isSubscription ? 'subscription' : 'one-time'}`
+          }
+        } catch (e) {
+          // Fallback
+        }
+        // Sinon, c'est une base de données marketplace
         const isMarketplaceTool = toolPrices[toolId] === undefined
         const basePath = isMarketplaceTool ? '/marketplace' : '/outils'
         return `${req.headers.origin}${basePath}/${toolId}?payment=success&session_id={CHECKOUT_SESSION_ID}&type=${isSubscription ? 'subscription' : 'one-time'}`
       })(),
       cancel_url: (() => {
+        // Même logique pour cancel
+        const isApifyTool = !toolPrices[toolId] && (toolId.includes('-scraper') || toolId.includes('airbnb') || toolId.includes('immobilier'))
+        if (isApifyTool) {
+          return `${req.headers.origin}/marketplace/outils/${toolId}?payment=cancel`
+        }
         const isMarketplaceTool = toolPrices[toolId] === undefined
         const basePath = isMarketplaceTool ? '/marketplace' : '/outils'
         return `${req.headers.origin}${basePath}/${toolId}?payment=cancelled`

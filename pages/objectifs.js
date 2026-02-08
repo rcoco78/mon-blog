@@ -32,6 +32,7 @@ export default function DonneesPubliques() {
   const [selectedPeriod, setSelectedPeriod] = useState(7) // Période d'évolution : 3, 7 ou 30 jours
   const [keyResultsHistory, setKeyResultsHistory] = useState({}) // Historique par Key Result ID
   const [historyLoading, setHistoryLoading] = useState(true) // État de chargement de l'historique
+  const [chartMaxPoints, setChartMaxPoints] = useState(30) // Nombre de points affichés selon la largeur (14 / 21 / 30)
 
   useEffect(() => {
     const fetchKeyResults = async () => {
@@ -58,6 +59,17 @@ export default function DonneesPubliques() {
     }
 
     fetchKeyResults()
+  }, [])
+
+  // Adapter le nombre de points du graphique à la largeur d'écran (éviter le scroll horizontal)
+  useEffect(() => {
+    const updateChartMaxPoints = () => {
+      const w = typeof window !== 'undefined' ? window.innerWidth : 1024
+      setChartMaxPoints(w < 640 ? 14 : w < 1024 ? 21 : 30)
+    }
+    updateChartMaxPoints()
+    window.addEventListener('resize', updateChartMaxPoints)
+    return () => window.removeEventListener('resize', updateChartMaxPoints)
   }, [])
 
   useEffect(() => {
@@ -877,6 +889,9 @@ export default function DonneesPubliques() {
 
   // Composant réutilisable pour les graphiques de croissance
   const GrowthChart = ({ title, description, history, loading, colorFrom = 'blue', colorTo = 'blue', insight, targetValue }) => {
+    // Plage récente adaptée à la largeur d'écran (chartMaxPoints = 14 / 21 / 30) pour éviter le scroll
+    const displayHistory = (history && history.length > 0) ? history.slice(-chartMaxPoints) : []
+
     // Couleurs pastel/claires comme dans MiniGrowthChart
     const colorClasses = {
       blue: 'bg-blue-400 dark:bg-blue-500 hover:bg-blue-500 dark:hover:bg-blue-400',
@@ -885,14 +900,14 @@ export default function DonneesPubliques() {
     }
     const colorClass = colorClasses[colorFrom] || colorClasses.blue
 
-    // Calculer l'insight si non fourni
+    // Calculer l'insight sur la plage affichée
     let calculatedInsight = insight
-    if (!calculatedInsight && history.length > 1) {
-      const firstValue = history[0].valeur
-      const lastValue = history[history.length - 1].valeur
+    if (!calculatedInsight && displayHistory.length > 1) {
+      const firstValue = displayHistory[0].valeur
+      const lastValue = displayHistory[displayHistory.length - 1].valeur
       const growth = firstValue > 0 ? ((lastValue / firstValue - 1) * 100).toFixed(1) : 0
       const trend = lastValue >= firstValue ? 'croissance' : 'baisse'
-      calculatedInsight = `Tendance ${trend} de ${Math.abs(growth)}% sur la période observée.`
+      calculatedInsight = `Tendance ${trend} de ${Math.abs(growth)}% sur la période affichée.`
     }
 
     return (
@@ -909,69 +924,65 @@ export default function DonneesPubliques() {
               <div key={i} className="w-8 bg-neutral-300 dark:bg-neutral-700 rounded-t" style={{ height: `${Math.random() * 60 + 20}%` }}></div>
             ))}
           </div>
-        ) : history.length === 0 ? (
+        ) : displayHistory.length === 0 ? (
           <p className="text-neutral-600 dark:text-neutral-400">Aucune donnée disponible pour le moment.</p>
         ) : (
-          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 overflow-x-hidden">
+          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 overflow-x-auto">
             <div className="sr-only">
-              <p>Graphique en barres représentant l'évolution de {title.toLowerCase()}. Les données sont affichées chronologiquement de gauche à droite.</p>
+              <p>Graphique en barres représentant l'évolution de {title.toLowerCase()}. Derniers {displayHistory.length} points, chronologiquement de gauche à droite.</p>
             </div>
+            {history.length > chartMaxPoints && (
+              <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-3">Derniers {chartMaxPoints} jours affichés</p>
+            )}
             {(() => {
-              const minValue = Math.min(...history.map(h => h.valeur))
-              const maxValue = Math.max(...history.map(h => h.valeur))
+              const minValue = Math.min(...displayHistory.map(h => h.valeur))
+              const maxValue = Math.max(...displayHistory.map(h => h.valeur))
               const range = maxValue - minValue
               const shouldUseTarget = targetValue && targetValue > maxValue && targetValue <= maxValue * 3
               const useAmplifiedScale = range > 0 && range < maxValue * 0.15
               const scaleMax = shouldUseTarget ? targetValue : useAmplifiedScale ? maxValue + (range * 0.03) : maxValue + (range > 0 ? range * 0.05 : maxValue * 0.05)
               const scaleMin = useAmplifiedScale ? Math.max(0, minValue - (range * 0.02)) : Math.max(0, minValue - (range > 0 ? range * 0.02 : minValue * 0.02))
               const scaleRange = scaleMax - scaleMin
-              const labelIndices = getChartLabelIndices(history.length, 8)
+              const labelIndices = getChartLabelIndices(displayHistory.length, displayHistory.length > 12 ? 6 : 8)
               const yTicks = [scaleMin, scaleMin + scaleRange * 0.25, scaleMin + scaleRange * 0.5, scaleMin + scaleRange * 0.75, scaleMax].map(v => Math.round(v))
               const uniqueYTicks = [...new Set(yTicks)].sort((a, b) => a - b)
               const yTicksTopToBottom = [...uniqueYTicks].reverse()
               return (
-                <div className="flex gap-3">
-                  {/* Axe Y : valeurs (nomenclature) */}
+                <div className="flex gap-3 min-w-0">
+                  {/* Axe Y : valeurs */}
                   <div className="flex flex-col justify-between text-right shrink-0 py-0.5" style={{ minHeight: '240px' }} aria-hidden="true">
                     <span className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Valeur</span>
                     <div className="flex-1 flex flex-col justify-between mt-1">
                       {yTicksTopToBottom.map((tick, i) => (
-                        <span key={i} className="text-[11px] text-neutral-600 dark:text-neutral-400 tabular-nums">{formatNumber(tick)}</span>
+                        <span key={i} className="text-xs text-neutral-700 dark:text-neutral-300 tabular-nums">{formatNumber(tick)}</span>
                       ))}
                     </div>
                   </div>
-                  {/* Zone graphique + axe X */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-end justify-between gap-0.5 md:gap-2 h-80 md:h-72 relative overflow-x-hidden overflow-y-visible" role="img" aria-label={`Graphique de ${title.toLowerCase()}`}>
-                      {(() => {
-                        return (
-                          <>
-                            {targetValue && scaleMax > 0 && shouldUseTarget && (
-                              <div 
-                                className="absolute left-0 right-0 border-t-2 border-dashed border-neutral-400 dark:border-neutral-500 z-10"
-                                style={{ bottom: `${((targetValue - scaleMin) / scaleRange) * 100}%` }}
-                                title={`Objectif: ${formatNumber(targetValue)}`}
-                              >
-                                <div className="hidden md:block absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-full ml-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap shadow-lg">
-                                  Objectif: {formatNumber(targetValue)}
-                                </div>
-                                <div className="md:hidden absolute left-0 top-0 transform -translate-y-full -mt-1 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap shadow-lg z-20">
-                                  Objectif: {formatNumber(targetValue)}
-                                </div>
-                              </div>
-                            )}
-                            {history.map((item, index) => {
+                  {/* Zone graphique : barres flexibles pour tenir dans l'écran sans scroll */}
+                  <div className="flex-1 min-w-0 relative">
+                    {/* Grille horizontale alignée sur l'axe Y */}
+                    {yTicksTopToBottom.length > 1 && (
+                      <div className="absolute left-0 right-0 bottom-12 h-[240px] pointer-events-none z-0" aria-hidden="true">
+                        {yTicksTopToBottom.map((_, i) => (
+                          <div
+                            key={i}
+                            className="absolute left-0 right-0 border-t border-neutral-200 dark:border-neutral-700/80"
+                            style={{ bottom: `${(i / (yTicksTopToBottom.length - 1)) * 100}%` }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex items-end justify-between gap-0.5 md:gap-1 h-80 md:h-72 relative overflow-y-visible z-10" role="img" aria-label={`Graphique de ${title.toLowerCase()}`}>
+                      {displayHistory.map((item, index) => {
                               const height = scaleRange > 0 ? ((item.valeur - scaleMin) / scaleRange) * 100 : 0
-                              const isFirst = index === 0
-                              const isLast = index === history.length - 1
                               const showLabel = labelIndices.has(index)
-                              const formatDateForDesktop = (dateStr) => {
+                              const isFirstBars = index < 3
+                              const isLastBars = index >= displayHistory.length - 3
+                              // Format court pour l’axe : JJ/MM (ex. 23/01)
+                              const formatDateForAxis = (dateStr) => {
                                 try {
                                   const date = new Date(dateStr)
-                                  if (!isNaN(date.getTime())) {
-                                    if (history.length > 12) return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`
-                                    return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getFullYear()).slice(-2)}`
-                                  }
+                                  if (!isNaN(date.getTime())) return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`
                                 } catch (e) {}
                                 return dateStr
                               }
@@ -983,26 +994,41 @@ export default function DonneesPubliques() {
                                 return dateStr
                               }
                               return (
-                                <div key={item.id} className="flex-1 flex flex-col items-center min-w-0 relative overflow-visible group/bar" style={{ height: '100%' }}>
+                                <div key={item.id || `${item.date}-${index}`} className="flex flex-col items-center flex-1 min-w-0 relative overflow-visible group/bar z-0 hover:z-[100]" style={{ height: '100%', minWidth: 4 }}>
                                   <div className="relative w-full flex items-end justify-center flex-1" style={{ minHeight: '240px', maxHeight: '240px' }}>
                                     <div 
-                                      className={`w-full ${colorClass} rounded-t transition-all duration-500 group relative shadow-sm hover:shadow-md hover:opacity-90`}
-                                      style={{ height: `${height}%`, minHeight: height > 0 ? '8px' : '0', width: 'calc(100% - 4px)', margin: '0 2px' }}
+                                      className={`w-full max-w-[24px] min-w-[3px] ${colorClass} rounded-t transition-all duration-500 relative shadow-sm hover:shadow-md hover:opacity-90`}
+                                      style={{ height: `${height}%`, minHeight: height > 0 ? '8px' : '0' }}
                                       title={`${formatDateForTooltip(item.date)}: ${formatNumber(item.valeur)}`}
                                     >
-                                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-lg" style={{ zIndex: 9999, isolation: 'isolate' }}>
-                                        <div className="flex flex-col items-center">
-                                          <div>{formatDateForTooltip(item.date)}</div>
-                                          <div className="font-semibold">{formatNumber(item.valeur)}</div>
-                                        </div>
+                                      {/* Tooltip : au-dessus par défaut, à droite au début, à gauche à la fin pour rester visible */}
+                                      <div 
+                                        className={`absolute opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-xl rounded-lg border border-neutral-200 dark:border-neutral-700 z-[100] px-3 py-2 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs
+                                          ${isFirstBars ? 'left-full ml-2 bottom-1/2 translate-y-1/2' : ''}
+                                          ${isLastBars && !isFirstBars ? 'right-full mr-2 bottom-1/2 translate-y-1/2' : ''}
+                                          ${!isFirstBars && !isLastBars ? 'bottom-full left-1/2 -translate-x-1/2 mb-2' : ''}
+                                        `}
+                                      >
+                                        <div className="font-medium">{formatDateForTooltip(item.date)}</div>
+                                        <div className="font-semibold mt-0.5">{formatNumber(item.valeur)}</div>
+                                        {/* Petite flèche vers la barre */}
+                                        {!isFirstBars && !isLastBars && (
+                                          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-neutral-900 dark:border-t-neutral-100" />
+                                        )}
+                                        {isFirstBars && (
+                                          <div className="absolute right-full top-1/2 -translate-y-1/2 -mr-px border-4 border-transparent border-r-neutral-900 dark:border-r-neutral-100" />
+                                        )}
+                                        {isLastBars && !isFirstBars && (
+                                          <div className="absolute left-full top-1/2 -translate-y-1/2 -ml-px border-4 border-transparent border-l-neutral-900 dark:border-l-neutral-100" />
+                                        )}
                                       </div>
                                     </div>
                                   </div>
-                                  <div className="text-xs text-neutral-600 dark:text-neutral-400 mt-2 min-w-0 w-full px-0.5 text-center" style={{ minHeight: '2.5rem', flexShrink: 0 }}>
+                                  <div className="text-xs text-neutral-700 dark:text-neutral-300 mt-2 w-full px-0.5 text-center shrink-0 overflow-visible" style={{ minHeight: '2.5rem' }}>
                                     {showLabel ? (
                                       <>
-                                        <div className="font-medium whitespace-nowrap">{formatNumber(item.valeur)}</div>
-                                        <div className="text-[10px] mt-0.5 leading-tight whitespace-nowrap text-neutral-500 dark:text-neutral-500">{formatDateForDesktop(item.date)}</div>
+                                        <div className="font-semibold tabular-nums">{formatNumber(item.valeur)}</div>
+                                        <div className="hidden sm:block text-[11px] mt-0.5 leading-tight tabular-nums font-medium text-neutral-600 dark:text-neutral-400" title={formatDateForTooltip(item.date)}>{formatDateForAxis(item.date)}</div>
                                       </>
                                     ) : (
                                       <div className="h-5" aria-hidden="true" />
@@ -1011,39 +1037,36 @@ export default function DonneesPubliques() {
                                 </div>
                               )
                             })}
-                          </>
-                        )
-                      })()}
                     </div>
-                    <div className="mt-1 text-[10px] text-neutral-500 dark:text-neutral-500 text-center font-medium uppercase tracking-wider">Date (période)</div>
+                    <div className="mt-1 text-[10px] text-neutral-600 dark:text-neutral-400 text-center font-medium uppercase tracking-wider">Date (période)</div>
                   </div>
                 </div>
               )
             })()}
             
-            {/* Ligne de tendance */}
-            {history.length > 1 && (
+            {/* Résumé tendance : minimal, aligné avec la DA du blog */}
+            {displayHistory.length > 1 && (
               <div className="mt-6 pt-6 border-t border-neutral-200 dark:border-neutral-800">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-neutral-600 dark:text-neutral-400">Première valeur</span>
-                  <span className="font-semibold">{formatNumber(history[0].valeur)}</span>
+                  <span className="text-neutral-600 dark:text-neutral-400">Première valeur (période)</span>
+                  <span className="font-semibold tabular-nums">{formatNumber(displayHistory[0].valeur)}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm mt-2">
                   <span className="text-neutral-600 dark:text-neutral-400">Dernière valeur</span>
-                  <span className="font-semibold">{formatNumber(history[history.length - 1].valeur)}</span>
+                  <span className="font-semibold tabular-nums">{formatNumber(displayHistory[displayHistory.length - 1].valeur)}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm mt-2">
                   <span className="text-neutral-600 dark:text-neutral-400">Croissance</span>
-                  <span className={`font-semibold ${
-                    history[history.length - 1].valeur >= history[0].valeur
+                  <span className={`font-semibold tabular-nums ${
+                    displayHistory[displayHistory.length - 1].valeur >= displayHistory[0].valeur
                       ? 'text-green-700 dark:text-green-400'
                       : 'text-orange-700 dark:text-orange-400'
                   }`}>
-                    {history[history.length - 1].valeur >= history[0].valeur ? '+' : ''}
-                    {formatNumber(history[history.length - 1].valeur - history[0].valeur)}
+                    {displayHistory[displayHistory.length - 1].valeur >= displayHistory[0].valeur ? '+' : ''}
+                    {formatNumber(displayHistory[displayHistory.length - 1].valeur - displayHistory[0].valeur)}
                     {' '}
-                    ({history[0].valeur > 0 
-                      ? ((history[history.length - 1].valeur / history[0].valeur - 1) * 100).toFixed(1)
+                    ({displayHistory[0].valeur > 0
+                      ? ((displayHistory[displayHistory.length - 1].valeur / displayHistory[0].valeur - 1) * 100).toFixed(1)
                       : '0'
                     }%)
                   </span>
@@ -1051,7 +1074,7 @@ export default function DonneesPubliques() {
                 {targetValue && (
                   <div className="flex items-center justify-between text-sm mt-2">
                     <span className="text-neutral-600 dark:text-neutral-400">Objectif 2026</span>
-                    <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+                    <span className="font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
                       {formatNumber(targetValue)}
                     </span>
                   </div>
@@ -1060,7 +1083,7 @@ export default function DonneesPubliques() {
             )}
           </div>
         )}
-        {calculatedInsight && !loading && history.length > 0 && (
+        {calculatedInsight && !loading && displayHistory.length > 0 && (
           <div className="mt-4 p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-lg border border-neutral-200 dark:border-neutral-800">
             <p className="text-sm text-neutral-700 dark:text-neutral-300">
               <strong className="text-neutral-900 dark:text-neutral-100">Insight :</strong> {calculatedInsight}

@@ -9,9 +9,10 @@ import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { tools } from '../lib/tools'
 
-export default function Marketplace({ dynamicDatabases = [], topDatabases: initialTopDatabases = [] }) {
+export default function Marketplace({ dynamicDatabases = [], topDatabases: initialTopDatabases = [], apifyTools = [] }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedPricing, setSelectedPricing] = useState(null) // 'gratuit' | '<100' | '100-200' | '200+' | null
+  const [activeTab, setActiveTab] = useState('databases') // 'databases' | 'tools'
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
@@ -55,16 +56,19 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
   const regularDatabases = (dynamicDatabases || []).filter(db => !topSlugs.has(db.slug))
   
   // Fusionner les outils statiques et les bases de données dynamiques (sans les top)
+  // Note: apifyTools sont séparés et affichés dans l'onglet "Outils"
   const allTools = [...regularDatabases, ...tools]
   
-  // Extraire les catégories uniques dynamiquement depuis les outils et bases de données
+  // Extraire les catégories uniques dynamiquement depuis les bases de données uniquement
   const categories = Array.from(
     new Set(
-      allTools
+      regularDatabases
         .map(tool => tool.category)
         .filter(category => category && category.trim() !== '')
     )
   ).sort() // Trier par ordre alphabétique
+  
+  // Filtrer uniquement les bases de données (pas les outils Apify)
   const filteredTools = allTools
     .filter(tool => {
       const matchesCategory = selectedCategory === null || tool.category === selectedCategory
@@ -273,11 +277,43 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
             Marketplace
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
-            Bases de données développées pour automatiser vos processus business, générer des leads et optimiser votre productivité. Une sélection de <strong className="text-neutral-900 dark:text-neutral-100">bases de données</strong> prêtes pour des analyses métiers ou de la prospection, avec des données vérifiées et régulièrement mises à jour.
+            Bases de données et outils développés pour automatiser vos processus business, générer des leads et optimiser votre productivité. Une sélection de <strong className="text-neutral-900 dark:text-neutral-100">bases de données</strong> prêtes pour des analyses métiers ou de la prospection, et d'<strong className="text-neutral-900 dark:text-neutral-100">outils de scraping</strong> pour collecter vos propres données.
           </p>
 
+          {/* Onglets pour séparer Bases de données et Outils */}
+          <div className="mb-8 border-b border-neutral-200 dark:border-neutral-800">
+            <div className="flex gap-4">
+              <button
+                onClick={() => setActiveTab('databases')}
+                className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 ${
+                  activeTab === 'databases'
+                    ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white'
+                    : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
+                }`}
+              >
+                Bases de données
+                <span className="ml-2 text-xs text-neutral-400 dark:text-neutral-500">
+                  ({dynamicDatabases.length})
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab('tools')}
+                className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 ${
+                  activeTab === 'tools'
+                    ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white'
+                    : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
+                }`}
+              >
+                Outils
+                <span className="ml-2 text-xs text-neutral-400 dark:text-neutral-500">
+                  ({apifyTools.length})
+                </span>
+              </button>
+            </div>
+          </div>
+
           {/* Top 3 Bases de données - Les plus consultées */}
-          {!selectedCategory && !selectedPricing && topDatabases.length > 0 && (
+          {activeTab === 'databases' && !selectedCategory && !selectedPricing && topDatabases.length > 0 && (
             <section className="mb-12">
               <h2 className="text-2xl font-semibold mb-6 tracking-tighter">
                 Les plus consultées
@@ -333,7 +369,8 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
             </section>
           )}
 
-          {/* Filtres */}
+          {/* Filtres - uniquement pour les bases de données */}
+          {activeTab === 'databases' && (
           <div className="space-y-4 mb-8">
             {/* Filtre par Prix */}
             <div>
@@ -379,10 +416,13 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
               />
             </div>
           </div>
+          )}
         </section>
 
         <section className="mb-16">
-          {filteredTools.length === 0 ? (
+          {activeTab === 'databases' ? (
+            <>
+              {filteredTools.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-neutral-600 dark:text-neutral-400 mb-4">
                 Aucun résultat ne correspond à vos filtres.
@@ -483,6 +523,65 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
                   </div>
                 </Link>
               ))}
+            </div>
+          )}
+            </>
+          ) : (
+            /* Section Outils */
+            <div className="flex flex-col space-y-4">
+              {apifyTools.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-neutral-600 dark:text-neutral-400 mb-4">
+                    Aucun outil disponible pour le moment.
+                  </p>
+                </div>
+              ) : (
+                apifyTools.map((tool) => (
+                  <Link
+                    key={tool.slug}
+                    href={tool.link || '#'}
+                    className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+                  >
+                    <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
+                      {tool.iconSvg === 'search' && (
+                        <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-600 dark:text-neutral-400">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                          </svg>
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="mb-1">
+                          <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
+                            {tool.name}
+                          </h2>
+                        </div>
+                        <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
+                          {tool.description}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Séparateur fin et métadonnées */}
+                    <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex-shrink-0 w-6 h-6"></div>
+                        <div className="flex-1 min-w-0 flex items-center gap-2">
+                          <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                            {tool.apifyStats?.users || 0} utilisateurs
+                          </span>
+                          <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                            • {tool.apifyStats?.runs || 0} exécutions
+                          </span>
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
+                            <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))
+              )}
             </div>
           )}
         </section>
@@ -677,12 +776,23 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
 // Utiliser getServerSideProps pour charger les données à chaque requête depuis Blob Storage
 export async function getServerSideProps() {
   const { getDatabasesAsTools } = await import('../lib/marketplace-databases')
+  const { getEnrichedActorsAsTools } = await import('../lib/apify-actors-enriched')
   const { list } = await import('@vercel/blob')
   let dynamicDatabases = []
   let topDatabases = []
+  let apifyTools = []
   
   try {
     dynamicDatabases = await getDatabasesAsTools()
+    
+    // Récupérer les outils Apify enrichis depuis Blob Storage
+    try {
+      apifyTools = await getEnrichedActorsAsTools()
+      console.log(`✅ ${apifyTools.length} outils Apify chargés`)
+    } catch (error) {
+      console.error('❌ Erreur chargement outils Apify:', error.message)
+      apifyTools = []
+    }
     
     // Calculer le top 3 des bases de données les plus vues
     try {
@@ -768,7 +878,8 @@ export async function getServerSideProps() {
   return {
     props: {
       dynamicDatabases,
-      topDatabases
+      topDatabases,
+      apifyTools
     }
   }
 }
