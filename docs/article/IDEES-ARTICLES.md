@@ -15,6 +15,7 @@ Créer du contenu qui renforce le personal brand, partage des connaissances et c
 
 | Dossier | Sujet | Statut |
 |--------|--------|--------|
+| [apify-infrastructure-2026/](apify-infrastructure-2026/README.md) | De 2 ans de scripts à une vraie infra Apify — 2026 | **Publié** |
 | [scraping-linkedin/](scraping-linkedin/README.md) | Scraping LinkedIn 10 000 profils | Publié |
 | [prospection-logement-atypique/](prospection-logement-atypique/README.md) | Prospection Airbnb pour Logement Atypique (Apify, GPT, Resend, Telegram) | Rédigé, à publier |
 | [scraping-immobilier-recruitement/](scraping-immobilier-recruitement/README.md) | Scraping immobilier & recrutement | Trame |
