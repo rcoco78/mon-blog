@@ -195,26 +195,17 @@ export default async function handler(req, res) {
         },
       ],
       mode: isSubscription ? 'subscription' : 'payment',
-      // Déterminer l'URL de retour selon le type d'outil
+      // URLs de retour : outil Apify (marketplace/outils) vs base de données (marketplace ou /outils)
       success_url: (() => {
-        // Vérifier si c'est un outil Apify (chercher dans les actors enrichis)
-        try {
-          const { getAllEnrichedActors } = await import('../../../lib/apify-actors-enriched')
-          // On vérifie de manière synchrone si possible, sinon on utilise une heuristique
-          const isApifyTool = !toolPrices[toolId] && (toolId.includes('-scraper') || toolId.includes('airbnb') || toolId.includes('immobilier'))
-          if (isApifyTool) {
-            return `${req.headers.origin}/marketplace/outils/${toolId}?payment=success&session_id={CHECKOUT_SESSION_ID}&type=${isSubscription ? 'subscription' : 'one-time'}`
-          }
-        } catch (e) {
-          // Fallback
+        const isApifyTool = !toolPrices[toolId] && (toolId.includes('-scraper') || toolId.includes('airbnb') || toolId.includes('immobilier'))
+        if (isApifyTool) {
+          return `${req.headers.origin}/marketplace/outils/${toolId}?payment=success&session_id={CHECKOUT_SESSION_ID}&type=${isSubscription ? 'subscription' : 'one-time'}`
         }
-        // Sinon, c'est une base de données marketplace
         const isMarketplaceTool = toolPrices[toolId] === undefined
         const basePath = isMarketplaceTool ? '/marketplace' : '/outils'
         return `${req.headers.origin}${basePath}/${toolId}?payment=success&session_id={CHECKOUT_SESSION_ID}&type=${isSubscription ? 'subscription' : 'one-time'}`
       })(),
       cancel_url: (() => {
-        // Même logique pour cancel
         const isApifyTool = !toolPrices[toolId] && (toolId.includes('-scraper') || toolId.includes('airbnb') || toolId.includes('immobilier'))
         if (isApifyTool) {
           return `${req.headers.origin}/marketplace/outils/${toolId}?payment=cancel`
