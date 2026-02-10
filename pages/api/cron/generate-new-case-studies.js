@@ -413,6 +413,11 @@ function normalizeGeneratedCaseStudy(raw, existingSlugs) {
       : null
   const attractivenessReason =
     typeof raw.attractivenessReason === 'string' ? raw.attractivenessReason : null
+  const createdAt =
+    typeof raw.createdAt === 'string' && raw.createdAt
+      ? raw.createdAt
+      : new Date().toISOString()
+  const generated = raw.generated === false ? false : true
 
   return {
     slug,
@@ -424,6 +429,8 @@ function normalizeGeneratedCaseStudy(raw, existingSlugs) {
     benefits,
     examples,
     keywords,
+    createdAt,
+    generated,
     attractivenessScore,
     attractivenessReason,
   }

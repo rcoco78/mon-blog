@@ -44,7 +44,7 @@ async function getViewEventsForTop() {
   }
 }
 
-export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies, sectorsWithCounts, viewsMap = {} }) {
+export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies, sectorsWithCounts, viewsMap = {}, todaysCaseStudies = [] }) {
   const topCaseStudies = initialTopCaseStudies || []
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
@@ -154,6 +154,58 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
             Plus de <strong className="text-neutral-900 dark:text-neutral-100">6 500+ cas d'usage concrets</strong> par <strong className="text-neutral-900 dark:text-neutral-100">secteur</strong> avec exemples réels et données extractibles.
           </p>
         </section>
+
+        {/* Nouveaux cas d'usage du jour */}
+        {todaysCaseStudies.length > 0 && (
+          <section className="mb-12">
+            <h2 className="text-2xl font-semibold mb-6 tracking-tighter">
+              Nouveaux cas d&apos;usage du jour
+            </h2>
+            <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-4">
+              Derniers cas d&apos;usage générés automatiquement aujourd&apos;hui.
+            </p>
+            <div className="space-y-4">
+              {todaysCaseStudies.map((cs) => (
+                <Link
+                  key={cs.slug}
+                  href={`/cas-usage/${sectorToSlug(cs.sector)}/${cs.slug}`}
+                  className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+                >
+                  <h3 className="text-lg font-semibold mb-2 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
+                    {cs.title}
+                  </h3>
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 leading-relaxed line-clamp-2">
+                    {cs.description}
+                  </p>
+                  <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
+                        <span
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            window.location.href = `/cas-usage/${sectorToSlug(cs.sector)}`
+                          }}
+                          className="px-2 py-1 rounded text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
+                        >
+                          {cs.sector}
+                        </span>
+                        {(cs.examples || []).slice(0, 3).map((example) => (
+                          <span
+                            key={example}
+                            className="px-2 py-0.5 rounded text-xs bg-neutral-50 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400"
+                          >
+                            {example}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Top 3 Case Studies - EN PREMIER pour maximiser l'engagement */}
         <section className="mb-12">
@@ -455,11 +507,25 @@ export async function getStaticProps() {
     viewsMap[cs.slug] = cs.views || 0
   })
 
+  // Cas d'usage générés aujourd'hui (max 3, payload léger)
+  const today = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
+  const todaysCaseStudies = caseStudies
+    .filter(cs => cs.createdAt && cs.createdAt.startsWith(today))
+    .slice(0, 3)
+    .map(cs => ({
+      slug: cs.slug,
+      title: cs.title,
+      description: cs.description,
+      sector: cs.sector,
+      examples: (cs.examples || []).slice(0, 3),
+    }))
+
   return {
     props: {
       topCaseStudies,
       sectorsWithCounts: filteredSectors,
-      viewsMap
+      viewsMap,
+      todaysCaseStudies,
     },
     revalidate: 3600 // Revalider toutes les heures
   }
