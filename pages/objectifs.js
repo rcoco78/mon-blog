@@ -328,7 +328,14 @@ export default function DonneesPubliques() {
 
   // Grouper les Key Results par catégorie (avec traduction)
   const groupedByCategory = keyResults.reduce((acc, kr) => {
-    const category = kr.category || 'Sans catégorie'
+    const nameLower = (kr.name || '').toLowerCase()
+    let category = kr.category || 'Sans catégorie'
+
+    // Cas particulier : "Coaching Lemlist" n'est pas vraiment de l'affiliation -> le mettre dans une section dédiée
+    if (nameLower.includes('coaching lemlist')) {
+      category = 'Coaching & accompagnement'
+    }
+
     const translatedCategory = translateCategory(category)
     if (!acc[translatedCategory]) {
       acc[translatedCategory] = []
@@ -568,7 +575,12 @@ export default function DonneesPubliques() {
       'default': []
     }
 
-    const categoryKey = category || 'default'
+    // Utiliser la catégorie brute pour l'ordre, pas la version traduite
+    let categoryKey = category || 'default'
+    if (categoryKey === 'Scrapers publics') {
+      // Regrouper tous les KPIs Apify sous le même ordre
+      categoryKey = 'Apify & Scraping'
+    }
     const order = orderMap[categoryKey] || orderMap['default']
     
     if (order.length === 0) {
