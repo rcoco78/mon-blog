@@ -11,6 +11,8 @@
 
 import { list, put } from '@vercel/blob'
 import { caseStudies as localCaseStudies } from '../../../lib/case-studies'
+import { siteConfig } from '../../../lib/config'
+import { sectorToSlug } from '../../../lib/case-studies-helpers'
 
 const BLOB_FILENAME = 'case-studies.json'
 
@@ -79,6 +81,66 @@ function buildBlobFromLocal() {
     personalizedAvailable: personalizedCount,
     lastUpdated: new Date().toISOString(),
     count: caseStudiesData.length,
+  }
+}
+
+// Envoyer une notification Telegram (optionnel, si TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID sont définis)
+async function sendTelegramNotification(newCases) {
+  const botToken = process.env.TELEGRAM_BOT_TOKEN
+  const chatId = process.env.TELEGRAM_CHAT_ID
+
+  if (!botToken || !chatId || !newCases || newCases.length === 0) {
+    return
+  }
+
+  const baseUrl = siteConfig?.url || 'https://www.corentinrobert.fr'
+
+  const lines = newCases.map((cs) => {
+    const sector = cs.sector || 'Secteur inconnu'
+    const title = cs.title || cs.slug
+    const slugSector = sectorToSlug
+      ? sectorToSlug(sector)
+      : (sector || '').toLowerCase().replace(/\s+/g, '-')
+    const url = `${baseUrl}/cas-usage/${slugSector}/${cs.slug}`
+    const score =
+      typeof cs.attractivenessScore === 'number'
+        ? ` (${cs.attractivenessScore}/100)`
+        : ''
+    return `• *${title}* — _${sector}_${score}\n  ${url}`
+  })
+
+  const text =
+    `🆕 *Nouveaux cas d'usage générés automatiquement*\n\n` +
+    lines.join('\n\n') +
+    `\n\n_Job: /api/cron/generate-new-case-studies_`
+
+  const tgUrl = `https://api.telegram.org/bot${botToken}/sendMessage`
+  const payload = {
+    chat_id: chatId,
+    text,
+    parse_mode: 'Markdown',
+    disable_web_page_preview: false,
+  }
+
+  try {
+    const resp = await fetch(tgUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    if (!resp.ok) {
+      const body = await resp.text()
+      console.warn(
+        '[generate-new-case-studies] Échec de la notification Telegram:',
+        resp.status,
+        body.slice(0, 200),
+      )
+    }
+  } catch (error) {
+    console.warn(
+      '[generate-new-case-studies] Erreur lors de l\'envoi Telegram:',
+      error.message,
+    )
   }
 }
 
@@ -208,9 +270,19 @@ FORMAT DE RÉPONSE ATTENDU :
       ],
       "keywords": [
         "mots clés SEO pertinents autour du scraping, du secteur et de l'intention"
-      ]
+      ],
+      "attractivenessScore": 0,
+      "attractivenessReason": "Brève explication (2-3 phrases) du potentiel d'attractivité SEO et business de cette page : volume recherché, intention, différenciation, probabilité de clic et de prise de contact."
     }
-  ]
+  ],
+  "meta": {
+    "globalReasoning": "Texte en 3-5 phrases expliquant pourquoi ces cas d'usage ont été choisis, les secteurs/angles privilégiés et les trous dans la base actuelle qu'ils viennent combler.",
+    "discardedIdeas": [
+      "Idée de cas d'usage que tu as envisagée mais rejetée, avec une brève explication (trop proche d'un existant, pas assez actionnable, etc.)",
+      "Une autre idée envisagée puis rejetée, avec la raison",
+      "Une troisième idée envisagée puis rejetée, avec la raison"
+    ]
+  }
 }
 
 IMPORTANT :
@@ -276,6 +348,35 @@ IMPORTANT :
     throw new Error('La réponse OpenAI doit être un tableau ou contenir une propriété "cases" tableau')
   }
 
+  // Log léger du raisonnement si présent (pour audit humain)
+  if (parsed.meta) {
+    console.log(
+      '[generate-new-case-studies] Meta globalReasoning:',
+      parsed.meta.globalReasoning || '',
+    )
+    if (Array.isArray(parsed.meta.discardedIdeas)) {
+      console.log(
+        '[generate-new-case-studies] Meta discardedIdeas (top 3):',
+        parsed.meta.discardedIdeas.slice(0, 3),
+      )
+    }
+  }
+
+  // Log rapide des scores d'attractivité proposés
+  const scoresPreview = cases
+    .map((c) => ({
+      title: c.title,
+      score:
+        typeof c.attractivenessScore === 'number'
+          ? Math.max(0, Math.min(100, Math.round(c.attractivenessScore)))
+          : null,
+    }))
+    .slice(0, 5)
+  console.log(
+    '[generate-new-case-studies] Attractiveness scores (preview):',
+    scoresPreview,
+  )
+
   // On retourne le tableau brut, la normalisation / filtrage se fait ensuite
   return { generatedRaw: cases, existingTitlesSet: titlesSet }
 }
@@ -305,6 +406,12 @@ function normalizeGeneratedCaseStudy(raw, existingSlugs) {
   const benefits = Array.isArray(raw.benefits) ? raw.benefits : []
   const examples = Array.isArray(raw.examples) ? raw.examples : []
   const keywords = Array.isArray(raw.keywords) ? raw.keywords : []
+  const attractivenessScore =
+    typeof raw.attractivenessScore === 'number'
+      ? Math.max(0, Math.min(100, Math.round(raw.attractivenessScore)))
+      : null
+  const attractivenessReason =
+    typeof raw.attractivenessReason === 'string' ? raw.attractivenessReason : null
 
   return {
     slug,
@@ -316,6 +423,8 @@ function normalizeGeneratedCaseStudy(raw, existingSlugs) {
     benefits,
     examples,
     keywords,
+    attractivenessScore,
+    attractivenessReason,
   }
 }
 
@@ -402,6 +511,16 @@ export default async function handler(req, res) {
     console.log(
       `[generate-new-case-studies] ${generated.length} nouveaux cas d'usage ajoutés. Total: ${existingCaseStudies.length}`,
     )
+
+    // Notification Telegram (optionnelle)
+    try {
+      await sendTelegramNotification(generated)
+    } catch (e) {
+      console.warn(
+        '[generate-new-case-studies] Erreur lors de la notification Telegram:',
+        e.message,
+      )
+    }
 
     return res.status(200).json({
       ok: true,

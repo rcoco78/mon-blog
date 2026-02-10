@@ -89,7 +89,11 @@ export default function Newsletter() {
         </p>
       </div>
       <form onSubmit={handleSubmit} className="flex flex-row items-center gap-2">
+        <label className="sr-only" htmlFor="newsletter-inline-email">
+          Adresse email
+        </label>
         <input
+          id="newsletter-inline-email"
           type="email"
           placeholder="Votre email"
           required

@@ -1139,7 +1139,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
               <button
                 onClick={openCalendly}
                 className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 focus:ring-offset-2 transition-colors font-medium"
-                aria-label="Réserver un appel gratuit pour échanger sur votre projet"
+                aria-label="On échange ?"
               >
                 On échange ?
               </button>
@@ -1530,7 +1530,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
             <button
               onClick={openCalendly}
               className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 focus:ring-offset-2 transition-colors font-medium"
-              aria-label="Réserver un appel gratuit pour échanger sur votre projet"
+              aria-label="On échange ?"
             >
               On échange ?
             </button>

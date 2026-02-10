@@ -86,7 +86,11 @@ export default function NewsletterForm({ compact = false, subscriberCount: propS
           Recevez mes derniers articles et réflexions directement dans votre boîte mail.
         </p>
         <form onSubmit={handleSubmit} className="space-y-2">
+          <label className="sr-only" htmlFor="newsletter-email-compact">
+            Adresse email
+          </label>
           <input
+            id="newsletter-email-compact"
             type="email"
             placeholder="Votre adresse email"
             value={email}
@@ -131,7 +135,11 @@ export default function NewsletterForm({ compact = false, subscriberCount: propS
         Recevez mes derniers articles et réflexions sur le scraping, l'automatisation et l'entrepreneuriat directement dans votre boîte mail.
       </p>
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-lg">
+        <label className="sr-only" htmlFor="newsletter-email-full">
+          Adresse email
+        </label>
         <input
+          id="newsletter-email-full"
           type="email"
           placeholder="Votre adresse email"
           value={email}
@@ -148,12 +156,12 @@ export default function NewsletterForm({ compact = false, subscriberCount: propS
           {isLoading ? 'Inscription...' : "S'inscrire"}
         </button>
       </form>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mt-3">
+      <div className="mt-3 space-y-1">
         <p className="text-xs text-neutral-500 dark:text-neutral-500">
           Pas de spam, désinscription en un clic. Vos données sont protégées.
         </p>
         {subscriberCount !== null && (
-          <p className="text-xs text-neutral-400 dark:text-neutral-600 whitespace-nowrap flex-shrink-0">
+          <p className="text-xs text-neutral-400 dark:text-neutral-600">
             {subscriberCount} {subscriberCount === 1 ? 'inscrit' : 'inscrits'}
           </p>
         )}
