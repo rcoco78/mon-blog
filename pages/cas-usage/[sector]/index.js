@@ -621,17 +621,45 @@ export async function getStaticProps({ params }) {
       })
       .slice(0, 3)
 
-    topCaseStudies = sorted
+    // Conserver uniquement les champs nécessaires pour limiter la taille du HTML/JSON sérialisé
+    topCaseStudies = sorted.map(cs => ({
+      slug: cs.slug,
+      title: cs.title,
+      description: cs.description,
+      sector: cs.sector,
+      keywords: cs.keywords || [],
+      examples: (cs.examples || []).slice(0, 3),
+      views: cs.views || 0
+    }))
   } catch (error) {
     console.error('Error calculating top case studies:', error)
     // Fallback : les 3 premiers sans vues
-    topCaseStudies = sectorCaseStudies.slice(0, 3).map(cs => ({ ...cs, views: 0 }))
+    topCaseStudies = sectorCaseStudies.slice(0, 3).map(cs => ({
+      slug: cs.slug,
+      title: cs.title,
+      description: cs.description,
+      sector: cs.sector,
+      keywords: cs.keywords || [],
+      examples: (cs.examples || []).slice(0, 3),
+      views: 0
+    }))
   }
+
+  // Optimiser les données envoyées au client pour réduire la taille du HTML.
+  // On ne garde que les champs nécessaires pour l’affichage de la liste.
+  const optimizedSectorCaseStudies = sectorCaseStudies.map(cs => ({
+    slug: cs.slug,
+    title: cs.title,
+    description: cs.description,
+    sector: cs.sector,
+    keywords: cs.keywords || [],
+    examples: (cs.examples || []).slice(0, 5)
+  }))
 
   return {
     props: {
       sector,
-      sectorCaseStudies,
+      sectorCaseStudies: optimizedSectorCaseStudies,
       topCaseStudies,
       viewsMap
     },

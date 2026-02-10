@@ -543,10 +543,10 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
           publisher: {
             '@type': 'Organization',
             name: 'Corentin Robert',
-            logo: {
-              '@type': 'ImageObject',
-              url: `${siteConfig.url}/images/logo.png`
-            }
+            // Important : de nombreux validateurs (dont squirrelscan) exigent
+            // que Organization.logo soit une string (URL) ou un tableau de strings,
+            // pas un objet ImageObject. On fournit donc directement l’URL.
+            logo: siteConfig.ogLogo
           },
           mainEntityOfPage: {
             '@type': 'WebPage',

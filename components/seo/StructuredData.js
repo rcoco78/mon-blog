@@ -137,12 +137,10 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           '@type': 'Organization',
           name: siteConfig.name,
           url: siteConfig.url,
-          logo: {
-            '@type': 'ImageObject',
-            url: siteConfig.ogLogo,
-            width: 512,
-            height: 512
-          },
+          // Le validateur schema.org + Google préfèrent un logo en string ou array de strings
+          // plutôt qu'un objet ImageObject dans le champ Organization.logo
+          // On garde l'URL de l'image OG comme logo principal.
+          logo: siteConfig.ogLogo,
           description: data.description || siteConfig.seo.defaultDescription,
           founder: {
             '@type': 'Person',
@@ -185,12 +183,9 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           publisher: {
             '@type': 'Organization',
             name: siteConfig.name,
-            logo: {
-              '@type': 'ImageObject',
-              url: siteConfig.ogLogo,
-              width: 512,
-              height: 512
-            }
+            // Pour rester compatible avec les validateurs qui exigent un string pour logo,
+            // on passe directement l'URL plutôt qu'un objet ImageObject.
+            logo: siteConfig.ogLogo
           },
           mainEntityOfPage: {
             '@type': 'WebPage',
@@ -429,10 +424,9 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           publisher: {
             '@type': 'Organization',
             name: siteConfig.name,
-            logo: {
-              '@type': 'ImageObject',
-              url: siteConfig.ogLogo
-            }
+            // Même logique que pour Organization et BlogPosting:
+            // utiliser une simple URL pour le logo afin d'éviter les erreurs de validation.
+            logo: siteConfig.ogLogo
           },
           blogPost: data.blogPost || []
         };

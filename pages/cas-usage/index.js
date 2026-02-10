@@ -111,6 +111,11 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
   const caseStudies = allCaseStudies.length > 0 ? allCaseStudies : caseStudiesImport || []
   const sectors = sectorsWithCounts.map(({ sector }) => sector)
 
+  // Pour éviter un HTML et un JSON-LD trop volumineux (plusieurs milliers d'items),
+  // on limite le nombre d'éléments inclus dans l'ItemList à un échantillon représentatif.
+  const STRUCTURED_DATA_MAX_ITEMS = 100
+  const itemListCaseStudies = caseStudies.slice(0, STRUCTURED_DATA_MAX_ITEMS)
+
   // Filtrer les cas d'usage par recherche et secteur
   const filteredCaseStudies = caseStudies.filter(cs => {
     const matchesSearch = !searchQuery || 
@@ -140,8 +145,8 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
         data={{
           name: 'Cas d\'usage scraping et automatisation',
           description: 'Collection de cas d\'usage concrets de scraping et automatisation par secteur',
-          numberOfItems: caseStudies.length,
-          items: caseStudies.map((cs, index) => ({
+          numberOfItems: itemListCaseStudies.length,
+          items: itemListCaseStudies.map((cs, index) => ({
             '@type': 'ListItem',
             position: index + 1,
             item: {
