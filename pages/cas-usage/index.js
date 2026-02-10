@@ -44,7 +44,7 @@ async function getViewEventsForTop() {
   }
 }
 
-export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies, sectorsWithCounts, viewsMap = {}, todaysCaseStudies = [] }) {
+export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies, sectorsWithCounts, viewsMap = {}, todaysCaseStudies = [], totalCount }) {
   const topCaseStudies = initialTopCaseStudies || []
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
@@ -116,7 +116,7 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
 
   const pageSEO = generatePageSEO({
     title: 'Cas d\'usage scraping et automatisation par secteur | Corentin Robert',
-    description: `Découvrez comment le scraping et l'automatisation peuvent transformer votre business. 6 500+ cas d'usage concrets par secteur : immobilier, santé, artisanat, e-commerce, finance, restauration...`,
+    description: `Découvrez comment le scraping et l'automatisation peuvent transformer votre business. ${totalCount.toLocaleString('fr-FR')} cas d'usage concrets par secteur : immobilier, santé, artisanat, e-commerce, finance, restauration...`,
     path: '/cas-usage',
     keywords: ['cas d\'usage scraping', 'scraping par secteur', 'automatisation business', 'extraction données', 'scraping immobilier', 'scraping santé', 'scraping e-commerce']
   })
@@ -151,7 +151,7 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
             Découvrez comment le <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et l'<strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> peuvent transformer votre business. 
-            Plus de <strong className="text-neutral-900 dark:text-neutral-100">6 500+ cas d'usage concrets</strong> par <strong className="text-neutral-900 dark:text-neutral-100">secteur</strong> avec exemples réels et données extractibles.
+            Plus de <strong className="text-neutral-900 dark:text-neutral-100">{totalCount.toLocaleString('fr-FR')} cas d'usage concrets</strong> par <strong className="text-neutral-900 dark:text-neutral-100">secteur</strong> avec exemples réels et données extractibles.
           </p>
         </section>
 
@@ -526,6 +526,7 @@ export async function getStaticProps() {
       sectorsWithCounts: filteredSectors,
       viewsMap,
       todaysCaseStudies,
+      totalCount: caseStudies.length,
     },
     revalidate: 3600 // Revalider toutes les heures
   }
