@@ -146,7 +146,7 @@ async function generateNewCaseStudies(existingCaseStudies, count) {
   const systemPrompt =
     "Tu es un expert en scraping web, automatisation et SEO B2B. " +
     "Tu rédiges des cas d'usage concrets, orientés business, en français, " +
-    "avec un ton professionnel mais accessible. Tu renvoies toujours du JSON strictement valide."
+    "avec un ton professionnel mais accessible. Tu renvoies toujours du JSON strictement valide, sans texte autour et sans blocs ```."
 
   const userPrompt = `
 Nous voulons créer ${count} nouveaux cas d'usage de scraping à partir de la base existante.
@@ -182,40 +182,41 @@ CONTRAINTES IMPORTANTES (très important) :
 4. Style : marketing B2B, orienté ROI, comme les exemples.
 
 FORMAT DE RÉPONSE ATTENDU :
-- Tu dois répondre par un UNIQUE JSON qui est un tableau contenant exactement ${count} objets.
-- Chaque objet doit avoir la structure suivante :
-[
-  {
-    "slug": "slug-url-friendly-base-sur-le-titre-et-langle",
-    "sector": "Nom du secteur clair (ex: Restauration, Immobilier, Recrutement & RH, ...)",
-    "title": "Titre marketing clair et original",
-    "description": "Résumé en 2-3 phrases qui donne envie de lire le détail.",
-    "useCase": "Description détaillée (150-250 mots) expliquant concrètement le cas d'usage.",
-    "dataExtracted": [
-      "Type de donnée 1",
-      "Type de donnée 2",
-      "Type de donnée 3"
-    ],
-    "benefits": [
-      "Bénéfice business 1",
-      "Bénéfice business 2",
-      "Bénéfice business 3"
-    ],
-    "examples": [
-      "Source / site web 1",
-      "Source / site web 2",
-      "Source / site web 3"
-    ],
-    "keywords": [
-      "mots clés SEO pertinents autour du scraping, du secteur et de l'intention"
-    ]
-  }
-]
+- Tu dois répondre par un UNIQUE JSON avec la structure EXACTE suivante :
+{
+  "cases": [
+    {
+      "slug": "slug-url-friendly-base-sur-le-titre-et-langle",
+      "sector": "Nom du secteur clair (ex: Restauration, Immobilier, Recrutement & RH, ...)",
+      "title": "Titre marketing clair et original",
+      "description": "Résumé en 2-3 phrases qui donne envie de lire le détail.",
+      "useCase": "Description détaillée (150-250 mots) expliquant concrètement le cas d'usage.",
+      "dataExtracted": [
+        "Type de donnée 1",
+        "Type de donnée 2",
+        "Type de donnée 3"
+      ],
+      "benefits": [
+        "Bénéfice business 1",
+        "Bénéfice business 2",
+        "Bénéfice business 3"
+      ],
+      "examples": [
+        "Source / site web 1",
+        "Source / site web 2",
+        "Source / site web 3"
+      ],
+      "keywords": [
+        "mots clés SEO pertinents autour du scraping, du secteur et de l'intention"
+      ]
+    }
+  ]
+}
 
 IMPORTANT :
 - Le contenu doit être en français.
 - Le JSON doit être strictement valide.
-- Les ${count} cas d'usage doivent être tous différents entre eux.
+- Le tableau "cases" doit contenir exactement ${count} cas d'usage, tous différents entre eux.
 `
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
