@@ -1,4 +1,5 @@
-import { caseStudies, getAllSectors } from '../lib/case-studies'
+import { getCaseStudiesFromBlob, getAllSectors as getAllSectorsFromBlob } from '../lib/case-studies-blob'
+import { caseStudies as localCaseStudies, getAllSectors as getAllSectorsLocal } from '../lib/case-studies'
 import { sectorToSlug } from '../lib/case-studies-helpers'
 import { list } from '@vercel/blob'
 
@@ -33,6 +34,15 @@ export const getServerSideProps = async ({ res }) => {
   const baseUrl = 'https://www.corentinrobert.fr'
   const today = new Date().toISOString().split('T')[0]
   
+  // Charger la liste des cas d'usage depuis Blob Storage (avec fallback local)
+  let caseStudies = []
+  try {
+    caseStudies = await getCaseStudiesFromBlob()
+  } catch (error) {
+    console.warn('⚠️ Erreur lors du chargement des case studies depuis Blob pour le sitemap, fallback local:', error.message)
+    caseStudies = localCaseStudies || []
+  }
+
   // Vérification de sécurité
   if (!caseStudies || !Array.isArray(caseStudies) || caseStudies.length === 0) {
     console.error('❌ caseStudies est undefined ou vide dans sitemap')
@@ -50,7 +60,14 @@ export const getServerSideProps = async ({ res }) => {
     return { props: {} }
   }
 
-  const sectors = getAllSectors()
+  // Récupérer la liste des secteurs depuis Blob (avec fallback)
+  let sectors = []
+  try {
+    sectors = await getAllSectorsFromBlob()
+  } catch (error) {
+    console.warn('⚠️ Erreur lors du chargement des secteurs depuis Blob pour le sitemap, fallback local:', error.message)
+    sectors = getAllSectorsLocal()
+  }
 
   // Calculer les vues pour optimiser les priorités
   let viewsMap = {}
