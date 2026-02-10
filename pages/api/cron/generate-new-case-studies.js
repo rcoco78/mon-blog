@@ -198,7 +198,8 @@ async function generateNewCaseStudies(existingCaseStudies, count) {
     throw new Error('OPENAI_API_KEY manquant')
   }
 
-  const summary = buildKnowledgeSummary(existingCaseStudies)
+  // Réduire un peu la taille du contexte passé à l'IA
+  const summary = buildKnowledgeSummary(existingCaseStudies.slice(0, 2000))
   const titlesSet = new Set(
     existingCaseStudies
       .filter((cs) => cs.title)
@@ -299,8 +300,8 @@ IMPORTANT :
     },
     body: JSON.stringify({
       model: 'gpt-4o-mini',
-      temperature: 0.7,
-      max_tokens: 1500,
+      temperature: 0.6,
+      max_tokens: 2200,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
