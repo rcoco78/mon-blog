@@ -1702,7 +1702,14 @@ export async function getStaticProps({ params }) {
   if (!caseStudy) {
     console.error(`❌ Case study non trouvé: slug="${params.slug}", sector="${params.sector}", loadedFromBlob=${loadedFromBlob}`)
     return {
-      notFound: true
+      // Au lieu de retourner une 404 "définitive" (qui peut être mise en cache ISR
+      // alors que le cas vient d'être généré), on redirige proprement vers l'index
+      // des cas d'usage. Cela évite de "bloquer" une URL en 404 si le cas arrive
+      // quelques secondes plus tard dans le Blob.
+      redirect: {
+        destination: '/cas-usage',
+        permanent: false,
+      },
     }
   }
   
