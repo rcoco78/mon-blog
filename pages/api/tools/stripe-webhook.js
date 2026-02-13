@@ -65,36 +65,54 @@ export default async function handler(req, res) {
     if (session.payment_status === 'paid') {
       const toolId = session.metadata?.toolId
       const email = session.customer_email || session.metadata?.email
-      
-      // Récupérer les champs personnalisés (format préféré, etc.)
-      const customFields = session.custom_fields || []
-      const formatPreference = customFields.find(field => field.key === 'format_preference')?.value || 'all'
+      const subscriptionType = session.metadata?.subscriptionType || 'one-time'
+      const isSubscription = session.mode === 'subscription'
 
-      // Ici tu peux :
-      // 1. Envoyer l'email avec le lien de téléchargement
-      // 2. Enregistrer l'achat dans une base de données
-      // 3. Envoyer une notification Telegram
-      
+      // Récupérer les champs personnalisés (format, nom entreprise, etc.)
+      const customFields = session.custom_fields || []
+      const formatPreference = customFields.find(field => field.key === 'format_preference')?.dropdown?.value || 'all'
+      const companyNameCustom = customFields.find(field => field.key === 'company_name')?.text?.value || null
+
+      // Infos professionnelles : customer_details (nom, adresse) + tax_ids (n° TVA)
+      const customerDetails = session.customer_details || {}
+      const customerName = customerDetails.name || null // Nom ou raison sociale
+      const taxIds = customerDetails.tax_ids || []
+      const vatNumber = taxIds.length > 0 ? taxIds[0].value : null // ex: FR12345678901
+      const vatType = taxIds.length > 0 ? taxIds[0].type : null // ex: eu_vat
+      // Quand l'utilisateur remplit le formulaire TVA, customerDetails.name = raison sociale
+      const companyName = companyNameCustom || customerName || null
+
       console.log(`Paiement confirmé pour ${toolId} par ${email}`)
       console.log(`Format préféré: ${formatPreference}`)
       console.log(`Type: ${subscriptionType}${isSubscription ? ' (abonnement)' : ' (achat unique)'}`)
-      
-      // Récupérer le type de paiement (one-time ou annual)
-      const subscriptionType = session.metadata?.subscriptionType || 'one-time'
-      const isSubscription = session.mode === 'subscription'
-      
-      // Exemple : Enregistrer l'achat dans Vercel Blob
+      if (companyName) console.log(`Entreprise: ${companyName}`)
+      if (vatNumber) console.log(`N° TVA: ${vatNumber}`)
+
+      // Enregistrer l'achat dans Vercel Blob avec toutes les infos
       try {
         const purchaseData = {
           toolId,
           email,
           sessionId: session.id,
-          amount: session.amount_total / 100, // Convertir centimes en euros
+          amount: session.amount_total / 100, // TTC (centimes → euros)
+          amountTax: session.total_details?.amount_tax ? session.total_details.amount_tax / 100 : null,
           currency: session.currency,
-          formatPreference: formatPreference, // Format sélectionné par l'utilisateur
-          subscriptionType: subscriptionType, // 'one-time' ou 'annual'
-          isSubscription: isSubscription,
-          subscriptionId: session.subscription || null, // ID de l'abonnement si applicable
+          formatPreference,
+          subscriptionType,
+          isSubscription,
+          subscriptionId: session.subscription || null,
+          // Infos professionnelles
+          companyName,
+          vatNumber,
+          vatType,
+          customerName,
+          billingAddress: customerDetails.address ? {
+            line1: customerDetails.address.line1,
+            line2: customerDetails.address.line2,
+            city: customerDetails.address.city,
+            postal_code: customerDetails.address.postal_code,
+            country: customerDetails.address.country,
+          } : null,
           timestamp: new Date().toISOString(),
         }
 

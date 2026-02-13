@@ -651,19 +651,20 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                 paymentVerified ? (
                   <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
                     <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-3">
-                      ✓ Paiement confirmé ! Vous pouvez maintenant accéder à la base de données complète.
+                      ✓ Paiement confirmé ! Vous pouvez maintenant récupérer la base de données complète.
                     </p>
                     <a
-                      href={`${database.sheetUrl}/copy`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline font-medium"
+                      href={`mailto:corentinrobert648@gmail.com?subject=${encodeURIComponent(`Demande de base de données - ${database.name}`)}&body=${encodeURIComponent("Hey je viens d'acheter la base de données - est-ce que tu peux me l'envoyer ? Merci")}`}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                       </svg>
-                      Copier la base de données sur Google Sheets
+                      Télécharger la base
                     </a>
+                    <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-2">
+                      Pour l&apos;instant, c&apos;est manuel.
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -805,19 +806,20 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                 paymentVerified ? (
                   <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
                     <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-3">
-                      ✓ Paiement confirmé ! Vous pouvez maintenant accéder à la base de données complète.
+                      ✓ Paiement confirmé ! Vous pouvez maintenant récupérer la base de données complète.
                     </p>
                     <a
-                      href={`${database.sheetUrl}/copy`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline font-medium"
+                      href={`mailto:corentinrobert648@gmail.com?subject=${encodeURIComponent(`Demande de base de données - ${database.name}`)}&body=${encodeURIComponent("Hey je viens d'acheter la base de données - est-ce que tu peux me l'envoyer ? Merci")}`}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                       </svg>
-                      Copier la base de données sur Google Sheets
+                      Télécharger la base
                     </a>
+                    <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-2">
+                      Pour l&apos;instant, c&apos;est manuel.
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-4">

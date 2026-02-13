@@ -18,6 +18,7 @@ Créer du contenu qui renforce le personal brand, partage des connaissances et c
 | [apify-infrastructure-2026/](apify-infrastructure-2026/README.md) | De 2 ans de scripts à une vraie infra Apify — 2026 | **Publié** |
 | [scraping-linkedin/](scraping-linkedin/README.md) | Scraping LinkedIn 10 000 profils | Publié |
 | [prospection-logement-atypique/](prospection-logement-atypique/README.md) | Prospection Airbnb pour Logement Atypique (Apify, GPT, Resend, Telegram) | Rédigé, à publier |
+| [signal-marketing-instagram/](signal-marketing-instagram/README.md) | Capter un signal marketing : Logement Atypique × publicités Instagram | Rédigé, à publier |
 | [scraping-immobilier-recruitement/](scraping-immobilier-recruitement/README.md) | Scraping immobilier & recrutement | Trame |
 | [marketplace-automation/](marketplace-automation/) | Marketplace & orchestration | Draft |
 | [pinterest-100k-impressions/](pinterest-100k-impressions/README.md) | Pinterest 100k impressions | Trame |

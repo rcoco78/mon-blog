@@ -171,6 +171,8 @@ export default async function handler(req, res) {
     const price = isSubscription ? (tool.annualPrice || tool.price) : tool.price
     
     // Créer une session Stripe Checkout avec options
+    // Prix TTC (tax_behavior: inclusive) : en France le prix affiché est toujours TTC pour le B2C
+    // Stripe Tax calcule automatiquement la TVA selon l'adresse du client
     const sessionConfig = {
       payment_method_types: ['card'],
       line_items: [
@@ -189,12 +191,24 @@ export default async function handler(req, res) {
                 interval_count: 1,
               },
             } : {}),
-            unit_amount: price * 100, // Stripe utilise les centimes
+            unit_amount: price * 100, // Stripe utilise les centimes — prix TTC (inclusive)
+            tax_behavior: 'inclusive', // Prix TTC : la TVA est incluse dans le montant
           },
           quantity: 1,
         },
       ],
       mode: isSubscription ? 'subscription' : 'payment',
+      // TVA automatique : Stripe Tax calcule selon l'adresse du client (France = 20% TVA)
+      // Activer Stripe Tax dans le Dashboard : Paramètres > Tax > Enable Stripe Tax
+      automatic_tax: { enabled: true },
+      // Collecte du numéro de TVA et nom d'entreprise pour les achats professionnels (B2B)
+      tax_id_collection: { enabled: true },
+      // Adresse requise pour le calcul de la TVA et la facturation
+      billing_address_collection: 'required',
+      // Checkout en français
+      locale: 'fr',
+      // Créer un Customer pour sauvegarder les infos (adresse, TVA, nom entreprise)
+      customer_creation: 'always',
       // URLs de retour : outil Apify (marketplace/outils) vs base de données (marketplace ou /outils)
       success_url: (() => {
         const isApifyTool = !toolPrices[toolId] && (toolId.includes('-scraper') || toolId.includes('airbnb') || toolId.includes('immobilier'))
@@ -224,16 +238,20 @@ export default async function handler(req, res) {
         toolName: tool.name,
         // email sera automatiquement disponible dans session.customer_email après le paiement
       },
-      // Champ "Format préféré" uniquement pour les outils qui proposent plusieurs formats
-      // Les bases de données marketplace utilisent uniquement Google Sheets
-      ...(toolPrices[toolId] !== undefined ? {
-        custom_fields: [
+      // Champs personnalisés : format (outils statiques) + infos pro (tous les achats)
+      custom_fields: [
+        // Nom d'entreprise optionnel — pour facturation (en complément de tax_id_collection)
+        {
+          key: 'company_name',
+          label: { type: 'custom', custom: 'Nom de l\'entreprise (optionnel)' },
+          type: 'text',
+          optional: true,
+        },
+        // Format préféré uniquement pour les outils statiques multi-formats
+        ...(toolPrices[toolId] !== undefined ? [
           {
             key: 'format_preference',
-            label: {
-              type: 'custom',
-              custom: 'Format préféré (optionnel)',
-            },
+            label: { type: 'custom', custom: 'Format préféré (optionnel)' },
             type: 'dropdown',
             dropdown: {
               options: [
@@ -244,8 +262,8 @@ export default async function handler(req, res) {
               ],
             },
           },
-        ],
-      } : {}),
+        ] : []),
+      ],
     }
     
     const session = await stripe.checkout.sessions.create(sessionConfig)
