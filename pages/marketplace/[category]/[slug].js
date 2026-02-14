@@ -1558,6 +1558,13 @@ export async function getServerSideProps({ params }) {
 
   const relatedDatabases = await getRelatedDatabases(params.slug, 3)
 
+  const { getVideoUrlForDatabase } = await import('../../../lib/marketplace-videos')
+  const videoUrlFromTella = await getVideoUrlForDatabase(params.slug)
+  if (videoUrlFromTella && !database.enrichedData?.videoUrl) {
+    database.enrichedData = database.enrichedData || {}
+    database.enrichedData.videoUrl = videoUrlFromTella
+  }
+
   return {
     props: {
       database,
