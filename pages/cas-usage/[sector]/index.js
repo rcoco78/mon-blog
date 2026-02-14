@@ -558,7 +558,21 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
   )
 }
 
-export async function getServerSideProps({ params }) {
+export async function getStaticPaths() {
+  const { getAllSectors } = await import('../../../lib/case-studies-blob')
+  const { getAllSectors: getAllSectorsLocal } = await import('../../../lib/case-studies')
+  const { sectorToSlug } = await import('../../../lib/case-studies-helpers')
+  let sectors = []
+  try {
+    sectors = await getAllSectors()
+  } catch {
+    sectors = getAllSectorsLocal()
+  }
+  const paths = sectors.map((sector) => ({ params: { sector: sectorToSlug(sector) } }))
+  return { paths, fallback: 'blocking' }
+}
+
+export async function getStaticProps({ params }) {
   const { slugToSector } = await import('../../../lib/case-studies-helpers')
   
   const sector = slugToSector(params.sector)
@@ -653,7 +667,7 @@ export async function getServerSideProps({ params }) {
       topCaseStudies,
       viewsMap
     },
-    // Pas de cache : données toujours fraîches
+    revalidate: 60,
   }
 }
 

@@ -1631,7 +1631,11 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
   )
 }
 
-export async function getServerSideProps({ params }) {
+export async function getStaticPaths() {
+  return { paths: [], fallback: 'blocking' }
+}
+
+export async function getStaticProps({ params }) {
   // Vérifier que le secteur correspond au case study
   const sector = slugToSector(params.sector)
   
@@ -1841,5 +1845,6 @@ export async function getServerSideProps({ params }) {
       views,
       isPopular
     },
+    revalidate: 60,
   }
 }

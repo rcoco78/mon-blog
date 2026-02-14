@@ -275,7 +275,7 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {sectorsWithCounts
-              .filter(item => item.count >= 3) // Afficher uniquement les secteurs avec au moins 3 cas d'usage
+              .filter(item => item.count >= 1) // Afficher tous les secteurs (y compris nouveaux comme Éducation)
               .map(({ sector, count }) => (
                 <Link
                   key={sector}
@@ -415,7 +415,7 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
   )
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   // Charger depuis Blob Storage avec fallback
   let caseStudies = []
   try {
@@ -438,6 +438,7 @@ export async function getServerSideProps() {
         todaysCaseStudies: [],
         totalCount: 0,
       },
+      revalidate: 60,
     }
   }
   
@@ -518,7 +519,7 @@ export async function getServerSideProps() {
       todaysCaseStudies,
       totalCount: caseStudies.length,
     },
-    // Pas de cache : données toujours fraîches (nouveaux cas visibles immédiatement)
+    revalidate: 60, // ISR : revalider toutes les 60s (perf + nouveaux cas visibles sous 1 min)
   }
 }
 
