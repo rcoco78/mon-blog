@@ -1091,128 +1091,6 @@ export default function Home({ posts, dynamicDatabases = [] }) {
         </div>
       </section>
 
-      {/* Section Partenaires */}
-      <section className="mt-12" aria-label="Partenaires">
-        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Partenaires</h2>
-        <div className="flex flex-col space-y-4">
-          {siteConfig.projects.filter(project => {
-            // Filtrer uniquement les partenaires
-            const partnerIds = ['contributeurs-apify', 'lemlist', 'zapmail']
-            return project.status === 'active' && partnerIds.includes(project.id)
-          }).map((project, index) => {
-            const isActive = project.status === 'active'
-            const Component = project.link ? 'a' : 'div'
-            
-            const handleClick = async (e) => {
-              if (project.link && project.id) {
-                // Tracker le clic de manière asynchrone sans bloquer la navigation
-                // Utiliser sendBeacon pour garantir l'envoi même si la page se ferme
-                const timestamp = Date.now()
-                const data = JSON.stringify({ projectId: project.id, timestamp })
-                
-                // Essayer sendBeacon d'abord (plus fiable pour les clics)
-                if (navigator.sendBeacon) {
-                  const blob = new Blob([data], { type: 'application/json' })
-                  navigator.sendBeacon(`/api/projects/click?t=${timestamp}`, blob)
-                } else {
-                  // Fallback sur fetch
-                  fetch(`/api/projects/click?t=${timestamp}`, {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'Cache-Control': 'no-cache',
-                    },
-                    body: data,
-                    keepalive: true, // Important pour les requêtes après navigation
-                  }).catch(err => console.error('Error tracking click:', err))
-                }
-              }
-            }
-
-            const props = project.link ? {
-              href: project.link,
-              target: '_blank',
-              rel: 'noopener noreferrer',
-              onClick: handleClick,
-              className: 'relative flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group'
-            } : {
-              className: 'flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50'
-            }
-
-            return (
-              <Component key={index} {...props}>
-                <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
-                  {project.image ? (
-                    <div className="flex-shrink-0 w-6 h-6">
-                      <Image
-                        src={project.image}
-                        alt={project.imageAlt || `${project.title} - ${project.description}`}
-                        width={24}
-                        height={24}
-                        loading="lazy"
-                        className={`w-6 h-6 rounded-lg object-cover border border-neutral-200 dark:border-neutral-800 ${!isActive ? 'opacity-50 grayscale' : ''}`}
-                      />
-                    </div>
-                  ) : project.icon ? (
-                    project.icon.startsWith('/') ? (
-                      <div className="flex-shrink-0 w-6 h-6">
-                        <Image
-                          src={project.icon}
-                          alt={project.iconAlt || `${project.title} - ${project.description}`}
-                          width={24}
-                          height={24}
-                          loading="lazy"
-                          className={`w-6 h-6 rounded-lg object-contain ${!isActive ? 'opacity-50 grayscale' : ''}`}
-                        />
-                      </div>
-                    ) : (
-                      <div className={`flex-shrink-0 w-6 h-6 flex items-center justify-center text-xl leading-none ${!isActive ? 'opacity-50' : ''}`}>
-                        {project.icon}
-                      </div>
-                    )
-                  ) : null}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start sm:items-center gap-2 mb-1 flex-wrap sm:flex-nowrap">
-                      <h2 className={`font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 flex-1 min-w-0 sm:flex-initial ${!isActive ? 'text-neutral-500 dark:text-neutral-400' : ''}`}>
-                        {project.title}
-                      </h2>
-                      {project.status === 'active' && (
-                        <span className="relative flex h-2 w-2 flex-shrink-0 mt-1 sm:mt-0" title="Partenaire actif">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                        </span>
-                      )}
-                    </div>
-                    <p className={`text-sm ${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} line-clamp-2`}>
-                      {project.description}
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Séparateur fin et compteur de clics */}
-                {project.link && (
-                  <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
-                    <div className="flex items-center gap-3">
-                      {/* Espaceur pour aligner avec l'icône */}
-                      <div className="flex-shrink-0 w-6 h-6"></div>
-                      <div className="flex-1 min-w-0 flex items-center gap-2">
-                        {project.id ? (
-                          <ProjectClickCounter projectId={project.id} />
-                        ) : (
-                          <span></span>
-                        )}
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
-                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </Component>
-            )
-          })}
-        </div>
-      </section>
       
       {/* Section Articles récents */}
       <section className="mt-12" aria-label="Articles récents">
@@ -1220,58 +1098,48 @@ export default function Home({ posts, dynamicDatabases = [] }) {
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
           Réflexions sur le scraping, l'automatisation, l'entrepreneuriat, le freelance et le voyage.
         </p>
-        <div className="space-y-4">
+        <div className="flex flex-col space-y-4">
           {loading ? (
-            // Skeleton pour les articles
-            Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2">
-                <div className="flex flex-col md:flex-row md:items-center w-full">
-                  <div className="flex-shrink-0 mb-2 md:mb-0">
-                    <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-                  </div>
-                  <div className="flex-grow md:max-w-[60%] md:ml-4 mb-2 md:mb-0">
-                    <div className="h-5 w-full md:w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-                  </div>
-                  <div className="md:ml-auto flex-shrink-0">
-                    <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-                  </div>
-                </div>
-              </div>
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-24 bg-neutral-100 dark:bg-neutral-800 rounded-lg animate-pulse" />
             ))
           ) : topPosts.length > 0 ? (
-          topPosts.map((post) => {
-            return (
-            <Link
-              key={post.slug}
-              href={`/blog/${post.slug}`}
-                className="post-link group"
-            >
-                <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 transition-all group-hover:translate-x-1">
-                <div className="flex flex-col md:flex-row md:items-center w-full">
-                  <div className="flex-shrink-0">
-                    <p className="post-date text-sm whitespace-nowrap">{(() => {
-                      const date = new Date(post.date)
-                      const day = String(date.getDate()).padStart(2, '0')
-                      const month = String(date.getMonth() + 1).padStart(2, '0')
-                      const year = date.getFullYear()
-                      return `${day}-${month}-${year}`
-                    })()}</p>
-                  </div>
-                    <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 mx-2 flex-shrink-0"></span>
-                    <p className="post-title flex-grow w-full md:ml-0 flex items-center gap-2 min-w-0">
-                      <span className="truncate">{post.title}</span>
-                    </p>
-                  <div className="md:ml-auto flex-shrink-0">
-                    <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">{post.views} vues</span>
+            topPosts.map((post) => (
+              <Link
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+              >
+                <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 mb-1">
+                      {post.title}
+                    </h2>
+                    {post.metaDescription && (
+                      <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
+                        {post.metaDescription}
+                      </p>
+                    )}
                   </div>
                 </div>
-              </div>
-            </Link>
-            )
-          })
-        ) : (
-          <p className="text-neutral-600 dark:text-neutral-400">Aucun article disponible pour le moment.</p>
-        )}
+                <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                      {(() => {
+                        const d = new Date(post.date)
+                        return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()} · ${post.views ?? 0} ${(post.views ?? 0) === 1 ? 'vue' : 'vues'}`
+                      })()}
+                    </span>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
+                      <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                    </svg>
+                  </div>
+                </div>
+              </Link>
+            ))
+          ) : (
+            <p className="text-neutral-600 dark:text-neutral-400">Aucun article disponible pour le moment.</p>
+          )}
         </div>
         <div className="mt-6 text-center">
           <Link
