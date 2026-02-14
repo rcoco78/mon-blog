@@ -40,7 +40,6 @@ const INITIAL_BATCH = 60
 const ITEMS_PER_PAGE = 20
 const PRICE_FILTERS = [
   { value: null, label: 'Tous' },
-  { value: 'free', label: 'Gratuit' },
   { value: 'lt100', label: '< 100€' },
   { value: '100-200', label: '100-200€' },
   { value: '200plus', label: '200€+' },

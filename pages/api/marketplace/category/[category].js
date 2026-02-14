@@ -42,7 +42,6 @@ function optimizeDatabase(db, toolsBySlug, categorySlug, views = 0) {
 
 function matchesPriceFilter(db, priceFilter) {
   if (!priceFilter || priceFilter === 'all') return true
-  if (priceFilter === 'free') return !db.isPaid
   const p = db.price || 0
   if (priceFilter === 'lt100') return db.isPaid && p >= 1 && p < 100
   if (priceFilter === '100-200') return db.isPaid && p >= 100 && p <= 200
@@ -59,7 +58,7 @@ export default async function handler(req, res) {
   const offset = parseInt(offsetParam, 10) || 0
   const limit = Math.min(parseInt(limitParam, 10) || 60, 100)
   const sort = ['price_desc', 'views', 'date'].includes(sortParam) ? sortParam : 'date'
-  const priceFilter = ['free', 'lt100', '100-200', '200plus', 'all'].includes(priceFilterParam) ? priceFilterParam : 'all'
+  const priceFilter = ['lt100', '100-200', '200plus', 'all'].includes(priceFilterParam) ? priceFilterParam : 'all'
 
   if (!categorySlug) {
     return res.status(400).json({ error: 'Category slug required' })

@@ -49,7 +49,6 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) 
 
   const pricingRanges = [
     { value: null, label: 'Tous' },
-    { value: 'free', label: 'Gratuit' },
     { value: '<100', label: '< 100€', min: 1, max: 99 },
     { value: '100-200', label: '100-200€', min: 100, max: 200 },
     { value: '200+', label: '200€+', min: 201, max: Infinity }
@@ -83,14 +82,10 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) 
       const matchesCategory = selectedCategory === null || tool.category === selectedCategory
       let matchesPricing = true
       if (selectedPricing !== null) {
-        if (selectedPricing === 'free') {
-          matchesPricing = !tool.isPaid
-        } else {
-          const priceRange = pricingRanges.find(r => r.value === selectedPricing)
-          if (priceRange?.min != null) {
-            const toolPrice = tool.annualPrice || tool.price || 0
-            matchesPricing = tool.isPaid && toolPrice >= priceRange.min && toolPrice <= priceRange.max
-          }
+        const priceRange = pricingRanges.find(r => r.value === selectedPricing)
+        if (priceRange?.min != null) {
+          const toolPrice = tool.annualPrice || tool.price || 0
+          matchesPricing = tool.isPaid && toolPrice >= priceRange.min && toolPrice <= priceRange.max
         }
       }
       return matchesCategory && matchesPricing && matchesSearch(tool)
