@@ -5,8 +5,7 @@ import StructuredData from '../../components/seo/StructuredData'
 import { generatePageSEO } from '../../lib/seo'
 import { siteConfig } from '../../lib/config'
 // Utiliser Blob Storage comme source principale avec fallback vers fichier local
-import { getCaseStudiesFromBlob, getAllSectors, getCaseStudiesBySector } from '../../lib/case-studies-blob'
-import { getAllSectors as getAllSectorsLocal, getCaseStudiesBySector as getCaseStudiesBySectorLocal } from '../../lib/case-studies'
+import { getCaseStudiesFromBlob } from '../../lib/case-studies-blob'
 import { sectorToSlug } from '../../lib/case-studies-helpers'
 import { list } from '@vercel/blob'
 
@@ -416,7 +415,7 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
   )
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   // Charger depuis Blob Storage avec fallback
   let caseStudies = []
   try {
@@ -439,7 +438,6 @@ export async function getStaticProps() {
         todaysCaseStudies: [],
         totalCount: 0,
       },
-      revalidate: 3600
     }
   }
   
@@ -478,28 +476,17 @@ export async function getStaticProps() {
   }))
 
   // Pré-calculer les secteurs avec leurs comptes (triés par ordre décroissant)
-  let sectors = []
-  try {
-    sectors = await getAllSectors()
-  } catch (error) {
-    console.warn('⚠️ Erreur lors de la récupération des secteurs depuis Blob Storage, fallback:', error.message)
-    sectors = getAllSectorsLocal()
+  // Utilise caseStudies déjà chargé (évite N+1 fetches Blob)
+  const sectorCounts = {}
+  for (const cs of caseStudies) {
+    if (cs.sector) {
+      sectorCounts[cs.sector] = (sectorCounts[cs.sector] || 0) + 1
+    }
   }
-  
-  const sectorsWithCounts = await Promise.all(sectors.map(async (sector) => {
-    let studies = []
-    try {
-      studies = await getCaseStudiesBySector(sector)
-    } catch (error) {
-      studies = getCaseStudiesBySectorLocal(sector)
-    }
-    return {
-      sector,
-      count: studies.length
-    }
-  }))
+  const sectorsWithCounts = Object.entries(sectorCounts)
   
   const filteredSectors = sectorsWithCounts
+    .map(([sector, count]) => ({ sector, count }))
     .filter(item => item.count > 0)
     .sort((a, b) => b.count - a.count) // Tri décroissant
 
@@ -509,11 +496,12 @@ export async function getStaticProps() {
     viewsMap[cs.slug] = cs.views || 0
   })
 
-  // Cas d'usage générés aujourd'hui (max 3, payload léger)
+  // Cas d'usage générés aujourd'hui (triés du plus récent au plus ancien, max 10)
   const today = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
   const todaysCaseStudies = caseStudies
     .filter(cs => cs.createdAt && cs.createdAt.startsWith(today))
-    .slice(0, 3)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 10)
     .map(cs => ({
       slug: cs.slug,
       title: cs.title,
@@ -530,7 +518,7 @@ export async function getStaticProps() {
       todaysCaseStudies,
       totalCount: caseStudies.length,
     },
-    revalidate: 3600 // Revalider toutes les heures
+    // Pas de cache : données toujours fraîches (nouveaux cas visibles immédiatement)
   }
 }
 

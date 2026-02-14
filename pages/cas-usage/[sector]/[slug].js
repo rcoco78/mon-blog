@@ -773,6 +773,18 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
             {caseStudy.description}
           </p>
 
+          {/* Accroche conversion - Pain point */}
+          {caseStudy.painPoint && (
+            <div className="mb-8 p-5 rounded-lg border-l-4 border-neutral-900 dark:border-white bg-neutral-50 dark:bg-neutral-900/50">
+              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-2">
+                Vous vous reconnaissez ?
+              </p>
+              <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                {caseStudy.painPoint}
+              </p>
+            </div>
+          )}
+
           {/* Vidéo personnalisée - Visible dès le début */}
           <PersonalVideo 
             title="Un mot de Corentin sur ce cas d'usage"
@@ -1635,18 +1647,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
   )
 }
 
-export async function getStaticPaths() {
-  // Ne pas pré-générer toutes les pages (6577 pages = trop long)
-  // On utilise fallback: 'blocking' pour générer à la demande
-  // Les pages seront générées au premier accès et mises en cache
-  
-  return {
-    paths: [], // Aucune page pré-générée, tout sera généré à la demande
-    fallback: true // Affiche le skeleton pendant la génération
-  }
-}
-
-export async function getStaticProps({ params }) {
+export async function getServerSideProps({ params }) {
   // Vérifier que le secteur correspond au case study
   const sector = slugToSector(params.sector)
   
@@ -1856,6 +1857,5 @@ export async function getStaticProps({ params }) {
       views,
       isPopular
     },
-    revalidate: 3600 // Revalider toutes les heures
   }
 }
