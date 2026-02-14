@@ -1,34 +1,43 @@
 import { useEffect, useState } from 'react'
 
-export default function CaseStudyViewCounter({ slug, views: initialViews = null }) {
+/**
+ * Affiche le nombre de vues d'un cas d'usage (comme ViewCounter pour le blog).
+ * - views (prop) : utilise la valeur fournie (évite l'appel API)
+ * - increment (prop) : si true, incrémente à chaque affichage + affiche (page détail)
+ * - sector (prop) : passé avec increment=true pour l'API
+ */
+export default function CaseStudyViewCounter({ slug, sector, views: initialViews = null, increment = false }) {
   const [views, setViews] = useState(initialViews)
   const [loading, setLoading] = useState(initialViews === null)
 
   useEffect(() => {
-    // Si views est fourni en prop, on l'utilise directement (pas d'appel API)
-    if (initialViews !== null) {
+    if (initialViews !== null && !increment) {
       setViews(initialViews)
       setLoading(false)
       return
     }
 
-    // Sinon, on fait l'appel API pour récupérer les vues
     const fetchViews = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/case-studies-views/${slug}`)
+        let url = `/api/case-studies-views/${encodeURIComponent(slug)}`
+        if (increment) {
+          url += '?increment=true'
+          if (sector) url += `&sector=${encodeURIComponent(sector)}`
+        }
+        const response = await fetch(url)
         const data = await response.json()
-        setViews(data.views || 0)
+        setViews(data.views ?? 0)
       } catch (error) {
-        console.error('Erreur lors de la récupération des vues:', error)
+        console.error('Erreur récupération vues:', error)
         setViews(0)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchViews()
-  }, [slug, initialViews])
+    if (slug) fetchViews()
+  }, [slug, sector, initialViews, increment])
 
   if (loading) {
     return (

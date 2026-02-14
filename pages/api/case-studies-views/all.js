@@ -37,20 +37,25 @@ export default async function handler(req, res) {
   }
 
   try {
+    const events = await getViewEvents()
+
+    // Si slugs manquant ou "*" : retourner la map complète (comme le blog)
     const { slugs } = req.query
-    if (!slugs) {
-      return res.status(400).json({ message: 'Slugs parameter is required' })
+    if (!slugs || slugs === '*') {
+      const viewsMap = {}
+      events.forEach((event) => {
+        if (event.slug) {
+          viewsMap[event.slug] = (viewsMap[event.slug] || 0) + 1
+        }
+      })
+      return res.status(200).json(viewsMap)
     }
 
-    // Récupérer tous les événements
-    const events = await getViewEvents()
-    
-    // Calculer les vues pour chaque slug
+    // Sinon : filtrer par slugs demandés
     const slugArray = slugs.split(',')
     const viewsMap = {}
-    
-    slugArray.forEach(slug => {
-      viewsMap[slug] = events.filter(event => event.slug === slug).length
+    slugArray.forEach((slug) => {
+      viewsMap[slug] = events.filter((event) => event.slug === slug).length
     })
 
     res.status(200).json(viewsMap)
