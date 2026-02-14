@@ -38,6 +38,18 @@ async function getViewEvents() {
 
 const INITIAL_BATCH = 60
 const ITEMS_PER_PAGE = 20
+const PRICE_FILTERS = [
+  { value: null, label: 'Tous' },
+  { value: 'free', label: 'Gratuit' },
+  { value: 'lt100', label: '< 100€' },
+  { value: '100-200', label: '100-200€' },
+  { value: '200plus', label: '200€+' },
+]
+const SORT_OPTIONS = [
+  { value: 'date', label: 'Plus récents' },
+  { value: 'price_desc', label: 'Prix décroissant' },
+  { value: 'views', label: 'Plus consultés' },
+]
 
 export default function CategoryMarketplace({ category, categoryDatabases, totalCount = 0, topDatabases: initialTopDatabases = [] }) {
   const [topDatabases] = useState(initialTopDatabases || [])
@@ -48,57 +60,65 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState(null)
   const [searchLoading, setSearchLoading] = useState(false)
+  const [priceFilter, setPriceFilter] = useState(null)
+  const [sortBy, setSortBy] = useState('date')
+  const [filteredTotal, setFilteredTotal] = useState(totalCount)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Vérification de sécurité
   const safeTopDatabases = Array.isArray(topDatabases) ? topDatabases : []
   const topSlugs = new Set(safeTopDatabases.map(db => db.slug))
 
-  const baseList = searchQuery ? (searchResults || []) : categoryDatabasesList
+  const hasActiveFilters = searchQuery.trim() || priceFilter || sortBy !== 'date'
+  const baseList = hasActiveFilters ? (searchResults || []) : categoryDatabasesList
   const regularDatabases = Array.isArray(baseList) ? baseList.filter(db => !topSlugs.has(db.slug)) : []
-  const sortedDatabases = [...regularDatabases].sort((a, b) => {
-    const dateA = a.lastEnriched ? new Date(a.lastEnriched) : (a.date ? new Date(a.date) : new Date(0))
-    const dateB = b.lastEnriched ? new Date(b.lastEnriched) : (b.date ? new Date(b.date) : new Date(0))
-    return dateB - dateA
-  })
-
+  const sortedDatabases = regularDatabases
   const displayedDatabases = sortedDatabases.slice(0, displayedCount)
   const hasMore = displayedCount < sortedDatabases.length
-  const canLoadMore = !searchQuery && categoryDatabasesList.length < totalCount
+  const canLoadMore = !hasActiveFilters && categoryDatabasesList.length < totalCount
   const categorySlug = categoryToSlug(category)
 
-  // Recherche : fetch API avec debounce
+  // Fetch API quand recherche, filtre prix ou tri change
   useEffect(() => {
-    if (!searchQuery.trim() || !mounted) {
+    if (!mounted) return
+    if (!hasActiveFilters) {
       setSearchResults(null)
+      setFilteredTotal(totalCount)
+      setDisplayedCount(ITEMS_PER_PAGE)
       return
     }
     const timer = setTimeout(async () => {
       setSearchLoading(true)
       try {
-        const res = await fetch(`/api/marketplace/category/${categorySlug}?search=${encodeURIComponent(searchQuery)}&limit=200`)
+        const params = new URLSearchParams()
+        params.set('limit', '200')
+        if (searchQuery.trim()) params.set('search', searchQuery.trim())
+        if (priceFilter) params.set('price', priceFilter)
+        if (sortBy !== 'date') params.set('sort', sortBy)
+        const res = await fetch(`/api/marketplace/category/${categorySlug}?${params}`)
         const data = await res.json()
         setSearchResults(data.items || [])
+        setFilteredTotal(data.total || 0)
         setDisplayedCount(ITEMS_PER_PAGE)
       } catch (err) {
         setSearchResults([])
+        setFilteredTotal(0)
       } finally {
         setSearchLoading(false)
       }
-    }, 300)
+    }, searchQuery.trim() ? 300 : 0)
     return () => clearTimeout(timer)
-  }, [searchQuery, mounted, categorySlug])
+  }, [searchQuery, priceFilter, sortBy, mounted, categorySlug, totalCount])
 
   useEffect(() => {
     setDisplayedCount(ITEMS_PER_PAGE)
-  }, [searchQuery])
+  }, [searchQuery, priceFilter, sortBy])
 
   // Charger plus : scroll (données locales) ou fetch API
   useEffect(() => {
-    if (searchQuery || !mounted) return
+    if (hasActiveFilters || !mounted) return
 
     const observer = new IntersectionObserver(
       async (entries) => {
@@ -131,9 +151,9 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
     const sentinel = document.getElementById('load-more-sentinel')
     if (sentinel) observer.observe(sentinel)
     return () => sentinel && observer.unobserve(sentinel)
-  }, [hasMore, canLoadMore, searchQuery, mounted, isLoading, displayedCount, sortedDatabases.length, categoryDatabasesList.length, totalCount, categorySlug])
+  }, [hasMore, canLoadMore, hasActiveFilters, mounted, isLoading, displayedCount, sortedDatabases.length, categoryDatabasesList.length, totalCount, categorySlug])
 
-  const effectiveTotal = searchQuery ? sortedDatabases.length : totalCount
+  const effectiveTotal = hasActiveFilters ? filteredTotal : totalCount
 
   const pageSEO = generatePageSEO({
     title: `Bases de données ${category} | Marketplace`,
@@ -182,7 +202,7 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
         </section>
 
         {/* Barre de recherche */}
-        <section className="mb-8">
+        <section className="mb-6">
           <label htmlFor="marketplace-search" className="sr-only">
             Rechercher une base de données
           </label>
@@ -202,6 +222,41 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
               Réinitialiser la recherche
             </button>
           )}
+        </section>
+
+        {/* Filtres Prix + Tri */}
+        <section className="mb-8 space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">Prix</label>
+            <div className="flex flex-wrap gap-2">
+              {PRICE_FILTERS.map(({ value, label }) => (
+                <button
+                  key={value ?? 'all'}
+                  onClick={() => setPriceFilter(value)}
+                  className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
+                    priceFilter === value
+                      ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
+                      : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label htmlFor="sort-select" className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">Trier par</label>
+            <select
+              id="sort-select"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-3 py-1.5 text-xs rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white"
+            >
+              {SORT_OPTIONS.map(({ value, label }) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
         </section>
 
         {/* Top 3 Databases - Les plus consultées */}
@@ -296,6 +351,8 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex-1 min-w-0 flex items-center gap-2">
                         <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                          {(db.views ?? 0)} {(db.views ?? 0) <= 1 ? 'vue' : 'vues'}
+                          <span className="mx-1.5">•</span>
                           {db.isPaid ? `À partir de ${db.price || 0}€` : 'Gratuit'}
                         </span>
                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
@@ -337,18 +394,25 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
             
             {(hasMore || canLoadMore) && (
               <div className="mt-6 text-center text-sm text-neutral-500 dark:text-neutral-500">
-                {displayedCount} sur {searchQuery ? sortedDatabases.length : totalCount} bases affichées
+                {displayedCount} sur {effectiveTotal} bases affichées
               </div>
             )}
           </section>
-        ) : searchQuery ? (
+        ) : hasActiveFilters ? (
           <section className="mb-16">
             <div className="text-center py-12">
               <p className="text-neutral-600 dark:text-neutral-400 mb-4">
-                Aucune base trouvée pour &quot;{searchQuery}&quot;
+                Aucun résultat pour ces filtres.
               </p>
-              <button onClick={() => setSearchQuery('')} className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors underline">
-                Réinitialiser la recherche
+              <button
+                onClick={() => {
+                  setSearchQuery('')
+                  setPriceFilter(null)
+                  setSortBy('date')
+                }}
+                className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors underline"
+              >
+                Réinitialiser les filtres
               </button>
             </div>
           </section>
@@ -423,7 +487,34 @@ export async function getStaticProps({ params }) {
 
   const totalCount = categoryDatabasesWithLinks.length
   const MAX_DESC_LEN = 120
-  const initialBatch = categoryDatabasesWithLinks.slice(0, INITIAL_BATCH).map(db => ({
+
+  // Calculer les top 3 bases de données les plus consultées de cette catégorie
+  let topDatabases = []
+  let databasesWithViews = categoryDatabasesWithLinks.map(db => ({ ...db, views: 0 }))
+  try {
+    const events = await getViewEvents()
+    const viewsMap = {}
+    events.forEach(event => {
+      if (event.slug && event.category === category) {
+        const key = `${event.category}/${event.slug}`
+        viewsMap[key] = (viewsMap[key] || 0) + 1
+      }
+    })
+    databasesWithViews = categoryDatabasesWithLinks.map(db => ({
+      ...db,
+      views: viewsMap[`${category}/${db.slug}`] || 0
+    }))
+    const sorted = [...databasesWithViews].sort((a, b) => {
+      if (b.views !== a.views) return b.views - a.views
+      return (a.name || '').localeCompare(b.name || '')
+    })
+    topDatabases = sorted.slice(0, 3).map(db => ({ ...db, link: db.link || null }))
+  } catch (error) {
+    console.error('Erreur lors du calcul des top databases:', error)
+    topDatabases = categoryDatabasesWithLinks.slice(0, 3).map(db => ({ ...db, views: 0, link: db.link || null }))
+  }
+
+  const initialBatch = databasesWithViews.slice(0, INITIAL_BATCH).map(db => ({
     slug: db.slug,
     name: db.name,
     description: (db.description || '').slice(0, MAX_DESC_LEN) + (db.description?.length > MAX_DESC_LEN ? '…' : ''),
@@ -433,54 +524,8 @@ export async function getStaticProps({ params }) {
     price: db.price,
     lastEnriched: db.lastEnriched || null,
     date: db.date || null,
+    views: db.views || 0,
   }))
-
-  // Calculer les top 3 bases de données les plus consultées de cette catégorie
-  let topDatabases = []
-  let viewsMap = {}
-  try {
-    const events = await getViewEvents()
-    
-    // Calculer les vues pour toutes les bases (format: category/slug)
-    events.forEach(event => {
-      if (event.slug && event.category === category) {
-        const key = `${event.category}/${event.slug}`
-        viewsMap[key] = (viewsMap[key] || 0) + 1
-      }
-    })
-    
-    // Ajouter les vues aux bases de données et trier
-    const databasesWithViews = categoryDatabasesWithLinks.map(db => {
-      const viewKey = `${category}/${db.slug}`
-      return {
-        ...db,
-        views: viewsMap[viewKey] || 0
-      }
-    })
-    
-    // Trier par nombre de vues (ordre décroissant) et prendre les top 3
-    const sorted = databasesWithViews
-      .sort((a, b) => {
-        if (b.views !== a.views) {
-          return b.views - a.views
-        }
-        return (a.name || '').localeCompare(b.name || '')
-      })
-      .slice(0, 3)
-
-    topDatabases = sorted.map(db => ({
-      ...db,
-      link: db.link || null // S'assurer que link n'est jamais undefined
-    }))
-  } catch (error) {
-    console.error('Erreur lors du calcul des top databases:', error)
-    // Fallback : les 3 premiers sans vues
-    topDatabases = categoryDatabasesWithLinks.slice(0, 3).map(db => ({ 
-      ...db, 
-      views: 0,
-      link: db.link || null // S'assurer que link n'est jamais undefined
-    }))
-  }
 
   return {
     props: {

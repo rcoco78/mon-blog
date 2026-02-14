@@ -11,7 +11,8 @@ import { tools } from '../lib/tools'
 
 export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
-  const [selectedPricing, setSelectedPricing] = useState(null) // '<100' | '100-200' | '200+' | null
+  const [selectedPricing, setSelectedPricing] = useState(null) // '<100' | '100-200' | '200+' | 'free' | null
+  const [sortBy, setSortBy] = useState('date') // 'date' | 'price_desc' | 'views'
   const [activeTab, setActiveTab] = useState('databases') // 'databases' | 'tools'
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
@@ -47,6 +48,8 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) 
   }
 
   const pricingRanges = [
+    { value: null, label: 'Tous' },
+    { value: 'free', label: 'Gratuit' },
     { value: '<100', label: '< 100€', min: 1, max: 99 },
     { value: '100-200', label: '100-200€', min: 100, max: 200 },
     { value: '200+', label: '200€+', min: 201, max: Infinity }
@@ -78,31 +81,36 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) 
   const filteredTools = allTools
     .filter(tool => {
       const matchesCategory = selectedCategory === null || tool.category === selectedCategory
-      
       let matchesPricing = true
       if (selectedPricing !== null) {
-        const priceRange = pricingRanges.find(r => r.value === selectedPricing)
-        if (priceRange) {
-          const toolPrice = tool.annualPrice || tool.price || 0
-          matchesPricing = tool.isPaid && toolPrice >= priceRange.min && toolPrice <= priceRange.max
+        if (selectedPricing === 'free') {
+          matchesPricing = !tool.isPaid
+        } else {
+          const priceRange = pricingRanges.find(r => r.value === selectedPricing)
+          if (priceRange?.min != null) {
+            const toolPrice = tool.annualPrice || tool.price || 0
+            matchesPricing = tool.isPaid && toolPrice >= priceRange.min && toolPrice <= priceRange.max
+          }
         }
       }
-      
       return matchesCategory && matchesPricing && matchesSearch(tool)
     })
     .sort((a, b) => {
-      // Trier par date : du plus récent au plus ancien (nouveaux arrivants en premier)
-      // Utiliser lastEnriched si disponible (format ISO complet), sinon date
-      const getDate = (tool) => {
-        if (tool.lastEnriched) {
-          // lastEnriched est au format ISO (ex: "2026-01-06T14:11:05.265Z")
-          return new Date(tool.lastEnriched)
-        }
-        return tool.date ? new Date(tool.date) : new Date(0) // Si pas de date, mettre en fin
+      if (sortBy === 'price_desc') {
+        const pa = a.isPaid ? (a.annualPrice || a.price || 0) : 0
+        const pb = b.isPaid ? (b.annualPrice || b.price || 0) : 0
+        return pb - pa
       }
-      const dateA = getDate(a)
-      const dateB = getDate(b)
-      return dateB - dateA // Ordre décroissant (plus récent en premier)
+      if (sortBy === 'views') {
+        const va = a.views || 0
+        const vb = b.views || 0
+        if (vb !== va) return vb - va
+      }
+      const getDate = (tool) => {
+        if (tool.lastEnriched) return new Date(tool.lastEnriched)
+        return tool.date ? new Date(tool.date) : new Date(0)
+      }
+      return getDate(b) - getDate(a)
     })
 
   // Filtrer les outils Apify par recherche
@@ -116,7 +124,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) 
 
   useEffect(() => {
     setDisplayedCount(ITEMS_PER_PAGE)
-  }, [selectedCategory, selectedPricing, searchQuery, activeTab])
+  }, [selectedCategory, selectedPricing, searchQuery, sortBy, activeTab])
 
   const openCalendly = () => {
     // Charger Calendly seulement au premier clic (lazy load)
@@ -349,19 +357,9 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) 
                 Prix
               </label>
               <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => setSelectedPricing(null)}
-                  className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
-                    selectedPricing === null
-                      ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
-                      : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
-                  }`}
-                >
-                  Tous
-                </button>
                 {pricingRanges.map((range) => (
                   <button
-                    key={range.value}
+                    key={range.value ?? 'all'}
                     onClick={() => setSelectedPricing(range.value)}
                     className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
                       selectedPricing === range.value
@@ -386,6 +384,23 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) 
                 onTagSelect={setSelectedCategory}
               />
             </div>
+
+            {/* Tri */}
+            <div>
+              <label htmlFor="marketplace-sort" className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                Trier par
+              </label>
+              <select
+                id="marketplace-sort"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-3 py-1.5 text-xs rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600"
+              >
+                <option value="date">Plus récents</option>
+                <option value="price_desc">Prix décroissant</option>
+                <option value="views">Plus consultés</option>
+              </select>
+            </div>
           </div>
           )}
         </section>
@@ -402,6 +417,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) 
                   setSelectedCategory(null)
                   setSelectedPricing(null)
                   setSearchQuery('')
+                  setSortBy('date')
                 }}
                 className="text-sm text-neutral-900 dark:text-neutral-100 underline hover:no-underline"
               >
@@ -766,8 +782,25 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) 
   )
 }
 
+async function getMarketplaceViewEvents() {
+  try {
+    const { list } = await import('@vercel/blob')
+    const blobs = await list({ prefix: 'marketplace-views-events.json' })
+    const blob = blobs.blobs.find((b) => b.pathname === 'marketplace-views-events.json')
+    if (blob) {
+      const res = await fetch(blob.url, { cache: 'no-store' })
+      if (res.ok) {
+        const data = await res.json()
+        return Array.isArray(data) ? data : []
+      }
+    }
+    return []
+  } catch {
+    return []
+  }
+}
+
 // Charger les bases de données dynamiques côté serveur
-// Utiliser getServerSideProps pour charger les données à chaque requête depuis Blob Storage
 export async function getServerSideProps() {
   const { getDatabasesAsTools } = await import('../lib/marketplace-databases')
   const { getEnrichedActorsAsTools } = await import('../lib/apify-actors-enriched')
@@ -776,8 +809,19 @@ export async function getServerSideProps() {
   
   try {
     dynamicDatabases = await getDatabasesAsTools()
-    
-    // Récupérer les outils Apify enrichis depuis Blob Storage
+    const events = await getMarketplaceViewEvents()
+    const viewsMap = {}
+    events.forEach((e) => {
+      if (e.slug && e.category) {
+        const k = `${e.category}/${e.slug}`
+        viewsMap[k] = (viewsMap[k] || 0) + 1
+      }
+    })
+    dynamicDatabases = dynamicDatabases.map((db) => ({
+      ...db,
+      views: viewsMap[`${db.category}/${db.slug}`] || 0,
+    }))
+
     try {
       apifyTools = await getEnrichedActorsAsTools()
       if (process.env.NODE_ENV === 'development') {
@@ -787,10 +831,8 @@ export async function getServerSideProps() {
       console.error('❌ Erreur chargement outils Apify:', error.message)
       apifyTools = []
     }
-    
   } catch (error) {
     console.error('❌ Erreur chargement bases de données:', error.message)
-    // Continuer avec un tableau vide en cas d'erreur
   }
   
   return {
