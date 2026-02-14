@@ -775,8 +775,101 @@ export default function Home({ posts, dynamicDatabases = [] }) {
           </div>
         </div>
       </section>
-      <section className="mt-4" aria-label="Projets">
-        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Projets</h2>
+
+      {/* Séparateur visuel — zone Présentation */}
+      <hr className="my-12 border-t border-neutral-200 dark:border-neutral-800" role="presentation" />
+
+      {/* Carousel de témoignages — triés par date (dernier avis en premier) */}
+      {(() => {
+        const homeTestimonials = [...testimonials]
+          .sort((a, b) => new Date(b.datePublished) - new Date(a.datePublished))
+          .slice(0, 5)
+        const getSourceBadgeClass = (source) => {
+          if (source === 'LinkedIn') return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+          if (source === 'Fiverr') return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+          if (source === 'Malt') return 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+          return 'bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300'
+        }
+        return (
+      <section className="relative" aria-label="Témoignages clients">
+        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Témoignages</h2>
+        <div className="relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-live="polite" aria-atomic="true">
+          <div 
+            ref={testimonialScrollRef}
+            className="flex overflow-x-auto scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          >
+            {homeTestimonials.map((t, i) => (
+              <div key={i} className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
+                <div className="mb-3">
+                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">{t.tags}</p>
+                </div>
+                <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
+                  &quot;{t.reviewBody}&quot;
+                </p>
+                <div className="flex items-center justify-between mt-auto">
+                  <div>
+                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">{t.authorName}</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">{t.authorJob}</p>
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getSourceBadgeClass(t.source)}`}>{t.source}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Indicateurs de navigation */}
+        <div className="flex justify-center gap-2 mt-4">
+          {homeTestimonials.map((_, index) => {
+            const isActive = isMobile ? currentTestimonialScrollIndex === index : testimonialIndex === index
+            return (
+            <button
+              key={index}
+                onClick={() => {
+                  if (testimonialScrollRef.current) {
+                    const container = testimonialScrollRef.current
+                    const containerWidth = container.clientWidth
+
+                    const itemWidth = containerWidth
+                    const scrollPosition = index * itemWidth
+                    container.scrollTo({ left: scrollPosition, behavior: 'smooth' })
+
+                    if (!isMobile) {
+                      setTestimonialIndex(index)
+                    }
+                  }
+                }}
+              className={`h-1.5 rounded-full transition-all ${
+                  isActive
+                  ? 'w-6 bg-neutral-900 dark:bg-neutral-100'
+                  : 'w-1.5 bg-neutral-300 dark:bg-neutral-700'
+              }`}
+              aria-label={`Aller au témoignage ${index + 1}`}
+            />
+            )
+          })}
+        </div>
+
+        <div className="mt-4 text-center">
+          <Link
+            href="/temoignages"
+            className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
+          >
+            Voir tous les témoignages
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+            </svg>
+          </Link>
+        </div>
+      </section>
+        )
+      })()}
+
+      {/* Séparateur visuel — zone Projets / Contenu */}
+      <hr className="my-12 border-t border-neutral-200 dark:border-neutral-800" role="presentation" />
+
+      <section className="" aria-label="Projets en cours">
+        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Projets en cours</h2>
         <div className="flex flex-col space-y-4">
           {siteConfig.projects.filter(project => {
             // Filtrer uniquement les projets (exclure les partenaires)
@@ -916,100 +1009,12 @@ export default function Home({ posts, dynamicDatabases = [] }) {
           </Link>
         </div>
       </section>
-      
-      {/* Carousel de témoignages — triés par date (dernier avis en premier) */}
-      {(() => {
-        const homeTestimonials = [...testimonials]
-          .sort((a, b) => new Date(b.datePublished) - new Date(a.datePublished))
-          .slice(0, 5)
-        const getSourceBadgeClass = (source) => {
-          if (source === 'LinkedIn') return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-          if (source === 'Fiverr') return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-          if (source === 'Malt') return 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
-          return 'bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300'
-        }
-        return (
-      <section className="mt-12 mb-8 relative" aria-label="Témoignages clients">
-        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Témoignages</h2>
-        <div className="relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-live="polite" aria-atomic="true">
-          <div 
-            ref={testimonialScrollRef}
-            className="flex overflow-x-auto scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-          >
-            {homeTestimonials.map((t, i) => (
-              <div key={i} className="min-w-full sm:w-full sm:flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start">
-                <div className="mb-3">
-                  <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 mb-1">{t.tags}</p>
-                </div>
-                <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
-                  &quot;{t.reviewBody}&quot;
-                </p>
-                <div className="flex items-center justify-between mt-auto">
-                  <div>
-                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">{t.authorName}</p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500">{t.authorJob}</p>
-                  </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getSourceBadgeClass(t.source)}`}>{t.source}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        {/* Indicateurs de navigation */}
-        <div className="flex justify-center gap-2 mt-4">
-          {homeTestimonials.map((_, index) => {
-            const isActive = isMobile ? currentTestimonialScrollIndex === index : testimonialIndex === index
-            return (
-            <button
-              key={index}
-                onClick={() => {
-                  if (testimonialScrollRef.current) {
-                    const container = testimonialScrollRef.current
-                    const containerWidth = container.clientWidth
-                    
-                    // Chaque élément fait 100% de la largeur (mobile et desktop)
-                    const itemWidth = containerWidth
-                    const scrollPosition = index * itemWidth
-                    container.scrollTo({ left: scrollPosition, behavior: 'smooth' })
-                    
-                    if (!isMobile) {
-                      setTestimonialIndex(index)
-                    }
-                  }
-                }}
-              className={`h-1.5 rounded-full transition-all ${
-                  isActive
-                  ? 'w-6 bg-neutral-900 dark:bg-neutral-100'
-                  : 'w-1.5 bg-neutral-300 dark:bg-neutral-700'
-              }`}
-              aria-label={`Aller au témoignage ${index + 1}`}
-            />
-            )
-          })}
-        </div>
-        
-        {/* Lien vers la page complète */}
-        <div className="mt-4 text-center">
-          <Link
-            href="/temoignages"
-            className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
-          >
-            Voir tous les témoignages
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-            </svg>
-          </Link>
-        </div>
-      </section>
-        )
-      })()}
-      
+
       {/* Section Marketplace */}
       <section className="mt-12" aria-label="Marketplace">
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Marketplace</h2>
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Ressources gratuites que j'ai développées et que je mets à disposition — générateurs, extracteurs, templates et bases de données pour vous aider dans votre quotidien.
+          Bases de données que j'ai développées et mets à disposition — listings, extracteurs et templates pour vous aider dans votre quotidien.
         </p>
         <div className="flex flex-col space-y-4">
           {(() => {
@@ -1092,9 +1097,9 @@ export default function Home({ posts, dynamicDatabases = [] }) {
       </section>
 
       
-      {/* Section Articles récents */}
-      <section className="mt-12" aria-label="Articles récents">
-        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Articles récents</h2>
+      {/* Section Articles les plus consultés */}
+      <section className="mt-12" aria-label="Articles les plus consultés">
+        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Articles les plus consultés</h2>
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
           Réflexions sur le scraping, l'automatisation, l'entrepreneuriat, le freelance et le voyage.
         </p>
