@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import SEOHead from '../../../components/seo/SEOHead'
 import { generatePageSEO } from '../../../lib/seo'
 import { getDatabasesByCategory, getDatabasesAsTools } from '../../../lib/marketplace-databases'
@@ -36,29 +36,108 @@ async function getViewEvents() {
   }
 }
 
-export default function CategoryMarketplace({ category, categoryDatabases, topDatabases: initialTopDatabases = [] }) {
+const INITIAL_BATCH = 60
+const ITEMS_PER_PAGE = 20
+
+export default function CategoryMarketplace({ category, categoryDatabases, totalCount = 0, topDatabases: initialTopDatabases = [] }) {
   const [topDatabases] = useState(initialTopDatabases || [])
+  const [categoryDatabasesList, setCategoryDatabasesList] = useState(categoryDatabases || [])
+  const [mounted, setMounted] = useState(false)
+  const [displayedCount, setDisplayedCount] = useState(ITEMS_PER_PAGE)
+  const [isLoading, setIsLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState(null)
+  const [searchLoading, setSearchLoading] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Vérification de sécurité
-  const safeCategoryDatabases = Array.isArray(categoryDatabases) ? categoryDatabases : []
   const safeTopDatabases = Array.isArray(topDatabases) ? topDatabases : []
-
-  // Exclure les top databases de la liste principale pour éviter les doublons
   const topSlugs = new Set(safeTopDatabases.map(db => db.slug))
-  const regularDatabases = safeCategoryDatabases.filter(db => !topSlugs.has(db.slug))
 
-  // Trier par date (plus récent en premier)
-  const sortedDatabases = regularDatabases.sort((a, b) => {
+  const baseList = searchQuery ? (searchResults || []) : categoryDatabasesList
+  const regularDatabases = Array.isArray(baseList) ? baseList.filter(db => !topSlugs.has(db.slug)) : []
+  const sortedDatabases = [...regularDatabases].sort((a, b) => {
     const dateA = a.lastEnriched ? new Date(a.lastEnriched) : (a.date ? new Date(a.date) : new Date(0))
     const dateB = b.lastEnriched ? new Date(b.lastEnriched) : (b.date ? new Date(b.date) : new Date(0))
     return dateB - dateA
   })
 
+  const displayedDatabases = sortedDatabases.slice(0, displayedCount)
+  const hasMore = displayedCount < sortedDatabases.length
+  const canLoadMore = !searchQuery && categoryDatabasesList.length < totalCount
   const categorySlug = categoryToSlug(category)
+
+  // Recherche : fetch API avec debounce
+  useEffect(() => {
+    if (!searchQuery.trim() || !mounted) {
+      setSearchResults(null)
+      return
+    }
+    const timer = setTimeout(async () => {
+      setSearchLoading(true)
+      try {
+        const res = await fetch(`/api/marketplace/category/${categorySlug}?search=${encodeURIComponent(searchQuery)}&limit=200`)
+        const data = await res.json()
+        setSearchResults(data.items || [])
+        setDisplayedCount(ITEMS_PER_PAGE)
+      } catch (err) {
+        setSearchResults([])
+      } finally {
+        setSearchLoading(false)
+      }
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchQuery, mounted, categorySlug])
+
+  useEffect(() => {
+    setDisplayedCount(ITEMS_PER_PAGE)
+  }, [searchQuery])
+
+  // Charger plus : scroll (données locales) ou fetch API
+  useEffect(() => {
+    if (searchQuery || !mounted) return
+
+    const observer = new IntersectionObserver(
+      async (entries) => {
+        if (!entries[0].isIntersecting || isLoading) return
+        if (displayedCount < sortedDatabases.length) {
+          setIsLoading(true)
+          setTimeout(() => {
+            setDisplayedCount(prev => Math.min(prev + ITEMS_PER_PAGE, sortedDatabases.length))
+            setIsLoading(false)
+          }, 300)
+        } else if (canLoadMore && categoryDatabasesList.length < totalCount) {
+          setIsLoading(true)
+          try {
+            const res = await fetch(`/api/marketplace/category/${categorySlug}?offset=${categoryDatabasesList.length}&limit=60`)
+            const data = await res.json()
+            if (data.items?.length) {
+              setCategoryDatabasesList(prev => [...prev, ...data.items])
+              setDisplayedCount(prev => prev + data.items.length)
+            }
+          } catch (err) {
+            console.error('Erreur chargement databases:', err)
+          } finally {
+            setIsLoading(false)
+          }
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    const sentinel = document.getElementById('load-more-sentinel')
+    if (sentinel) observer.observe(sentinel)
+    return () => sentinel && observer.unobserve(sentinel)
+  }, [hasMore, canLoadMore, searchQuery, mounted, isLoading, displayedCount, sortedDatabases.length, categoryDatabasesList.length, totalCount, categorySlug])
+
+  const effectiveTotal = searchQuery ? sortedDatabases.length : totalCount
 
   const pageSEO = generatePageSEO({
     title: `Bases de données ${category} | Marketplace`,
-    description: `Découvrez toutes les bases de données ${category.toLowerCase()} disponibles. ${safeCategoryDatabases.length} bases de données prêtes à l'emploi pour votre prospection et votre analyse.`,
+    description: `Découvrez toutes les bases de données ${category.toLowerCase()} disponibles. ${effectiveTotal} bases de données prêtes à l'emploi pour votre prospection et votre analyse.`,
     path: `/marketplace/${categorySlug}`,
     keywords: [`bases de données ${category.toLowerCase()}`, `marketplace ${category.toLowerCase()}`, 'prospection', 'données B2B']
   })
@@ -98,8 +177,31 @@ export default function CategoryMarketplace({ category, categoryDatabases, topDa
             Bases de données {category}
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
-            <strong className="text-neutral-900 dark:text-neutral-100">{safeCategoryDatabases.length} bases de données</strong> disponibles pour le secteur <strong className="text-neutral-900 dark:text-neutral-100">{category.toLowerCase()}</strong>.
+            <strong className="text-neutral-900 dark:text-neutral-100">{effectiveTotal} bases de données</strong> disponibles pour le secteur <strong className="text-neutral-900 dark:text-neutral-100">{category.toLowerCase()}</strong>.
           </p>
+        </section>
+
+        {/* Barre de recherche */}
+        <section className="mb-8">
+          <label htmlFor="marketplace-search" className="sr-only">
+            Rechercher une base de données
+          </label>
+          <input
+            id="marketplace-search"
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={`Rechercher parmi ${effectiveTotal} bases ${category.toLowerCase()}...`}
+            className="w-full px-4 py-2.5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-transparent"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="mt-3 text-xs text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors underline"
+            >
+              Réinitialiser la recherche
+            </button>
+          )}
         </section>
 
         {/* Top 3 Databases - Les plus consultées */}
@@ -160,13 +262,17 @@ export default function CategoryMarketplace({ category, categoryDatabases, topDa
         )}
 
         {/* Liste des bases de données */}
-        {sortedDatabases.length > 0 && (
+        {searchLoading ? (
+          <section className="mb-16">
+            <p className="text-neutral-600 dark:text-neutral-400 animate-pulse">Recherche en cours...</p>
+          </section>
+        ) : displayedDatabases.length > 0 ? (
           <section className="mb-16">
             <h2 className="font-semibold text-xl mb-6 tracking-tighter">
-              Toutes les bases de données {category}
+              {searchQuery ? `Résultats (${sortedDatabases.length})` : `Toutes les bases de données ${category}`}
             </h2>
             <div className="space-y-4">
-              {sortedDatabases.map((db) => (
+              {displayedDatabases.map((db) => (
                 <Link
                   key={db.slug}
                   href={db.link || `/marketplace/${categorySlug}/${db.slug}`}
@@ -211,11 +317,42 @@ export default function CategoryMarketplace({ category, categoryDatabases, topDa
                 </Link>
               ))}
             </div>
+            
+            {/* Sentinel pour lazy loading */}
+            {(hasMore || canLoadMore) && (
+              <div id="load-more-sentinel" className="py-8">
+                {isLoading && (
+                  <div className="space-y-4">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 animate-pulse">
+                        <div className="h-6 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded mb-2"></div>
+                        <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded mb-3"></div>
+                        <div className="h-4 w-32 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {(hasMore || canLoadMore) && (
+              <div className="mt-6 text-center text-sm text-neutral-500 dark:text-neutral-500">
+                {displayedCount} sur {searchQuery ? sortedDatabases.length : totalCount} bases affichées
+              </div>
+            )}
           </section>
-        )}
-
-        {/* Message si aucune base de données */}
-        {sortedDatabases.length === 0 && (
+        ) : searchQuery ? (
+          <section className="mb-16">
+            <div className="text-center py-12">
+              <p className="text-neutral-600 dark:text-neutral-400 mb-4">
+                Aucune base trouvée pour &quot;{searchQuery}&quot;
+              </p>
+              <button onClick={() => setSearchQuery('')} className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors underline">
+                Réinitialiser la recherche
+              </button>
+            </div>
+          </section>
+        ) : (
           <section className="mb-16">
             <div className="text-center py-12">
               <p className="text-neutral-600 dark:text-neutral-400">
@@ -275,14 +412,28 @@ export async function getStaticProps({ params }) {
   
   const categoryDatabasesWithLinks = categoryDatabases.map(db => {
     const tool = databasesAsTools.find(t => t.slug === db.slug)
-    // S'assurer que link est toujours défini (string ou null, jamais undefined)
     const link = tool?.link || (db.slug ? `/marketplace/${categorySlug}/${db.slug}` : null)
+    const desc = tool?.description || db.description || db.shortDescription || ''
     return {
       ...db,
-      link: link || null, // Forcer null au lieu de undefined pour la sérialisation JSON
-      description: tool?.description || db.description || db.shortDescription || ''
+      link: link || null,
+      description: desc,
     }
   })
+
+  const totalCount = categoryDatabasesWithLinks.length
+  const MAX_DESC_LEN = 120
+  const initialBatch = categoryDatabasesWithLinks.slice(0, INITIAL_BATCH).map(db => ({
+    slug: db.slug,
+    name: db.name,
+    description: (db.description || '').slice(0, MAX_DESC_LEN) + (db.description?.length > MAX_DESC_LEN ? '…' : ''),
+    category: db.category,
+    link: db.link,
+    isPaid: db.isPaid,
+    price: db.price,
+    lastEnriched: db.lastEnriched || null,
+    date: db.date || null,
+  }))
 
   // Calculer les top 3 bases de données les plus consultées de cette catégorie
   let topDatabases = []
@@ -334,13 +485,11 @@ export async function getStaticProps({ params }) {
   return {
     props: {
       category,
-      categoryDatabases: categoryDatabasesWithLinks.map(db => ({
-        ...db,
-        link: db.link || null // S'assurer que link n'est jamais undefined dans les props
-      })),
+      categoryDatabases: initialBatch,
+      totalCount,
       topDatabases: topDatabases.map(db => ({
         ...db,
-        link: db.link || null // S'assurer que link n'est jamais undefined dans les props
+        link: db.link || null
       }))
     },
     revalidate: 3600
