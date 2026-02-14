@@ -9,14 +9,16 @@ import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { tools } from '../lib/tools'
 
-export default function Marketplace({ dynamicDatabases = [], topDatabases: initialTopDatabases = [], apifyTools = [] }) {
+export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
-  const [selectedPricing, setSelectedPricing] = useState(null) // 'gratuit' | '<100' | '100-200' | '200+' | null
+  const [selectedPricing, setSelectedPricing] = useState(null) // '<100' | '100-200' | '200+' | null
   const [activeTab, setActiveTab] = useState('databases') // 'databases' | 'tools'
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
-  const [topDatabases, setTopDatabases] = useState(initialTopDatabases || [])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [displayedCount, setDisplayedCount] = useState(12)
+  const ITEMS_PER_PAGE = 12
 
   // URL de la vidéo Tella
   const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
@@ -45,49 +47,48 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
   }
 
   const pricingRanges = [
-    { value: 'gratuit', label: 'Gratuit', min: 0, max: 0 },
     { value: '<100', label: '< 100€', min: 1, max: 99 },
     { value: '100-200', label: '100-200€', min: 100, max: 200 },
     { value: '200+', label: '200€+', min: 201, max: Infinity }
   ]
 
-  // Exclure les top databases de la liste principale pour éviter les doublons
-  const topSlugs = new Set((topDatabases || []).map(db => db.slug))
-  const regularDatabases = (dynamicDatabases || []).filter(db => !topSlugs.has(db.slug))
-  
-  // Fusionner les outils statiques et les bases de données dynamiques (sans les top)
-  // Note: apifyTools sont séparés et affichés dans l'onglet "Outils"
-  const allTools = [...regularDatabases, ...tools]
+  // Fusionner les outils statiques et les bases de données dynamiques
+  const allTools = [...(dynamicDatabases || []), ...tools]
   
   // Extraire les catégories uniques dynamiquement depuis les bases de données uniquement
   const categories = Array.from(
     new Set(
-      regularDatabases
+      (dynamicDatabases || [])
         .map(tool => tool.category)
         .filter(category => category && category.trim() !== '')
     )
   ).sort() // Trier par ordre alphabétique
   
-  // Filtrer uniquement les bases de données (pas les outils Apify)
+  // Filtrage par recherche (nom, description)
+  const matchesSearch = (tool) => {
+    if (!searchQuery.trim()) return true
+    const q = searchQuery.toLowerCase().trim()
+    const name = (tool.name || '').toLowerCase()
+    const desc = (tool.description || tool.shortDescription || '').toLowerCase()
+    const category = (tool.category || '').toLowerCase()
+    return name.includes(q) || desc.includes(q) || category.includes(q)
+  }
+
+  // Filtrer les bases de données (catégorie, prix, recherche)
   const filteredTools = allTools
     .filter(tool => {
       const matchesCategory = selectedCategory === null || tool.category === selectedCategory
       
-      // Filtrage par palier de prix
       let matchesPricing = true
       if (selectedPricing !== null) {
         const priceRange = pricingRanges.find(r => r.value === selectedPricing)
         if (priceRange) {
-          if (selectedPricing === 'gratuit') {
-            matchesPricing = !tool.isPaid
-          } else {
-            const toolPrice = tool.annualPrice || tool.price || 0
-            matchesPricing = tool.isPaid && toolPrice >= priceRange.min && toolPrice <= priceRange.max
-          }
+          const toolPrice = tool.annualPrice || tool.price || 0
+          matchesPricing = tool.isPaid && toolPrice >= priceRange.min && toolPrice <= priceRange.max
         }
       }
       
-      return matchesCategory && matchesPricing
+      return matchesCategory && matchesPricing && matchesSearch(tool)
     })
     .sort((a, b) => {
       // Trier par date : du plus récent au plus ancien (nouveaux arrivants en premier)
@@ -103,6 +104,19 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
       const dateB = getDate(b)
       return dateB - dateA // Ordre décroissant (plus récent en premier)
     })
+
+  // Filtrer les outils Apify par recherche
+  const filteredApifyTools = (apifyTools || []).filter(tool => {
+    if (!searchQuery.trim()) return true
+    const q = searchQuery.toLowerCase().trim()
+    const name = (tool.name || '').toLowerCase()
+    const desc = (tool.description || '').toLowerCase()
+    return name.includes(q) || desc.includes(q)
+  })
+
+  useEffect(() => {
+    setDisplayedCount(ITEMS_PER_PAGE)
+  }, [selectedCategory, selectedPricing, searchQuery, activeTab])
 
   const openCalendly = () => {
     // Charger Calendly seulement au premier clic (lazy load)
@@ -312,62 +326,19 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
             </div>
           </div>
 
-          {/* Top 3 Bases de données - Les plus consultées */}
-          {activeTab === 'databases' && !selectedCategory && !selectedPricing && topDatabases.length > 0 && (
-            <section className="mb-12">
-              <h2 className="text-2xl font-semibold mb-6 tracking-tighter">
-                Les plus consultées
-              </h2>
-              <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-4">
-                Les bases de données les plus populaires, basées sur les consultations réelles
-              </p>
-              <div className="space-y-4">
-                {topDatabases.map((db, index) => (
-                  <Link
-                    key={db.slug}
-                    href={db.link || '#'}
-                    className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-                  >
-                    <div className="flex items-start justify-between gap-4 mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
-                            #{index + 1}
-                          </span>
-                          <h3 className="text-lg font-semibold group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
-                            {db.name}
-                          </h3>
-                        </div>
-                        <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 leading-relaxed line-clamp-2">
-                          {db.description}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {/* Séparateur fin et métadonnées */}
-                    <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1 min-w-0 flex items-center gap-2">
-                          <span className="px-2 py-1 rounded text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
-                            {db.category}
-                          </span>
-                          <span className="text-xs text-neutral-500 dark:text-neutral-500">
-                            {db.views} {db.views <= 1 ? 'vue' : 'vues'}
-                          </span>
-                          <span className="text-xs text-neutral-500 dark:text-neutral-500">
-                            • {db.isPaid ? `${db.price}€` : 'Gratuit'}
-                          </span>
-                        </div>
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
-                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                        </svg>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
+          {/* Barre de recherche */}
+          <div className="mb-6">
+            <label htmlFor="marketplace-search" className="sr-only">Rechercher une base de données ou un outil</label>
+            <input
+              id="marketplace-search"
+              type="search"
+              placeholder={activeTab === 'databases' ? 'Rechercher une base ou un outil...' : 'Rechercher un outil...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-2.5 text-sm rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 focus:border-transparent"
+              aria-label="Rechercher"
+            />
+          </div>
 
           {/* Filtres - uniquement pour les bases de données */}
           {activeTab === 'databases' && (
@@ -421,8 +392,7 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
 
         <section className="mb-16">
           {activeTab === 'databases' ? (
-            <>
-              {filteredTools.length === 0 ? (
+            filteredTools.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-neutral-600 dark:text-neutral-400 mb-4">
                 Aucun résultat ne correspond à vos filtres.
@@ -431,6 +401,7 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
                 onClick={() => {
                   setSelectedCategory(null)
                   setSelectedPricing(null)
+                  setSearchQuery('')
                 }}
                 className="text-sm text-neutral-900 dark:text-neutral-100 underline hover:no-underline"
               >
@@ -438,8 +409,9 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
               </button>
             </div>
           ) : (
+            <div className="space-y-4">
             <div className="flex flex-col space-y-4">
-              {filteredTools.map((tool) => (
+              {filteredTools.slice(0, displayedCount).map((tool) => (
                 <Link
                   key={tool.name}
                   href={tool.link || '#'}
@@ -524,19 +496,30 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
                 </Link>
               ))}
             </div>
-          )}
-            </>
-          ) : (
+            {displayedCount < filteredTools.length && (
+              <div className="mt-8 text-center">
+                <button
+                  onClick={() => setDisplayedCount(prev => Math.min(prev + ITEMS_PER_PAGE, filteredTools.length))}
+                  className="px-6 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900/50 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
+                >
+                  Voir plus ({filteredTools.length - displayedCount} restant{filteredTools.length - displayedCount === 1 ? '' : 's'})
+                </button>
+              </div>
+            )}
+            </div>
+          )
+        ) : (
             /* Section Outils */
+            <>
             <div className="flex flex-col space-y-4">
-              {apifyTools.length === 0 ? (
+              {filteredApifyTools.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-neutral-600 dark:text-neutral-400 mb-4">
                     Aucun outil disponible pour le moment.
                   </p>
                 </div>
               ) : (
-                apifyTools.map((tool) => (
+                filteredApifyTools.slice(0, displayedCount).map((tool) => (
                   <Link
                     key={tool.slug}
                     href={tool.link || '#'}
@@ -583,6 +566,17 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
                 ))
               )}
             </div>
+            {filteredApifyTools.length > 0 && displayedCount < filteredApifyTools.length && (
+              <div className="mt-8 text-center">
+                <button
+                  onClick={() => setDisplayedCount(prev => Math.min(prev + ITEMS_PER_PAGE, filteredApifyTools.length))}
+                  className="px-6 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900/50 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
+                >
+                  Voir plus ({filteredApifyTools.length - displayedCount} restant{filteredApifyTools.length - displayedCount === 1 ? '' : 's'})
+                </button>
+              </div>
+            )}
+            </>
           )}
         </section>
 
@@ -777,9 +771,7 @@ export default function Marketplace({ dynamicDatabases = [], topDatabases: initi
 export async function getServerSideProps() {
   const { getDatabasesAsTools } = await import('../lib/marketplace-databases')
   const { getEnrichedActorsAsTools } = await import('../lib/apify-actors-enriched')
-  const { list } = await import('@vercel/blob')
   let dynamicDatabases = []
-  let topDatabases = []
   let apifyTools = []
   
   try {
@@ -794,82 +786,6 @@ export async function getServerSideProps() {
       apifyTools = []
     }
     
-    // Calculer le top 3 des bases de données les plus vues
-    try {
-      const VIEWS_EVENTS_FILENAME = 'marketplace-views-events.json'
-      const blobs = await list({ prefix: VIEWS_EVENTS_FILENAME })
-      const existingBlob = blobs.blobs.find((blob) => blob.pathname === VIEWS_EVENTS_FILENAME)
-
-      if (existingBlob) {
-        const cacheBuster = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-        const response = await fetch(`${existingBlob.url}?t=${cacheBuster}`, {
-          method: 'GET',
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-            Pragma: 'no-cache',
-          },
-        })
-
-        if (response.ok) {
-          const events = await response.json()
-          const eventsArray = Array.isArray(events) ? events : []
-          
-          // Calculer les vues pour toutes les bases (format: category/slug)
-          const viewsMap = {}
-          eventsArray.forEach(event => {
-            if (event.slug) {
-              const key = event.category && event.slug ? `${event.category}/${event.slug}` : event.slug
-              viewsMap[key] = (viewsMap[key] || 0) + 1
-            }
-          })
-          
-          // Filtrer les bases valides avec slug
-          const validDatabases = dynamicDatabases.filter(db => db && db.slug)
-          
-          // Ajouter les vues aux bases de données et trier
-          const databasesWithViews = validDatabases.map(db => {
-            const viewKey = db.category && db.slug ? `${db.category}/${db.slug}` : db.slug
-            return {
-              ...db,
-              views: viewsMap[viewKey] || 0
-            }
-          })
-          
-          // Trier par nombre de vues (ordre décroissant) et prendre les top 3
-          const sorted = databasesWithViews
-            .sort((a, b) => {
-              if (b.views !== a.views) {
-                return b.views - a.views
-              }
-              return (a.name || '').localeCompare(b.name || '')
-            })
-            .slice(0, 3)
-          
-          // Importer categoryToSlug pour construire les liens
-          const { categoryToSlug } = await import('../lib/marketplace-helpers')
-          
-          topDatabases = sorted.map(db => {
-            const category = db.category || 'autres'
-            const categorySlug = categoryToSlug(category) || 'autres'
-            
-            return {
-              slug: db.slug || null,
-              name: db.name || '',
-              description: db.shortDescription || db.description || '',
-              category: category,
-              link: `/marketplace/${categorySlug}/${db.slug}`,
-              views: db.views || 0,
-              price: db.price || 0,
-              isPaid: db.isPaid !== undefined ? db.isPaid : false
-            }
-          })
-        }
-      }
-    } catch (error) {
-      console.error('❌ Erreur chargement top databases:', error.message)
-      // Continuer sans top databases en cas d'erreur
-    }
   } catch (error) {
     console.error('❌ Erreur chargement bases de données:', error.message)
     // Continuer avec un tableau vide en cas d'erreur
@@ -878,7 +794,6 @@ export async function getServerSideProps() {
   return {
     props: {
       dynamicDatabases,
-      topDatabases,
       apifyTools
     }
   }
