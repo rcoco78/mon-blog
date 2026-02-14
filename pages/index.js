@@ -1273,10 +1273,21 @@ export default function Home({ posts, dynamicDatabases = [] }) {
           <p className="text-neutral-600 dark:text-neutral-400">Aucun article disponible pour le moment.</p>
         )}
         </div>
+        <div className="mt-6 text-center">
+          <Link
+            href="/blog"
+            className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
+          >
+            Voir tous les articles
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+            </svg>
+          </Link>
+        </div>
       </section>
 
       {/* Top 3 cas d'usage consultés - même design que Marketplace */}
-      <section className="mt-12" aria-label="Cas d'usage les plus consultés">
+      <section className="mt-12 mb-8" aria-label="Cas d'usage les plus consultés">
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Cas d&apos;usage les plus consultés</h2>
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
           Les cas d&apos;usage de scraping qui attirent le plus l&apos;attention.
@@ -1330,19 +1341,6 @@ export default function Home({ posts, dynamicDatabases = [] }) {
             </svg>
           </Link>
         </div>
-      </section>
-      
-      {/* CTA avant footer */}
-      <section className="mt-12 mb-8 text-center" aria-label="Navigation vers le blog">
-        <Link
-          href="/blog"
-          className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
-        >
-          Voir tous les articles
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-          </svg>
-        </Link>
       </section>
     </main>
     </>
