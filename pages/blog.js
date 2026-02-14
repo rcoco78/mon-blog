@@ -98,6 +98,8 @@ export default function Blog({ posts }) {
   const [blogStatsLoading, setBlogStatsLoading] = useState(true)
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
+  const [displayedCount, setDisplayedCount] = useState(12)
+  const POSTS_PER_PAGE = 12
 
   // URL de la vidéo Tella
   const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
@@ -221,6 +223,10 @@ export default function Blog({ posts }) {
     setFilteredPosts(filteredWithViews)
   }, [selectedTag, posts, allViews])
 
+  useEffect(() => {
+    setDisplayedCount(POSTS_PER_PAGE)
+  }, [selectedTag])
+
   const openCalendly = () => {
     // Charger Calendly seulement au premier clic (lazy load)
     if (!calendlyLoaded) {
@@ -342,18 +348,13 @@ export default function Blog({ posts }) {
         }}
       />
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
-        <section className="mb-8">
-          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">
+        <section className="mb-6">
+          <h1 className="font-semibold text-2xl mb-4 tracking-tighter">
             Blog
           </h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
+          <p className="text-neutral-600 dark:text-neutral-400 mb-0 tracking-tight">
             Réflexions sur le <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong>, l'<strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> et l'<strong className="text-neutral-900 dark:text-neutral-100">entrepreneuriat</strong>. Cas d'usage business, retours d'expérience et partage de bonnes pratiques pour automatiser vos processus.
           </p>
-        <SearchBar 
-          tags={allTags}
-          selectedTag={selectedTag}
-          onTagSelect={setSelectedTag}
-        />
         </section>
 
         {topPostsLoading ? (
@@ -466,6 +467,13 @@ export default function Blog({ posts }) {
               </span>
             )}
           </div>
+          <div className="mb-6">
+            <SearchBar 
+              tags={allTags}
+              selectedTag={selectedTag}
+              onTagSelect={setSelectedTag}
+            />
+          </div>
           {postsLoading ? (
             <div className="space-y-4">
               {[1, 2, 3, 4, 5].map((i) => (
@@ -486,34 +494,46 @@ export default function Blog({ posts }) {
               ))}
             </div>
           ) : filteredPosts && filteredPosts.length > 0 ? (
-            <div className="space-y-4">
-              {filteredPosts.map((post) => {
-                return (
-                  <Link key={post.id} href={`/blog/${post.slug}`} className="post-link group">
-                    <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 transition-all group-hover:translate-x-1">
-                    <div className="flex flex-col md:flex-row md:items-center w-full">
-                      <div className="flex-shrink-0">
-                        <p className="post-date text-sm whitespace-nowrap">{(() => {
-                          const date = new Date(post.date)
-                          const day = String(date.getDate()).padStart(2, '0')
-                          const month = String(date.getMonth() + 1).padStart(2, '0')
-                          const year = date.getFullYear()
-                          return `${day}-${month}-${year}`
-                        })()}</p>
-                      </div>
-                        <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 mx-2 flex-shrink-0"></span>
-                        <p className="post-title flex-grow w-full md:ml-0 flex items-center gap-2 min-w-0">
-                          <span className="truncate">{post.title}</span>
-                        </p>
-                      <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
-                        <ViewCounter slug={post.slug} />
+            <>
+              <div className="space-y-4">
+                {filteredPosts.slice(0, displayedCount).map((post) => {
+                  return (
+                    <Link key={post.id} href={`/blog/${post.slug}`} className="post-link group">
+                      <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 transition-all group-hover:translate-x-1">
+                      <div className="flex flex-col md:flex-row md:items-center w-full">
+                        <div className="flex-shrink-0">
+                          <p className="post-date text-sm whitespace-nowrap">{(() => {
+                            const date = new Date(post.date)
+                            const day = String(date.getDate()).padStart(2, '0')
+                            const month = String(date.getMonth() + 1).padStart(2, '0')
+                            const year = date.getFullYear()
+                            return `${day}-${month}-${year}`
+                          })()}</p>
+                        </div>
+                          <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 mx-2 flex-shrink-0"></span>
+                          <p className="post-title flex-grow w-full md:ml-0 flex items-center gap-2 min-w-0">
+                            <span className="truncate">{post.title}</span>
+                          </p>
+                        <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
+                          <ViewCounter slug={post.slug} />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-                )
-              })}
-            </div>
+                  </Link>
+                  )
+                })}
+              </div>
+              {displayedCount < filteredPosts.length && (
+                <div className="mt-8 text-center">
+                  <button
+                    onClick={() => setDisplayedCount(prev => Math.min(prev + POSTS_PER_PAGE, filteredPosts.length))}
+                    className="px-6 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900/50 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
+                  >
+                    Voir plus d&apos;articles ({filteredPosts.length - displayedCount} restant{filteredPosts.length - displayedCount > 1 ? 's' : ''})
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <div className="text-center py-12">
               <p className="text-neutral-600 dark:text-neutral-400 mb-2">
