@@ -418,31 +418,33 @@ export default function Blog({ posts }) {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <h2 className="font-semibold text-xl tracking-tighter">Tous les articles</h2>
-              <span className="flex items-center gap-1.5 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
-                {filteredPosts.length} {filteredPosts.length === 1 ? 'article' : 'articles'}
-                <span className="w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 flex-shrink-0"></span>
-                {(() => {
-                  const totalViews = Object.keys(allViews).length > 0 
-                    ? filteredPosts.reduce((sum, post) => sum + (allViews[post.slug] || 0), 0)
-                    : filteredPosts.reduce((sum, post) => sum + (post.views || 0), 0)
-                  return `${totalViews} ${totalViews === 1 ? 'vue' : 'vues'}`
-                })()}
+              <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
+                <span className="whitespace-nowrap">{filteredPosts.length} {filteredPosts.length === 1 ? 'article' : 'articles'}</span>
+                <span className="w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 flex-shrink-0 hidden sm:inline" aria-hidden></span>
+                <span className="whitespace-nowrap">
+                  {(() => {
+                    const totalViews = Object.keys(allViews).length > 0 
+                      ? filteredPosts.reduce((sum, post) => sum + (allViews[post.slug] || 0), 0)
+                      : filteredPosts.reduce((sum, post) => sum + (post.views || 0), 0)
+                    return `${totalViews} ${totalViews === 1 ? 'vue' : 'vues'}`
+                  })()}
+                </span>
                 {blogStatsLoading && (
                   <>
-                    <span className="w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 flex-shrink-0"></span>
-                    <span className="inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 animate-pulse">
+                    <span className="w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 flex-shrink-0 hidden sm:inline" aria-hidden></span>
+                    <span className="inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 animate-pulse whitespace-nowrap">
                       <span className="w-10 h-4 rounded bg-neutral-200 dark:bg-neutral-700"></span>
                     </span>
                   </>
                 )}
                 {blogStats && !blogStatsLoading && blogStats.viewsDifference !== 0 && (
                   <>
-                    <span className="w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 flex-shrink-0"></span>
-                    <span className={`inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded ${
+                    <span className="w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 flex-shrink-0 hidden sm:inline" aria-hidden></span>
+                    <span className={`inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded whitespace-nowrap shrink-0 ${
                       blogStats.viewsIsPositive 
                         ? 'text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20' 
                         : 'text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20'
-                    }`} title={`Différence par rapport à il y a 3 jours`}>
+                    }`} title="Différence vs il y a 3 jours">
                       {blogStats.viewsIsPositive ? (
                         <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
                           <path d="M6 2L2 6H5V10H7V6H10L6 2Z" fill="currentColor" />
@@ -452,7 +454,7 @@ export default function Blog({ posts }) {
                           <path d="M6 10L10 6H7V2H5V6H2L6 10Z" fill="currentColor" />
                         </svg>
                       )}
-                      <span>{blogStats.viewsIsPositive ? '+' : ''}{blogStats.viewsDifference} {blogStats.viewsDifference === 1 || blogStats.viewsDifference === -1 ? 'vue' : 'vues'} vs J-3</span>
+                      <span>{blogStats.viewsIsPositive ? '+' : ''}{blogStats.viewsDifference} vs J-3</span>
                     </span>
                   </>
                 )}
