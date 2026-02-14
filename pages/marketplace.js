@@ -486,6 +486,8 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) 
                       <div className="flex-shrink-0 w-6 h-6"></div>
                       <div className="flex-1 min-w-0 flex items-center gap-2">
                         <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                          {(tool.views ?? 0)} {(tool.views ?? 0) <= 1 ? 'vue' : 'vues'}
+                          <span className="mx-1.5">•</span>
                           {tool.isPaid ? `À partir de ${tool.annualPrice || tool.price || 0}€` : 'Gratuit'}
                         </span>
                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
