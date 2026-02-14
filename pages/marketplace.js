@@ -780,7 +780,9 @@ export async function getServerSideProps() {
     // Récupérer les outils Apify enrichis depuis Blob Storage
     try {
       apifyTools = await getEnrichedActorsAsTools()
-      console.log(`✅ ${apifyTools.length} outils Apify chargés`)
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`✅ ${apifyTools.length} outils Apify chargés`)
+      }
     } catch (error) {
       console.error('❌ Erreur chargement outils Apify:', error.message)
       apifyTools = []

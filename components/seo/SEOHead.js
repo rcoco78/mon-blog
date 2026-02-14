@@ -80,7 +80,6 @@ export default function SEOHead({
       <meta property="og:image:type" content="image/jpeg" />
       <meta property="og:site_name" content={siteConfig.name} />
       <meta property="og:locale" content="fr_FR" />
-      <meta property="og:locale:alternate" content="en_US" />
       {/* Logo du site (comme logement-atypique) */}
       {siteConfig.ogLogo && (
         <meta property="og:logo" content={siteConfig.ogLogo} />
@@ -125,10 +124,7 @@ export default function SEOHead({
       
       {/* Article-specific SEO */}
       {article && (
-        <>
-          <meta name="news_keywords" content={keywords || ''} />
-          <meta name="article:publisher" content={siteConfig.url} />
-        </>
+        <meta name="article:publisher" content={siteConfig.url} />
       )}
       
       {/* Rich Snippets support */}

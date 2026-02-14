@@ -53,6 +53,8 @@ Disallow: /marketplace/*/\[slug\]*
 Disallow: /blog/\[slug\]*
 
 # Pages with query parameters (duplications)
+# Exception: autoriser /blog?search= pour SearchAction Google
+Allow: /blog?search=
 Disallow: /blog?*
 Disallow: /marketplace?*
 
@@ -66,18 +68,19 @@ Disallow: /static/
 Disallow: /*.json$
 Disallow: /*.txt$
 
-# Explicitly allow sitemaps
+# Explicitly allow sitemaps and feed
 Allow: /sitemap.xml
 Allow: /sitemap-*.xml
+Allow: /feed.xml
 
 # ============================================
 # SPECIFIC RULES FOR GOOGLE
+# Google ignore Crawl-delay, donc pas de délai pour optimiser l'indexation
 # ============================================
 User-agent: Googlebot
 Allow: /
 Allow: /llms.txt
 Allow: /sitemap.xml
-Crawl-delay: 1
 
 User-agent: Googlebot-Image
 Allow: /
@@ -87,7 +90,6 @@ Allow: /*.png$
 Allow: /*.gif$
 Allow: /*.webp$
 Allow: /*.svg$
-Crawl-delay: 1
 
 User-agent: Googlebot-Video
 Allow: /
@@ -95,13 +97,11 @@ Allow: /*.mp4$
 Allow: /*.webm$
 Allow: /*.avi$
 Allow: /*.mov$
-Crawl-delay: 1
 
 # Google-Extended (for AI model training)
 User-agent: Google-Extended
 Allow: /
 Allow: /llms.txt
-Crawl-delay: 1
 
 # ============================================
 # SPECIFIC RULES FOR AI BOTS

@@ -43,11 +43,14 @@ async function getViewEvents() {
   }
 }
 
-export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseStudies: initialTopCaseStudies, viewsMap = {} }) {
+export default function SectorCaseStudies({ sector, sectorCaseStudies: initialCaseStudies, totalCount = 0, topCaseStudies: initialTopCaseStudies, viewsMap = {} }) {
   const router = useRouter()
+  const [sectorCaseStudies, setSectorCaseStudies] = useState(initialCaseStudies || [])
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState(null)
+  const [searchLoading, setSearchLoading] = useState(false)
   const [topCaseStudies, setTopCaseStudies] = useState(initialTopCaseStudies || [])
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
@@ -87,67 +90,83 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
     setMounted(true)
   }, [])
 
-  // Vérification de sécurité
-  const safeSectorCaseStudies = Array.isArray(sectorCaseStudies) ? sectorCaseStudies : []
+  // Source des données : résultats de recherche (API) ou liste chargée progressivement
   const safeTopCaseStudies = Array.isArray(topCaseStudies) ? topCaseStudies : []
-  
-  // Exclure les top case studies de la liste principale pour éviter les doublons
   const topSlugs = new Set(safeTopCaseStudies.map(cs => cs.slug))
-  const regularCaseStudies = safeSectorCaseStudies.filter(cs => !topSlugs.has(cs.slug))
-  
-  // Filtrer les cas d'usage par recherche
-  const filteredCaseStudies = (searchQuery ? safeSectorCaseStudies : regularCaseStudies).filter(cs => {
-    if (!searchQuery) return true
-    const query = searchQuery.toLowerCase()
-    return (cs.title || '').toLowerCase().includes(query) ||
-      (cs.description || '').toLowerCase().includes(query) ||
-      (Array.isArray(cs.keywords) && cs.keywords.some(k => (k || '').toLowerCase().includes(query))) ||
-      (Array.isArray(cs.examples) && cs.examples.some(e => (e || '').toLowerCase().includes(query)))
-  })
+  const baseList = searchQuery ? (searchResults || []) : sectorCaseStudies
+  const regularCaseStudies = Array.isArray(baseList) ? baseList.filter(cs => !topSlugs.has(cs.slug)) : []
+  const filteredCaseStudies = searchQuery ? regularCaseStudies : regularCaseStudies
+  const displayedCaseStudies = filteredCaseStudies.slice(0, displayedCount)
+  const hasMore = displayedCount < filteredCaseStudies.length
+  const canLoadMore = !searchQuery && sectorCaseStudies.length < totalCount
 
-  // Cas d'usage à afficher (avec lazy loading si pas de recherche)
-  const displayedCaseStudies = searchQuery 
-    ? filteredCaseStudies 
-    : filteredCaseStudies.slice(0, displayedCount)
-  
-  const hasMore = !searchQuery && displayedCount < filteredCaseStudies.length
+  // Recherche : fetch API avec debounce
+  useEffect(() => {
+    if (!searchQuery.trim() || !mounted) {
+      setSearchResults(null)
+      return
+    }
+    const timer = setTimeout(async () => {
+      setSearchLoading(true)
+      try {
+        const res = await fetch(`/api/case-studies/sector/${sectorToSlug(sector)}?search=${encodeURIComponent(searchQuery)}&limit=200`)
+        const data = await res.json()
+        setSearchResults(data.items || [])
+        setDisplayedCount(ITEMS_PER_PAGE)
+      } catch (err) {
+        setSearchResults([])
+      } finally {
+        setSearchLoading(false)
+      }
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchQuery, mounted, sector])
 
   // Réinitialiser le compteur quand la recherche change
   useEffect(() => {
     if (searchQuery) {
       setDisplayedCount(ITEMS_PER_PAGE)
+    } else {
+      setDisplayedCount(ITEMS_PER_PAGE)
     }
   }, [searchQuery])
 
-  // Intersection Observer pour charger plus au scroll
+  // Charger plus : scroll (données locales) ou fetch API si on a tout affiché
   useEffect(() => {
-    if (searchQuery || !hasMore || !mounted) return
+    if (searchQuery || !mounted) return
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !isLoading) {
+      async (entries) => {
+        if (!entries[0].isIntersecting || isLoading) return
+        if (displayedCount < filteredCaseStudies.length) {
           setIsLoading(true)
-          // Simuler un petit délai pour une meilleure UX
           setTimeout(() => {
             setDisplayedCount(prev => Math.min(prev + ITEMS_PER_PAGE, filteredCaseStudies.length))
             setIsLoading(false)
           }, 300)
+        } else if (canLoadMore && sectorCaseStudies.length < totalCount) {
+          setIsLoading(true)
+          try {
+            const res = await fetch(`/api/case-studies/sector/${sectorToSlug(sector)}?offset=${sectorCaseStudies.length}&limit=60`)
+            const data = await res.json()
+            if (data.items?.length) {
+              setSectorCaseStudies(prev => [...prev, ...data.items])
+              setDisplayedCount(prev => prev + data.items.length)
+            }
+          } catch (err) {
+            console.error('Erreur chargement case studies:', err)
+          } finally {
+            setIsLoading(false)
+          }
         }
       },
       { threshold: 0.1 }
     )
 
     const sentinel = document.getElementById('load-more-sentinel')
-    if (sentinel) {
-      observer.observe(sentinel)
-    }
-
-    return () => {
-      if (sentinel) {
-        observer.unobserve(sentinel)
-      }
-    }
-  }, [hasMore, searchQuery, mounted, isLoading, filteredCaseStudies.length])
+    if (sentinel) observer.observe(sentinel)
+    return () => sentinel && observer.unobserve(sentinel)
+  }, [hasMore, canLoadMore, searchQuery, mounted, isLoading, displayedCount, filteredCaseStudies.length, sectorCaseStudies.length, totalCount, sector])
 
   if (router.isFallback) {
     return (
@@ -246,7 +265,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
 
   const pageSEO = generatePageSEO({
     title: `Cas d'usage scraping ${sector} | Corentin Robert`,
-    description: `Découvrez tous les cas d'usage de scraping et automatisation pour le secteur ${sector.toLowerCase()}. ${safeSectorCaseStudies.length} cas d'usage concrets avec exemples réels et données extractibles.`,
+    description: `Découvrez tous les cas d'usage de scraping et automatisation pour le secteur ${sector.toLowerCase()}. ${(searchQuery ? filteredCaseStudies.length : totalCount)} cas d'usage concrets avec exemples réels et données extractibles.`,
     path: `/cas-usage/${sectorToSlug(sector)}`,
     keywords: [`scraping ${sector.toLowerCase()}`, `automatisation ${sector.toLowerCase()}`, `extraction données ${sector.toLowerCase()}`, 'cas d\'usage scraping']
   })
@@ -269,7 +288,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
             Cas d'usage {sector}
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
-            <strong className="text-neutral-900 dark:text-neutral-100">{safeSectorCaseStudies.length} cas d'usage concrets</strong> de <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> pour le secteur <strong className="text-neutral-900 dark:text-neutral-100">{sector.toLowerCase()}</strong>.
+            <strong className="text-neutral-900 dark:text-neutral-100">{(searchQuery ? filteredCaseStudies.length : totalCount)} cas d'usage concrets</strong> de <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> pour le secteur <strong className="text-neutral-900 dark:text-neutral-100">{sector.toLowerCase()}</strong>.
           </p>
         </section>
 
@@ -338,7 +357,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={`Rechercher parmi ${safeSectorCaseStudies.length} cas d'usage ${sector.toLowerCase()}...`}
+            placeholder={`Rechercher parmi ${(searchQuery ? filteredCaseStudies.length : totalCount)} cas d'usage ${sector.toLowerCase()}...`}
             className="w-full px-4 py-2.5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-transparent"
           />
           
@@ -355,7 +374,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
         {/* Liste complète des case studies avec lazy loading */}
         <section className="mb-16">
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">
-            {searchQuery ? `Résultats (${filteredCaseStudies.length} cas d'usage)` : `Tous les cas d'usage ${sector.toLowerCase()} (${safeSectorCaseStudies.length})`}
+            {searchQuery ? `Résultats (${filteredCaseStudies.length} cas d'usage)` : `Tous les cas d'usage ${sector.toLowerCase()} (${(searchQuery ? filteredCaseStudies.length : totalCount)})`}
           </h2>
           {displayedCaseStudies.length > 0 ? (
             <>
@@ -395,7 +414,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
               </div>
               
               {/* Sentinel pour le lazy loading */}
-              {hasMore && (
+              {(hasMore || canLoadMore) && (
                 <div id="load-more-sentinel" className="py-8">
                   {isLoading && (
                     <div className="space-y-4">
@@ -412,16 +431,22 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies, topCaseSt
               )}
               
               {/* Indicateur de progression */}
-              {!searchQuery && (
+              {(hasMore || canLoadMore) && (
                 <div className="mt-6 text-center text-sm text-neutral-500 dark:text-neutral-500">
-                  {displayedCount} sur {filteredCaseStudies.length} cas d'usage affichés
+                  {displayedCount} sur {searchQuery ? filteredCaseStudies.length : totalCount} cas d&apos;usage affichés
                 </div>
               )}
             </>
+          ) : searchLoading ? (
+            <div className="text-center py-12">
+              <p className="text-neutral-600 dark:text-neutral-400 animate-pulse">
+                Recherche en cours...
+              </p>
+            </div>
           ) : (
             <div className="text-center py-12">
               <p className="text-neutral-600 dark:text-neutral-400 mb-4">
-                Aucun cas d'usage trouvé pour "{searchQuery}"
+                Aucun cas d&apos;usage trouvé pour &quot;{searchQuery}&quot;
               </p>
               <button
                 onClick={() => setSearchQuery('')}
@@ -651,19 +676,22 @@ export async function getStaticProps({ params }) {
 
   // Optimiser les données envoyées au client pour réduire la taille du HTML.
   // On ne garde que les champs nécessaires pour l’affichage de la liste.
-  const optimizedSectorCaseStudies = sectorCaseStudies.map(cs => ({
+  const INITIAL_BATCH = 80
+  const MAX_DESC = 120
+  const optimizedSectorCaseStudies = sectorCaseStudies.slice(0, INITIAL_BATCH).map(cs => ({
     slug: cs.slug,
     title: cs.title,
-    description: cs.description,
+    description: (cs.description || '').slice(0, MAX_DESC) + (cs.description?.length > MAX_DESC ? '…' : ''),
     sector: cs.sector,
-    keywords: cs.keywords || [],
-    examples: (cs.examples || []).slice(0, 5)
+    keywords: (cs.keywords || []).slice(0, 6),
+    examples: (cs.examples || []).slice(0, 3)
   }))
 
   return {
     props: {
       sector,
       sectorCaseStudies: optimizedSectorCaseStudies,
+      totalCount: sectorCaseStudies.length,
       topCaseStudies,
       viewsMap
     },

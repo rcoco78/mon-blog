@@ -139,43 +139,7 @@ export default function FAQPage() {
       <SEOHead {...pageSEO} />
       <StructuredData type="FAQPage" data={faqData} />
       
-      {/* Review Schema 5* par défaut */}
-      <StructuredData
-        type="Review"
-        data={{
-          itemReviewed: {
-            '@type': 'Product',
-            name: 'FAQ - Questions fréquentes',
-            url: `${siteConfig.url}/faq`,
-            brand: {
-              '@type': 'Person',
-              name: siteConfig.author,
-              url: siteConfig.url
-            },
-            offers: {
-              '@type': 'Offer',
-              price: '0',
-              priceCurrency: 'EUR',
-              availability: 'https://schema.org/InStock',
-              priceValidUntil: (() => {
-                const date = new Date();
-                date.setFullYear(date.getFullYear() + 1);
-                return date.toISOString().split('T')[0];
-              })()
-            }
-          },
-          reviewRating: {
-            '@type': 'Rating',
-            ratingValue: '5',
-            bestRating: '5'
-          },
-          author: {
-            '@type': 'Person',
-            name: 'Corentin Robert'
-          }
-        }}
-      />
-      {/* Service Schema - aggregateRating retiré car Google n'accepte pas Service pour Review snippets */}
+      {/* Service Schema */}
       <StructuredData
         type="Service"
         data={{
@@ -183,8 +147,6 @@ export default function FAQPage() {
           serviceType: 'Web Scraping, Data Automation, Outbound Marketing',
           description: 'Expert freelance en scraping web et automatisation. Services de scraping et automatisation sur-mesure.',
           url: `${siteConfig.url}/faq`
-          // Note: aggregateRating retiré du Service car Google n'accepte pas Service pour Review snippets
-          // Les avis sont gérés via les Review schemas séparés avec Product comme itemReviewed
         }}
       />
 

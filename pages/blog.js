@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 import { getAllPosts } from '../lib/notion'
 import { list } from '@vercel/blob'
 import ViewCounter from '../components/ViewCounter'
@@ -86,7 +87,10 @@ function TagFilter({ tags, selectedTag, onTagSelect }) {
 }
 
 export default function Blog({ posts }) {
+  const router = useRouter()
+  const initialSearch = typeof router.query?.search === 'string' ? router.query.search.trim() : ''
   const [selectedTag, setSelectedTag] = useState(null)
+  const [searchText, setSearchText] = useState(initialSearch)
   const [allTags, setAllTags] = useState([])
   const [filteredPosts, setFilteredPosts] = useState(posts)
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
@@ -126,6 +130,14 @@ export default function Blog({ posts }) {
       setVideoSeen(true)
     }
   }
+
+  // Sync searchText with URL ?search= (pour SearchAction schema)
+  useEffect(() => {
+    const querySearch = router.query.search
+    if (typeof querySearch === 'string' && querySearch.trim()) {
+      setSearchText(querySearch.trim())
+    }
+  }, [router.query.search])
 
   useEffect(() => {
     // Extraire tous les tags uniques
@@ -207,11 +219,21 @@ export default function Blog({ posts }) {
   }, [posts])
 
   useEffect(() => {
-    // Filtrer les posts en fonction du tag sélectionné et ajouter les vues
+    // Filtrer les posts : tag + recherche texte (titre, metaDescription, tags)
     let filtered = posts
 
     if (selectedTag) {
       filtered = filtered.filter(post => post.tags.includes(selectedTag))
+    }
+
+    if (searchText.trim()) {
+      const q = searchText.toLowerCase().trim()
+      filtered = filtered.filter(post => {
+        const titleMatch = (post.title || '').toLowerCase().includes(q)
+        const descMatch = (post.metaDescription || '').toLowerCase().includes(q)
+        const tagsMatch = (post.tags || []).some(tag => tag.toLowerCase().includes(q))
+        return titleMatch || descMatch || tagsMatch
+      })
     }
 
     // Ajouter les vues aux posts filtrés si disponibles
@@ -221,11 +243,18 @@ export default function Blog({ posts }) {
     }))
 
     setFilteredPosts(filteredWithViews)
-  }, [selectedTag, posts, allViews])
+  }, [selectedTag, searchText, posts, allViews])
 
   useEffect(() => {
     setDisplayedCount(POSTS_PER_PAGE)
-  }, [selectedTag])
+  }, [selectedTag, searchText])
+
+  // Mettre à jour l'URL quand searchText change (pour SearchAction + partage)
+  const handleSearchChange = (value) => {
+    setSearchText(value)
+    const url = value.trim() ? `/blog?search=${encodeURIComponent(value.trim())}` : '/blog'
+    router.replace(url, undefined, { shallow: true })
+  }
 
   const openCalendly = () => {
     // Charger Calendly seulement au premier clic (lazy load)
@@ -461,13 +490,21 @@ export default function Blog({ posts }) {
                 )}
               </span>
             </div>
-            {selectedTag && filteredPosts.length > 0 && (
+            {(selectedTag || searchText.trim()) && filteredPosts.length > 0 && (
               <span className="text-sm text-neutral-500 dark:text-neutral-500">
                 {filteredPosts.length} {filteredPosts.length === 1 ? 'article trouvé' : 'articles trouvés'}
               </span>
             )}
           </div>
-          <div className="mb-6">
+          <div className="mb-6 space-y-4">
+            <input
+              type="search"
+              placeholder="Rechercher dans les articles (titre, description, tags)..."
+              value={searchText}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              aria-label="Rechercher dans le blog"
+              className="w-full px-3 py-2 text-sm rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
+            />
             <SearchBar 
               tags={allTags}
               selectedTag={selectedTag}

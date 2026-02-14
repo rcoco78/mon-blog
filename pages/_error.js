@@ -38,7 +38,7 @@ function Error({ statusCode }) {
               Retour à l'accueil
             </Link>
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => typeof window !== 'undefined' && window.location.reload()}
               className="inline-block px-6 py-3 border border-neutral-200 dark:border-neutral-800 rounded-lg hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
             >
               Réessayer

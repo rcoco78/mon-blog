@@ -124,7 +124,7 @@ export default function Block({ block }) {
       return (
         <ImageWithZoom 
           src={imageUrl}
-          alt={caption || 'Image'}
+          alt={caption || "Image illustrative de l'article"}
         />
       )
     default:

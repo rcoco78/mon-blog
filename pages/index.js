@@ -237,17 +237,6 @@ export default function Home({ posts, dynamicDatabases = [] }) {
           
           const totalCA = caFreelance + caAffiliation + caLogementAtypique
           
-          // Debug pour vérifier les valeurs
-          console.log('🔍 Debug CA Total:', {
-            caFreelance,
-            caAffiliation,
-            caLogementAtypique,
-            totalCA,
-            caFreelanceKRs: caFreelanceKRs.map(kr => ({ name: kr.name, target: kr.targetResult })),
-            caAffiliationKRs: caAffiliationKRs.map(kr => ({ name: kr.name, target: kr.targetResult })),
-            caLogementAtypiqueKRs: caLogementAtypiqueKRs.map(kr => ({ name: kr.name, target: kr.targetResult }))
-          })
-          
           // Calculer la progression globale
           const totalKeyResults = keyResultsData.length
           const overallProgress = totalKeyResults > 0 

@@ -2,17 +2,17 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: [
-      'www.notion.so',
-      'prod-files-secure.s3.us-west-2.amazonaws.com',
-      'cdn.freelogovectors.net',
-      'encrypted-tbn0.gstatic.com',
-      'images.seeklogo.com',
-      'yt3.googleusercontent.com',
-      'static.vecteezy.com',
-      'cdn-icons-png.freepik.com',
-      'images.unsplash.com',
-      'i.scdn.co' // CDN Spotify pour les images d'albums
+    remotePatterns: [
+      { protocol: 'https', hostname: 'www.notion.so', pathname: '/**' },
+      { protocol: 'https', hostname: 'prod-files-secure.s3.us-west-2.amazonaws.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'cdn.freelogovectors.net', pathname: '/**' },
+      { protocol: 'https', hostname: 'encrypted-tbn0.gstatic.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'images.seeklogo.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'yt3.googleusercontent.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'static.vecteezy.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'cdn-icons-png.freepik.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'i.scdn.co', pathname: '/**' },
     ],
   },
   async redirects() {
