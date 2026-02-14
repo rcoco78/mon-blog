@@ -1,6 +1,7 @@
 // API optimisée pour récupérer directement les top N case studies les plus consultés
 import { list } from '@vercel/blob'
-import { caseStudies } from '../../../lib/case-studies'
+import { getCaseStudiesFromBlob } from '../../../lib/case-studies-blob'
+import { caseStudies as localCaseStudies } from '../../../lib/case-studies'
 
 const VIEWS_EVENTS_FILENAME = 'case-studies-views-events.json'
 
@@ -51,7 +52,15 @@ export default async function handler(req, res) {
         viewsMap[event.slug] = (viewsMap[event.slug] || 0) + 1
       }
     })
-    
+
+    // Charger depuis Blob (inclut les cas générés par cron), fallback local
+    let caseStudies = []
+    try {
+      caseStudies = await getCaseStudiesFromBlob()
+    } catch {
+      caseStudies = localCaseStudies || []
+    }
+
     // Ajouter les vues aux case studies et trier
     const caseStudiesWithViews = caseStudies.map(cs => ({
       ...cs,

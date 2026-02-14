@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { getAllPosts } from '../lib/notion'
 import { useState, useEffect, useRef } from 'react'
 import { siteConfig } from '../lib/config'
+import { sectorToSlug } from '../lib/case-studies-helpers'
 import { tools } from '../lib/tools'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
@@ -41,6 +42,8 @@ export default function Home({ posts, dynamicDatabases = [] }) {
   const [testimonialIndex, setTestimonialIndex] = useState(0)
   const [keyResults, setKeyResults] = useState([])
   const [keyResultsLoading, setKeyResultsLoading] = useState(true)
+  const [topCaseStudies, setTopCaseStudies] = useState([])
+  const [topCaseStudiesLoading, setTopCaseStudiesLoading] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const [currentTestimonialScrollIndex, setCurrentTestimonialScrollIndex] = useState(0)
   const [showVideo, setShowVideo] = useState(false)
@@ -120,6 +123,24 @@ export default function Home({ posts, dynamicDatabases = [] }) {
     fetchViews()
   }, [posts])
 
+  // Top 3 cas d'usage les plus consultés (pour section en bas de page)
+  useEffect(() => {
+    const fetchTopCaseStudies = async () => {
+      try {
+        setTopCaseStudiesLoading(true)
+        const res = await fetch('/api/case-studies-views/top?limit=3')
+        if (res.ok) {
+          const data = await res.json()
+          setTopCaseStudies(Array.isArray(data) ? data : [])
+        }
+      } catch (err) {
+        console.warn('Erreur top cas d\'usage:', err)
+      } finally {
+        setTopCaseStudiesLoading(false)
+      }
+    }
+    fetchTopCaseStudies()
+  }, [])
 
   // Charger les métriques depuis l'API et enrichir avec les Key Results
   useEffect(() => {
@@ -1251,6 +1272,63 @@ export default function Home({ posts, dynamicDatabases = [] }) {
         ) : (
           <p className="text-neutral-600 dark:text-neutral-400">Aucun article disponible pour le moment.</p>
         )}
+        </div>
+      </section>
+
+      {/* Top 3 cas d'usage consultés - même design que Marketplace */}
+      <section className="mt-12" aria-label="Cas d'usage les plus consultés">
+        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Cas d&apos;usage les plus consultés</h2>
+        <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
+          Les cas d&apos;usage de scraping qui attirent le plus l&apos;attention.
+        </p>
+        <div className="flex flex-col space-y-4">
+          {topCaseStudiesLoading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-24 bg-neutral-100 dark:bg-neutral-800 rounded-lg animate-pulse" />
+            ))
+          ) : topCaseStudies.length > 0 ? (
+            topCaseStudies.map((cs) => (
+              <Link
+                key={cs.slug}
+                href={`/cas-usage/${sectorToSlug(cs.sector || '')}/${cs.slug}`}
+                className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+              >
+                <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 mb-1">
+                      {cs.title}
+                    </h2>
+                    {cs.description && (
+                      <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
+                        {cs.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                      {cs.sector} · {cs.views} {cs.views === 1 ? 'vue' : 'vues'}
+                    </span>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
+                      <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                    </svg>
+                  </div>
+                </div>
+              </Link>
+            ))
+          ) : null}
+        </div>
+        <div className="mt-6 text-center">
+          <Link
+            href="/cas-usage"
+            className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
+          >
+            Voir tous les cas d&apos;usage
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+            </svg>
+          </Link>
         </div>
       </section>
       
