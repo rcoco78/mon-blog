@@ -174,12 +174,14 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
     hasContactData = contactKeywords.some(keyword => dataExtractedLower.includes(keyword))
   }
 
-  // Enrichir la description SEO avec plus de détails et long-tail keywords
-  const enrichedDescription = `${caseStudy.description} Extraction automatisée de données depuis ${caseStudy.examples.slice(0, 3).join(', ')}. Données extractibles : ${caseStudy.dataExtracted.slice(0, 5).join(', ')}. Solution sur-mesure pour ${caseStudy.sector.toLowerCase()}. Délai moyen 7 jours, livraison dans le format de votre choix (CSV, Excel, JSON, API).`
+  // SEO : priorité aux champs optimisés par le cron CTR si présents
+  const seoTitle = caseStudy.metaTitle || `${caseStudy.title} | Scraping & Automatisation ${caseStudy.sector}`
+  const enrichedDescription = `${caseStudy.description} Extraction automatisée de données depuis ${(caseStudy.examples || []).slice(0, 3).join(', ')}. Données extractibles : ${(caseStudy.dataExtracted || []).slice(0, 5).join(', ')}. Solution sur-mesure pour ${(caseStudy.sector || '').toLowerCase()}. Délai moyen 7 jours, livraison dans le format de votre choix (CSV, Excel, JSON, API).`
+  const seoDescription = caseStudy.metaDescription || enrichedDescription
 
   const pageSEO = generatePageSEO({
-    title: `${caseStudy.title} | Scraping & Automatisation ${caseStudy.sector}`,
-    description: enrichedDescription,
+    title: seoTitle,
+    description: seoDescription,
     path: `/cas-usage/${caseStudy.slug}`,
     keywords: caseStudy.keywords,
     publishedTime: today,

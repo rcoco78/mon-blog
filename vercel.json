@@ -35,6 +35,10 @@
     {
       "path": "/api/cron/tella-marketplace-videos",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/analyse-ctr",
+      "schedule": "0 18 * * *"
     }
   ],
   "redirects": [

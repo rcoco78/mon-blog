@@ -272,11 +272,13 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
     }
   }
 
-  // SEO
+  // SEO : priorité aux champs optimisés par le cron CTR si présents
   const categorySlug = categoryToSlug(database.category)
+  const seoTitle = database.metaTitle || `${toolData.name} - Base de Données | ${database.price}€`
+  const seoDescription = database.metaDescription || `${toolData.fullDescription} Achetez la base de données complète avec ${database.rowCount.toLocaleString()} entrées. Format Google Sheets.`
   const pageSEO = generatePageSEO({
-    title: `${toolData.name} - Base de Données | ${database.price}€`,
-    description: `${toolData.fullDescription} Achetez la base de données complète avec ${database.rowCount.toLocaleString()} entrées. Format Google Sheets.`,
+    title: seoTitle,
+    description: seoDescription,
     path: `/marketplace/${categorySlug}/${database.slug}`,
     keywords: database.enrichedData?.keywords || [database.name, 'base de données', 'prospection']
   })
