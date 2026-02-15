@@ -497,14 +497,6 @@ export default function Blog({ posts }) {
             )}
           </div>
           <div className="mb-6 space-y-4">
-            <input
-              type="search"
-              placeholder="Rechercher dans les articles (titre, description, tags)..."
-              value={searchText}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              aria-label="Rechercher dans le blog"
-              className="w-full px-3 py-2 text-sm rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 placeholder:text-neutral-400 dark:placeholder:text-neutral-500"
-            />
             <SearchBar 
               tags={allTags}
               selectedTag={selectedTag}

@@ -60,7 +60,7 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
   const [searchResults, setSearchResults] = useState(null)
   const [searchLoading, setSearchLoading] = useState(false)
   const [priceFilter, setPriceFilter] = useState(null)
-  const [sortBy, setSortBy] = useState('date')
+  const [sortBy, setSortBy] = useState('views') // défaut: plus consultés
   const [filteredTotal, setFilteredTotal] = useState(totalCount)
 
   useEffect(() => {
@@ -70,7 +70,7 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
   const safeTopDatabases = Array.isArray(topDatabases) ? topDatabases : []
   const topSlugs = new Set(safeTopDatabases.map(db => db.slug))
 
-  const hasActiveFilters = searchQuery.trim() || priceFilter || sortBy !== 'date'
+  const hasActiveFilters = searchQuery.trim() || priceFilter || sortBy !== 'views'
   const baseList = hasActiveFilters ? (searchResults || []) : categoryDatabasesList
   const regularDatabases = Array.isArray(baseList) ? baseList.filter(db => !topSlugs.has(db.slug)) : []
   const sortedDatabases = regularDatabases
@@ -95,7 +95,7 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
         params.set('limit', '200')
         if (searchQuery.trim()) params.set('search', searchQuery.trim())
         if (priceFilter) params.set('price', priceFilter)
-        if (sortBy !== 'date') params.set('sort', sortBy)
+        if (sortBy !== 'views') params.set('sort', sortBy)
         const res = await fetch(`/api/marketplace/category/${categorySlug}?${params}`)
         const data = await res.json()
         setSearchResults(data.items || [])
@@ -508,6 +508,7 @@ export async function getStaticProps({ params }) {
       return (a.name || '').localeCompare(b.name || '')
     })
     topDatabases = sorted.slice(0, 3).map(db => ({ ...db, link: db.link || null }))
+    databasesWithViews = sorted // tri par vues pour l'affichage par défaut
   } catch (error) {
     console.error('Erreur lors du calcul des top databases:', error)
     topDatabases = categoryDatabasesWithLinks.slice(0, 3).map(db => ({ ...db, views: 0, link: db.link || null }))

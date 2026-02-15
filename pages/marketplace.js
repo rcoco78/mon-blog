@@ -12,7 +12,7 @@ import { tools } from '../lib/tools'
 export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedPricing, setSelectedPricing] = useState(null) // '<100' | '100-200' | '200+' | 'free' | null
-  const [sortBy, setSortBy] = useState('date') // 'date' | 'price_desc' | 'views'
+  const [sortBy, setSortBy] = useState('views') // 'date' | 'price_desc' | 'views' — défaut: plus consultés
   const [activeTab, setActiveTab] = useState('databases') // 'databases' | 'tools'
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [showVideo, setShowVideo] = useState(false)

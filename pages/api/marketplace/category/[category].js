@@ -57,7 +57,7 @@ export default async function handler(req, res) {
   const { category: categorySlug, offset: offsetParam, limit: limitParam, search: searchQuery, sort: sortParam, price: priceFilterParam } = req.query
   const offset = parseInt(offsetParam, 10) || 0
   const limit = Math.min(parseInt(limitParam, 10) || 60, 100)
-  const sort = ['price_desc', 'views', 'date'].includes(sortParam) ? sortParam : 'date'
+  const sort = ['price_desc', 'views', 'date'].includes(sortParam) ? sortParam : 'views'
   const priceFilter = ['lt100', '100-200', '200plus', 'all'].includes(priceFilterParam) ? priceFilterParam : 'all'
 
   if (!categorySlug) {
