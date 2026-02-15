@@ -265,7 +265,6 @@ export default function Layout({ children }) {
                     <FooterArrowLink href="/newsletter" active={router.pathname === '/newsletter'}>newsletter</FooterArrowLink>
                     <FooterArrowLink href="https://www.linkedin.com/in/robertcorentin/" external active={false}>linkedin</FooterArrowLink>
                     <FooterArrowLink href="/spotify" active={router.pathname === '/spotify'} isPlaying={isPlaying}>spotify</FooterArrowLink>
-                    <FooterArrowLink href="/feed.xml" active={false} title="S'abonner au flux RSS">RSS</FooterArrowLink>
                   </ul>
                 </footer>
       </div>

@@ -4,7 +4,6 @@ import { getAllPosts } from '../lib/notion'
 import { useState, useEffect, useRef } from 'react'
 import { siteConfig } from '../lib/config'
 import { sectorToSlug } from '../lib/case-studies-helpers'
-import { tools } from '../lib/tools'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
@@ -1007,25 +1006,9 @@ export default function Home({ posts, dynamicDatabases = [] }) {
         </p>
         <div className="flex flex-col space-y-4">
           {(() => {
-            // Fusionner les outils statiques et les bases de données dynamiques
-            const allTools = [...(dynamicDatabases || []), ...tools]
-            // Trier par date décroissante (les plus récents en premier) pour afficher les nouveaux arrivants
-            const sortedTools = allTools.sort((a, b) => {
-              // Utiliser lastEnriched si disponible (format ISO complet), sinon date
-              const getDate = (tool) => {
-                if (tool.lastEnriched) {
-                  // lastEnriched est au format ISO (ex: "2026-01-06T14:11:05.265Z")
-                  return new Date(tool.lastEnriched)
-                }
-                return tool.date ? new Date(tool.date) : new Date(0) // Si pas de date, mettre en fin
-              }
-              const dateA = getDate(a)
-              const dateB = getDate(b)
-              // Tri décroissant : les plus récents en premier
-              return dateB - dateA
-            })
-            // Prendre les 3 plus récents (nouveaux arrivants)
-            return sortedTools.slice(0, 3)
+            // Top 3 bases de données les plus consultées (déjà triées côté getStaticProps)
+            const topDatabases = (dynamicDatabases || []).slice(0, 3)
+            return topDatabases
               .map((tool) => (
             <Link
               key={tool.name}
@@ -1045,27 +1028,16 @@ export default function Home({ posts, dynamicDatabases = [] }) {
                 </div>
               </div>
               
-              {/* Séparateur fin et prix */}
+              {/* Footer : contenu à gauche, flèche à droite (uniforme avec articles et cas d'usage) */}
               <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
                 <div className="flex items-center justify-between gap-3">
-                  <div className="flex-1 min-w-0 flex items-center gap-2">
-                    <span className="text-xs text-neutral-500 dark:text-neutral-500">
-                      {tool.isPaid ? `À partir de ${tool.annualPrice || tool.price || 0}€` : 'Gratuit'}
-                    </span>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
-                      <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                    </svg>
-                  </div>
-                  {tool.lastEnriched && (
-                    <span className="text-xs text-neutral-500 dark:text-neutral-500 flex-shrink-0">
-                      {new Date(tool.lastEnriched).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })} {new Date(tool.lastEnriched).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  )}
-                  {!tool.lastEnriched && tool.date && (
-                    <span className="text-xs text-neutral-500 dark:text-neutral-500 flex-shrink-0">
-                      {new Date(tool.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })} {new Date(tool.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  )}
+                  <span className="text-xs text-neutral-500 dark:text-neutral-500 flex-1 min-w-0">
+                    {tool.isPaid ? `${tool.annualPrice || tool.price || 0}€` : 'Gratuit'}
+                    <> · {(tool.views ?? 0)} {(tool.views ?? 0) === 1 ? 'vue' : 'vues'}</>
+                  </span>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0" aria-hidden>
+                    <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                  </svg>
                 </div>
               </div>
             </Link>
@@ -1118,13 +1090,13 @@ export default function Home({ posts, dynamicDatabases = [] }) {
                 </div>
                 <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                    <span className="text-xs text-neutral-500 dark:text-neutral-500 flex-1 min-w-0">
                       {(() => {
                         const d = new Date(post.date)
                         return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()} · ${post.views ?? 0} ${(post.views ?? 0) === 1 ? 'vue' : 'vues'}`
                       })()}
                     </span>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0" aria-hidden>
                       <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                     </svg>
                   </div>
@@ -1180,10 +1152,10 @@ export default function Home({ posts, dynamicDatabases = [] }) {
                 </div>
                 <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-xs text-neutral-500 dark:text-neutral-500">
-                      {cs.sector} · {cs.views} {cs.views === 1 ? 'vue' : 'vues'}
+                    <span className="text-xs text-neutral-500 dark:text-neutral-500 flex-1 min-w-0">
+                      {cs.sector} · {cs.views ?? 0} {(cs.views ?? 0) === 1 ? 'vue' : 'vues'}
                     </span>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0" aria-hidden>
                       <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                     </svg>
                   </div>
@@ -1209,12 +1181,49 @@ export default function Home({ posts, dynamicDatabases = [] }) {
   )
 }
 
+async function getMarketplaceViewEvents() {
+  try {
+    const { list } = await import('@vercel/blob')
+    const blobs = await list({ prefix: 'marketplace-views-events.json' })
+    const blob = blobs.blobs.find((b) => b.pathname === 'marketplace-views-events.json')
+    if (blob) {
+      const res = await fetch(blob.url, { cache: 'no-store' })
+      if (res.ok) {
+        const data = await res.json()
+        return Array.isArray(data) ? data : []
+      }
+    }
+    return []
+  } catch {
+    return []
+  }
+}
+
 export async function getStaticProps() {
   const posts = await getAllPosts()
   
-  // Charger les bases de données dynamiques
+  // Charger les bases de données dynamiques — top 3 les plus consultées
   const { getDatabasesAsTools } = await import('../lib/marketplace-databases')
-  const dynamicDatabases = await getDatabasesAsTools()
+  let dynamicDatabases = await getDatabasesAsTools()
+  try {
+    const events = await getMarketplaceViewEvents()
+    const viewsMap = {}
+    events.forEach((e) => {
+      if (e.slug && e.category) {
+        const k = `${e.category}/${e.slug}`
+        viewsMap[k] = (viewsMap[k] || 0) + 1
+      }
+    })
+    dynamicDatabases = dynamicDatabases
+      .map((db) => ({ ...db, views: viewsMap[`${db.category}/${db.slug}`] || 0 }))
+      .sort((a, b) => (b.views || 0) - (a.views || 0))
+      .slice(0, 3)
+  } catch (err) {
+    // Fallback : 3 premières par date si erreur
+    dynamicDatabases = dynamicDatabases
+      .sort((a, b) => new Date(b.lastEnriched || b.date || 0) - new Date(a.lastEnriched || a.date || 0))
+      .slice(0, 3)
+  }
 
   return {
     props: {
