@@ -455,6 +455,9 @@ export default function Home({ posts, dynamicDatabases = [] }) {
         }} 
       />
       
+      {/* Structured Data SiteNavigation - Pour les sitelinks Google (À propos, Marketplace, Blog) */}
+      <StructuredData type="SiteNavigation" />
+      
       {/* Structured Data WebPage - Pour améliorer l'indexation de la page d'accueil */}
       <StructuredData 
         type="WebPage" 
@@ -691,6 +694,21 @@ export default function Home({ posts, dynamicDatabases = [] }) {
         <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
           Je transforme vos processus manuels en automatisations opérationnelles en moins d'une semaine. Expert <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> pour dirigeants qui veulent des résultats rapides, pas des promesses à long terme. Le week-end, je développe <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère — on parcourt la France pour mettre en avant des logements d'exception.
         </p>
+        
+        {/* Liens principaux — aide Google à afficher des sitelinks (À propos, Marketplace, Blog) */}
+        <nav className="mb-8 flex flex-wrap gap-x-4 gap-y-1 text-sm" aria-label="Navigation principale">
+          <Link href="/a-propos" className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+            À propos
+          </Link>
+          <span className="text-neutral-300 dark:text-neutral-600" aria-hidden>·</span>
+          <Link href="/marketplace" className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+            Marketplace
+          </Link>
+          <span className="text-neutral-300 dark:text-neutral-600" aria-hidden>·</span>
+          <Link href="/blog" className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+            Blog
+          </Link>
+        </nav>
         
         {/* Métriques de confiance - Déplacées plus tôt sur mobile */}
         <div className="mb-8 md:mb-12">

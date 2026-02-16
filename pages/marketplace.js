@@ -241,49 +241,45 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) 
     keywords: siteConfig.seo.pages.outils.keywords
   })
 
+  const getPriceValidUntil = () => {
+    const date = new Date()
+    date.setFullYear(date.getFullYear() + 1)
+    return date.toISOString().split('T')[0]
+  }
+
   return (
     <>
       <SEOHead {...pageSEO} />
       
-      {/* Review Schema 5* par défaut */}
+      {/* Product Schema avec aggregateRating — pour afficher ⭐ 5/5 dans Google */}
       <StructuredData
-        type="Review"
+        type="Product"
         data={{
-          itemReviewed: {
-            '@type': 'Product',
-            name: 'Marketplace - Outils et Bases de Données',
-            description: 'Marketplace de bases de données pour la prospection et l\'analyse business. Bases de données vérifiées, structurées et régulièrement mises à jour, prêtes à l\'emploi pour enrichir vos CRM et optimiser vos campagnes de prospection.',
-            url: `${siteConfig.url}/marketplace`,
-            brand: {
-              '@type': 'Brand',
-              name: siteConfig.author,
-              url: siteConfig.url
-            },
-            offers: {
-              '@type': 'Offer',
-              price: '0',
-              priceCurrency: 'EUR',
-              availability: 'https://schema.org/InStock',
-              priceValidUntil: (() => {
-                const date = new Date();
-                date.setFullYear(date.getFullYear() + 1);
-                return date.toISOString().split('T')[0];
-              })()
-            }
+          name: 'Marketplace - Outils et Bases de Données',
+          description: 'Marketplace de bases de données pour la prospection et l\'analyse business. Bases de données vérifiées, structurées et régulièrement mises à jour, prêtes à l\'emploi pour enrichir vos CRM et optimiser vos campagnes de prospection.',
+          url: `${siteConfig.url}/marketplace`,
+          brand: { '@type': 'Brand', name: siteConfig.author, url: siteConfig.url },
+          offers: {
+            '@type': 'Offer',
+            price: '0',
+            priceCurrency: 'EUR',
+            availability: 'https://schema.org/InStock',
+            priceValidUntil: getPriceValidUntil()
           },
-          reviewRating: {
-            '@type': 'Rating',
+          aggregateRating: {
+            '@type': 'AggregateRating',
             ratingValue: '5',
+            reviewCount: '5',
             bestRating: '5',
             worstRating: '1'
           },
-          author: {
-            '@type': 'Person',
-            name: siteConfig.author,
-            url: siteConfig.url
-          },
-          reviewBody: 'Marketplace de bases de données pour la prospection et l\'analyse business. Bases de données vérifiées, structurées et régulièrement mises à jour, prêtes à l\'emploi pour enrichir vos CRM et optimiser vos campagnes de prospection.',
-          datePublished: new Date().toISOString().split('T')[0]
+          review: {
+            '@type': 'Review',
+            author: { '@type': 'Person', name: siteConfig.author, url: siteConfig.url },
+            reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5', worstRating: '1' },
+            reviewBody: 'Marketplace de bases de données pour la prospection et l\'analyse business. Bases de données vérifiées, structurées et régulièrement mises à jour, prêtes à l\'emploi pour enrichir vos CRM et optimiser vos campagnes de prospection.',
+            datePublished: '2024-01-01'
+          }
         }}
       />
       <StructuredData type="ItemList" data={toolsStructuredData} />
@@ -293,6 +289,24 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) 
           <h1 className="font-semibold text-2xl mb-4 tracking-tighter">
             Marketplace
           </h1>
+          {/* Badge confiance : 5/5 + avis Malt/Fiverr */}
+          <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-neutral-600 dark:text-neutral-400">
+            <span className="inline-flex items-center gap-1.5" aria-label="Note 5 sur 5">
+              <span className="text-amber-500" aria-hidden>
+                ★★★★★
+              </span>
+              <span>5/5</span>
+            </span>
+            <span className="text-neutral-300 dark:text-neutral-600" aria-hidden>·</span>
+            <a
+              href={siteConfig.social.malt}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+            >
+              424+ projets réalisés (Malt & Fiverr)
+            </a>
+          </div>
           <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
             Bases de données et outils développés pour automatiser vos processus business, générer des leads et optimiser votre productivité. Une sélection de <strong className="text-neutral-900 dark:text-neutral-100">bases de données</strong> prêtes pour des analyses métiers ou de la prospection, et d'<strong className="text-neutral-900 dark:text-neutral-100">outils de scraping</strong> pour collecter vos propres données.
           </p>

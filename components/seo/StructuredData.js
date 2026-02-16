@@ -102,6 +102,29 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
             'query-input': 'required name=search_term_string'
           }
         };
+
+      case 'SiteNavigation':
+        // Sitelinks : aide Google à comprendre la structure de navigation du site
+        // Liens avec texte d'ancrage descriptif ("À propos", "Blog", etc.) privilégiés par Google
+        const navItems = data.items || [
+          { name: 'À propos', url: `${siteConfig.url}/a-propos` },
+          { name: 'Marketplace', url: `${siteConfig.url}/marketplace` },
+          { name: 'Blog', url: `${siteConfig.url}/blog` }
+        ];
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'ItemList',
+          name: 'Navigation principale',
+          itemListElement: navItems.map((item, i) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            item: {
+              '@type': 'WebPage',
+              name: item.name,
+              url: item.url
+            }
+          }))
+        };
       
       case 'WebPage':
         return {
@@ -129,6 +152,29 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           } : undefined,
           breadcrumb: data.breadcrumb,
           mainEntity: data.mainEntity
+        };
+
+      case 'ContactPage':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'ContactPage',
+          url: data.url || `${siteConfig.url}/contact`,
+          name: data.name || 'Contact - Corentin Robert',
+          description: data.description || 'Réservez un créneau pour discuter de vos projets de scraping, d\'automatisation ou d\'outbound marketing. Consultation gratuite de 20 minutes.',
+          inLanguage: 'fr-FR',
+          isPartOf: {
+            '@type': 'WebSite',
+            name: siteConfig.name,
+            url: siteConfig.url
+          },
+          mainEntity: {
+            '@type': 'ContactPoint',
+            contactType: 'Customer Service',
+            email: data.email || 'contact@corentinrobert.fr',
+            url: data.bookingUrl || 'https://calendly.com/corentinrobert/20min',
+            availableLanguage: ['French', 'English'],
+            areaServed: 'FR'
+          }
         };
       
       case 'Organization':

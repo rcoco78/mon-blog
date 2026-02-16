@@ -1,4 +1,5 @@
 import SEOHead from '../components/seo/SEOHead'
+import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 
@@ -13,6 +14,16 @@ export default function Contact() {
   return (
     <>
       <SEOHead {...pageSEO} />
+      <StructuredData
+        type="ContactPage"
+        data={{
+          url: `${siteConfig.url}/contact`,
+          name: siteConfig.seo.pages.contact.title,
+          description: siteConfig.seo.pages.contact.description,
+          email: 'contact@corentinrobert.fr',
+          bookingUrl: 'https://calendly.com/corentinrobert/20min'
+        }}
+      />
 
       <div className="flex-auto min-w-0 mt-6 flex flex-col">
         <section className="mb-16">
