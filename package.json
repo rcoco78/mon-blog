@@ -16,7 +16,9 @@
     "sync-marketplace:dry-run": "node scripts/sync-google-sheets-marketplace.js --dry-run",
     "sync-sheets": "node scripts/simple-sync-sheets.js",
     "enrich-sheets": "node scripts/enrich-marketplace-sheets.js",
-    "enrich-sheets:all": "node scripts/enrich-marketplace-sheets.js --all"
+    "enrich-sheets:all": "node scripts/enrich-marketplace-sheets.js --all",
+    "analyse-quick-wins": "node scripts/analyse-search-console-quick-wins.js",
+    "analyse-ctr": "node scripts/analyse-search-console-ctr.js"
   },
   "keywords": [],
   "author": "",
@@ -43,6 +45,7 @@
     "react-markdown": "^10.1.0",
     "react-notion-x": "^4.4.0",
     "remark-gfm": "^4.0.1",
+    "resend": "^6.9.2",
     "stripe": "^20.1.0"
   },
   "devDependencies": {

@@ -9,7 +9,7 @@ import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { tools } from '../lib/tools'
 
-export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) {
+export default function Marketplace({ dynamicDatabases = [], apifyTools = [], marketplaceReviews = [] }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedPricing, setSelectedPricing] = useState(null) // '<100' | '100-200' | '200+' | 'free' | null
   const [sortBy, setSortBy] = useState('views') // 'date' | 'price_desc' | 'views' — défaut: plus consultés
@@ -247,6 +247,15 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) 
     return date.toISOString().split('T')[0]
   }
 
+  // Note moyenne réelle (1 décimale) — fallback 5 si aucun avis
+  const avgRating = marketplaceReviews.length > 0
+    ? (marketplaceReviews.reduce((s, r) => s + (r.rating || 5), 0) / marketplaceReviews.length).toFixed(1)
+    : '5'
+  const displayStars = (n) => {
+    const filled = Math.min(5, Math.max(0, Math.round(n)))
+    return '★'.repeat(filled) + '☆'.repeat(5 - filled)
+  }
+
   return (
     <>
       <SEOHead {...pageSEO} />
@@ -268,8 +277,8 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) 
           },
           aggregateRating: {
             '@type': 'AggregateRating',
-            ratingValue: '5',
-            reviewCount: '5',
+            ratingValue: avgRating,
+            reviewCount: String(Math.max(1, marketplaceReviews.length)),
             bestRating: '5',
             worstRating: '1'
           },
@@ -289,15 +298,21 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) 
           <h1 className="font-semibold text-2xl mb-4 tracking-tighter">
             Marketplace
           </h1>
-          {/* Badge confiance : 5/5 + avis Malt/Fiverr */}
+          {/* Badge confiance : note réelle + avis Malt/Fiverr */}
           <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-neutral-600 dark:text-neutral-400">
-            <span className="inline-flex items-center gap-1.5" aria-label="Note 5 sur 5">
+            <span className="inline-flex items-center gap-1.5" aria-label={`Note ${avgRating} sur 5`}>
               <span className="text-amber-500" aria-hidden>
-                ★★★★★
+                {displayStars(parseFloat(avgRating))}
               </span>
-              <span>5/5</span>
+              <span>{avgRating}/5</span>
             </span>
             <span className="text-neutral-300 dark:text-neutral-600" aria-hidden>·</span>
+            {marketplaceReviews.length > 0 && (
+              <>
+                <span>{marketplaceReviews.length} avis clients vérifiés</span>
+                <span className="text-neutral-300 dark:text-neutral-600" aria-hidden>·</span>
+              </>
+            )}
             <a
               href={siteConfig.social.malt}
               target="_blank"
@@ -607,6 +622,104 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [] }) 
           )}
         </section>
 
+        {/* Avis clients marketplace */}
+        {marketplaceReviews.length > 0 && (
+          <section className="mb-16" aria-label="Avis clients">
+            <h2 className="font-semibold text-xl mb-6 tracking-tighter">
+              Avis clients
+              <span className="ml-2 text-base font-normal text-neutral-500 dark:text-neutral-400">
+                ({marketplaceReviews.length} avis vérifiés)
+              </span>
+            </h2>
+            <div
+              className={`grid gap-4 ${
+                marketplaceReviews.length === 1
+                  ? 'grid-cols-1 max-w-2xl mx-auto'
+                  : marketplaceReviews.length >= 7
+                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+              }`}
+            >
+              {marketplaceReviews.map((r) => {
+                const ProductTag = r.productLink ? Link : 'span'
+                const productProps = r.productLink ? { href: r.productLink } : {}
+                const dateStr = r.createdAt
+                  ? (() => {
+                      const d = new Date(r.createdAt)
+                      const diff = Math.floor((Date.now() - d) / (1000 * 60 * 60 * 24))
+                      if (diff === 0) return "Aujourd'hui"
+                      if (diff === 1) return 'Hier'
+                      if (diff < 7) return `Il y a ${diff} jours`
+                      if (diff < 30) return `Il y a ${Math.floor(diff / 7)} sem.`
+                      return d.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })
+                    })()
+                  : null
+                const initials = (r.authorName || '')
+                  .split(/\s+/)
+                  .map((w) => w[0])
+                  .slice(0, 2)
+                  .join('')
+                  .toUpperCase() || '?'
+                return (
+                  <div
+                    key={r.id}
+                    className="flex flex-col p-5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/80"
+                  >
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                        {initials}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          {r.linkedinUrl ? (
+                            <a
+                              href={r.linkedinUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                              title="Voir le profil LinkedIn"
+                            >
+                              {r.authorName}
+                              <svg className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                              </svg>
+                            </a>
+                          ) : (
+                            <span className="text-sm font-medium text-neutral-900 dark:text-white">{r.authorName}</span>
+                          )}
+                          {r.linkedinUrl && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
+                              Vérifié
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                          <span className="text-amber-500 text-xs" aria-hidden title={`${r.rating}/5`}>
+                            {displayStars(r.rating)}
+                          </span>
+                          {r.productName && (
+                            <ProductTag {...productProps} className={`text-xs ${r.productLink ? 'text-blue-600 dark:text-blue-400 hover:underline' : 'text-neutral-500 dark:text-neutral-500'}`}>
+                              {r.productName}
+                            </ProductTag>
+                          )}
+                          {dateStr && (
+                            <span className="text-xs text-neutral-400 dark:text-neutral-500">
+                              {dateStr}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed flex-1">
+                      &quot;{r.reviewBody}&quot;
+                    </p>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        )}
+
         <section className="mb-16">
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">Questions fréquentes</h2>
           <FAQ
@@ -846,10 +959,35 @@ export async function getServerSideProps() {
     console.error('❌ Erreur chargement bases de données:', error.message)
   }
   
+  let marketplaceReviews = []
+  try {
+    const { getMarketplaceReviews } = await import('../lib/marketplace-reviews')
+    const { categoryToSlug } = await import('../lib/marketplace-helpers')
+    const raw = await getMarketplaceReviews()
+    marketplaceReviews = raw.map(({ id, authorName, reviewBody, productName, productSlug, linkedinUrl, createdAt, rating }) => {
+      const tool = dynamicDatabases?.find((t) => t.slug === productSlug)
+      const productLink = tool ? `/marketplace/${categoryToSlug(tool.category)}/${productSlug}` : null
+      const r = parseInt(rating, 10)
+      return {
+        id,
+        authorName,
+        reviewBody,
+        productName: productName || null,
+        productLink,
+        linkedinUrl: linkedinUrl || null,
+        createdAt,
+        rating: (r >= 1 && r <= 5) ? r : 5
+      }
+    })
+  } catch (err) {
+    console.warn('Erreur chargement avis marketplace:', err?.message)
+  }
+
   return {
     props: {
       dynamicDatabases,
-      apifyTools
+      apifyTools,
+      marketplaceReviews
     }
   }
 }
