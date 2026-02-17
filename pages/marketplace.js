@@ -18,8 +18,8 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [displayedCount, setDisplayedCount] = useState(12)
-  const ITEMS_PER_PAGE = 12
+  const [displayedCount, setDisplayedCount] = useState(8)
+  const ITEMS_PER_PAGE = 8
 
   // URL de la vidéo Tella
   const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
