@@ -33,7 +33,7 @@ const getCompanyLogo = (companyName) => {
   return null
 }
 
-export default function Home({ posts, dynamicDatabases = [] }) {
+export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsCount = 0 }) {
   const [topPosts, setTopPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [metrics, setMetrics] = useState(siteConfig.metrics)
@@ -695,21 +695,6 @@ export default function Home({ posts, dynamicDatabases = [] }) {
           Je transforme vos processus manuels en automatisations opérationnelles en moins d'une semaine. Expert <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> pour dirigeants qui veulent des résultats rapides, pas des promesses à long terme. Le week-end, je développe <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère — on parcourt la France pour mettre en avant des logements d'exception.
         </p>
         
-        {/* Liens principaux — aide Google à afficher des sitelinks (À propos, Marketplace, Blog) */}
-        <nav className="mb-8 flex flex-wrap gap-x-4 gap-y-1 text-sm" aria-label="Navigation principale">
-          <Link href="/a-propos" className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
-            À propos
-          </Link>
-          <span className="text-neutral-300 dark:text-neutral-600" aria-hidden>·</span>
-          <Link href="/marketplace" className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
-            Marketplace
-          </Link>
-          <span className="text-neutral-300 dark:text-neutral-600" aria-hidden>·</span>
-          <Link href="/blog" className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
-            Blog
-          </Link>
-        </nav>
-        
         {/* Métriques de confiance - Déplacées plus tôt sur mobile */}
         <div className="mb-8 md:mb-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3" aria-label="Métriques de confiance">
@@ -1018,7 +1003,14 @@ export default function Home({ posts, dynamicDatabases = [] }) {
 
       {/* Section Marketplace */}
       <section className="mt-12" aria-label="Marketplace">
-        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Marketplace</h2>
+        <h2 className="font-semibold text-xl mb-6 tracking-tighter">
+          Marketplace
+          {marketplaceReviewsCount > 0 && (
+            <span className="ml-2 text-base font-normal text-neutral-500 dark:text-neutral-400">
+              · {marketplaceReviewsCount} avis client{marketplaceReviewsCount > 1 ? 's' : ''}
+            </span>
+          )}
+        </h2>
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
           Bases de données que j'ai développées et mets à disposition — listings, extracteurs et templates pour vous aider dans votre quotidien.
         </p>
@@ -1243,10 +1235,20 @@ export async function getStaticProps() {
       .slice(0, 3)
   }
 
+  let marketplaceReviewsCount = 0
+  try {
+    const { getMarketplaceReviews } = await import('../lib/marketplace-reviews')
+    const reviews = await getMarketplaceReviews()
+    marketplaceReviewsCount = reviews.length
+  } catch {
+    // ignore
+  }
+
   return {
     props: {
       posts,
       dynamicDatabases,
+      marketplaceReviewsCount,
     },
     revalidate: 60,
   }
