@@ -381,25 +381,17 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
           {activeTab === 'databases' && (
           <div className="flex flex-col gap-6 mb-8 min-w-0 overflow-x-hidden">
             {/* Ligne 1 — Prix */}
-            <div>
+            <div className="min-w-0 w-full overflow-hidden">
               <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Prix
               </label>
-              <div className="flex flex-wrap gap-2">
-                {pricingRanges.map((range) => (
-                  <button
-                    key={range.value ?? 'all'}
-                    onClick={() => setSelectedPricing(range.value)}
-                    className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
-                      selectedPricing === range.value
-                        ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
-                        : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
-                    }`}
-                  >
-                    {range.label}
-                  </button>
-                ))}
-              </div>
+              <SearchBar
+                tags={pricingRanges.filter(r => r.value !== undefined && r.value !== null)}
+                selectedTag={selectedPricing}
+                onTagSelect={setSelectedPricing}
+                allLabel={pricingRanges.find(r => r.value === null || r.value === undefined)?.label ?? 'Tous'}
+                allValue={null}
+              />
             </div>
 
             {/* Ligne 2 — Catégorie (scroll horizontal) */}

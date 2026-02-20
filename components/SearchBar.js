@@ -2,7 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react'
 
-export default function SearchBar({ tags = [], selectedTag, onTagSelect }) {
+/**
+ * tags  : string[] (ancien mode) OU { label, value }[] (nouveau mode)
+ * allLabel : libellé du bouton "Tous" (défaut "Tous")
+ */
+export default function SearchBar({ tags = [], selectedTag, onTagSelect, allLabel = 'Tous', allValue = null }) {
   const scrollRef = useRef(null)
   const [canScrollRight, setCanScrollRight] = useState(false)
 
@@ -33,28 +37,32 @@ export default function SearchBar({ tags = [], selectedTag, onTagSelect }) {
         className="flex flex-nowrap gap-2 overflow-x-auto pb-1.5 scrollbar-hide"
       >
         <button
-          onClick={() => onTagSelect(null)}
+          onClick={() => onTagSelect(allValue)}
           className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 border ${
-            selectedTag === null
+            selectedTag === allValue
               ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
               : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
           }`}
         >
-          Tous
+          {allLabel}
         </button>
-        {tags.map((tag) => (
-          <button
-            key={tag}
-            onClick={() => onTagSelect(tag)}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 border ${
-              selectedTag === tag
-                ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
-                : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
-            }`}
-          >
-            {tag}
-          </button>
-        ))}
+        {tags.map((tag) => {
+          const label = typeof tag === 'object' ? tag.label : tag
+          const value = typeof tag === 'object' ? tag.value : tag
+          return (
+            <button
+              key={value ?? label}
+              onClick={() => onTagSelect(value)}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 border ${
+                selectedTag === value
+                  ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
+                  : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
+              }`}
+            >
+              {label}
+            </button>
+          )
+        })}
       </div>
       {/* Fade à droite pour inciter au scroll (plus de catégories à découvrir) */}
       {canScrollRight && (
