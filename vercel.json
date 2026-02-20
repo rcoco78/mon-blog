@@ -30,7 +30,7 @@
     },
     {
       "path": "/api/cron/generate-new-case-studies",
-      "schedule": "0 6 * * *"
+      "schedule": "0 6,17 * * *"
     },
     {
       "path": "/api/cron/tella-marketplace-videos",
@@ -39,6 +39,10 @@
     {
       "path": "/api/cron/analyse-ctr",
       "schedule": "0 18 * * *"
+    },
+    {
+      "path": "/api/cron/case-studies-ranking-check",
+      "schedule": "0 8 * * 0"
     }
   ],
   "redirects": [

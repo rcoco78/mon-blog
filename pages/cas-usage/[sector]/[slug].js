@@ -407,7 +407,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
     }
   ]
 
-  const faqItems = [
+  const staticFaqItems = [
     {
       question: `Comment fonctionne le scraping pour ${caseStudy.sector.toLowerCase()} ?`,
       answer: `Le scraping permet d'extraire automatiquement toutes les données disponibles sur les sites web de ${caseStudy.examples.slice(0, 3).join(', ')} et autres sources. Les données sont structurées et livrées dans le format de votre choix (CSV, Excel, JSON, API). Le processus est automatisé et peut être programmé pour des mises à jour régulières. Cette solution est particulièrement adaptée pour ${caseStudy.sector.toLowerCase()} où la collecte manuelle de données prendrait des semaines.`
@@ -441,6 +441,11 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
       answer: `Oui, le scraping respecte les conditions d'utilisation des sites web et la réglementation en vigueur (RGPD, respect des robots.txt, limitation des requêtes). Je m'assure que toutes les données extraites sont publiquement accessibles et que l'extraction respecte les bonnes pratiques éthiques et légales du web scraping.`
     }
   ]
+
+  // Utiliser la FAQ dynamique générée par l'IA si disponible, sinon fallback sur les questions génériques
+  const faqItems = Array.isArray(caseStudy.faq) && caseStudy.faq.length > 0
+    ? caseStudy.faq
+    : staticFaqItems
 
   const openCalendly = () => {
     if (!mounted) return
@@ -1721,9 +1726,25 @@ export async function getStaticProps({ params }) {
   }
 
   // Récupérer les cas d'usage similaires
+  // Priorité : relatedLinks pré-calculés par le générateur (maillage interne automatique)
   let relatedCaseStudies = []
   try {
-    relatedCaseStudies = await getRelatedCaseStudies(params.slug, 4)
+    if (caseStudy?.relatedLinks?.length > 0) {
+      // Utiliser les liens pré-calculés, enrichis avec les données réelles depuis le blob
+      const enriched = []
+      for (const link of caseStudy.relatedLinks.slice(0, 4)) {
+        try {
+          const full = await getCaseStudyBySlug(link.slug)
+          if (full) enriched.push(full)
+          else enriched.push(link)
+        } catch {
+          enriched.push(link)
+        }
+      }
+      relatedCaseStudies = enriched
+    } else {
+      relatedCaseStudies = await getRelatedCaseStudies(params.slug, 4)
+    }
   } catch (error) {
     console.warn('⚠️ Erreur lors de la récupération des cas similaires, fallback:', error.message)
     relatedCaseStudies = getRelatedCaseStudiesLocal(params.slug, 4)
