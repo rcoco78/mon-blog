@@ -47,3 +47,6 @@ next-env.d.ts
 # documentation (pas nécessaire pour Vercel)
 /docs/
 !README.md
+
+# Cursor agent skills (local uniquement)
+.agents/
