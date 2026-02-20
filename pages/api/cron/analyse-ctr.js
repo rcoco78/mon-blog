@@ -7,7 +7,7 @@
  */
 
 import { list, put } from '@vercel/blob'
-import { getSearchConsolePagesForCTR } from '../../../lib/search-console'
+import { getSearchConsolePagesForCTR, getTopQueriesForPages } from '../../../lib/search-console'
 import {
   getPageSource,
   fetchPageMeta,
@@ -67,6 +67,7 @@ function formatForTelegram(results, pipeline = {}) {
     const posEmoji = r.position <= 3 ? '🥇' : r.position <= 10 ? '🎯' : r.position <= 20 ? '📈' : '💤'
     lines.push(`${posEmoji} *${r.path}*`)
     lines.push(`   Imp: ${r.impressions} | CTR: ${r.ctr.toFixed(1)}% | Pos: ${Math.round(r.position)}`)
+    if (r.topQuery) lines.push(`   🔑 Requête #1 : \`${r.topQuery}\``)
     const best = r.suggestions?.[0]
     if (best) {
       lines.push(`   ✏️ Titre: \`${(best.title || '').slice(0, 60)}${(best.title || '').length > 60 ? '…' : ''}\``)
@@ -201,11 +202,17 @@ export default async function handler(req, res) {
 
     console.log(`[analyse-ctr] Analyse de ${toAnalyze.length} pages :`, toAnalyze.map((p) => `${p.path} (prio ${Math.round(p._priority)}, pos ${Math.round(p.position)})`).join(', '))
 
+    // Un seul call SC pour récupérer les top queries de toutes les pages à analyser
+    const paths = toAnalyze.map((p) => p.path)
+    const topQueriesByPage = await getTopQueriesForPages(paths, { days: 90 }).catch(() => ({}))
+    console.log(`[analyse-ctr] Top queries récupérées pour ${Object.keys(topQueriesByPage).length}/${paths.length} pages`)
+
     const newAnalyzedPaths = { ...state.analyzedPaths }
 
     // Paralléliser les appels meta + contexte + GPT pour rester sous 60s
     const results = await Promise.all(
       toAnalyze.map(async (page) => {
+        const topQueries = topQueriesByPage[page.path] || []
         const [meta, pageContext] = await Promise.all([
           fetchPageMeta(page.path),
           fetchPageContextFromBlob(page.path),
@@ -218,6 +225,7 @@ export default async function handler(req, res) {
           page.ctr,
           page.position,
           pageContext,
+          topQueries,
         )
         const source = getPageSource(page.path)
 
@@ -239,6 +247,7 @@ export default async function handler(req, res) {
           ctr: page.ctr,
           position: page.position,
           _priority: page._priority,
+          topQuery: topQueries[0]?.query || null,
           currentTitle: meta.title,
           currentMeta: meta.metaDescription,
           source,
