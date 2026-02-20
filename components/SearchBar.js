@@ -63,7 +63,7 @@ export default function SearchBar({ tags = [], selectedTag, onTagSelect }) {
             className="absolute right-0 top-0 bottom-1.5 w-12 pointer-events-none hidden dark:block"
             aria-hidden
             style={{
-              background: 'linear-gradient(to right, rgba(17,24,39,0), rgba(17,24,39,0.92), rgb(17 24 39))'
+              background: 'linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.92), rgb(0,0,0))'
             }}
           />
           <div

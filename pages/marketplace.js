@@ -379,7 +379,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
 
           {/* Filtres - uniquement pour les bases de données */}
           {activeTab === 'databases' && (
-          <div className="flex flex-col gap-6 mb-8 min-w-0 overflow-hidden">
+          <div className="flex flex-col gap-6 mb-8 min-w-0 overflow-x-hidden">
             {/* Ligne 1 — Prix */}
             <div>
               <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
