@@ -201,50 +201,53 @@ export default async function handler(req, res) {
 
     console.log(`[analyse-ctr] Analyse de ${toAnalyze.length} pages :`, toAnalyze.map((p) => `${p.path} (prio ${Math.round(p._priority)}, pos ${Math.round(p.position)})`).join(', '))
 
-    const results = []
     const newAnalyzedPaths = { ...state.analyzedPaths }
 
-    for (const page of toAnalyze) {
-      const [meta, pageContext] = await Promise.all([
-        fetchPageMeta(page.path),
-        fetchPageContextFromBlob(page.path),
-      ])
-      const suggestions = await getSuggestionsFromGPT(
-        page.path,
-        meta.title,
-        meta.metaDescription,
-        page.impressions,
-        page.ctr,
-        page.position,
-        pageContext,
-      )
-      const source = getPageSource(page.path)
+    // Paralléliser les appels meta + contexte + GPT pour rester sous 60s
+    const results = await Promise.all(
+      toAnalyze.map(async (page) => {
+        const [meta, pageContext] = await Promise.all([
+          fetchPageMeta(page.path),
+          fetchPageContextFromBlob(page.path),
+        ])
+        const suggestions = await getSuggestionsFromGPT(
+          page.path,
+          meta.title,
+          meta.metaDescription,
+          page.impressions,
+          page.ctr,
+          page.position,
+          pageContext,
+        )
+        const source = getPageSource(page.path)
 
-      // Application auto de la meilleure suggestion au blob
-      let applied = false
-      let applyError = null
-      const best = suggestions?.[0]
-      if (best && source.identifier) {
-        const applyResult = await applyOptimizationToBlob(source, best)
-        applied = applyResult.applied
-        applyError = applyResult.error
-      }
+        let applied = false
+        let applyError = null
+        const best = suggestions?.[0]
+        if (best && source.identifier) {
+          const applyResult = await applyOptimizationToBlob(source, best)
+          applied = applyResult.applied
+          applyError = applyResult.error
+        }
 
-      results.push({
-        path: page.path,
-        impressions: page.impressions,
-        clicks: page.clicks,
-        ctr: page.ctr,
-        position: page.position,
-        currentTitle: meta.title,
-        currentMeta: meta.metaDescription,
-        source,
-        suggestions,
-        applied,
-        applyError,
+        newAnalyzedPaths[page.path] = new Date().toISOString()
+
+        return {
+          path: page.path,
+          impressions: page.impressions,
+          clicks: page.clicks,
+          ctr: page.ctr,
+          position: page.position,
+          _priority: page._priority,
+          currentTitle: meta.title,
+          currentMeta: meta.metaDescription,
+          source,
+          suggestions,
+          applied,
+          applyError,
+        }
       })
-      newAnalyzedPaths[page.path] = new Date().toISOString()
-    }
+    )
 
     const pipeline = {
       sc: allPages.length,
