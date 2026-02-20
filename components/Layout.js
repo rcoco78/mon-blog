@@ -88,7 +88,7 @@ export default function Layout({ children }) {
   const currentTheme = mounted ? (resolvedTheme || 'light') : 'light'
 
   return (
-    <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 overflow-x-hidden">
       <div className="flex flex-col min-h-screen mt-8 sm:mt-8">
         <nav className="flex flex-row items-center justify-between relative px-0 pb-8 fade md:overflow-auto scroll-pr-6 md:relative" id="nav">
           <div className="flex flex-row items-start sm:items-center flex-wrap gap-x-1 sm:gap-x-2 gap-y-1">
@@ -268,8 +268,8 @@ export default function Layout({ children }) {
                   </ul>
                 </footer>
       </div>
-      {/* Bouton Calendly flottant - visible uniquement sur mobile */}
-      <div className="sm:hidden">
+      {/* Bouton Calendly flottant - visible uniquement sur desktop (masqué en mobile) */}
+      <div className="hidden sm:block">
         <FloatingCalendlyButton />
       </div>
     </div>

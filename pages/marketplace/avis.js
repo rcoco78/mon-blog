@@ -143,12 +143,15 @@ function ProductAutocomplete({ products, value, onChange, onSelect, id, disabled
   )
 }
 
+const MAX_REVIEW_LENGTH = 2000
+
 const FIELD_ERROR_MESSAGES = {
-  authorName: 'Votre nom est requis',
+  authorName: 'Nom ou nom d\'entreprise requis',
   linkedinUrl: 'Profil LinkedIn requis (ex: linkedin.com/in/votre-profil)',
   productSlug: 'Sélectionnez le produit acheté',
   rating: 'Choisissez une note (1 à 5 étoiles)',
-  reviewBody: 'Votre avis est requis'
+  reviewBody: 'Votre avis est requis',
+  reviewBodyMaxLength: `Maximum ${MAX_REVIEW_LENGTH} caractères`
 }
 
 function getErrorField(msg) {
@@ -157,10 +160,11 @@ function getErrorField(msg) {
   if (/LinkedIn|linkedin/i.test(msg)) return 'linkedinUrl'
   if (/produit|Produit/.test(msg)) return 'productSlug'
   if (/note|étoile/.test(msg)) return 'rating'
+  if (/Maximum|caractères/.test(msg)) return 'reviewBody'
   return null
 }
 
-export default function MarketplaceAvis({ valid, marketplaceProducts = [], reviewCount = 0 }) {
+export default function MarketplaceAvis({ valid, marketplaceProducts = [], reviewCount = 0, initialProductSlug = null, initialProductName = null }) {
   const router = useRouter()
   const ref = router.query.ref
   const [submitting, setSubmitting] = useState(false)
@@ -175,10 +179,10 @@ export default function MarketplaceAvis({ valid, marketplaceProducts = [], revie
     authorName: '',
     email: '',
     linkedinUrl: '',
-    productSlug: '',
+    productSlug: initialProductSlug || '',
     rating: 0,
     reviewBody: '',
-    productName: ''
+    productName: initialProductName || ''
   })
 
   // Scroll vers l'erreur (ou premier champ en erreur) quand une erreur apparaît
@@ -208,15 +212,19 @@ export default function MarketplaceAvis({ valid, marketplaceProducts = [], revie
       case 'linkedinUrl': {
         const v = normalizeLinkedInUrl(value)
         if (!v) return FIELD_ERROR_MESSAGES.linkedinUrl
-        if (!/linkedin\.com\/in\//i.test(v)) return FIELD_ERROR_MESSAGES.linkedinUrl
+        if (!/linkedin\.com\/(in|company)\//i.test(v)) return FIELD_ERROR_MESSAGES.linkedinUrl
         return null
       }
       case 'productSlug':
         return !value ? FIELD_ERROR_MESSAGES.productSlug : null
       case 'rating':
         return value < 1 || value > 5 ? FIELD_ERROR_MESSAGES.rating : null
-      case 'reviewBody':
-        return !(value || '').trim() ? FIELD_ERROR_MESSAGES.reviewBody : null
+      case 'reviewBody': {
+        const trimmed = (value || '').trim()
+        if (!trimmed) return FIELD_ERROR_MESSAGES.reviewBody
+        if (trimmed.length > MAX_REVIEW_LENGTH) return FIELD_ERROR_MESSAGES.reviewBodyMaxLength
+        return null
+      }
       default:
         return null
     }
@@ -262,7 +270,7 @@ export default function MarketplaceAvis({ valid, marketplaceProducts = [], revie
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ref,
-          authorName: form.authorName.trim(),
+          authorName: form.authorName.trim() || undefined,
           email: form.email.trim() || undefined,
           linkedinUrl: linkedinNormalized,
           reviewBody: form.reviewBody.trim(),
@@ -354,18 +362,24 @@ export default function MarketplaceAvis({ valid, marketplaceProducts = [], revie
         </p>
         {reviewCount > 0 && (
           <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-8">
-            Rejoignez les {reviewCount} client{reviewCount > 1 ? 's' : ''} qui ont déjà laissé un avis.
+            {reviewCount === 1
+              ? 'Rejoignez le client qui a déjà laissé un avis.'
+              : `Rejoignez les ${reviewCount} clients qui ont déjà laissé un avis.`}
           </p>
         )}
-        {reviewCount === 0 && <div className="mb-8" />}
+        {reviewCount === 0 && (
+          <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-8">
+            Soyez le premier à laisser un avis !
+          </p>
+        )}
 
         <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
           <p className="text-sm font-medium text-neutral-600 dark:text-neutral-500 pb-2 border-b border-neutral-200 dark:border-neutral-800">
-            1. Qui êtes-vous
+            1. Qui êtes-vous ?
           </p>
           <div>
             <label htmlFor="authorName" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Votre nom (sera affiché avec votre avis) *
+              Nom ou nom d&apos;entreprise *
             </label>
             <input
               id="authorName"
@@ -378,7 +392,7 @@ export default function MarketplaceAvis({ valid, marketplaceProducts = [], revie
                 if (fieldErrors.authorName) setFieldErrors((p) => ({ ...p, authorName: null }))
               }}
               onBlur={() => handleBlur('authorName')}
-              placeholder="Jean Dupont"
+              placeholder="Jean Dupont ou Acme SARL"
               className={`w-full px-4 py-2.5 text-sm rounded-lg border bg-white dark:bg-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 disabled:opacity-60 disabled:cursor-not-allowed ${
                 fieldErrors.authorName
                   ? 'border-red-500 dark:border-red-500 focus:ring-red-400 dark:focus:ring-red-500'
@@ -423,7 +437,7 @@ export default function MarketplaceAvis({ valid, marketplaceProducts = [], revie
                 if (fieldErrors.linkedinUrl) setFieldErrors((p) => ({ ...p, linkedinUrl: null }))
               }}
               onBlur={() => handleBlur('linkedinUrl')}
-              placeholder="linkedin.com/in/votre-profil"
+              placeholder="linkedin.com/in/votre-profil ou linkedin.com/company/votre-entreprise"
               className={`w-full px-4 py-2.5 text-sm rounded-lg border bg-white dark:bg-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 disabled:opacity-60 disabled:cursor-not-allowed ${
                 fieldErrors.linkedinUrl
                   ? 'border-red-500 dark:border-red-500 focus:ring-red-400 dark:focus:ring-red-500'
@@ -433,7 +447,7 @@ export default function MarketplaceAvis({ valid, marketplaceProducts = [], revie
               aria-describedby={fieldErrors.linkedinUrl ? 'linkedinUrl-error' : undefined}
             />
             <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
-              Pas besoin de https:// — ex: linkedin.com/in/votre-profil
+              Pas besoin de https:// — profil (linkedin.com/in/...) ou page entreprise (linkedin.com/company/...)
             </p>
             {fieldErrors.linkedinUrl && (
               <p id="linkedinUrl-error" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.linkedinUrl}</p>
@@ -516,11 +530,15 @@ export default function MarketplaceAvis({ valid, marketplaceProducts = [], revie
               id="reviewBody"
               required
               rows={4}
+              maxLength={MAX_REVIEW_LENGTH}
               disabled={submitting}
               value={form.reviewBody}
               onChange={(e) => {
-                setForm((f) => ({ ...f, reviewBody: e.target.value }))
-                if (fieldErrors.reviewBody) setFieldErrors((p) => ({ ...p, reviewBody: null }))
+                const v = e.target.value
+                if (v.length <= MAX_REVIEW_LENGTH) {
+                  setForm((f) => ({ ...f, reviewBody: v }))
+                  if (fieldErrors.reviewBody) setFieldErrors((p) => ({ ...p, reviewBody: null }))
+                }
               }}
               onBlur={() => handleBlur('reviewBody')}
               placeholder="Ex : Livraison rapide, données exploitables tout de suite. Je recommande vivement !"
@@ -534,6 +552,11 @@ export default function MarketplaceAvis({ valid, marketplaceProducts = [], revie
             />
             <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-500">
               Quelques mots suffisent. Écrivez comme vous parlez — authenticité &gt; perfection.
+              {form.reviewBody.length > 0 && (
+                <span className="ml-1">
+                  ({form.reviewBody.length}/{MAX_REVIEW_LENGTH})
+                </span>
+              )}
             </p>
             {fieldErrors.reviewBody && (
               <p id="reviewBody-error" className="mt-1 text-xs text-red-600 dark:text-red-400">{fieldErrors.reviewBody}</p>
@@ -548,7 +571,14 @@ export default function MarketplaceAvis({ valid, marketplaceProducts = [], revie
 
           <button
             type="submit"
-            disabled={submitting || form.rating < 1}
+            disabled={
+              submitting ||
+              !(form.authorName || '').trim() ||
+              !(form.linkedinUrl || '').trim() ||
+              !form.productSlug ||
+              form.rating < 1 ||
+              !(form.reviewBody || '').trim()
+            }
             className="w-full sm:w-auto px-8 py-3 text-sm font-medium text-white bg-neutral-900 dark:bg-neutral-100 dark:text-neutral-900 rounded-lg hover:opacity-90 disabled:opacity-50 transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             {submitting ? 'Envoi en cours...' : 'Partager mon expérience'}
@@ -566,6 +596,8 @@ export async function getServerSideProps({ query }) {
 
   let marketplaceProducts = []
   let reviewCount = 0
+  let initialProductSlug = null
+  let initialProductName = null
   if (valid) {
     try {
       const [{ getDatabasesAsTools }, { getMarketplaceReviews }] = await Promise.all([
@@ -580,10 +612,18 @@ export async function getServerSideProps({ query }) {
         .map((t) => ({ slug: t.slug, name: t.name, category: t.category }))
         .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
       reviewCount = reviews.length
+      const productSlug = (query.product || '').trim()
+      if (productSlug) {
+        const match = marketplaceProducts.find((p) => p.slug === productSlug)
+        if (match) {
+          initialProductSlug = match.slug
+          initialProductName = match.name
+        }
+      }
     } catch (err) {
       console.warn('Erreur chargement données avis:', err?.message)
     }
   }
 
-  return { props: { valid, marketplaceProducts, reviewCount } }
+  return { props: { valid, marketplaceProducts, reviewCount, initialProductSlug, initialProductName } }
 }

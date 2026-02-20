@@ -696,7 +696,7 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
         </p>
         
         {/* Métriques de confiance - Déplacées plus tôt sur mobile */}
-        <div className="mb-8 md:mb-12">
+        <div className="mb-6 md:mb-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3" aria-label="Métriques de confiance">
           {metricsLoading ? (
             // Skeleton pendant le chargement
@@ -768,7 +768,7 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
       </section>
 
       {/* Séparateur visuel — zone Présentation */}
-      <hr className="my-12 border-t border-neutral-200 dark:border-neutral-800" role="presentation" />
+      <hr className="my-6 border-t border-neutral-200 dark:border-neutral-800" role="presentation" />
 
       {/* Carousel de témoignages — triés par date (dernier avis en premier) */}
       {(() => {

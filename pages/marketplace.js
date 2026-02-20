@@ -1,10 +1,13 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import dynamic from 'next/dynamic'
 import { useState, useEffect, useRef } from 'react'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
-import FAQ from '../components/FAQ'
 import SearchBar from '../components/SearchBar'
+import SortDropdown from '../components/SortDropdown'
+
+const FAQ = dynamic(() => import('../components/FAQ'), { ssr: true })
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { tools } from '../lib/tools'
@@ -13,11 +16,12 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedPricing, setSelectedPricing] = useState(null) // '<100' | '100-200' | '200+' | 'free' | null
   const [sortBy, setSortBy] = useState('views') // 'date' | 'price_desc' | 'views' — défaut: plus consultés
+  const [selectedToolCategory, setSelectedToolCategory] = useState(null)
+  const [toolSortBy, setToolSortBy] = useState('users') // 'users' | 'runs' | 'date'
   const [activeTab, setActiveTab] = useState('databases') // 'databases' | 'tools'
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
   const [displayedCount, setDisplayedCount] = useState(8)
   const ITEMS_PER_PAGE = 8
 
@@ -49,6 +53,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
 
   const pricingRanges = [
     { value: null, label: 'Tous' },
+    { value: 'free', label: 'Gratuit' },
     { value: '<100', label: '< 100€', min: 1, max: 99 },
     { value: '100-200', label: '100-200€', min: 100, max: 200 },
     { value: '200+', label: '200€+', min: 201, max: Infinity }
@@ -66,29 +71,23 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
     )
   ).sort() // Trier par ordre alphabétique
   
-  // Filtrage par recherche (nom, description)
-  const matchesSearch = (tool) => {
-    if (!searchQuery.trim()) return true
-    const q = searchQuery.toLowerCase().trim()
-    const name = (tool.name || '').toLowerCase()
-    const desc = (tool.description || tool.shortDescription || '').toLowerCase()
-    const category = (tool.category || '').toLowerCase()
-    return name.includes(q) || desc.includes(q) || category.includes(q)
-  }
-
-  // Filtrer les bases de données (catégorie, prix, recherche)
+  // Filtrer les bases de données (catégorie, prix)
   const filteredTools = allTools
     .filter(tool => {
       const matchesCategory = selectedCategory === null || tool.category === selectedCategory
       let matchesPricing = true
       if (selectedPricing !== null) {
-        const priceRange = pricingRanges.find(r => r.value === selectedPricing)
-        if (priceRange?.min != null) {
-          const toolPrice = tool.annualPrice || tool.price || 0
-          matchesPricing = tool.isPaid && toolPrice >= priceRange.min && toolPrice <= priceRange.max
+        if (selectedPricing === 'free') {
+          matchesPricing = !tool.isPaid || (tool.annualPrice || tool.price || 0) === 0
+        } else {
+          const priceRange = pricingRanges.find(r => r.value === selectedPricing)
+          if (priceRange?.min != null) {
+            const toolPrice = tool.annualPrice || tool.price || 0
+            matchesPricing = tool.isPaid && toolPrice >= priceRange.min && toolPrice <= priceRange.max
+          }
         }
       }
-      return matchesCategory && matchesPricing && matchesSearch(tool)
+      return matchesCategory && matchesPricing
     })
     .sort((a, b) => {
       if (sortBy === 'price_desc') {
@@ -108,18 +107,36 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
       return getDate(b) - getDate(a)
     })
 
-  // Filtrer les outils Apify par recherche
-  const filteredApifyTools = (apifyTools || []).filter(tool => {
-    if (!searchQuery.trim()) return true
-    const q = searchQuery.toLowerCase().trim()
-    const name = (tool.name || '').toLowerCase()
-    const desc = (tool.description || '').toLowerCase()
-    return name.includes(q) || desc.includes(q)
-  })
+  // Catégories des outils (Apify)
+  const toolCategories = Array.from(
+    new Set(
+      (apifyTools || [])
+        .map(t => t.category)
+        .filter(c => c && c.trim() !== '')
+    )
+  ).sort()
+
+  // Filtrer et trier les outils
+  const filteredApifyTools = (apifyTools || [])
+    .filter(tool => selectedToolCategory === null || tool.category === selectedToolCategory)
+    .sort((a, b) => {
+      if (toolSortBy === 'users') {
+        const ua = a.apifyStats?.users || 0
+        const ub = b.apifyStats?.users || 0
+        return ub - ua
+      }
+      if (toolSortBy === 'runs') {
+        const ra = a.apifyStats?.runs || 0
+        const rb = b.apifyStats?.runs || 0
+        return rb - ra
+      }
+      const getDate = (t) => t.date ? new Date(t.date) : new Date(0)
+      return getDate(b) - getDate(a)
+    })
 
   useEffect(() => {
     setDisplayedCount(ITEMS_PER_PAGE)
-  }, [selectedCategory, selectedPricing, searchQuery, sortBy, activeTab])
+  }, [selectedCategory, selectedPricing, sortBy, selectedToolCategory, toolSortBy, activeTab])
 
   const openCalendly = () => {
     // Charger Calendly seulement au premier clic (lazy load)
@@ -293,8 +310,8 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
       />
       <StructuredData type="ItemList" data={toolsStructuredData} />
       <StructuredData type="FAQPage" data={faqData} />
-      <main className="min-w-0 mt-6 flex flex-col">
-        <section className="mb-8">
+      <main className="min-w-0 mt-6 flex flex-col overflow-x-hidden">
+        <section className="mb-8 overflow-x-hidden">
           <h1 className="font-semibold text-2xl mb-4 tracking-tighter">
             Marketplace
           </h1>
@@ -309,7 +326,9 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
             <span className="text-neutral-300 dark:text-neutral-600" aria-hidden>·</span>
             {marketplaceReviews.length > 0 && (
               <>
-                <span>{marketplaceReviews.length} avis clients vérifiés</span>
+                <a href="#avis" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors underline hover:no-underline">
+                  {marketplaceReviews.length} avis client{marketplaceReviews.length > 1 ? 's' : ''} vérifié{marketplaceReviews.length > 1 ? 's' : ''}
+                </a>
                 <span className="text-neutral-300 dark:text-neutral-600" aria-hidden>·</span>
               </>
             )}
@@ -358,24 +377,10 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
             </div>
           </div>
 
-          {/* Barre de recherche */}
-          <div className="mb-6">
-            <label htmlFor="marketplace-search" className="sr-only">Rechercher une base de données ou un outil</label>
-            <input
-              id="marketplace-search"
-              type="search"
-              placeholder={activeTab === 'databases' ? 'Rechercher une base ou un outil...' : 'Rechercher un outil...'}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2.5 text-sm rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600 focus:border-transparent"
-              aria-label="Rechercher"
-            />
-          </div>
-
           {/* Filtres - uniquement pour les bases de données */}
           {activeTab === 'databases' && (
-          <div className="space-y-4 mb-8">
-            {/* Filtre par Prix */}
+          <div className="flex flex-col gap-6 mb-8 min-w-0 overflow-hidden">
+            {/* Ligne 1 — Prix */}
             <div>
               <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Prix
@@ -397,33 +402,62 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
               </div>
             </div>
 
-            {/* Filtre par Catégorie */}
-            <div>
+            {/* Ligne 2 — Catégorie (scroll horizontal) */}
+            <div className="min-w-0 w-full overflow-hidden">
               <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                 Catégorie
               </label>
+              <div className="min-w-0">
               <SearchBar 
                 tags={categories}
                 selectedTag={selectedCategory}
                 onTagSelect={setSelectedCategory}
               />
+              </div>
             </div>
 
-            {/* Tri */}
+            {/* Ligne 3 — Tri */}
             <div>
-              <label htmlFor="marketplace-sort" className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                Trier par
-              </label>
-              <select
+              <SortDropdown
                 id="marketplace-sort"
+                label="Trier par"
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-1.5 text-xs rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600"
-              >
-                <option value="date">Plus récents</option>
-                <option value="price_desc">Prix décroissant</option>
-                <option value="views">Plus consultés</option>
-              </select>
+                onChange={setSortBy}
+                options={[
+                  { value: 'date', label: 'Plus récents' },
+                  { value: 'price_desc', label: 'Prix décroissant' },
+                  { value: 'views', label: 'Plus consultés' }
+                ]}
+              />
+            </div>
+          </div>
+          )}
+
+          {/* Filtres — onglet Outils */}
+          {activeTab === 'tools' && (
+          <div className="flex flex-col gap-6 mb-8">
+            <div>
+              <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                Catégorie
+              </label>
+              <SearchBar
+                tags={toolCategories}
+                selectedTag={selectedToolCategory}
+                onTagSelect={setSelectedToolCategory}
+              />
+            </div>
+            <div>
+              <SortDropdown
+                id="tool-sort"
+                label="Trier par"
+                value={toolSortBy}
+                onChange={setToolSortBy}
+                options={[
+                  { value: 'users', label: "Plus d'utilisateurs" },
+                  { value: 'runs', label: "Plus d'exécutions" },
+                  { value: 'date', label: 'Plus récents' }
+                ]}
+              />
             </div>
           </div>
           )}
@@ -440,8 +474,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                 onClick={() => {
                   setSelectedCategory(null)
                   setSelectedPricing(null)
-                  setSearchQuery('')
-                  setSortBy('date')
+                  setSortBy('views')
                 }}
                 className="text-sm text-neutral-900 dark:text-neutral-100 underline hover:no-underline"
               >
@@ -450,6 +483,23 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
             </div>
           ) : (
             <div className="space-y-4">
+            {/* Compteur + Réinitialiser */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                {filteredTools.length} base{filteredTools.length > 1 ? 's' : ''} de données
+              </p>
+              {(selectedCategory !== null || selectedPricing !== null) && (
+                <button
+                  onClick={() => {
+                    setSelectedCategory(null)
+                    setSelectedPricing(null)
+                  }}
+                  className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 underline hover:no-underline"
+                >
+                  Réinitialiser les filtres
+                </button>
+              )}
+            </div>
             <div className="flex flex-col space-y-4">
               {filteredTools.slice(0, displayedCount).map((tool) => (
                 <Link
@@ -497,10 +547,15 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                       <span className="flex-shrink-0 text-2xl">{tool.icon}</span>
                     ) : null}
                     <div className="flex-1 min-w-0">
-                      <div className="mb-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
                         <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
                           {tool.name}
                         </h2>
+                        {tool.category && (
+                          <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
+                            {tool.category}
+                          </span>
+                        )}
                       </div>
                       <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
                         {tool.description}
@@ -553,6 +608,20 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
         ) : (
             /* Section Outils */
             <>
+            {/* Compteur + Réinitialiser pour Outils */}
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                {filteredApifyTools.length} outil{filteredApifyTools.length > 1 ? 's' : ''}
+              </p>
+              {selectedToolCategory !== null && (
+                <button
+                  onClick={() => setSelectedToolCategory(null)}
+                  className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 underline hover:no-underline"
+                >
+                  Réinitialiser les filtres
+                </button>
+              )}
+            </div>
             <div className="flex flex-col space-y-4">
               {filteredApifyTools.length === 0 ? (
                 <div className="text-center py-12">
@@ -576,10 +645,15 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <div className="mb-1">
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
                           <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
                             {tool.name}
                           </h2>
+                          {tool.category && (
+                            <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
+                              {tool.category}
+                            </span>
+                          )}
                         </div>
                         <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
                           {tool.description}
@@ -624,11 +698,11 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
 
         {/* Avis clients marketplace */}
         {marketplaceReviews.length > 0 && (
-          <section className="mb-16" aria-label="Avis clients">
+          <section id="avis" className="mb-16 scroll-mt-8" aria-label="Avis clients">
             <h2 className="font-semibold text-xl mb-6 tracking-tighter">
               Avis clients
               <span className="ml-2 text-base font-normal text-neutral-500 dark:text-neutral-400">
-                ({marketplaceReviews.length} avis vérifiés)
+                ({marketplaceReviews.length} avis vérifié{marketplaceReviews.length > 1 ? 's' : ''})
               </span>
             </h2>
             <div
@@ -964,13 +1038,14 @@ export async function getServerSideProps() {
     const { getMarketplaceReviews } = await import('../lib/marketplace-reviews')
     const { categoryToSlug } = await import('../lib/marketplace-helpers')
     const raw = await getMarketplaceReviews()
-    marketplaceReviews = raw.map(({ id, authorName, reviewBody, productName, productSlug, linkedinUrl, createdAt, rating }) => {
+    marketplaceReviews = raw.map(({ id, authorName, companyName, reviewBody, productName, productSlug, linkedinUrl, createdAt, rating }) => {
       const tool = dynamicDatabases?.find((t) => t.slug === productSlug)
       const productLink = tool ? `/marketplace/${categoryToSlug(tool.category)}/${productSlug}` : null
       const r = parseInt(rating, 10)
+      const displayName = [authorName, companyName].filter(Boolean).join(' — ') || authorName || ''
       return {
         id,
-        authorName,
+        authorName: displayName,
         reviewBody,
         productName: productName || null,
         productLink,

@@ -8,6 +8,29 @@ import { put, list } from '@vercel/blob'
 import path from 'path'
 import fs from 'fs'
 
+const MAX_REVIEW_LENGTH = 2000
+
+// Rate limit : 3 soumissions max par IP sur 15 minutes (in-memory, par instance serverless)
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000
+const RATE_LIMIT_MAX = 3
+const rateLimitMap = new Map()
+
+function getClientIp(req) {
+  return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.headers['x-real-ip'] || req.socket?.remoteAddress || 'unknown'
+}
+
+function checkRateLimit(ip) {
+  const now = Date.now()
+  const timestamps = rateLimitMap.get(ip) || []
+  const valid = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS)
+  if (valid.length >= RATE_LIMIT_MAX) {
+    return false
+  }
+  valid.push(now)
+  rateLimitMap.set(ip, valid)
+  return true
+}
+
 const BLOB_FILENAME = 'marketplace-reviews.json'
 const LOCAL_FALLBACK = path.join(process.cwd(), 'data', 'marketplace-reviews.json')
 
@@ -73,13 +96,16 @@ export default async function handler(req, res) {
     const visible = reviews
       .filter((r) => r.visible !== false)
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    return res.status(200).json(visible.map(({ authorName, reviewBody, rating, productName, linkedinUrl, createdAt }) => ({
-      authorName,
+    return res.status(200).json(visible.map(({ authorName, companyName, reviewBody, rating, productName, linkedinUrl, createdAt }) => {
+      const displayName = [authorName, companyName].filter(Boolean).join(' — ') || ''
+      return {
+      authorName: displayName,
       reviewBody,
       rating: rating || '5',
       productName: productName || null,
       linkedinUrl: linkedinUrl || null,
       createdAt
+    }
     })))
   }
 
@@ -89,6 +115,13 @@ export default async function handler(req, res) {
 
     if (!secret || ref !== secret) {
       return res.status(403).json({ error: 'Lien invalide ou expiré' })
+    }
+
+    const ip = getClientIp(req)
+    if (!checkRateLimit(ip)) {
+      return res.status(429).json({
+        error: 'Trop de soumissions. Merci de patienter quelques minutes avant de réessayer.'
+      })
     }
 
     const authorName = (req.body.authorName || '').trim()
@@ -105,7 +138,10 @@ export default async function handler(req, res) {
     rating = String(rating)
 
     if (!authorName || !reviewBody) {
-      return res.status(400).json({ error: 'Nom et avis sont requis' })
+      return res.status(400).json({ error: 'Nom ou nom d\'entreprise et avis sont requis' })
+    }
+    if (reviewBody.length > MAX_REVIEW_LENGTH) {
+      return res.status(400).json({ error: `L'avis ne doit pas dépasser ${MAX_REVIEW_LENGTH} caractères` })
     }
     if (!linkedinUrl) {
       return res.status(400).json({ error: 'Profil LinkedIn requis' })
@@ -115,14 +151,14 @@ export default async function handler(req, res) {
     }
 
     if (!linkedinUrl.startsWith('http')) linkedinUrl = `https://${linkedinUrl}`
-    if (!/linkedin\.com\/in\//i.test(linkedinUrl)) {
-      return res.status(400).json({ error: 'URL LinkedIn invalide (ex: linkedin.com/in/nom)' })
+    if (!/linkedin\.com\/(in|company)\//i.test(linkedinUrl)) {
+      return res.status(400).json({ error: 'URL LinkedIn invalide (ex: linkedin.com/in/nom ou linkedin.com/company/entreprise)' })
     }
 
     const reviews = await getReviews()
     const newReview = {
       id: `rev_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-      authorName,
+      authorName: authorName || null,
       email,
       linkedinUrl: linkedinUrl || null,
       reviewBody,
@@ -154,7 +190,7 @@ export default async function handler(req, res) {
           subject: `[Marketplace] Nouvel avis : ${authorName}`,
           html: `
             <p><strong>Nouvel avis marketplace</strong></p>
-            <p><strong>De :</strong> ${authorName}</p>
+            <p><strong>De :</strong> ${authorName || '-'}</p>
             ${email ? `<p><strong>Email :</strong> ${email}</p>` : ''}
             ${linkedinUrl ? `<p><strong>LinkedIn :</strong> <a href="${linkedinUrl}">${linkedinUrl}</a></p>` : ''}
             ${productName ? `<p><strong>Produit :</strong> ${productName}</p>` : ''}
@@ -164,6 +200,32 @@ export default async function handler(req, res) {
         })
       } catch (emailErr) {
         console.warn('[marketplace-reviews] Email non envoyé:', emailErr?.message)
+      }
+    }
+
+    // Notification Telegram (optionnel : TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID)
+    const botToken = process.env.TELEGRAM_BOT_TOKEN
+    const chatId = process.env.TELEGRAM_CHAT_ID
+    if (botToken && chatId) {
+      try {
+        const displayName = authorName || '-'
+        const bodyStr = String(reviewBody || '')
+        const excerpt = bodyStr.replace(/\n/g, ' ').slice(0, 120)
+        let tgMsg = `⭐ Nouvel avis marketplace\n\n`
+        tgMsg += `👤 De : ${displayName}\n`
+        tgMsg += `📦 Produit : ${productName || '-'}\n`
+        tgMsg += `⭐ Note : ${rating}/5\n`
+        tgMsg += `💬 Avis : ${excerpt}${bodyStr.length > 120 ? '...' : ''}`
+        const tgRes = await fetch('https://api.telegram.org/bot' + botToken + '/sendMessage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, text: tgMsg })
+        })
+        if (!tgRes.ok) {
+          console.warn('[marketplace-reviews] Telegram non envoyé:', tgRes.status)
+        }
+      } catch (tgErr) {
+        console.warn('[marketplace-reviews] Telegram erreur:', tgErr?.message)
       }
     }
 
