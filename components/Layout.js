@@ -3,7 +3,6 @@ import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { siteConfig } from '../lib/config'
-import FloatingCalendlyButton from './FloatingCalendlyButton'
 
 const ArrowIcon = () => (
   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -267,10 +266,6 @@ export default function Layout({ children }) {
                     <FooterArrowLink href="/spotify" active={router.pathname === '/spotify'} isPlaying={isPlaying}>spotify</FooterArrowLink>
                   </ul>
                 </footer>
-      </div>
-      {/* Bouton Calendly flottant - visible uniquement sur desktop (masqué en mobile) */}
-      <div className="hidden sm:block">
-        <FloatingCalendlyButton />
       </div>
     </div>
   )
