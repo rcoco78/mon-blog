@@ -106,7 +106,7 @@ export default async function handler(req, res) {
       linkedinUrl: linkedinUrl || null,
       createdAt
     }
-    })))
+    }))
   }
 
   if (req.method === 'POST') {
