@@ -33,7 +33,9 @@ const SitemapCaseStudies = () => {}
 export const getServerSideProps = async ({ res }) => {
   const baseUrl = 'https://www.corentinrobert.fr'
   const today = new Date().toISOString().split('T')[0]
-  
+  const now = Date.now()
+  const DAY_MS = 86_400_000
+
   // Charger la liste des cas d'usage depuis Blob Storage (avec fallback local)
   let caseStudies = []
   try {
@@ -47,12 +49,13 @@ export const getServerSideProps = async ({ res }) => {
   if (!caseStudies || !Array.isArray(caseStudies) || caseStudies.length === 0) {
     console.error('❌ caseStudies est undefined ou vide dans sitemap')
     res.setHeader('Content-Type', 'text/xml')
+    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600')
     res.write(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>${baseUrl}/cas-usage</loc>
     <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 </urlset>`)
@@ -82,52 +85,72 @@ export const getServerSideProps = async ({ res }) => {
     console.warn('Erreur lors du calcul des vues pour sitemap:', error)
   }
 
-  // Trier les cas d'usage par vues pour déterminer les priorités
   const caseStudiesWithViews = caseStudies.map(cs => ({
     ...cs,
     views: viewsMap[cs.slug] || 0
-  })).sort((a, b) => {
-    if (b.views !== a.views) {
-      return b.views - a.views
-    }
-    return a.title.localeCompare(b.title)
-  })
+  })).sort((a, b) => b.views !== a.views ? b.views - a.views : a.title.localeCompare(b.title))
 
-  // Déterminer les slugs populaires (top 3 = 0.9, top 10 = 0.8, autres = 0.7)
   const top3Slugs = new Set(caseStudiesWithViews.slice(0, 3).map(cs => cs.slug))
   const top10Slugs = new Set(caseStudiesWithViews.slice(0, 10).map(cs => cs.slug))
 
-  // URLs des pages par secteur
+  // Helper : vraie date de dernière modification
+  const getLastmod = (cs) => {
+    const candidates = [
+      cs.lastSeoOptimized,  // optimisation CTR la plus récente
+      cs.updatedAt,
+      cs.createdAt,
+    ].filter(Boolean)
+    if (candidates.length === 0) return today
+    const latest = candidates.reduce((max, d) => new Date(d) > new Date(max) ? d : max)
+    return new Date(latest).toISOString().split('T')[0]
+  }
+
+  // Helper : priorité et changefreq selon fraîcheur + popularité
+  const getMeta = (cs) => {
+    const ageMs = cs.createdAt ? now - new Date(cs.createdAt).getTime() : Infinity
+    const isNew = ageMs < 7 * DAY_MS        // < 7 jours
+    const isRecent = ageMs < 30 * DAY_MS    // < 30 jours
+    const isPopular = top3Slugs.has(cs.slug)
+    const isTop10 = top10Slugs.has(cs.slug)
+
+    if (isNew) return { priority: '0.9', changefreq: 'daily' }
+    if (isPopular) return { priority: '0.9', changefreq: 'weekly' }
+    if (isRecent || isTop10) return { priority: '0.8', changefreq: 'weekly' }
+    return { priority: '0.7', changefreq: 'monthly' }
+  }
+
+  // URLs des pages par secteur — lastmod = page la plus récente du secteur
+  const sectorLastmod = {}
+  for (const cs of caseStudies) {
+    const s = cs.sector
+    const d = getLastmod(cs)
+    if (!sectorLastmod[s] || d > sectorLastmod[s]) sectorLastmod[s] = d
+  }
+
   const sectorUrls = sectors
     .map((sector) => {
       const sectorSlug = sectorToSlug(sector)
+      const lastmod = sectorLastmod[sector] || today
       return `
   <url>
     <loc>${baseUrl}/cas-usage/${sectorSlug}</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>`
     })
     .join('')
 
-  // URLs des case studies individuels avec secteur (priorités optimisées)
   const caseStudyUrls = caseStudies
     .map((cs) => {
       const sectorSlug = sectorToSlug(cs.sector)
-      // Déterminer la priorité selon la popularité
-      let priority = '0.7' // Par défaut
-      if (top3Slugs.has(cs.slug)) {
-        priority = '0.9' // Top 3
-      } else if (top10Slugs.has(cs.slug)) {
-        priority = '0.8' // Top 10
-      }
-      
+      const lastmod = getLastmod(cs)
+      const { priority, changefreq } = getMeta(cs)
       return `
   <url>
     <loc>${baseUrl}/cas-usage/${sectorSlug}/${cs.slug}</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`
     })
@@ -138,18 +161,18 @@ export const getServerSideProps = async ({ res }) => {
   <url>
     <loc>${baseUrl}/cas-usage</loc>
     <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>${sectorUrls}${caseStudyUrls}
 </urlset>`
 
+  // Cache 1h côté CDN — assez frais pour Googlebot, pas trop de charge
   res.setHeader('Content-Type', 'text/xml')
+  res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600')
   res.write(sitemap)
   res.end()
 
-  return {
-    props: {},
-  }
+  return { props: {} }
 }
 
 export default SitemapCaseStudies

@@ -35,6 +35,7 @@ export const getServerSideProps = async ({ res }) => {
 </urlset>`
 
   res.setHeader('Content-Type', 'text/xml')
+  res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600')
   res.write(sitemap)
   res.end()
 
