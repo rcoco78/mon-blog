@@ -19,6 +19,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
   const [selectedToolCategory, setSelectedToolCategory] = useState(null)
   const [toolSortBy, setToolSortBy] = useState('users') // 'users' | 'runs' | 'date'
   const [activeTab, setActiveTab] = useState('databases') // 'databases' | 'tools'
+  const [searchQuery, setSearchQuery] = useState('')
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
@@ -71,7 +72,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
     )
   ).sort() // Trier par ordre alphabétique
   
-  // Filtrer les bases de données (catégorie, prix)
+  // Filtrer les bases de données (catégorie, prix, recherche texte)
   const filteredTools = allTools
     .filter(tool => {
       const matchesCategory = selectedCategory === null || tool.category === selectedCategory
@@ -87,7 +88,13 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
           }
         }
       }
-      return matchesCategory && matchesPricing
+      const q = searchQuery.trim().toLowerCase()
+      const matchesSearch = !q ||
+        (tool.name || '').toLowerCase().includes(q) ||
+        (tool.description || '').toLowerCase().includes(q) ||
+        (tool.shortDescription || '').toLowerCase().includes(q) ||
+        (tool.category || '').toLowerCase().includes(q)
+      return matchesCategory && matchesPricing && matchesSearch
     })
     .sort((a, b) => {
       if (sortBy === 'price_desc') {
@@ -376,6 +383,38 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
               </button>
             </div>
           </div>
+
+          {/* Barre de recherche texte — desktop uniquement */}
+          {activeTab === 'databases' && (
+            <div className="hidden sm:block mb-6">
+              <div className="relative">
+                <svg
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 dark:text-neutral-500 pointer-events-none"
+                  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                >
+                  <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
+                </svg>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={e => { setSearchQuery(e.target.value); setDisplayedCount(8) }}
+                  placeholder="Rechercher une base de données…"
+                  className="w-full pl-9 pr-4 py-2 text-sm rounded-md border border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-colors"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+                    aria-label="Effacer la recherche"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                      <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Filtres - uniquement pour les bases de données */}
           {activeTab === 'databases' && (
