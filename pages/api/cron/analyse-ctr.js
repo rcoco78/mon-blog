@@ -141,17 +141,19 @@ export default async function handler(req, res) {
         if (p.position >= 4 && p.position <= 10) posScore = 30
         else if (p.position > 10 && p.position <= 20) posScore = 20
         else if (p.position > 20 && p.position <= 35) posScore = 10
-        else if (p.position <= 3) posScore = 5 // déjà bien, moins urgent
+        else if (p.position <= 3) posScore = 5
 
-        // Plus d'impressions = plus d'impact potentiel
         const impScore = Math.min(Math.log10(p.impressions + 1) * 10, 30)
 
-        // Moins le CTR est bon (vs position attendue), plus c'est urgent
         const expectedCtr = p.position <= 3 ? 20 : p.position <= 10 ? 5 : 1
         const ctrGap = Math.max(0, expectedCtr - p.ctr)
         const ctrScore = Math.min(ctrGap * 2, 40)
 
-        return { ...p, _priority: posScore + impScore + ctrScore }
+        // Bonus "jamais analysé" : priorité absolue sur les pages déjà vues
+        const neverSeen = !state.analyzedPaths[p.path]
+        const freshnessBonus = neverSeen ? 50 : 0
+
+        return { ...p, _priority: posScore + impScore + ctrScore + freshnessBonus, neverSeen }
       })
       .sort((a, b) => b._priority - a._priority)
 
@@ -200,7 +202,10 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, analyzed: 0, message: reason, pipeline: { sc: allPages.length, eligible: scoredPages.length, available: available.length, cooldown: inCooldown.length } })
     }
 
-    console.log(`[analyse-ctr] Analyse de ${toAnalyze.length} pages :`, toAnalyze.map((p) => `${p.path} (prio ${Math.round(p._priority)}, pos ${Math.round(p.position)})`).join(', '))
+    const neverSeenCount = toAnalyze.filter((p) => p.neverSeen).length
+    console.log(`[analyse-ctr] Analyse de ${toAnalyze.length} pages (${neverSeenCount} jamais optimisées) :`,
+      toAnalyze.map((p) => `${p.neverSeen ? '🆕' : '🔄'} ${p.path} (prio ${Math.round(p._priority)}, pos ${Math.round(p.position)})`).join(', ')
+    )
 
     // Un seul call SC pour récupérer les top queries de toutes les pages à analyser
     const paths = toAnalyze.map((p) => p.path)
