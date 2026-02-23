@@ -58,7 +58,13 @@ function scoreMatch(db, video) {
   const reverseMatch = dbWords.filter((w) => videoWords.some((vw) => vw.includes(w) || w.includes(vw)))
   const reverseScore = (reverseMatch.length / Math.max(dbWords.length, 1)) * 20
 
-  return Math.round(Math.min(100, wordScore + reverseScore))
+  const GENERIC_WORDS = new Set(['base', 'donnees', 'contacts', 'france', 'europe', 'b2b', 'donnee'])
+  const distinctiveOverlap = dbWords.filter(
+    (w) => w.length >= 5 && !GENERIC_WORDS.has(w) && videoWords.some((vw) => vw.includes(w) || w.includes(vw))
+  )
+  const distinctiveBonus = distinctiveOverlap.length * 15
+
+  return Math.round(Math.min(100, wordScore + reverseScore + distinctiveBonus))
 }
 
 /**
@@ -75,11 +81,15 @@ async function buildMappingWithGPT(databases, videos) {
     name: d.name,
     hint: (d.shortDescription || d.description || '').slice(0, 300),
   }))
-  const videosSummary = videos.map((v) => ({ id: v.id, name: v.name }))
+  const videosSummary = videos.map((v) => ({
+    id: v.id,
+    name: v.name,
+    description: (v.description || '').slice(0, 200),
+  }))
 
-  const prompt = `Tu dois associer chaque base marketplace à la vidéo Tella qui lui correspond.
+  const prompt = `Tu dois associer les ${videos.length} vidéos Tella aux bases marketplace qui leur correspondent.
 
-CONTEXTE : L'utilisateur crée systématiquement une vidéo de présentation Tella à chaque publication d'une base de données. Donc chaque base a une vidéo correspondante. Les titres peuvent varier (synonymes, abréviations : CGP = conseil gestion patrimoine, etc.).
+CONTEXTE : Une vidéo est créée à chaque publication de base. Il y a ${videos.length} vidéos et ${databases.length} bases. Certaines bases n'ont pas encore de vidéo. Associe CHAQUE VIDÉO à la base qui correspond le mieux. Tu dois retourner exactement ${Math.min(videos.length, databases.length)} associations (une vidéo = une base max). Utilise le champ "id" des vidéos EXACTEMENT comme fourni (copier-coller). Synonymes : CGP = conseil gestion patrimoine, IA = intelligence artificielle.
 
 BASES :
 ${JSON.stringify(basesSummary)}
@@ -87,16 +97,15 @@ ${JSON.stringify(basesSummary)}
 VIDÉOS :
 ${JSON.stringify(videosSummary)}
 
-Pour chaque base, choisis la vidéo qui correspond le mieux (une vidéo = une seule base, la meilleure correspondance).
 Retourne UNIQUEMENT un JSON valide :
 {
   "matches": [
-    { "slug": "slug-base", "videoId": "id-video", "videoName": "Titre vidéo", "score": 95 }
+    { "slug": "slug-base", "videoId": "id-exact-de-la-video", "videoName": "Titre vidéo", "score": 85 }
   ]
 }
-- score : 0-100 (100 = correspondance certaine, 80+ = très probable, 60+ = probable)
-- Associe toutes les bases pour lesquelles tu trouves une correspondance raisonnable (score >= 50)
-- Une vidéo ne peut être assignée qu'à une seule base`
+- videoId : copie exacte du champ "id" de la vidéo (obligatoire)
+- score : 0-100 (100 = même nom, 70+ = correspondance probable)
+- Retourne exactement ${Math.min(videos.length, databases.length)} entrées (une par vidéo, chaque vidéo associée à sa meilleure base)`
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -129,45 +138,110 @@ Retourne UNIQUEMENT un JSON valide :
     const data = await response.json()
     let content = data.choices?.[0]?.message?.content?.trim() || ''
     content = content.replace(/```json?\n?/g, '').replace(/```\n?/g, '').trim()
-    const parsed = JSON.parse(content)
+    let parsed
+    try {
+      parsed = JSON.parse(content)
+    } catch {
+      const fixed = content.replace(/,(\s*[}\]])/g, '$1').replace(/\n/g, ' ')
+      parsed = JSON.parse(fixed || '{"matches":[]}')
+    }
     const matches = parsed?.matches || []
-    if (matches.length === 0) return null
-
-    const slugToMatch = {}
-    for (const m of matches) {
-      if (m.score >= 50 && m.slug && m.videoId) slugToMatch[m.slug] = m
+    if (matches.length === 0) {
+      console.log('[tella-marketplace-videos] GPT a retourné 0 matches')
+      return null
     }
 
+    console.log('[tella-marketplace-videos] GPT a retourné', matches.length, 'matches:')
+    matches.forEach((m) => console.log('  ', m.slug, '→', m.videoId, '|', m.videoName, '| score', m.score))
+
     const videoById = Object.fromEntries(videos.map((v) => [v.id, v]))
+    const videoIds = videos.map((v) => v.id)
+    const dbBySlug = Object.fromEntries(databases.map((d) => [d.slug, d]))
+
+    const findVideo = (id) => {
+      if (!id || typeof id !== 'string') return null
+      const cleaned = String(id).trim()
+      if (videoById[cleaned]) return videoById[cleaned]
+      const match = videoIds.find((vid) => vid === cleaned || vid.endsWith(cleaned) || cleaned.endsWith(vid) || vid.includes(cleaned))
+      return match ? videoById[match] : null
+    }
+
+    const findDatabase = (slug) => {
+      if (!slug || typeof slug !== 'string') return null
+      const s = String(slug).trim()
+      if (dbBySlug[s]) return dbBySlug[s]
+      const slugNorm = slugify(s)
+      if (!slugNorm) return null
+      for (const db of databases) {
+        const dbNorm = slugify(db.slug || '')
+        const nameNorm = slugify(db.name || '')
+        if (dbNorm === slugNorm || nameNorm === slugNorm) return db
+        if (dbNorm.includes(slugNorm) || slugNorm.includes(dbNorm)) return db
+      }
+      return null
+    }
+
     const mapping = {}
     const matched = []
+    const assignedVideoIds = new Set()
 
-    for (const db of databases) {
-      const m = slugToMatch[db.slug]
-      if (!m) continue
-      const video = videoById[m.videoId]
-      if (!video) continue
-      const conflicts = matches.filter((x) => x.videoId === m.videoId && x.slug !== db.slug)
-      const bestForVideo = [...conflicts, m].sort((a, b) => (b.score || 0) - (a.score || 0))[0]
-      if (bestForVideo?.slug !== db.slug) continue
+    // Par vidéo : une vidéo = une base max. On traite les matches GPT et on assigne la meilleure base par vidéo.
+    const matchesByVideo = {}
+    for (const m of matches) {
+      if (m.score < 40 || !m.slug || !m.videoId) continue
+      const vid = findVideo(m.videoId)
+      if (!vid) {
+        console.log('[tella-marketplace-videos] Skip (videoId introuvable):', m.slug, '→ videoId', m.videoId)
+        continue
+      }
+      if (!matchesByVideo[vid.id]) matchesByVideo[vid.id] = []
+      matchesByVideo[vid.id].push(m)
+    }
 
+    for (const [videoId, videoMatches] of Object.entries(matchesByVideo)) {
+      const best = videoMatches.sort((a, b) => (b.score || 0) - (a.score || 0))[0]
+      const db = findDatabase(best.slug)
+      if (!db) {
+        console.log('[tella-marketplace-videos] Skip (slug introuvable): GPT a retourné slug', best.slug, '→ aucune base correspondante')
+        continue
+      }
+      if (mapping[db.slug]) continue
+
+      const video = videoById[videoId]
       const embedUrl =
         video.embedPage?.includes('/embed') || video.embedPage?.endsWith('/embed')
           ? `${video.embedPage}?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0`
           : `${video.embedPage}/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0`
       mapping[db.slug] = embedUrl
-      matched.push({
-        slug: db.slug,
-        name: db.name,
-        videoName: video.name,
-        videoId: video.id,
-        score: m.score ?? 80,
-      })
+      matched.push({ slug: db.slug, name: db.name, videoName: video.name, videoId: video.id, score: best.score ?? 80 })
+      assignedVideoIds.add(videoId)
+      console.log('[tella-marketplace-videos] ✓ GPT match:', db.slug, '→', video.name, '(score', best.score ?? 80, ')')
+    }
+
+    const remainingVideos = videos.filter((v) => !assignedVideoIds.has(v.id))
+    if (remainingVideos.length > 0) {
+      console.log('[tella-marketplace-videos] Vidéos non assignées par GPT:', remainingVideos.map((v) => `${v.name} (${v.id})`).join(', '))
     }
 
     const matchedSlugs = new Set(matched.map((x) => x.slug))
+    const unmatchedBases = databases.filter((db) => !matchedSlugs.has(db.slug))
+
+    // Second pass : fallback textuel pour les bases non matchées par GPT
+    if (unmatchedBases.length > 0 && remainingVideos.length > 0) {
+      const fallbackResult = buildMappingFallback(unmatchedBases, remainingVideos)
+      for (const fb of fallbackResult.matched) {
+        const embedUrl = fallbackResult.mapping[fb.slug]
+        if (embedUrl) {
+          mapping[fb.slug] = embedUrl
+          matched.push(fb)
+          console.log(`[tella-marketplace-videos] Fallback textuel: ${fb.slug} → ${fb.videoName} (score ${fb.score})`)
+        }
+      }
+    }
+
+    const finalMatchedSlugs = new Set(matched.map((x) => x.slug))
     const unmatched = databases
-      .filter((db) => !matchedSlugs.has(db.slug))
+      .filter((db) => !finalMatchedSlugs.has(db.slug))
       .map((db) => ({ slug: db.slug, name: db.name }))
 
     return { mapping, matched, unmatched }
@@ -189,7 +263,7 @@ function buildMappingFallback(databases, videos) {
   for (const db of databases) {
     for (const v of videos) {
       const score = scoreMatch(db, v)
-      if (score >= 50) scores.push({ db, video: v, score })
+      if (score >= 40) scores.push({ db, video: v, score })
     }
   }
 
@@ -254,6 +328,10 @@ export default async function handler(req, res) {
       listVideosByPlaylist(playlistId, apiKey),
     ])
 
+    console.log('[tella-marketplace-videos] Données chargées:')
+    console.log('  Bases:', databases.length, '—', databases.map((d) => d.slug).join(', '))
+    console.log('  Vidéos:', videos.length, '—', videos.map((v) => `${v.name} (${v.id})`).join(' | '))
+
     let mappingResult = await buildMappingWithGPT(databases, videos)
     if (!mappingResult) {
       mappingResult = buildMappingFallback(databases, videos)
@@ -272,6 +350,13 @@ export default async function handler(req, res) {
       },
       matched,
       unmatched,
+      _debug: {
+        videos: videos.map((v) => ({ id: v.id, name: v.name })),
+        assignedVideoIds: matched.map((m) => m.videoId),
+        unassignedVideoNames: videos
+          .filter((v) => !matched.some((m) => m.videoId === v.id))
+          .map((v) => v.name),
+      },
     }
 
     await put(MAPPING_BLOB_KEY, JSON.stringify(payload, null, 2), {
@@ -284,12 +369,16 @@ export default async function handler(req, res) {
       '[tella-marketplace-videos]',
       `matched ${matched.length}/${databases.length} bases, ${videos.length} vidéos Tella`
     )
+    if (unmatched.length > 0) {
+      console.log('[tella-marketplace-videos] Unmatched:', unmatched.map((u) => u.slug).join(', '))
+    }
 
     return res.status(200).json({
       ok: true,
       ...payload.stats,
       matched,
       unmatched: unmatched.slice(0, 20),
+      _debug: payload._debug,
     })
   } catch (err) {
     console.error('[tella-marketplace-videos]', err)

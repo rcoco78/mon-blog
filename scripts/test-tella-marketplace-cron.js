@@ -1,33 +1,68 @@
 #!/usr/bin/env node
 /**
- * Test manuel du cron Tella marketplace videos
- * Appelle directement la logique (bypass HTTP/auth)
- * Usage: node scripts/test-tella-marketplace-cron.js
- * Nécessite : .env.local avec TELLA_API_KEY, TELLA_TARGET_PLAYLIST_ID, BLOB_READ_WRITE_TOKEN
+ * Test du cron Tella marketplace videos
+ * Usage: npm run dev (dans un autre terminal) puis node scripts/test-tella-marketplace-cron.js
+ * Ou: curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/tella-marketplace-videos
  */
 
 require('dotenv').config({ path: '.env.local' })
 
+const BASE = 'http://localhost:3000'
+
 async function run() {
-  const handler = (await import('../pages/api/cron/tella-marketplace-videos.js')).default
-  const req = { headers: { 'x-vercel-cron': '1' } }
-  const res = {
-    statusCode: 200,
-    _body: null,
-    status(code) {
-      this.statusCode = code
-      return this
-    },
-    json(body) {
-      this._body = body
-      console.log(JSON.stringify(body, null, 2))
-      return this
-    },
+  const secret = process.env.CRON_SECRET
+  const url = `${BASE}/api/cron/tella-marketplace-videos`
+  console.log('→ Appel', url, '(peut prendre ~60s: Tella API + GPT)')
+  process.stdout.write('   En attente...')
+
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 90_000)
+  const res = await fetch(url, {
+    headers: secret ? { Authorization: `Bearer ${secret}` } : {},
+    signal: controller.signal,
+  })
+  clearTimeout(timeout)
+  console.log(' ok')
+  const body = await res.json()
+
+  if (!res.ok) {
+    console.error('Erreur', res.status, body)
+    process.exit(1)
   }
-  await handler(req, res)
+
+  const { matched = [], unmatched = [], totalDatabases, totalVideos, _debug } = body
+  console.log('')
+  console.log(`📊 Résultat: ${matched.length}/${totalDatabases} bases matchées sur ${totalVideos} vidéos Tella`)
+  console.log('')
+  if (_debug?.videos?.length) {
+    console.log('📹 Vidéos Tella:')
+    _debug.videos.forEach((v) => {
+      const assigned = _debug.assignedVideoIds?.includes(v.id)
+      console.log(`   ${assigned ? '✓' : '○'} ${v.name}`)
+    })
+  }
+  if (_debug?.unassignedVideoNames?.length) {
+    console.log('')
+    console.log('⚠️ Vidéo(s) sans base assignée:', _debug.unassignedVideoNames.join(' | '))
+  }
+  if (matched.length > 0) {
+    console.log('')
+    console.log('✅ Matchés:')
+    matched.forEach((m) => console.log(`   ${m.slug} → ${m.videoName} (score ${m.score})`))
+  }
+  if (unmatched.length > 0) {
+    console.log('')
+    console.log('❌ Non matchés:', unmatched.length)
+    unmatched.slice(0, 10).forEach((u) => console.log(`   ${u.slug}`))
+    if (unmatched.length > 10) console.log(`   ... et ${unmatched.length - 10} autres`)
+  }
+  console.log('')
+  console.log('--- Réponse brute ---')
+  console.log(JSON.stringify(body, null, 2))
 }
 
 run().catch((err) => {
-  console.error('Erreur:', err)
+  console.error('Erreur:', err.message)
+  console.error('Astuce: lance "npm run dev" dans un autre terminal')
   process.exit(1)
 })

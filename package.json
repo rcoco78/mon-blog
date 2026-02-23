@@ -19,7 +19,8 @@
     "enrich-sheets:all": "node scripts/enrich-marketplace-sheets.js --all",
     "analyse-quick-wins": "node scripts/analyse-search-console-quick-wins.js",
     "analyse-ctr": "node scripts/analyse-search-console-ctr.js",
-    "test:generate-case-studies": "node scripts/test-generate-case-studies.js"
+    "test:generate-case-studies": "node scripts/test-generate-case-studies.js",
+    "test:tella-marketplace": "node scripts/test-tella-marketplace-cron.js"
   },
   "keywords": [],
   "author": "",
