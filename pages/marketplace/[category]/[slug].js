@@ -14,7 +14,6 @@ import DownloadCounter from '../../../components/DownloadCounter'
 import MarketplaceViewCounter from '../../../components/MarketplaceViewCounter'
 import { generatePageSEO } from '../../../lib/seo'
 import { siteConfig } from '../../../lib/config'
-import { getRelevantTestimonials } from '../../../lib/testimonials'
 import Breadcrumb from '../../../components/Breadcrumb'
 import { categoryToSlug } from '../../../lib/marketplace-helpers'
 
@@ -25,13 +24,15 @@ const getPriceValidUntil = () => {
   return date.toISOString().split('T')[0]; // Format YYYY-MM-DD
 };
 
-export default function MarketplaceDatabase({ database, relatedDatabases, notFound }) {
+export default function MarketplaceDatabase({ database, relatedDatabases, addonDatabases = [], pageTestimonials = [], notFound }) {
   const [email, setEmail] = useState('')
   const [emailSubmitted, setEmailSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [loadingStep, setLoadingStep] = useState('')
   const [subscriptionType, setSubscriptionType] = useState('one-time')
+  const [selectedAddons, setSelectedAddons] = useState([])
   const [paymentVerified, setPaymentVerified] = useState(false)
+  const [purchasedToolIds, setPurchasedToolIds] = useState([])
   const { toast, showToast, hideToast } = useToast()
 
   // Si pas trouvé, afficher 404
@@ -76,6 +77,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
       if (data.paid) {
         setPaymentVerified(true)
         setEmail(data.email || '')
+        setPurchasedToolIds(data.toolIds || [data.toolId].filter(Boolean))
         showToast('✓ Paiement confirmé ! Vous pouvez maintenant télécharger la base de données.', 'success')
       }
     } catch (error) {
@@ -249,7 +251,8 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               toolId: database.slug,
-              subscriptionType: 'one-time'
+              subscriptionType: 'one-time',
+              ...(selectedAddons.length > 0 && { addonIds: selectedAddons }),
             }),
           })
 
@@ -271,6 +274,18 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
       }
     }
   }
+
+  // Prix avec remise bundle : 2 bases -10%, 3+ bases -15%
+  const addonsTotal = addonDatabases
+    .filter((a) => selectedAddons.includes(a.slug))
+    .reduce((sum, a) => sum + a.price, 0)
+  const baseCount = 1 + (addonsTotal > 0 ? selectedAddons.length : 0)
+  const bundleDiscount = baseCount >= 3 ? 0.15 : baseCount >= 2 ? 0.1 : 0
+  const totalBeforeDiscount = toolData.price + addonsTotal
+  const totalWithDiscount = Math.round(totalBeforeDiscount * (1 - bundleDiscount) * 100) / 100
+  const totalPriceLabel = bundleDiscount > 0
+    ? `${totalWithDiscount} € TTC (${Math.round(bundleDiscount * 100)}% de remise bundle)`
+    : toolData.priceLabel
 
   // SEO : priorité aux champs optimisés par le cron CTR si présents
   const categorySlug = categoryToSlug(database.category)
@@ -653,17 +668,39 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                 paymentVerified ? (
                   <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
                     <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-3">
-                      ✓ Paiement confirmé ! Vous pouvez maintenant récupérer la base de données complète.
+                      ✓ Paiement confirmé ! Vous pouvez maintenant récupérer {purchasedToolIds.length > 1 ? 'vos bases de données' : 'la base de données complète'}.
                     </p>
-                    <a
-                      href={`mailto:corentinrobert648@gmail.com?subject=${encodeURIComponent(`Demande de base de données - ${database.name}`)}&body=${encodeURIComponent("Hey je viens d'acheter la base de données - est-ce que tu peux me l'envoyer ? Merci")}`}
-                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                      </svg>
-                      Télécharger la base
-                    </a>
+                    {purchasedToolIds.length > 1 ? (
+                      <div className="space-y-2">
+                        <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-2">Bases achetées :</p>
+                        {purchasedToolIds.map((toolId) => {
+                          const db = toolId === database.slug ? database : (addonDatabases.find((a) => a.slug === toolId) || relatedDatabases?.find((r) => r.slug === toolId))
+                          const name = db?.name || toolId
+                          return (
+                            <a
+                              key={toolId}
+                              href={`mailto:corentinrobert648@gmail.com?subject=${encodeURIComponent(`Demande de base de données - ${name}`)}&body=${encodeURIComponent(`Hey je viens d'acheter la base "${name}" - est-ce que tu peux me l'envoyer ? Merci`)}`}
+                              className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors w-fit"
+                            >
+                              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                              </svg>
+                              {name}
+                            </a>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <a
+                        href={`mailto:corentinrobert648@gmail.com?subject=${encodeURIComponent(`Demande de base de données - ${database.name}`)}&body=${encodeURIComponent("Hey je viens d'acheter la base de données - est-ce que tu peux me l'envoyer ? Merci")}`}
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Télécharger la base
+                      </a>
+                    )}
                     <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-2">
                       Pour l&apos;instant, c&apos;est manuel.
                     </p>
@@ -698,6 +735,41 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                       </button>
                     </div>
 
+                    {subscriptionType === 'one-time' && addonDatabases.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                          Bundle : 2 bases -10 %, 3+ bases -15 %
+                        </p>
+                        <div className="space-y-2 p-3 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/50">
+                          {addonDatabases.map((addon) => (
+                            <label
+                              key={addon.slug}
+                              className="flex items-center justify-between gap-3 cursor-pointer group"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedAddons.includes(addon.slug)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedAddons((prev) => [...prev, addon.slug])
+                                  } else {
+                                    setSelectedAddons((prev) => prev.filter((s) => s !== addon.slug))
+                                  }
+                                }}
+                                className="rounded border-neutral-300 dark:border-neutral-600 text-neutral-900 focus:ring-neutral-500"
+                              />
+                              <span className="flex-1 text-sm text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
+                                {addon.name}
+                              </span>
+                              <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                                +{addon.price}€
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Bouton unique qui varie selon le choix */}
                     <div className="p-1 bg-neutral-100 dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800">
                       <button
@@ -716,7 +788,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                         ) : (
                           <div className="flex items-center justify-center gap-2">
                             <span className="font-semibold">
-                              {subscriptionType === 'api' ? 'Me demander' : toolData.priceLabel.replace(' TTC', '')}
+                              {subscriptionType === 'api' ? 'Me demander' : totalPriceLabel.replace(' TTC', '')}
                             </span>
                             <span className="text-xs text-neutral-500 dark:text-neutral-500">
                               {subscriptionType === 'api' ? 'Via API' : 'Achat unique'}
@@ -740,6 +812,11 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                         <div>
                           <p><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Vous recevez un accès immédiat à la base de données complète à l'instant T, avec toutes les données disponibles au moment de l'achat.</p>
                           <p className="text-neutral-500 dark:text-neutral-500 mt-1">Format Google Sheets, sans renouvellement. Les données sont figées au moment de l'achat.</p>
+                          {selectedAddons.length > 0 && (
+                            <p className="text-neutral-600 dark:text-neutral-400 mt-2 text-sm font-medium">
+                              Code promo : <span className="text-neutral-900 dark:text-neutral-100">PROMO10</span> (−10 %)
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>
@@ -808,17 +885,39 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                 paymentVerified ? (
                   <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
                     <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-3">
-                      ✓ Paiement confirmé ! Vous pouvez maintenant récupérer la base de données complète.
+                      ✓ Paiement confirmé ! Vous pouvez maintenant récupérer {purchasedToolIds.length > 1 ? 'vos bases de données' : 'la base de données complète'}.
                     </p>
-                    <a
-                      href={`mailto:corentinrobert648@gmail.com?subject=${encodeURIComponent(`Demande de base de données - ${database.name}`)}&body=${encodeURIComponent("Hey je viens d'acheter la base de données - est-ce que tu peux me l'envoyer ? Merci")}`}
-                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                      </svg>
-                      Télécharger la base
-                    </a>
+                    {purchasedToolIds.length > 1 ? (
+                      <div className="space-y-2">
+                        <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-2">Bases achetées :</p>
+                        {purchasedToolIds.map((toolId) => {
+                          const db = toolId === database.slug ? database : (addonDatabases.find((a) => a.slug === toolId) || relatedDatabases?.find((r) => r.slug === toolId))
+                          const name = db?.name || toolId
+                          return (
+                            <a
+                              key={toolId}
+                              href={`mailto:corentinrobert648@gmail.com?subject=${encodeURIComponent(`Demande de base de données - ${name}`)}&body=${encodeURIComponent(`Hey je viens d'acheter la base "${name}" - est-ce que tu peux me l'envoyer ? Merci`)}`}
+                              className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors w-fit"
+                            >
+                              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                              </svg>
+                              {name}
+                            </a>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <a
+                        href={`mailto:corentinrobert648@gmail.com?subject=${encodeURIComponent(`Demande de base de données - ${database.name}`)}&body=${encodeURIComponent("Hey je viens d'acheter la base de données - est-ce que tu peux me l'envoyer ? Merci")}`}
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Télécharger la base
+                      </a>
+                    )}
                     <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-2">
                       Pour l&apos;instant, c&apos;est manuel.
                     </p>
@@ -853,6 +952,41 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                       </button>
                     </div>
 
+                    {subscriptionType === 'one-time' && addonDatabases.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                          Bundle : 2 bases -10 %, 3+ bases -15 %
+                        </p>
+                        <div className="space-y-2 p-3 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/50">
+                          {addonDatabases.map((addon) => (
+                            <label
+                              key={addon.slug}
+                              className="flex items-center justify-between gap-3 cursor-pointer group"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedAddons.includes(addon.slug)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedAddons((prev) => [...prev, addon.slug])
+                                  } else {
+                                    setSelectedAddons((prev) => prev.filter((s) => s !== addon.slug))
+                                  }
+                                }}
+                                className="rounded border-neutral-300 dark:border-neutral-600 text-neutral-900 focus:ring-neutral-500"
+                              />
+                              <span className="flex-1 text-sm text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
+                                {addon.name}
+                              </span>
+                              <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                                +{addon.price}€
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Bouton unique qui varie selon le choix */}
                     <button
                       onClick={handleUnlock}
@@ -870,7 +1004,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                       ) : (
                         <div className="text-center">
                           <div className="font-semibold">
-                            {subscriptionType === 'api' ? 'Me demander' : toolData.priceLabel.replace(' TTC', '')}
+                            {subscriptionType === 'api' ? 'Me demander' : totalPriceLabel.replace(' TTC', '')}
                           </div>
                           <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
                             {subscriptionType === 'api' ? 'Via API Apify' : 'Achat unique'}
@@ -893,6 +1027,11 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                         <div>
                           <p><strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong> Vous recevez un accès immédiat à la base de données complète à l'instant T, avec toutes les données disponibles au moment de l'achat.</p>
                           <p className="text-neutral-500 dark:text-neutral-500 mt-1">Format Google Sheets, sans renouvellement. Les données sont figées au moment de l'achat.</p>
+                          {selectedAddons.length > 0 && (
+                            <p className="text-neutral-600 dark:text-neutral-400 mt-2 text-sm font-medium">
+                              Code promo : <span className="text-neutral-900 dark:text-neutral-100">PROMO10</span> (−10 %)
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>
@@ -1321,9 +1460,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
         )}
 
         {/* Témoignages clients réels */}
-        {(() => {
-          const realTestimonials = getRelevantTestimonials(database.category, 3)
-          return realTestimonials.length > 0 ? (
+        {pageTestimonials.length > 0 ? (
             <section className="mb-16">
               <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
@@ -1341,7 +1478,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                   </Link>
                 </div>
                 <div className="space-y-6">
-                  {realTestimonials.map((testimonial, index) => (
+                  {pageTestimonials.map((testimonial, index) => (
                     <div key={index}>
                       <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
                         <div className="mb-3">
@@ -1413,8 +1550,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
                 </div>
               </div>
             </section>
-          ) : null
-        })()}
+          ) : null}
 
         {/* Section Garanties / Pourquoi nous choisir */}
         <section className="mb-16">
@@ -1514,7 +1650,7 @@ export default function MarketplaceDatabase({ database, relatedDatabases, notFou
 // Utiliser getServerSideProps pour charger les données depuis Blob Storage à chaque requête
 // Cela permet d'avoir les bases de données les plus récentes même si elles ont été ajoutées après le build
 export async function getServerSideProps({ params }) {
-  const { getDatabaseBySlug, getRelatedDatabases } = await import('../../../lib/marketplace-databases')
+  const { getDatabaseBySlug, getRelatedDatabases, getAddonDatabases } = await import('../../../lib/marketplace-databases')
   const { slugToCategory, categoryToSlug, validateCategory } = await import('../../../lib/marketplace-helpers')
   
   // Vérifier que la catégorie correspond à la base de données
@@ -1559,6 +1695,10 @@ export async function getServerSideProps({ params }) {
   }
 
   const relatedDatabases = await getRelatedDatabases(params.slug, 3)
+  const addonDatabases = await getAddonDatabases(params.slug)
+
+  const { getRelevantTestimonials } = await import('../../../lib/testimonials')
+  const pageTestimonials = getRelevantTestimonials(normalizedDbCategory, 3)
 
   const { getVideoUrlForDatabase } = await import('../../../lib/marketplace-videos')
   const videoUrlFromTella = await getVideoUrlForDatabase(params.slug)
@@ -1570,7 +1710,9 @@ export async function getServerSideProps({ params }) {
   return {
     props: {
       database,
-      relatedDatabases
+      relatedDatabases,
+      addonDatabases,
+      pageTestimonials
     }
   }
 }

@@ -20,10 +20,37 @@ export default async function handler(req, res) {
     const session = await stripe.checkout.sessions.retrieve(sessionId)
 
     if (session.payment_status === 'paid') {
-      // Le paiement est confirmé
+      const toolId = session.metadata?.toolId
+      let effectiveToolIds = []
+
+      try {
+        const { getPriceIdToSlug } = await import('../../../lib/stripe-price-ids')
+        const priceIdToSlug = await getPriceIdToSlug()
+        const lineItems = await stripe.checkout.sessions.listLineItems(session.id)
+
+        for (const item of lineItems.data) {
+          const priceId = item.price?.id
+          if (priceId && priceIdToSlug[priceId]) {
+            effectiveToolIds.push(priceIdToSlug[priceId])
+          }
+        }
+      } catch (e) {
+        console.warn('verify-payment: déduction toolIds:', e.message)
+      }
+
+      if (effectiveToolIds.length === 0) {
+        const toolIdsRaw = session.metadata?.toolIds
+        effectiveToolIds = toolIdsRaw
+          ? toolIdsRaw.split(',').map((s) => s.trim()).filter(Boolean)
+          : (toolId ? [toolId] : [])
+        if (effectiveToolIds.length === 0 && toolId) effectiveToolIds = [toolId]
+      }
+      effectiveToolIds = [...new Set(effectiveToolIds)]
+
       return res.status(200).json({
         paid: true,
-        toolId: session.metadata?.toolId,
+        toolId,
+        toolIds: effectiveToolIds,
         email: session.customer_email || session.metadata?.email,
       })
     }

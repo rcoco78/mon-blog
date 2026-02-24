@@ -64,6 +64,32 @@ export default async function handler(req, res) {
 
     if (session.payment_status === 'paid') {
       const toolId = session.metadata?.toolId
+      let effectiveToolIds = []
+
+      try {
+        const { getPriceIdToSlug } = await import('../../../lib/stripe-price-ids')
+        const priceIdToSlug = await getPriceIdToSlug()
+        const lineItems = await stripe.checkout.sessions.listLineItems(session.id)
+
+        for (const item of lineItems.data) {
+          const priceId = item.price?.id
+          if (priceId && priceIdToSlug[priceId]) {
+            effectiveToolIds.push(priceIdToSlug[priceId])
+          }
+        }
+      } catch (e) {
+        console.warn('Déduction toolIds depuis line_items échouée:', e.message)
+      }
+
+      if (effectiveToolIds.length === 0) {
+        const toolIdsRaw = session.metadata?.toolIds
+        effectiveToolIds = toolIdsRaw
+          ? toolIdsRaw.split(',').map((s) => s.trim()).filter(Boolean)
+          : (toolId ? [toolId] : [])
+        if (effectiveToolIds.length === 0 && toolId) effectiveToolIds = [toolId]
+      }
+      effectiveToolIds = [...new Set(effectiveToolIds)]
+
       const email = session.customer_email || session.metadata?.email
       const subscriptionType = session.metadata?.subscriptionType || 'one-time'
       const isSubscription = session.mode === 'subscription'
@@ -75,51 +101,50 @@ export default async function handler(req, res) {
 
       // Infos professionnelles : customer_details (nom, adresse) + tax_ids (n° TVA)
       const customerDetails = session.customer_details || {}
-      const customerName = customerDetails.name || null // Nom ou raison sociale
+      const customerName = customerDetails.name || null
       const taxIds = customerDetails.tax_ids || []
-      const vatNumber = taxIds.length > 0 ? taxIds[0].value : null // ex: FR12345678901
-      const vatType = taxIds.length > 0 ? taxIds[0].type : null // ex: eu_vat
-      // Quand l'utilisateur remplit le formulaire TVA, customerDetails.name = raison sociale
+      const vatNumber = taxIds.length > 0 ? taxIds[0].value : null
+      const vatType = taxIds.length > 0 ? taxIds[0].type : null
       const companyName = companyNameCustom || customerName || null
 
-      console.log(`Paiement confirmé pour ${toolId} par ${email}`)
+      console.log(`Paiement confirmé pour ${effectiveToolIds.join(', ')} par ${email}`)
       console.log(`Format préféré: ${formatPreference}`)
       console.log(`Type: ${subscriptionType}${isSubscription ? ' (abonnement)' : ' (achat unique)'}`)
       if (companyName) console.log(`Entreprise: ${companyName}`)
       if (vatNumber) console.log(`N° TVA: ${vatNumber}`)
 
-      // Enregistrer l'achat dans Vercel Blob avec toutes les infos
-      try {
-        const purchaseData = {
-          toolId,
-          email,
-          sessionId: session.id,
-          amount: session.amount_total / 100, // TTC (centimes → euros)
-          amountTax: session.total_details?.amount_tax ? session.total_details.amount_tax / 100 : null,
-          currency: session.currency,
-          formatPreference,
-          subscriptionType,
-          isSubscription,
-          subscriptionId: session.subscription || null,
-          // Infos professionnelles
-          companyName,
-          vatNumber,
-          vatType,
-          customerName,
-          billingAddress: customerDetails.address ? {
-            line1: customerDetails.address.line1,
-            line2: customerDetails.address.line2,
-            city: customerDetails.address.city,
-            postal_code: customerDetails.address.postal_code,
-            country: customerDetails.address.country,
-          } : null,
-          timestamp: new Date().toISOString(),
-        }
+      const purchaseData = {
+        toolId: toolId,
+        toolIds: effectiveToolIds,
+        email,
+        sessionId: session.id,
+        amount: session.amount_total / 100,
+        amountTax: session.total_details?.amount_tax ? session.total_details.amount_tax / 100 : null,
+        currency: session.currency,
+        formatPreference,
+        subscriptionType,
+        isSubscription,
+        subscriptionId: session.subscription || null,
+        companyName,
+        vatNumber,
+        vatType,
+        customerName,
+        billingAddress: customerDetails.address ? {
+          line1: customerDetails.address.line1,
+          line2: customerDetails.address.line2,
+          city: customerDetails.address.city,
+          postal_code: customerDetails.address.postal_code,
+          country: customerDetails.address.country,
+        } : null,
+        timestamp: new Date().toISOString(),
+      }
 
-        const filename = `purchases/${toolId}/${session.id}.json`
-        await put(filename, JSON.stringify(purchaseData, null, 2), {
-          access: 'public',
-        })
+      try {
+        for (const tId of effectiveToolIds) {
+          const data = { ...purchaseData, toolId: tId }
+          const filename = `purchases/${tId}/${session.id}.json`
+          await put(filename, JSON.stringify(data, null, 2), { access: 'public' })
+        }
       } catch (error) {
         console.error('Erreur enregistrement achat:', error)
       }

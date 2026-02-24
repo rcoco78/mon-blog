@@ -37,6 +37,10 @@
       "schedule": "0 12 * * *"
     },
     {
+      "path": "/api/cron/sync-stripe-products",
+      "schedule": "0 13 * * *"
+    },
+    {
       "path": "/api/cron/analyse-ctr",
       "schedule": "0 18 * * *"
     },
