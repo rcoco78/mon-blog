@@ -90,7 +90,9 @@ async function fetchAndSaveCaseStudies() {
 
   console.log(`[case-studies-sync] Case studies sauvegardés. Base : ${caseStudiesFromFile.length}, Générés : ${generatedCases.length}, Total : ${caseStudiesData.length}, Personnalisés : ${personalizedInData}`)
   return { 
-    count: caseStudiesData.length, 
+    count: caseStudiesData.length,
+    baseCount: caseStudiesFromFile.length,
+    generatedCount: generatedCases.length,
     personalizedCount: personalizedInData,
     personalizedAvailable: personalizedCount
   }
