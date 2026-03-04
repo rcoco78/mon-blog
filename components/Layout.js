@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useTheme } from 'next-themes'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { siteConfig } from '../lib/config'
 
@@ -10,8 +10,9 @@ const ArrowIcon = () => (
   </svg>
 )
 
-function FooterArrowLink({ href, children, active, external, isPlaying, title }) {
+function FooterArrowLink({ href, children, active, external, isPlaying, title, onHover }) {
   const linkClass = `flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100 ${active ? 'text-neutral-900 dark:text-neutral-100 font-medium' : ''}`
+  const hoverProps = onHover ? { onMouseEnter: onHover, onFocus: onHover } : {}
   const content = (
     <>
       <ArrowIcon />
@@ -29,7 +30,7 @@ function FooterArrowLink({ href, children, active, external, isPlaying, title })
   if (external) {
     return (
       <li>
-        <a className={linkClass} href={href} target="_blank" rel="noopener noreferrer" title={title}>
+        <a className={linkClass} href={href} target="_blank" rel="noopener noreferrer" title={title} {...hoverProps}>
           {content}
         </a>
       </li>
@@ -37,7 +38,7 @@ function FooterArrowLink({ href, children, active, external, isPlaying, title })
   }
   return (
     <li>
-      <Link className={linkClass} href={href} title={title}>
+      <Link className={linkClass} href={href} title={title} {...hoverProps}>
         {content}
       </Link>
     </li>
@@ -48,30 +49,21 @@ export default function Layout({ children }) {
   const { theme, resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
+  const spotifyFetchedRef = useRef(false)
   const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Vérifier si une musique est en cours d'écoute
-  useEffect(() => {
-    const checkCurrentlyPlaying = async () => {
-      try {
-        const response = await fetch('/api/spotify/data')
-        const data = await response.json()
-        setIsPlaying(!!data.currentlyPlaying)
-      } catch (error) {
-        // Silencieux en cas d'erreur
-        setIsPlaying(false)
-      }
-    }
-
-    checkCurrentlyPlaying()
-    // Vérifier toutes les 30 secondes
-    const interval = setInterval(checkCurrentlyPlaying, 30000)
-    return () => clearInterval(interval)
-  }, [])
+  const handleSpotifyHover = () => {
+    if (spotifyFetchedRef.current) return
+    spotifyFetchedRef.current = true
+    fetch('/api/spotify/data')
+      .then((res) => res.json())
+      .then((data) => setIsPlaying(!!data?.currentlyPlaying))
+      .catch(() => setIsPlaying(false))
+  }
 
   const toggleTheme = () => {
     if (!mounted) return
@@ -259,11 +251,11 @@ export default function Layout({ children }) {
                   </div>
                   <ul className="font-sm mt-8 flex flex-row flex-wrap gap-4 text-neutral-600 dark:text-neutral-300">
                     <FooterArrowLink href="/contact" active={router.pathname === '/contact'}>contact</FooterArrowLink>
-                    <FooterArrowLink href="https://www.malt.fr/profile/growth" external active={false}>malt</FooterArrowLink>
+                    <FooterArrowLink href="/confidentialite" active={router.pathname === '/confidentialite'}>confidentialité</FooterArrowLink>
                     <FooterArrowLink href="/cas-usage" active={router.pathname === '/cas-usage' || router.pathname.startsWith('/cas-usage/')}>cas d&apos;usage</FooterArrowLink>
                     <FooterArrowLink href="/newsletter" active={router.pathname === '/newsletter'}>newsletter</FooterArrowLink>
                     <FooterArrowLink href="https://www.linkedin.com/in/robertcorentin/" external active={false}>linkedin</FooterArrowLink>
-                    <FooterArrowLink href="/spotify" active={router.pathname === '/spotify'} isPlaying={isPlaying}>spotify</FooterArrowLink>
+                    <FooterArrowLink href="/spotify" active={router.pathname === '/spotify'} isPlaying={isPlaying} onHover={handleSpotifyHover}>spotify</FooterArrowLink>
                   </ul>
                 </footer>
       </div>

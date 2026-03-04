@@ -4,22 +4,15 @@ import { put, list } from '@vercel/blob'
 const VIEWS_EVENTS_FILENAME = 'case-studies-views-events.json'
 
 // Récupérer les événements de vues (source de vérité)
-async function getViewEvents() {
+// forceFresh=true pour les incréments (évite les pertes de données)
+async function getViewEvents(forceFresh = false) {
   try {
     const blobs = await list({ prefix: VIEWS_EVENTS_FILENAME })
     const existingBlob = blobs.blobs.find((blob) => blob.pathname === VIEWS_EVENTS_FILENAME)
 
     if (existingBlob) {
-      // Cache-busting agressif pour éviter les problèmes de cache
-      const cacheBuster = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-      const response = await fetch(`${existingBlob.url}?t=${cacheBuster}`, {
-        method: 'GET',
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-          Pragma: 'no-cache',
-        },
-      })
+      const fetchOpts = forceFresh ? { cache: 'no-store' } : { next: { revalidate: 300 } }
+      const response = await fetch(existingBlob.url, fetchOpts)
 
       if (response.ok) {
         const data = await response.json()
@@ -63,8 +56,8 @@ async function incrementView(slug, sector = null) {
       }
     }
     
-    // Récupérer les événements existants
-    const events = await getViewEvents()
+    // Récupérer les événements existants (forceFresh pour éviter perte d'incréments)
+    const events = await getViewEvents(true)
     
     // Ajouter le nouvel événement avec le secteur
     const newEvent = {

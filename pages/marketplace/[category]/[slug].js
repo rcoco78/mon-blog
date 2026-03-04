@@ -579,13 +579,13 @@ export default function MarketplaceDatabase({ database, relatedDatabases, addonD
           }}
         />
         
-        {/* Section principale */}
+        {/* Section principale - Un seul H1 pour le SEO */}
         <section className="mb-16">
+          <h1 className="font-semibold text-2xl mb-3 tracking-tighter md:mb-8">
+            {toolData.name}
+          </h1>
           {/* Header - Mobile first */}
           <div className="mb-8 md:hidden">
-            <h1 className="font-semibold text-2xl mb-3 tracking-tighter">
-              {toolData.name}
-            </h1>
             <p className="text-neutral-600 dark:text-neutral-400 tracking-tight mb-3 text-base leading-relaxed">
               {toolData.description}
             </p>
@@ -597,12 +597,9 @@ export default function MarketplaceDatabase({ database, relatedDatabases, addonD
 
           {/* Contenu principal */}
           <div>
-            {/* Header - Desktop seulement */}
+            {/* Header - Desktop seulement (H1 déjà affiché au-dessus) */}
             <div className="hidden md:block mb-8">
-              <h1 className="font-semibold text-2xl mb-3 tracking-tighter">
-                {toolData.name}
-              </h1>
-              <p className="text-neutral-600 dark:text-neutral-400 tracking-tight mb-3">
+              <p className="text-neutral-600 dark:text-neutral-400 tracking-tight mb-3 -mt-5">
                 {toolData.description}
               </p>
               <div className="flex items-center gap-4">

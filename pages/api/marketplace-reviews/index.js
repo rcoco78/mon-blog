@@ -39,7 +39,7 @@ async function getReviewsFromBlob() {
     const blobs = await list({ prefix: BLOB_FILENAME })
     const blob = blobs.blobs.find((b) => b.pathname === BLOB_FILENAME)
     if (blob) {
-      const res = await fetch(`${blob.url}?t=${Date.now()}`, { cache: 'no-store' })
+      const res = await fetch(blob.url, { next: { revalidate: 300 } })
       if (res.ok) {
         const data = await res.json()
         return Array.isArray(data) ? data : []

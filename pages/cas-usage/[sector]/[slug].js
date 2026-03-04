@@ -1767,10 +1767,7 @@ export async function getStaticProps({ params }) {
       const existingBlob = blobs.blobs.find((blob) => blob.pathname === VIEWS_EVENTS_FILENAME)
 
       if (existingBlob) {
-        const response = await fetch(existingBlob.url, {
-          method: 'GET',
-          cache: 'no-store',
-        })
+        const response = await fetch(existingBlob.url, { next: { revalidate: 300 } })
 
         if (response.ok) {
           const events = await response.json()

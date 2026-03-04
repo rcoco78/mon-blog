@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { getAllPosts } from '../lib/notion'
+import { fetchHomeData } from '../lib/home-data'
 import { useState, useEffect, useRef } from 'react'
 import { siteConfig } from '../lib/config'
 import { sectorToSlug } from '../lib/case-studies-helpers'
@@ -33,16 +34,16 @@ const getCompanyLogo = (companyName) => {
   return null
 }
 
-export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsCount = 0 }) {
-  const [topPosts, setTopPosts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [metrics, setMetrics] = useState(siteConfig.metrics)
-  const [metricsLoading, setMetricsLoading] = useState(true)
+export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsCount = 0, homeData }) {
+  const [topPosts] = useState(homeData?.topPosts ?? [])
+  const [loading] = useState(false)
+  const [metrics] = useState(homeData?.metrics ?? siteConfig.metrics)
+  const [metricsLoading] = useState(false)
   const [testimonialIndex, setTestimonialIndex] = useState(0)
-  const [keyResults, setKeyResults] = useState([])
-  const [keyResultsLoading, setKeyResultsLoading] = useState(true)
-  const [topCaseStudies, setTopCaseStudies] = useState([])
-  const [topCaseStudiesLoading, setTopCaseStudiesLoading] = useState(true)
+  const [keyResults] = useState(homeData?.keyResults ?? [])
+  const [keyResultsLoading] = useState(false)
+  const [topCaseStudies] = useState(homeData?.topCaseStudies ?? [])
+  const [topCaseStudiesLoading] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [currentTestimonialScrollIndex, setCurrentTestimonialScrollIndex] = useState(0)
   const [showVideo, setShowVideo] = useState(false)
@@ -74,244 +75,6 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
       setVideoSeen(true)
     }
   }
-
-  useEffect(() => {
-    const fetchViews = async () => {
-      // Vérifier que posts existe et n'est pas vide
-      if (!posts || posts.length === 0) {
-        setTopPosts([])
-        setLoading(false)
-        return
-      }
-
-      try {
-        // Récupérer toutes les vues en une seule requête
-        const slugs = posts.map(post => post.slug).join(',')
-        const response = await fetch(`/api/views/all?slugs=${slugs}`)
-        
-        if (!response.ok) {
-          throw new Error('Erreur lors de la récupération des vues')
-        }
-        
-        const viewsMap = await response.json()
-        
-        // Ajouter les vues aux articles et trier
-        const postsWithViews = posts.map(post => ({
-          ...post,
-          views: viewsMap[post.slug] || 0
-        }))
-        
-        // Trier par nombre de vues (ordre décroissant) et prendre les 3 premiers
-        const sortedPosts = postsWithViews
-          .sort((a, b) => b.views - a.views)
-          .slice(0, siteConfig.homepage.topPostsCount)
-        
-        setTopPosts(sortedPosts)
-        setLoading(false)
-      } catch (error) {
-        console.error('Erreur lors de la récupération des vues:', error)
-        // Fallback : afficher les articles sans les vues
-        const fallbackPosts = posts
-          .slice(0, siteConfig.homepage.topPostsCount)
-          .map(post => ({ ...post, views: 0 }))
-        setTopPosts(fallbackPosts)
-        setLoading(false)
-      }
-    }
-
-    fetchViews()
-  }, [posts])
-
-  // Top 3 cas d'usage les plus consultés (pour section en bas de page)
-  useEffect(() => {
-    const fetchTopCaseStudies = async () => {
-      try {
-        setTopCaseStudiesLoading(true)
-        const res = await fetch('/api/case-studies-views/top?limit=3')
-        if (res.ok) {
-          const data = await res.json()
-          setTopCaseStudies(Array.isArray(data) ? data : [])
-        }
-      } catch (err) {
-        console.warn('Erreur top cas d\'usage:', err)
-      } finally {
-        setTopCaseStudiesLoading(false)
-      }
-    }
-    fetchTopCaseStudies()
-  }, [])
-
-  // Charger les métriques depuis l'API et enrichir avec les Key Results
-  useEffect(() => {
-    const fetchMetricsAndEnrich = async () => {
-      try {
-        setMetricsLoading(true)
-        
-        // Charger les métriques de base
-        const metricsResponse = await fetch('/api/metrics?' + new Date().getTime())
-        let baseMetrics = siteConfig.metrics
-        if (metricsResponse.ok) {
-          const metricsData = await metricsResponse.json()
-          if (metricsData.success && metricsData.metrics) {
-            baseMetrics = metricsData.metrics
-          }
-        }
-        
-        // Charger les Key Results pour enrichir
-        const keyResultsResponse = await fetch('/api/key-results')
-        if (keyResultsResponse.ok) {
-          const keyResultsData = await keyResultsResponse.json()
-          setKeyResults(keyResultsData)
-          
-          // Calculer le CA total
-          // Chercher le KR principal de chaque catégorie (celui qui représente le CA total)
-          
-          // CA Freelance : chercher le KR principal (le plus grand ou celui avec "total")
-          const caFreelanceKRs = keyResultsData.filter(kr => {
-            const categoryLower = (kr.category || '').toLowerCase()
-            const nameLower = (kr.name || '').toLowerCase()
-            return (categoryLower.includes('freelance') || categoryLower.includes('freelancing')) &&
-                   (nameLower.includes('ca') || nameLower.includes('chiffre')) &&
-                   !nameLower.includes('affiliation')
-          })
-          
-          // Prendre le KR avec "total" s'il existe, sinon le plus grand
-          const caFreelanceTotalKR = caFreelanceKRs.find(kr => {
-            const nameLower = (kr.name || '').toLowerCase()
-            return nameLower.includes('total')
-          })
-          
-          let caFreelance = 0
-          if (caFreelanceTotalKR) {
-            caFreelance = caFreelanceTotalKR.targetResult || 0
-          } else if (caFreelanceKRs.length > 0) {
-            // Prendre le plus grand si pas de "total"
-            caFreelance = Math.max(...caFreelanceKRs.map(kr => kr.targetResult || 0))
-          }
-          
-          // CA Affiliation : chercher le KR principal (le plus grand ou celui avec "total")
-          const caAffiliationKRs = keyResultsData.filter(kr => {
-            const categoryLower = (kr.category || '').toLowerCase()
-            const nameLower = (kr.name || '').toLowerCase()
-            return (categoryLower.includes('affiliation') || categoryLower.includes('partenariats')) &&
-                   (nameLower.includes('ca') || nameLower.includes('chiffre') || nameLower.includes('revenus'))
-          })
-          
-          // Prendre le KR avec "total" s'il existe, sinon additionner tous les revenus d'affiliation
-          const caAffiliationTotalKR = caAffiliationKRs.find(kr => {
-            const nameLower = (kr.name || '').toLowerCase()
-            return nameLower.includes('total')
-          })
-          
-          let caAffiliation = 0
-          if (caAffiliationTotalKR) {
-            caAffiliation = caAffiliationTotalKR.targetResult || 0
-          } else if (caAffiliationKRs.length > 0) {
-            // Additionner tous les revenus d'affiliation (Apify, Lemlist, Zapmail, etc.)
-            caAffiliation = caAffiliationKRs.reduce((sum, kr) => sum + (kr.targetResult || 0), 0)
-          }
-          
-          // CA Logement Atypique : chercher le KR avec "ARR" (Annual Recurring Revenue)
-          const caLogementAtypiqueKRs = keyResultsData.filter(kr => {
-            const categoryLower = (kr.category || '').toLowerCase()
-            const nameLower = (kr.name || '').toLowerCase()
-            return (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial')) &&
-                   (nameLower.includes('arr') || nameLower.includes('ca') || nameLower.includes('chiffre')) &&
-                   nameLower.includes('logement')
-          })
-          
-          // Prendre le KR avec "ARR" s'il existe, sinon le plus grand
-          const caLogementAtypiqueTotalKR = caLogementAtypiqueKRs.find(kr => {
-            const nameLower = (kr.name || '').toLowerCase()
-            return nameLower.includes('arr')
-          })
-          
-          let caLogementAtypique = 0
-          if (caLogementAtypiqueTotalKR) {
-            caLogementAtypique = caLogementAtypiqueTotalKR.targetResult || 0
-          } else if (caLogementAtypiqueKRs.length > 0) {
-            // Prendre le plus grand si pas d'ARR
-            caLogementAtypique = Math.max(...caLogementAtypiqueKRs.map(kr => kr.targetResult || 0))
-          }
-          
-          const totalCA = caFreelance + caAffiliation + caLogementAtypique
-          
-          // Calculer la progression globale
-          const totalKeyResults = keyResultsData.length
-          const overallProgress = totalKeyResults > 0 
-            ? Math.round(keyResultsData.reduce((sum, kr) => sum + (kr.progress || 0), 0) / totalKeyResults)
-            : 0
-          
-          // Enrichir les métriques : remplacer certaines métriques basiques par des métriques plus intéressantes
-          const enrichedMetrics = [...baseMetrics]
-          
-          // Remplacer "scrapers publics" par les abonnés Logement Atypique
-          const abonnesKR = keyResultsData.find(kr => {
-            const nameLower = (kr.name || '').toLowerCase()
-            const categoryLower = (kr.category || '').toLowerCase()
-            return (nameLower.includes('abonnés') || nameLower.includes('abonne')) &&
-                   (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial'))
-          })
-          
-          if (abonnesKR && abonnesKR.currentResult) {
-            const scrapersIndex = enrichedMetrics.findIndex(m => 
-              m.label === 'scrapers publics' || m.source === 'sur Apify'
-            )
-            if (scrapersIndex >= 0) {
-              enrichedMetrics[scrapersIndex] = {
-                value: abonnesKR.currentResult.toString(),
-                label: 'abonnés',
-                source: 'Logement Atypique'
-              }
-            }
-          }
-          
-          // Remplacer une métrique par le CA si disponible
-          if (totalCA > 0) {
-            const formatNumber = (num) => {
-              if (num >= 1000) {
-                return num.toLocaleString('fr-FR')
-              }
-              return num.toString()
-            }
-            const caMetric = {
-              value: `${formatNumber(Math.round(totalCA / 1000))}k €`,
-              label: 'CA objectif 2026',
-              source: 'au cumulé'
-            }
-            // Remplacer la dernière métrique ou ajouter
-            if (enrichedMetrics.length >= 4) {
-              enrichedMetrics[3] = caMetric
-            } else {
-              enrichedMetrics.push(caMetric)
-            }
-          }
-          
-          // Ajouter la progression globale si significative
-          if (overallProgress > 0 && enrichedMetrics.length < 4) {
-            enrichedMetrics.push({
-              value: `${overallProgress}%`,
-              label: 'progression',
-              source: 'objectifs 2026'
-            })
-          }
-          
-          setMetrics(enrichedMetrics.slice(0, 4))
-        } else {
-          // Si pas de key results, garder les métriques de base
-          setMetrics(baseMetrics)
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération des métriques:', error)
-        // Garder les métriques par défaut en cas d'erreur
-      } finally {
-        setMetricsLoading(false)
-        setKeyResultsLoading(false)
-      }
-    }
-
-    fetchMetricsAndEnrich()
-  }, [])
 
   // Détecter si on est sur mobile
   useEffect(() => {
@@ -358,27 +121,6 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
       window.removeEventListener('resize', handleScroll)
     }
   }, [isMobile])
-
-  // Charger les scripts Calendly
-  useEffect(() => {
-    // Vérifier si les scripts sont déjà chargés
-    if (document.querySelector('link[href*="calendly.com"]')) {
-      return
-    }
-
-    // Charger le CSS
-    const link = document.createElement('link')
-    link.href = 'https://assets.calendly.com/assets/external/widget.css'
-    link.rel = 'stylesheet'
-    document.head.appendChild(link)
-
-    // Charger le JS
-    const script = document.createElement('script')
-    script.src = 'https://assets.calendly.com/assets/external/widget.js'
-    script.type = 'text/javascript'
-    script.async = true
-    document.body.appendChild(script)
-  }, [])
 
   const pageSEO = generatePageSEO({
     title: 'Corentin Robert - Expert Freelance Scraping & Automatisation | 424+ Projets',
@@ -644,6 +386,7 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
                 alt="Photo de profil de Corentin Robert"
                 width={64}
                 height={64}
+                sizes="64px"
                 className="w-16 h-16 rounded-full object-cover transition-all group-hover:opacity-90"
                 style={{ objectPosition: 'center 30%' }}
                 priority
@@ -916,6 +659,7 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
                         alt={project.imageAlt || `${project.title} - ${project.description}`}
                         width={24}
                         height={24}
+                        sizes="24px"
                         loading="lazy"
                         className={`w-6 h-6 rounded-lg object-cover border border-neutral-200 dark:border-neutral-800 ${!isActive ? 'opacity-50 grayscale' : ''}`}
                       />
@@ -928,6 +672,7 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
                           alt={project.iconAlt || `${project.title} - ${project.description}`}
                           width={24}
                           height={24}
+                          sizes="24px"
                           loading="lazy"
                           className={`w-6 h-6 rounded-lg object-contain ${!isActive ? 'opacity-50 grayscale' : ''}`}
                         />
@@ -1197,7 +942,7 @@ async function getMarketplaceViewEvents() {
     const blobs = await list({ prefix: 'marketplace-views-events.json' })
     const blob = blobs.blobs.find((b) => b.pathname === 'marketplace-views-events.json')
     if (blob) {
-      const res = await fetch(blob.url, { cache: 'no-store' })
+      const res = await fetch(blob.url, { next: { revalidate: 300 } })
       if (res.ok) {
         const data = await res.json()
         return Array.isArray(data) ? data : []
@@ -1211,7 +956,13 @@ async function getMarketplaceViewEvents() {
 
 export async function getStaticProps() {
   const posts = await getAllPosts()
-  
+  let homeData = null
+  try {
+    homeData = await fetchHomeData(posts)
+  } catch (err) {
+    console.warn('getStaticProps: fetchHomeData error', err?.message)
+  }
+
   // Charger les bases de données dynamiques — top 3 les plus consultées
   const { getDatabasesAsTools } = await import('../lib/marketplace-databases')
   let dynamicDatabases = await getDatabasesAsTools()
@@ -1249,6 +1000,7 @@ export async function getStaticProps() {
       posts,
       dynamicDatabases,
       marketplaceReviewsCount,
+      homeData,
     },
     revalidate: 60,
   }

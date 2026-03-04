@@ -19,16 +19,7 @@ export default async function handler(req, res) {
     try {
       const blob = await head(`blog-posts/${slug}.json`)
       if (blob) {
-        // Cache-busting
-        const cacheBuster = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-        const response = await fetch(`${blob.url}?t=${cacheBuster}`, {
-          method: 'GET',
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-            Pragma: 'no-cache',
-          },
-        })
+        const response = await fetch(blob.url, { next: { revalidate: 300 } })
 
         if (response.ok) {
           const article = await response.json()

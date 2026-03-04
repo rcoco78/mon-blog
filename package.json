@@ -19,11 +19,7 @@
     "create-stripe-coupon": "node scripts/create-stripe-coupon.js",
     "sync-sheets": "node scripts/simple-sync-sheets.js",
     "enrich-sheets": "node scripts/enrich-marketplace-sheets.js",
-    "enrich-sheets:all": "node scripts/enrich-marketplace-sheets.js --all",
-    "analyse-quick-wins": "node scripts/analyse-search-console-quick-wins.js",
-    "analyse-ctr": "node scripts/analyse-search-console-ctr.js",
-    "test:generate-case-studies": "node scripts/test-generate-case-studies.js",
-    "test:tella-marketplace": "node scripts/test-tella-marketplace-cron.js"
+    "enrich-sheets:all": "node scripts/enrich-marketplace-sheets.js --all"
   },
   "keywords": [],
   "author": "",

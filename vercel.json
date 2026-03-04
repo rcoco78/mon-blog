@@ -10,11 +10,11 @@
     },
     {
       "path": "/api/cron/blog-sync",
-      "schedule": "0 8,14,20 * * *"
+      "schedule": "0 8 * * *"
     },
     {
       "path": "/api/cron/blog-details-sync",
-      "schedule": "0 9,15,21 * * *"
+      "schedule": "0 9 * * *"
     },
     {
       "path": "/api/cron/case-studies-sync",
@@ -51,7 +51,62 @@
   ],
   "redirects": [
     {
+      "source": "/cas-usage/reseaux-sociaux",
+      "destination": "/cas-usage/reseaux-sociaux-lead-generation",
+      "permanent": true
+    },
+    {
+      "source": "/cas-usage/reseaux-sociaux/:path*",
+      "destination": "/cas-usage/reseaux-sociaux-lead-generation/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/cas-usage/lead-gen",
+      "destination": "/cas-usage/reseaux-sociaux-lead-generation",
+      "permanent": true
+    },
+    {
+      "source": "/cas-usage/lead-gen/:path*",
+      "destination": "/cas-usage/reseaux-sociaux-lead-generation/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/cas-usage/securite-it",
+      "destination": "/cas-usage/autres",
+      "permanent": true
+    },
+    {
+      "source": "/cas-usage/securite-it/:path*",
+      "destination": "/cas-usage/autres/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/cas-usage/reseaux-sociaux-lead-gen",
+      "destination": "/cas-usage/reseaux-sociaux-lead-generation",
+      "permanent": true
+    },
+    {
+      "source": "/cas-usage/reseaux-sociaux-lead-gen/:path*",
+      "destination": "/cas-usage/reseaux-sociaux-lead-generation/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/databases/:path*",
+      "destination": "/marketplace",
+      "permanent": true
+    },
+    {
+      "source": "/page-services",
+      "destination": "/marketplace",
+      "permanent": true
+    },
+    {
       "source": "/outils",
+      "destination": "/marketplace",
+      "permanent": true
+    },
+    {
+      "source": "/outils/:path*",
       "destination": "/marketplace",
       "permanent": true
     },
@@ -68,6 +123,11 @@
     {
       "source": "/cas-usage/sector/:path*",
       "destination": "/cas-usage",
+      "permanent": true
+    },
+    {
+      "source": "/marketplace/outils/%5Bslug%5D",
+      "destination": "/marketplace",
       "permanent": true
     },
     {
@@ -165,6 +225,23 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
         }
       ]
     }

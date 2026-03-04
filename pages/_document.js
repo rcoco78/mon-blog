@@ -4,6 +4,7 @@ export default function Document() {
   return (
     <Html lang="fr">
       <Head>
+        <meta charSet="utf-8" />
         {/* Google Tag Manager */}
         <script
           dangerouslySetInnerHTML={{

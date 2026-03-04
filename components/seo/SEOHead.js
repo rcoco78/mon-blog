@@ -33,8 +33,7 @@ export default function SEOHead({
 
   return (
     <Head>
-      {/* Meta tags essentiels */}
-      <meta charSet="utf-8" />
+      {/* Meta tags essentiels - charSet géré dans _document en premier */}
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
       

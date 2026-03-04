@@ -53,7 +53,7 @@ export default function Photos() {
   
   const pageSEO = generatePageSEO({
     title: 'Photos - Corentin Robert',
-    description: 'Quelques moments capturés au fil du temps — voyages, projets, rencontres.',
+    description: 'Galerie photos de Corentin Robert. Moments capturés au fil du temps : voyages, projets, rencontres et escapades. Paris, Corse, montagne et ailleurs.',
     path: '/photos',
     keywords: ['photos', 'voyages', 'projets', 'moments']
   })

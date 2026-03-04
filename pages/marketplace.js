@@ -395,10 +395,11 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                   <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
                 </svg>
                 <input
-                  type="text"
+                  type="search"
                   value={searchQuery}
                   onChange={e => { setSearchQuery(e.target.value); setDisplayedCount(8) }}
                   placeholder="Rechercher une base de données…"
+                  aria-label="Rechercher une base de données dans la marketplace"
                   className="w-full pl-9 pr-4 py-2 text-sm rounded-md border border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-colors"
                 />
                 {searchQuery && (
@@ -776,11 +777,12 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                          {r.linkedinUrl ? (
+                          {/* Liens LinkedIn cassés connus : afficher nom sans lien */}
+                          {r.linkedinUrl && !/linkedin\.com\/in\/cycling-corsica/i.test(r.linkedinUrl) ? (
                             <a
                               href={r.linkedinUrl}
                               target="_blank"
-                              rel="noopener noreferrer"
+                              rel="noopener noreferrer nofollow"
                               className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-900 dark:text-white hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors group"
                               title="Voir le profil LinkedIn"
                             >
@@ -792,7 +794,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                           ) : (
                             <span className="text-sm font-medium text-neutral-900 dark:text-white">{r.authorName}</span>
                           )}
-                          {r.linkedinUrl && (
+                          {r.linkedinUrl && !/linkedin\.com\/in\/cycling-corsica/i.test(r.linkedinUrl) && (
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
                               Vérifié
                             </span>
@@ -1017,7 +1019,7 @@ async function getMarketplaceViewEvents() {
     const blobs = await list({ prefix: 'marketplace-views-events.json' })
     const blob = blobs.blobs.find((b) => b.pathname === 'marketplace-views-events.json')
     if (blob) {
-      const res = await fetch(blob.url, { cache: 'no-store' })
+      const res = await fetch(blob.url, { next: { revalidate: 300 } })
       if (res.ok) {
         const data = await res.json()
         return Array.isArray(data) ? data : []

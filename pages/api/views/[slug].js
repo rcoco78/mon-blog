@@ -10,16 +10,7 @@ async function getViewEvents() {
     const existingBlob = blobs.blobs.find((blob) => blob.pathname === VIEWS_EVENTS_FILENAME)
 
     if (existingBlob) {
-      // Cache-busting agressif pour éviter les problèmes de cache
-      const cacheBuster = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-      const response = await fetch(`${existingBlob.url}?t=${cacheBuster}`, {
-        method: 'GET',
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-          Pragma: 'no-cache',
-        },
-      })
+      const response = await fetch(existingBlob.url, { next: { revalidate: 300 } })
 
       if (response.ok) {
         const data = await response.json()

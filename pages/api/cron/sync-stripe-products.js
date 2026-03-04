@@ -125,7 +125,7 @@ export default async function handler(req, res) {
       }
     }
 
-    await put(BLOB_STRIPE_IDS, JSON.stringify(updated, null, 2), { access: 'public' })
+    await put(BLOB_STRIPE_IDS, JSON.stringify(updated, null, 2), { access: 'public', allowOverwrite: true })
 
     console.log(`✅ Cron sync-stripe-products : ${Object.keys(updated).length} produits dans Blob`)
 

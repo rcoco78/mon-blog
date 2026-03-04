@@ -36,7 +36,7 @@ const getCompanyLogo = (companyName) => {
 export default function Temoignages() {
   const pageSEO = generatePageSEO({
     title: 'Témoignages Clients - Corentin Robert',
-    description: 'Découvrez les témoignages de mes clients sur Malt, Fiverr et LinkedIn. 424+ projets réalisés avec 270+ avis positifs.',
+    description: 'Témoignages et avis clients vérifiés de Corentin Robert. 424+ projets scraping et automatisation réalisés via Malt, Fiverr et LinkedIn. Retours clients avec notes et recommandations.',
     path: '/temoignages',
     keywords: ['témoignages', 'avis clients', 'recommandations', 'Malt', 'Fiverr', 'LinkedIn']
   })
