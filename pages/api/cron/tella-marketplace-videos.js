@@ -11,6 +11,8 @@
 import { put } from '@vercel/blob'
 import { listVideosByPlaylist } from '../../../lib/tella-api'
 import { getAllDatabases } from '../../../lib/marketplace-databases'
+import { updateNotionVideoUrl } from '../../../lib/marketplace-notion-sync'
+import { EXCLUDED_SLUGS } from '../../../lib/marketplace-videos'
 
 const MAPPING_BLOB_KEY = 'marketplace-database-videos.json'
 
@@ -337,7 +339,14 @@ export default async function handler(req, res) {
       mappingResult = buildMappingFallback(databases, videos)
       console.log('[tella-marketplace-videos] Fallback scoring textuel (OPENAI_API_KEY absent ou erreur)')
     }
-    const { mapping, matched, unmatched } = mappingResult
+    let { mapping, matched, unmatched } = mappingResult
+
+    // Exclure les slugs sans vidéo dédiée (évite les faux positifs)
+    matched = matched.filter((m) => !EXCLUDED_SLUGS.has(m.slug))
+    mapping = Object.fromEntries(Object.entries(mapping).filter(([s]) => !EXCLUDED_SLUGS.has(s)))
+    if (EXCLUDED_SLUGS.size > 0) {
+      console.log('[tella-marketplace-videos] Exclus (pas de vidéo auto):', [...EXCLUDED_SLUGS].join(', '))
+    }
 
     const payload = {
       mapping,
@@ -364,6 +373,18 @@ export default async function handler(req, res) {
       contentType: 'application/json',
       allowOverwrite: true,
     })
+
+    for (const m of matched) {
+      const embedUrl = mapping[m.slug]
+      if (embedUrl) {
+        try {
+          await updateNotionVideoUrl(m.slug, embedUrl)
+          console.log('[tella-marketplace-videos] Notion:', m.slug, '→ Publiée')
+        } catch (e) {
+          console.warn('[tella-marketplace-videos] Notion update failed for', m.slug, ':', e.message)
+        }
+      }
+    }
 
     console.log(
       '[tella-marketplace-videos]',

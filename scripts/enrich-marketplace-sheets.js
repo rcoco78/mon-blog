@@ -1181,7 +1181,25 @@ async function main() {
     const sheetsToProcessLimited = sheetsToEnrich.slice(0, maxSheets)
     
     console.log(blue(`\n📝 ${sheetsToProcessLimited.length} sheet(s) à enrichir sur ${sheetsToEnrich.length} trouvé(s) (limite: ${maxSheets})\n`))
-    
+
+    let videoMapping = {}
+    let scData = {}
+    let viewsBySlug = {}
+    let salesBySlug = {}
+    try {
+      const { getMarketplaceVideoMapping } = await import('../lib/marketplace-videos.js')
+      const { getSearchConsoleDataForMarketplace } = await import('../lib/search-console.js')
+      const { getMarketplaceViewsBySlug, getMarketplaceSalesBySlug, computePriorityScore } = await import('../lib/marketplace-stats.js')
+      ;[videoMapping, scData, viewsBySlug, salesBySlug] = await Promise.all([
+        getMarketplaceVideoMapping(),
+        getSearchConsoleDataForMarketplace({ days: 365 }).catch(() => ({})),
+        getMarketplaceViewsBySlug().catch(() => ({})),
+        getMarketplaceSalesBySlug().catch(() => ({})),
+      ])
+    } catch {
+      // ignore
+    }
+
     // Traiter chaque sheet à enrichir (limité) - S'ARRÊTER APRÈS maxSheets
     let processedCount = 0
     for (const sheet of sheetsToProcessLimited) {
@@ -1260,6 +1278,26 @@ async function main() {
       } else {
         databases.push(database)
         console.log(green(`  ✅ Ajouté`))
+      }
+
+      // Sync Notion (stratégie vidéo)
+      try {
+        const { syncDatabaseToNotion } = require('../lib/marketplace-notion-sync')
+        const videoUrl = videoMapping[database.slug] || null
+        const sc = scData[database.slug]
+        const impressions = sc?.impressions ?? 0
+        const clicks = sc?.clicks ?? 0
+        const position = sc?.position
+        const views = viewsBySlug[database.slug] || 0
+        const ventes = salesBySlug[database.slug] || 0
+        const scorePriorite = computePriorityScore(impressions, clicks, views, !!videoUrl, ventes, position)
+        const options = { impressions, clicks, views, ventes, scorePriorite }
+        if (position != null && position > 0) options.position = position
+        if (videoUrl) options.videoUrl = videoUrl
+        const synced = await syncDatabaseToNotion(database, options)
+        if (synced) console.log(cyan(`  📋 Notion: ${synced.created ? 'créé' : 'mis à jour'}`))
+      } catch (notionErr) {
+        console.warn(yellow(`  ⚠️ Notion sync skip: ${notionErr.message}`))
       }
       
       // Sauvegarder après chaque traitement pour éviter de perdre le travail en cas de timeout

@@ -19,7 +19,12 @@
     "create-stripe-coupon": "node scripts/create-stripe-coupon.js",
     "sync-sheets": "node scripts/simple-sync-sheets.js",
     "enrich-sheets": "node scripts/enrich-marketplace-sheets.js",
-    "enrich-sheets:all": "node scripts/enrich-marketplace-sheets.js --all"
+    "enrich-sheets:all": "node scripts/enrich-marketplace-sheets.js --all",
+    "sync-marketplace-to-notion": "node scripts/sync-marketplace-to-notion.js",
+    "sync-marketplace-to-notion:dry-run": "node scripts/sync-marketplace-to-notion.js --dry-run",
+    "sync-marketplace-stats": "node scripts/sync-marketplace-stats-to-notion.js",
+    "sync-marketplace-stats:dry-run": "node scripts/sync-marketplace-stats-to-notion.js --dry-run",
+    "clear-notion-video": "node scripts/clear-notion-video.js"
   },
   "keywords": [],
   "author": "",
