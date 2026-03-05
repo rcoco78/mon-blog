@@ -1204,7 +1204,9 @@ async function generateNewCaseStudies(existingCaseStudies, count, excludeQueries
   }
 
   // Agent 3 : Builder - développe les cas complets (limité à count+2 pour tenir dans le timeout)
-  const toBuild = Math.min(count + 2, selectedIdeas.length)
+  // Passe 2 (forceNiche) : max 3 cas pour éviter timeout quand le flux fait 2 passes complètes
+  const maxForPass = forceNiche ? 3 : count + 2
+  const toBuild = Math.min(maxForPass, selectedIdeas.length)
   console.log(`[generate-new-case-studies] Agent 3 (Builder) : développement de ${toBuild} cas complets...`)
   let cases = []
   try {
@@ -1623,5 +1625,10 @@ export default async function handler(req, res) {
     console.error('[generate-new-case-studies] Erreur:', error)
     return res.status(500).json({ error: error.message || 'Erreur inconnue' })
   }
+}
+
+// Passe 2 (forceNiche) double la charge → Agent 3 doit être plus léger pour rester sous le timeout
+export const config = {
+  maxDuration: 600, // Pro/Enterprise: jusqu'à 800s. Hobby: 300s max (optimisation toBuild en passe 2 compensera).
 }
 
