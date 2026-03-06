@@ -2,7 +2,8 @@
 // Inclut les données de base ET les données personnalisées
 // IMPORTANT : fusionne avec les cas générés par generate-new-case-studies (ne les écrase pas)
 
-import { list, put } from '@vercel/blob'
+import { list } from '@vercel/blob'
+import { putCaseStudiesSplit } from '../../../lib/case-studies-blob-write'
 import { caseStudies } from '../../../lib/case-studies'
 
 const BLOB_FILENAME = 'case-studies.json'
@@ -72,21 +73,7 @@ async function fetchAndSaveCaseStudies() {
 
   const caseStudiesData = [...caseStudiesFromFile, ...generatedCases]
 
-  await put(
-    BLOB_FILENAME,
-    JSON.stringify(
-      {
-        caseStudies: caseStudiesData,
-        personalizedCount: personalizedInData,
-        personalizedAvailable: personalizedCount,
-        lastUpdated: new Date().toISOString(),
-        count: caseStudiesData.length,
-      },
-      null,
-      2
-    ),
-    { access: 'public', allowOverwrite: true }
-  )
+  await putCaseStudiesSplit(caseStudiesData, { skipFull: false })
 
   console.log(`[case-studies-sync] Case studies sauvegardés. Base : ${caseStudiesFromFile.length}, Générés : ${generatedCases.length}, Total : ${caseStudiesData.length}, Personnalisés : ${personalizedInData}`)
   return { 

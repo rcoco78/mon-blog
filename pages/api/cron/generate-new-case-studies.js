@@ -10,6 +10,7 @@
 // - CASE_STUDIES_PER_RUN  : (optionnel) nombre de nouveaux cas à générer par exécution (défaut: 8)
 
 import { list, put } from '@vercel/blob'
+import { putCaseStudiesSplit } from '../../../lib/case-studies-blob-write'
 import { caseStudies as localCaseStudies } from '../../../lib/case-studies'
 import { siteConfig } from '../../../lib/config'
 import { sectorToSlug } from '../../../lib/case-studies-helpers'
@@ -1563,16 +1564,12 @@ export default async function handler(req, res) {
       })
     }
 
-    // 3) Mettre à jour le blob
+    // 3) Mettre à jour le blob (index + per-slug + full pour crons)
     blobData.caseStudies = existingCaseStudies
     blobData.count = existingCaseStudies.length
     blobData.lastUpdated = new Date().toISOString()
 
-    await put(
-      BLOB_FILENAME,
-      JSON.stringify(blobData, null, 2),
-      { access: 'public', allowOverwrite: true },
-    )
+    await putCaseStudiesSplit(existingCaseStudies, { skipFull: false })
 
     console.log(
       `[generate-new-case-studies] ${generated.length} nouveaux cas d'usage ajoutés. Total: ${existingCaseStudies.length}`,
