@@ -29,6 +29,14 @@
       "schedule": "0 11 * * *"
     },
     {
+      "path": "/api/cron/apify-actors-videos-sync",
+      "schedule": "30 11 * * *"
+    },
+    {
+      "path": "/api/cron/apify-actors-stats-daily",
+      "schedule": "0 8 * * *"
+    },
+    {
       "path": "/api/cron/generate-new-case-studies",
       "schedule": "0 6,17 * * *"
     },
