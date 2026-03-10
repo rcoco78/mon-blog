@@ -1569,7 +1569,10 @@ export default async function handler(req, res) {
     blobData.count = existingCaseStudies.length
     blobData.lastUpdated = new Date().toISOString()
 
-    await putCaseStudiesSplit(existingCaseStudies, { skipFull: false })
+    await putCaseStudiesSplit(existingCaseStudies, {
+      skipFull: false,
+      onlyNewSlugs: generated.map((g) => g.slug),
+    })
 
     console.log(
       `[generate-new-case-studies] ${generated.length} nouveaux cas d'usage ajoutés. Total: ${existingCaseStudies.length}`,
@@ -1624,8 +1627,9 @@ export default async function handler(req, res) {
   }
 }
 
-// Passe 2 (forceNiche) double la charge → Agent 3 doit être plus léger pour rester sous le timeout
+// Pro/Enterprise: jusqu'à 800s. Hobby: 300s max.
+// Optimisation: putCaseStudiesSplit n'écrit que les nouveaux slugs (pas les 500+ existants).
 export const config = {
-  maxDuration: 600, // Pro/Enterprise: jusqu'à 800s. Hobby: 300s max (optimisation toBuild en passe 2 compensera).
+  maxDuration: 800,
 }
 
