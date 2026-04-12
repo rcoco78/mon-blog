@@ -4,8 +4,250 @@ import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import FAQ from '../components/FAQ'
+
+function findAbonnesKeyResult(keyResults) {
+  return keyResults.find((kr) => {
+    const nameLower = (kr.name || '').toLowerCase()
+    const categoryLower = (kr.category || '').toLowerCase()
+    return (
+      (nameLower.includes('abonnés') || nameLower.includes('abonne')) &&
+      (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial'))
+    )
+  })
+}
+
+/** Nombre de jours calendaires entre deux chaînes de date (ISO ou locale). */
+function calendarDaysBetween(dateStrA, dateStrB) {
+  const a = new Date(dateStrA)
+  const b = new Date(dateStrB)
+  if (isNaN(a.getTime()) || isNaN(b.getTime())) return 0
+  const startA = new Date(a.getFullYear(), a.getMonth(), a.getDate()).getTime()
+  const startB = new Date(b.getFullYear(), b.getMonth(), b.getDate()).getTime()
+  return Math.round((startB - startA) / 86400000)
+}
+
+function toLocalYMD(dateInput) {
+  const x = dateInput instanceof Date ? dateInput : new Date(dateInput)
+  if (isNaN(x.getTime())) return null
+  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`
+}
+
+function addLocalDaysYMD(ymd, deltaDays) {
+  if (!ymd || typeof deltaDays !== 'number') return null
+  const [y, m, d] = ymd.split('-').map(Number)
+  if (!y || !m || !d) return null
+  const dt = new Date(y, m - 1, d + deltaDays)
+  if (isNaN(dt.getTime())) return null
+  return toLocalYMD(dt)
+}
+
+/** Au plus un point par jour calendaire : comble les trous entre deux mesures avec la valeur du point précédent (pas d’interpolation). */
+function densifyHistoryWithForwardFill(history, maxFillBetween = 400) {
+  if (!Array.isArray(history) || history.length === 0) return []
+  const sorted = [...history]
+    .filter((h) => h && h.date != null && h.date !== '')
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  if (sorted.length === 0) return []
+
+  const out = []
+  for (let i = 0; i < sorted.length; i++) {
+    const cur = sorted[i]
+    out.push(cur)
+    if (i === sorted.length - 1) break
+    const next = sorted[i + 1]
+    const gap = calendarDaysBetween(cur.date, next.date)
+    if (gap <= 1) continue
+
+    const curYmd = toLocalYMD(cur.date)
+    const nextYmd = toLocalYMD(next.date)
+    if (!curYmd || !nextYmd) continue
+
+    const baseVal = Number(cur.valeur)
+    const v = Number.isFinite(baseVal) ? baseVal : 0
+    const maxSteps = Math.min(gap - 1, maxFillBetween)
+    for (let s = 1; s <= maxSteps; s++) {
+      const fillYmd = addLocalDaysYMD(curYmd, s)
+      if (!fillYmd || fillYmd >= nextYmd) break
+      out.push({
+        id: `daily-fill-${fillYmd}-${String(cur.id || i).slice(0, 12)}`,
+        date: fillYmd,
+        valeur: v,
+        syntheticDailyFill: true
+      })
+    }
+  }
+  return out
+}
+
+/**
+ * Valeur de référence pour l’année : idéalement le 1er janvier à 0h (local),
+ * sinon première mesure de l’année, sinon dernière avant le 1er janv.
+ */
+function getYearStartValueFromHistory(history, year) {
+  const empty = { valeur: null, date: null, label: null }
+  if (!Array.isArray(history) || history.length === 0) return empty
+
+  const sorted = [...history]
+    .filter((h) => h && h.date != null && h.date !== '')
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+  if (sorted.length === 0) return empty
+
+  const sameCalendarDay = (dateStr, y, monthIndex, day) => {
+    const x = new Date(dateStr)
+    if (isNaN(x.getTime())) return false
+    return x.getFullYear() === y && x.getMonth() === monthIndex && x.getDate() === day
+  }
+
+  const jan1Start = new Date(year, 0, 1).getTime()
+
+  const exact = sorted.find((h) => sameCalendarDay(h.date, year, 0, 1))
+  if (exact) {
+    const v = Number(exact.valeur)
+    return { valeur: Number.isFinite(v) ? v : null, date: exact.date, label: 'exact' }
+  }
+
+  const firstInYear = sorted.find((h) => {
+    const t = new Date(h.date).getTime()
+    return !isNaN(t) && t >= jan1Start
+  })
+  if (firstInYear) {
+    const v = Number(firstInYear.valeur)
+    return { valeur: Number.isFinite(v) ? v : null, date: firstInYear.date, label: 'first_in_year' }
+  }
+
+  const lastBefore = [...sorted].reverse().find((h) => {
+    const t = new Date(h.date).getTime()
+    return !isNaN(t) && t < jan1Start
+  })
+  if (lastBefore) {
+    const v = Number(lastBefore.valeur)
+    return { valeur: Number.isFinite(v) ? v : null, date: lastBefore.date, label: 'last_before_year' }
+  }
+
+  return empty
+}
+
+/** L’historique remonté n’est pas toujours à jour ; on aligne sur le Current result du KR affiché sur les cartes. */
+function mergeHistoryWithCurrentKR(history, currentResult, syncPrefix = 'kr-sync') {
+  const cur = Number(currentResult)
+  if (!Number.isFinite(cur) || cur < 0) {
+    return Array.isArray(history) ? history : []
+  }
+  const rounded = Math.round(cur)
+  const h = Array.isArray(history) ? [...history] : []
+  const now = new Date()
+  const todayYMD = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+
+  if (h.length === 0) {
+    return [{ id: `${syncPrefix}-init`, date: todayYMD, valeur: rounded, syntheticFromKeyResult: true }]
+  }
+
+  const last = h[h.length - 1]
+  const lastNum = Number(last?.valeur)
+  let lastYMD = null
+  if (last?.date) {
+    const d = new Date(last.date)
+    if (!isNaN(d.getTime())) {
+      lastYMD = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    }
+  }
+
+  if (lastYMD === todayYMD) {
+    if (Number.isFinite(lastNum) && lastNum !== rounded) {
+      h[h.length - 1] = { ...last, valeur: rounded }
+    }
+    return h
+  }
+
+  if (Number.isFinite(lastNum) && lastNum === rounded) {
+    return h
+  }
+
+  h.push({
+    id: `${syncPrefix}-${todayYMD}`,
+    date: todayYMD,
+    valeur: rounded,
+    syntheticFromKeyResult: true
+  })
+  return h
+}
+
+function findApifyUsersTotalKeyResult(keyResults) {
+  let kr = keyResults.find((k) => {
+    const nameLower = (k.name || '').toLowerCase()
+    const categoryLower = (k.category || '').toLowerCase()
+    return (
+      (nameLower.includes('utilisateurs total') || nameLower.includes('total users')) &&
+      (categoryLower.includes('apify') || categoryLower.includes('scraping'))
+    )
+  })
+  if (!kr) {
+    const matchingKRs = keyResults.filter((k) => {
+      const nameLower = (k.name || '').toLowerCase()
+      const categoryLower = (k.category || '').toLowerCase()
+      return (
+        (nameLower.includes('utilisateur') || nameLower.includes('user')) &&
+        (categoryLower.includes('apify') || categoryLower.includes('scraping'))
+      )
+    })
+    if (matchingKRs.length > 0) {
+      kr = matchingKRs.reduce((max, k) =>
+        (k.targetResult || 0) > (max.targetResult || 0) ? k : max
+      )
+    }
+  }
+  return kr
+}
+
+/**
+ * Objectif considéré comme terminé : statut dans la base (souvent « Complete », pas « completed »)
+ * ou cible numérique atteinte / dépassée.
+ */
+function isKeyResultCompleted(kr) {
+  const t = Number(kr?.targetResult)
+  const c = Number(kr?.currentResult)
+  if (t > 0 && Number.isFinite(c) && c >= t) return true
+
+  const raw = (kr?.status || '').trim()
+  const s = raw.toLowerCase()
+  if (!s) return false
+
+  const terminal = new Set([
+    'done',
+    'completed',
+    'complete',
+    'terminé',
+    'complété',
+    'achieved',
+    'atteint',
+    'closed',
+    'finished',
+    'fini',
+  ])
+  if (terminal.has(s)) return true
+
+  const n = s.normalize('NFD').replace(/\p{M}/gu, '')
+  if (
+    n === 'termine' ||
+    n === 'complet' ||
+    n === 'complete' ||
+    n === 'acheve' ||
+    n === 'realise' ||
+    n === 'finalise'
+  ) {
+    return true
+  }
+
+  return false
+}
+
+function isKeyResultNotStarted(kr) {
+  const s = (kr?.status || '').toLowerCase().trim().normalize('NFD').replace(/\p{M}/gu, '')
+  return s === 'not started' || s === 'non demarre' || s === 'notstarted'
+}
 
 export default function DonneesPubliques() {
   const pageSEO = generatePageSEO({
@@ -34,15 +276,22 @@ export default function DonneesPubliques() {
   const [historyLoading, setHistoryLoading] = useState(true) // État de chargement de l'historique
   const [chartMaxPoints, setChartMaxPoints] = useState(30) // Nombre de points affichés selon la largeur (14 / 21 / 30)
 
+  const abonnesHistorySynced = useMemo(() => {
+    const kr = findAbonnesKeyResult(keyResults)
+    return mergeHistoryWithCurrentKR(abonnesHistory, kr?.currentResult, 'kr-abonnes')
+  }, [abonnesHistory, keyResults])
+
+  const apifyUsersHistorySynced = useMemo(() => {
+    const kr = findApifyUsersTotalKeyResult(keyResults)
+    return mergeHistoryWithCurrentKR(apifyUsersHistory, kr?.currentResult, 'kr-apify-users')
+  }, [apifyUsersHistory, keyResults])
+
   useEffect(() => {
     const fetchKeyResults = async () => {
       try {
         const response = await fetch('/api/key-results')
         if (response.ok) {
           const data = await response.json()
-          // Debug: afficher les statuts uniques pour comprendre le format
-          const uniqueStatuses = [...new Set(data.map(kr => kr.status))]
-          console.log('Statuts uniques des Key Results:', uniqueStatuses)
           setKeyResults(data)
         } else {
           // Même en cas d'erreur HTTP, on peut avoir reçu un tableau vide
@@ -256,7 +505,7 @@ export default function DonneesPubliques() {
       // Utiliser l'historique Chess.com
       history = chessHistory
     } else {
-      // Utiliser l'historique Notion standard
+      // Utiliser l’historique des objectifs (hors Chess.com)
       history = keyResultsHistory[kr.id] || []
     }
     
@@ -373,7 +622,7 @@ export default function DonneesPubliques() {
     
     const loisirResults = groupedByCategory[loisirCategory] || []
     
-    // Vérifier si le Key Result Rapid existe déjà dans Notion
+    // Vérifier si le Key Result Rapid existe déjà dans les objectifs
     const hasRapidKR = loisirResults.some(kr => {
       const nameLower = (kr.name || '').toLowerCase()
       return nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess')
@@ -389,30 +638,13 @@ export default function DonneesPubliques() {
 
   // Calculer les statistiques globales (incluant les objectifs virtuels Chess.com)
   const totalKeyResults = keyResults.length + chessVirtualKRsCount
-  const completedKeyResults = keyResults.filter(kr => {
-    const status = kr.status?.toLowerCase() || ''
-    return status === 'done' || status === 'completed' || status === 'terminé'
-  }).length
-  const inProgressKeyResults = keyResults.filter(kr => {
-    const status = kr.status?.toLowerCase() || ''
-    // Détecter tous les statuts qui indiquent un travail en cours
-    // Notion peut retourner: "In progress", "In Progress", "in progress", etc.
-    const isInProgress = status.includes('progress') || 
-                        status.includes('en cours') || 
-                        status.includes('in_progress') ||
-                        status.includes('inprogress')
-    
-    // Si le statut n'est pas "done", "completed", "terminé", "not started", etc., considérer comme en cours
-    const isNotCompleted = status !== 'done' && 
-                          status !== 'completed' && 
-                          status !== 'terminé' && 
-                          status !== 'not started' && 
-                          status !== 'notstarted' && 
-                          status !== 'non démarré' &&
-                          status !== ''
-    
-    return isInProgress || isNotCompleted
-  }).length + chessVirtualKRsCount // Ajouter les objectifs Chess.com virtuels (toujours "In progress")
+  const completedKeyResults = keyResults.filter(isKeyResultCompleted).length
+  const inProgressKeyResults =
+    keyResults.filter((kr) => {
+      if (isKeyResultCompleted(kr)) return false
+      if (isKeyResultNotStarted(kr)) return false
+      return true
+    }).length + chessVirtualKRsCount
   // Calculer la progression globale basée sur le pourcentage moyen de tous les objectifs
   // Inclure la progression de l'objectif Chess.com virtuel
   const chessVirtualProgress = chessVirtualKRsCount > 0 && chessStats && chessStats.rapid
@@ -425,7 +657,7 @@ export default function DonneesPubliques() {
   // Fonction pour obtenir la couleur du statut
   const getStatusColor = (status) => {
     const statusLower = status?.toLowerCase() || ''
-    if (statusLower === 'done') {
+    if (statusLower === 'done' || statusLower === 'complete' || statusLower === 'completed') {
       return 'bg-green-500 text-white'
     }
     if (statusLower === 'in progress' || statusLower === 'in_progress') {
@@ -835,56 +1067,111 @@ export default function DonneesPubliques() {
   }
 
   // Composant mini-graphique pour les cartes individuelles
-  const MiniGrowthChart = ({ history, height = 40, color = 'blue' }) => {
+  // Hauteurs en px (pas en %) : les % sur flex items ne reflètent pas toujours les vraies proportions.
+  // Même logique d’échelle « amplifiée » que GrowthChart quand la variation est faible vs le niveau (ex. abonnés +12 sur ~430).
+  const MiniGrowthChart = ({ history, height = 40, color = 'blue', maxBars = 18 }) => {
     if (!history || history.length === 0) return null
-    
+
+    const dense = densifyHistoryWithForwardFill(history)
+    const slice = dense.slice(-Math.max(1, maxBars))
+    const narrowBars = slice.length > 8
+    const barMaxClass = narrowBars
+      ? 'max-w-[6px] sm:max-w-[7px] md:max-w-[8px]'
+      : 'max-w-[12px]'
+    const values = slice.map((h) => {
+      const n = Number(h.valeur)
+      return Number.isFinite(n) ? n : 0
+    })
+    if (values.length === 0) return null
+
+    const minValue = Math.min(...values)
+    const maxValue = Math.max(...values)
+    const range = maxValue - minValue
+
+    let scaleMin
+    let scaleMax
+    if (range === 0) {
+      scaleMin = Math.max(0, minValue - 1)
+      scaleMax = minValue + 1
+    } else {
+      const useAmplifiedScale = range < maxValue * 0.15
+      scaleMax = useAmplifiedScale ? maxValue + range * 0.03 : maxValue + range * 0.05
+      scaleMin = useAmplifiedScale ? Math.max(0, minValue - range * 0.02) : Math.max(0, minValue - range * 0.02)
+    }
+    const scaleRange = Math.max(scaleMax - scaleMin, 1e-9)
+
     const colorClasses = {
       blue: 'bg-blue-500 dark:bg-blue-400',
       green: 'bg-green-500 dark:bg-green-400',
       purple: 'bg-purple-500 dark:bg-purple-400'
     }
     const colorClass = colorClasses[color] || colorClasses.blue
-    
-    const maxValue = Math.max(...history.map(h => h.valeur))
-    const minValue = Math.min(...history.map(h => h.valeur))
-    const range = maxValue - minValue || 1
-    
-    return (
-      <div className="flex items-end justify-between gap-0.5 h-10 mt-2 relative" style={{ height: `${height}px` }}>
-        {history.slice(-7).map((item, index) => {
-          const normalizedHeight = range > 0 ? ((item.valeur - minValue) / range) * 100 : 50
-          // Formater la date pour l'affichage
-          let dateDisplay = item.date
-          try {
-            const date = new Date(item.date)
-            if (!isNaN(date.getTime())) {
-              dateDisplay = date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
+
+    const columns = []
+    slice.forEach((item, index) => {
+      const v = Number(item.valeur)
+      const safeV = Number.isFinite(v) ? v : 0
+      const t = (safeV - scaleMin) / scaleRange
+      const barPx = Math.max(3, Math.round(t * height))
+
+      let dateDisplay = item.date
+      try {
+        const date = new Date(item.date)
+        if (!isNaN(date.getTime())) {
+          dateDisplay = date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
+        }
+      } catch (e) {
+        // Garder la date originale si le parsing échoue
+      }
+
+      const synthetic = Boolean(item.syntheticFromKeyResult)
+      const dailyFill = Boolean(item.syntheticDailyFill)
+
+      columns.push(
+        <div
+          key={item.id || index}
+          className="flex-1 min-w-0 flex flex-col justify-end relative group/bar"
+        >
+          <div
+            className={`w-full ${barMaxClass} mx-auto ${colorClass} rounded-t transition-all relative ${
+              dailyFill ? 'opacity-45 border border-dashed border-neutral-400/40 dark:border-neutral-500/35' : 'opacity-70'
+            } hover:opacity-100 ${
+              synthetic
+                ? 'ring-2 ring-amber-500/60 dark:ring-amber-400/50 ring-offset-1 ring-offset-white dark:ring-offset-neutral-950'
+                : ''
+            }`}
+            style={{ height: `${barPx}px` }}
+            title={
+              synthetic
+                ? 'Total actuel du Key Result — compléter l’historique pour les jours manquants.'
+                : dailyFill
+                  ? 'Aucune mesure ce jour dans l’historique — valeur reportée (grille journalière).'
+                  : undefined
             }
-          } catch (e) {
-            // Garder la date originale si le parsing échoue
-          }
-          
-          return (
-            <div
-              key={item.id || index}
-              className={`flex-1 ${colorClass} rounded-t opacity-70 hover:opacity-100 transition-opacity relative group/bar`}
-              style={{ 
-                height: `${Math.max(normalizedHeight, 10)}%`,
-                minHeight: '2px'
-              }}
-            >
-              {/* Tooltip au survol */}
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded whitespace-nowrap opacity-0 group-hover/bar:opacity-100 transition-opacity pointer-events-none z-10">
-                <div className="font-medium">{formatNumber(item.valeur)}</div>
-                <div className="text-[10px] opacity-80">{dateDisplay}</div>
-                {/* Flèche du tooltip */}
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                  <div className="w-2 h-2 bg-neutral-900 dark:bg-neutral-100 rotate-45"></div>
+          >
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded opacity-0 group-hover/bar:opacity-100 transition-opacity pointer-events-none z-10 max-w-[min(16rem,calc(100vw-2rem))]">
+              <div className="font-medium whitespace-nowrap">{formatNumber(safeV)}</div>
+              <div className="text-[10px] opacity-80 whitespace-nowrap">{dateDisplay}</div>
+              {synthetic && (
+                <div className="text-[10px] opacity-90 mt-1 pt-1 border-t border-white/20 dark:border-neutral-800 whitespace-normal leading-snug">
+                  Synchro Key Result : pas de point d’historique pour chaque jour jusqu’à cette date.
                 </div>
+              )}
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                <div className="w-2 h-2 bg-neutral-900 dark:bg-neutral-100 rotate-45" />
               </div>
             </div>
-          )
-        })}
+          </div>
+        </div>
+      )
+    })
+
+    return (
+      <div
+        className={`flex items-stretch justify-between mt-2 relative ${narrowBars ? 'gap-px' : 'gap-0.5'}`}
+        style={{ height: `${height}px` }}
+      >
+        {columns}
       </div>
     )
   }
@@ -901,8 +1188,11 @@ export default function DonneesPubliques() {
 
   // Composant réutilisable pour les graphiques de croissance
   const GrowthChart = ({ title, description, history, loading, colorFrom = 'blue', colorTo = 'blue', insight, targetValue }) => {
-    // Plage récente adaptée à la largeur d'écran (chartMaxPoints = 14 / 21 / 30) pour éviter le scroll
-    const displayHistory = (history && history.length > 0) ? history.slice(-chartMaxPoints) : []
+    // Une barre par jour : combler les trous de l’historique par report de la dernière valeur (pas d’interpolation).
+    const densifiedHistory =
+      history && history.length > 0 ? densifyHistoryWithForwardFill(history) : []
+    const displayHistory =
+      densifiedHistory.length > 0 ? densifiedHistory.slice(-chartMaxPoints) : []
 
     // Couleurs pastel/claires comme dans MiniGrowthChart
     const colorClasses = {
@@ -915,11 +1205,15 @@ export default function DonneesPubliques() {
     // Calculer l'insight sur la plage affichée
     let calculatedInsight = insight
     if (!calculatedInsight && displayHistory.length > 1) {
-      const firstValue = displayHistory[0].valeur
-      const lastValue = displayHistory[displayHistory.length - 1].valeur
+      const referenceYear = new Date().getFullYear()
+      const ys = getYearStartValueFromHistory(history, referenceYear)
+      const firstValue = Number.isFinite(Number(ys.valeur))
+        ? Number(ys.valeur)
+        : Number(displayHistory[0].valeur)
+      const lastValue = Number(displayHistory[displayHistory.length - 1].valeur)
       const growth = firstValue > 0 ? ((lastValue / firstValue - 1) * 100).toFixed(1) : 0
       const trend = lastValue >= firstValue ? 'croissance' : 'baisse'
-      calculatedInsight = `Tendance ${trend} de ${Math.abs(growth)}% sur la période affichée.`
+      calculatedInsight = `Tendance ${trend} de ${Math.abs(growth)}% depuis le 1er janvier ${referenceYear} (dernière valeur affichée vs référence année).`
     }
 
     return (
@@ -941,20 +1235,42 @@ export default function DonneesPubliques() {
         ) : (
           <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 overflow-x-auto">
             <div className="sr-only">
-              <p>Graphique en barres représentant l'évolution de {title.toLowerCase()}. Derniers {displayHistory.length} points, chronologiquement de gauche à droite.</p>
+              <p>
+                Graphique en barres représentant l&apos;évolution de {title.toLowerCase()}. Derniers{' '}
+                {displayHistory.length} jours (grille journalière ; jours sans mesure dans l’historique = dernière valeur connue),
+                chronologiquement de gauche à droite.
+              </p>
             </div>
-            {history.length > chartMaxPoints && (
-              <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-3">Derniers {chartMaxPoints} jours affichés</p>
+            {densifiedHistory.length > chartMaxPoints && (
+              <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-3">
+                Derniers {chartMaxPoints} jours affichés — une colonne par jour ; les trous dans l’historique sont comblés par
+                la dernière valeur mesurée.
+              </p>
             )}
             {(() => {
-              const minValue = Math.min(...displayHistory.map(h => h.valeur))
-              const maxValue = Math.max(...displayHistory.map(h => h.valeur))
+              const numericValues = displayHistory.map((h) => {
+                const n = Number(h.valeur)
+                return Number.isFinite(n) ? n : 0
+              })
+              const minValue = Math.min(...numericValues)
+              const maxValue = Math.max(...numericValues)
               const range = maxValue - minValue
-              const shouldUseTarget = targetValue && targetValue > maxValue && targetValue <= maxValue * 3
+              // Ne pas étendre l’axe Y jusqu’à l’objectif annuel : à ~400 / objectif 1200 les barres deviennent illisibles.
+              // L’objectif 2026 reste affiché dans le récap sous le graphique (targetValue).
               const useAmplifiedScale = range > 0 && range < maxValue * 0.15
-              const scaleMax = shouldUseTarget ? targetValue : useAmplifiedScale ? maxValue + (range * 0.03) : maxValue + (range > 0 ? range * 0.05 : maxValue * 0.05)
-              const scaleMin = useAmplifiedScale ? Math.max(0, minValue - (range * 0.02)) : Math.max(0, minValue - (range > 0 ? range * 0.02 : minValue * 0.02))
-              const scaleRange = scaleMax - scaleMin
+              const scaleMax =
+                range > 0
+                  ? useAmplifiedScale
+                    ? maxValue + range * 0.03
+                    : maxValue + range * 0.05
+                  : maxValue + Math.max(maxValue * 0.05, 1)
+              const scaleMin =
+                range > 0
+                  ? useAmplifiedScale
+                    ? Math.max(0, minValue - range * 0.02)
+                    : Math.max(0, minValue - range * 0.02)
+                  : Math.max(0, minValue - Math.max(minValue * 0.02, 1))
+              const scaleRange = Math.max(scaleMax - scaleMin, 1e-9)
               const labelIndices = getChartLabelIndices(displayHistory.length, displayHistory.length > 12 ? 6 : 8)
               const yTicks = [scaleMin, scaleMin + scaleRange * 0.25, scaleMin + scaleRange * 0.5, scaleMin + scaleRange * 0.75, scaleMax].map(v => Math.round(v))
               const uniqueYTicks = [...new Set(yTicks)].sort((a, b) => a - b)
@@ -986,7 +1302,9 @@ export default function DonneesPubliques() {
                     )}
                     <div className="flex items-end justify-between gap-0.5 md:gap-1 h-80 md:h-72 relative overflow-y-visible z-10" role="img" aria-label={`Graphique de ${title.toLowerCase()}`}>
                       {displayHistory.map((item, index) => {
-                              const height = scaleRange > 0 ? ((item.valeur - scaleMin) / scaleRange) * 100 : 0
+                              const val = Number(item.valeur)
+                              const safeVal = Number.isFinite(val) ? val : 0
+                              const height = scaleRange > 0 ? ((safeVal - scaleMin) / scaleRange) * 100 : 0
                               const showLabel = labelIndices.has(index)
                               const isFirstBars = index < 3
                               const isLastBars = index >= displayHistory.length - 3
@@ -1009,9 +1327,21 @@ export default function DonneesPubliques() {
                                 <div key={item.id || `${item.date}-${index}`} className="flex flex-col items-center flex-1 min-w-0 relative overflow-visible group/bar z-0 hover:z-[100]" style={{ height: '100%', minWidth: 4 }}>
                                   <div className="relative w-full flex items-end justify-center flex-1" style={{ minHeight: '240px', maxHeight: '240px' }}>
                                     <div 
-                                      className={`w-full max-w-[24px] min-w-[3px] ${colorClass} rounded-t transition-all duration-500 relative shadow-sm hover:shadow-md hover:opacity-90`}
+                                      className={`w-full max-w-[24px] min-w-[3px] ${colorClass} rounded-t transition-all duration-500 relative shadow-sm hover:shadow-md hover:opacity-90 ${
+                                        item.syntheticDailyFill ? 'opacity-55 border border-dashed border-neutral-400/50 dark:border-neutral-500/40' : ''
+                                      } ${
+                                        item.syntheticFromKeyResult
+                                          ? 'ring-2 ring-amber-500/55 dark:ring-amber-400/45 ring-offset-1 ring-offset-neutral-50 dark:ring-offset-neutral-900'
+                                          : ''
+                                      }`}
                                       style={{ height: `${height}%`, minHeight: height > 0 ? '8px' : '0' }}
-                                      title={`${formatDateForTooltip(item.date)}: ${formatNumber(item.valeur)}`}
+                                      title={
+                                        item.syntheticFromKeyResult
+                                          ? `${formatDateForTooltip(item.date)}: ${formatNumber(safeVal)} — total actuel du Key Result (synchro)`
+                                          : item.syntheticDailyFill
+                                            ? `${formatDateForTooltip(item.date)}: ${formatNumber(safeVal)} — pas de mesure ce jour dans l’historique (valeur reportée)`
+                                            : `${formatDateForTooltip(item.date)}: ${formatNumber(safeVal)}`
+                                      }
                                     >
                                       {/* Tooltip : au-dessus par défaut, à droite au début, à gauche à la fin pour rester visible */}
                                       <div 
@@ -1022,7 +1352,7 @@ export default function DonneesPubliques() {
                                         `}
                                       >
                                         <div className="font-medium">{formatDateForTooltip(item.date)}</div>
-                                        <div className="font-semibold mt-0.5">{formatNumber(item.valeur)}</div>
+                                        <div className="font-semibold mt-0.5">{formatNumber(safeVal)}</div>
                                         {/* Petite flèche vers la barre */}
                                         {!isFirstBars && !isLastBars && (
                                           <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-neutral-900 dark:border-t-neutral-100" />
@@ -1039,7 +1369,7 @@ export default function DonneesPubliques() {
                                   <div className="text-xs text-neutral-700 dark:text-neutral-300 mt-2 w-full px-0.5 text-center shrink-0 overflow-visible" style={{ minHeight: '2.5rem' }}>
                                     {showLabel ? (
                                       <>
-                                        <div className="font-semibold tabular-nums">{formatNumber(item.valeur)}</div>
+                                        <div className="font-semibold tabular-nums">{formatNumber(safeVal)}</div>
                                         <div className="hidden sm:block text-[11px] mt-0.5 leading-tight tabular-nums font-medium text-neutral-600 dark:text-neutral-400" title={formatDateForTooltip(item.date)}>{formatDateForAxis(item.date)}</div>
                                       </>
                                     ) : (
@@ -1055,44 +1385,100 @@ export default function DonneesPubliques() {
                 </div>
               )
             })()}
-            
-            {/* Résumé tendance : minimal, aligné avec la DA du blog */}
-            {displayHistory.length > 1 && (
-              <div className="mt-6 pt-6 border-t border-neutral-200 dark:border-neutral-800">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-neutral-600 dark:text-neutral-400">Première valeur (période)</span>
-                  <span className="font-semibold tabular-nums">{formatNumber(displayHistory[0].valeur)}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm mt-2">
-                  <span className="text-neutral-600 dark:text-neutral-400">Dernière valeur</span>
-                  <span className="font-semibold tabular-nums">{formatNumber(displayHistory[displayHistory.length - 1].valeur)}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm mt-2">
-                  <span className="text-neutral-600 dark:text-neutral-400">Croissance</span>
-                  <span className={`font-semibold tabular-nums ${
-                    displayHistory[displayHistory.length - 1].valeur >= displayHistory[0].valeur
-                      ? 'text-green-700 dark:text-green-400'
-                      : 'text-orange-700 dark:text-orange-400'
-                  }`}>
-                    {displayHistory[displayHistory.length - 1].valeur >= displayHistory[0].valeur ? '+' : ''}
-                    {formatNumber(displayHistory[displayHistory.length - 1].valeur - displayHistory[0].valeur)}
-                    {' '}
-                    ({displayHistory[0].valeur > 0
-                      ? ((displayHistory[displayHistory.length - 1].valeur / displayHistory[0].valeur - 1) * 100).toFixed(1)
-                      : '0'
-                    }%)
-                  </span>
-                </div>
-                {targetValue && (
-                  <div className="flex items-center justify-between text-sm mt-2">
-                    <span className="text-neutral-600 dark:text-neutral-400">Objectif 2026</span>
-                    <span className="font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-                      {formatNumber(targetValue)}
+
+            {displayHistory.some((h) => h.syntheticDailyFill || h.syntheticFromKeyResult) && (
+              <p className="text-[11px] text-neutral-400 dark:text-neutral-500 mt-3 leading-relaxed">
+                Barres pâles = jours sans mesure (dernière valeur connue reportée). Contour ambré = valeur actuelle de l&apos;objectif, plus récente que l&apos;historique.
+              </p>
+            )}
+
+            {/* Résumé tendance : référence = 1er janvier de l’année courante (tout l’historique), pas seulement la fenêtre du graphique */}
+            {displayHistory.length > 1 && (() => {
+              const referenceYear = new Date().getFullYear()
+              const yearStart = getYearStartValueFromHistory(history, referenceYear)
+              const startV = Number(yearStart.valeur)
+              const startOk = Number.isFinite(startV)
+              const lastV = Number(displayHistory[displayHistory.length - 1].valeur) || 0
+              const fmtRefDate = (d) => {
+                try {
+                  const x = new Date(d)
+                  return isNaN(x.getTime())
+                    ? ''
+                    : x.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
+                } catch {
+                  return ''
+                }
+              }
+              const delta = startOk ? lastV - startV : null
+              const pct =
+                startOk && startV > 0 ? (((lastV / startV - 1) * 100).toFixed(1)) : null
+
+              return (
+                <div className="mt-6 pt-6 border-t border-neutral-200 dark:border-neutral-800">
+                  <div className="flex items-start justify-between text-sm gap-3">
+                    <span className="text-neutral-600 dark:text-neutral-400">
+                      Valeur au 1er janvier {referenceYear}
+                    </span>
+                    <span className="font-semibold tabular-nums text-right shrink-0">
+                      {startOk ? formatNumber(startV) : '—'}
                     </span>
                   </div>
-                )}
-              </div>
-            )}
+                  {yearStart.label === 'first_in_year' && yearStart.date && (
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1.5 leading-snug">
+                      Aucune ligne exactement le 1er janv. : première mesure de {referenceYear} le{' '}
+                      <span className="tabular-nums font-medium">{fmtRefDate(yearStart.date)}</span>.
+                    </p>
+                  )}
+                  {yearStart.label === 'last_before_year' && yearStart.date && (
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1.5 leading-snug">
+                      Aucune mesure en {referenceYear} avant la fenêtre affichée : valeur retenue = dernière avant le 1er janv. (
+                      <span className="tabular-nums font-medium">{fmtRefDate(yearStart.date)}</span>).
+                    </p>
+                  )}
+                  <div className="flex items-center justify-between text-sm mt-3">
+                    <span className="text-neutral-600 dark:text-neutral-400">Dernière valeur</span>
+                    <span className="font-semibold tabular-nums">{formatNumber(lastV)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm mt-2">
+                    <span className="text-neutral-600 dark:text-neutral-400">
+                      Croissance depuis le 1er janv. {referenceYear}
+                    </span>
+                    <span
+                      className={`font-semibold tabular-nums ${
+                        !startOk
+                          ? ''
+                          : lastV >= startV
+                            ? 'text-green-700 dark:text-green-400'
+                            : 'text-orange-700 dark:text-orange-400'
+                      }`}
+                    >
+                      {!startOk || delta === null
+                        ? '—'
+                        : (
+                            <>
+                              {lastV >= startV ? '+' : ''}
+                              {formatNumber(delta)}
+                              {pct !== null && (
+                                <>
+                                  {' '}
+                                  ({pct}%)
+                                </>
+                              )}
+                            </>
+                          )}
+                    </span>
+                  </div>
+                  {targetValue && (
+                    <div className="flex items-center justify-between text-sm mt-2">
+                      <span className="text-neutral-600 dark:text-neutral-400">Objectif 2026</span>
+                      <span className="font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
+                        {formatNumber(targetValue)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
           </div>
         )}
         {calculatedInsight && !loading && displayHistory.length > 0 && (
@@ -1160,8 +1546,15 @@ export default function DonneesPubliques() {
       <main className="flex-auto min-w-0 mt-6 flex flex-col overflow-x-hidden">
         <section className="mb-8">
           <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Objectifs 2026</h1>
+          <p className="text-neutral-600 dark:text-neutral-400 mb-2 tracking-tight">
+            Je rends publique ma progression business — missions, revenus, croissance d&apos;audience. Certains indicateurs se mettent à jour automatiquement (abonnés, utilisateurs Apify) ; d&apos;autres sont renseignés manuellement chaque mois.
+          </p>
           <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
-            Transparence totale sur mes <strong className="text-neutral-900 dark:text-neutral-100">objectifs 2026</strong> et ma <strong className="text-neutral-900 dark:text-neutral-100">progression business</strong>. Métriques mises à jour en <strong className="text-neutral-900 dark:text-neutral-100">temps réel</strong> ou <strong className="text-neutral-900 dark:text-neutral-100">mensuellement</strong>. En parallèle, je développe <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> avec mon frère — on met en avant des logements d'exception partout en France.
+            En parallèle, je co-développe{' '}
+            <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 text-neutral-900 dark:text-neutral-100">
+              Logement Atypique
+            </Link>{' '}
+            avec mon frère — des logements d&apos;exception partout en France.
           </p>
 
         </section>
@@ -1200,15 +1593,18 @@ export default function DonneesPubliques() {
               </div>
               <div>
                 <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">5/5</p>
-                <p className="text-xs text-neutral-600 dark:text-neutral-400">Taux de réussite</p>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400">Note moyenne Malt & Fiverr</p>
+                <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5">410 avis cumulés</p>
               </div>
               <div>
-                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">7 jours</p>
-                <p className="text-xs text-neutral-600 dark:text-neutral-400">Délai moyen</p>
+                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">&lt; 7 jours</p>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400">Délai moyen de livraison</p>
+                <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5">90 % des projets</p>
               </div>
               <div>
-                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">20-30</p>
-                <p className="text-xs text-neutral-600 dark:text-neutral-400">Projets/mois</p>
+                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">20–30</p>
+                <p className="text-xs text-neutral-600 dark:text-neutral-400">Projets livrés / mois</p>
+                <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5">moyenne 2024–2025</p>
               </div>
             </div>
           </section>
@@ -1217,8 +1613,6 @@ export default function DonneesPubliques() {
 
         {/* Tableaux détaillés des Key Results par catégorie */}
         <section className="mb-16" aria-label="Détail des objectifs par catégorie">
-          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Détail des objectifs</h2>
-          
           {/* Vue d'ensemble - Objectifs et résultats */}
           <div className="mb-8">
             <h2 className="font-semibold text-xl mb-6 tracking-tighter">Vue d'ensemble</h2>
@@ -1329,14 +1723,6 @@ export default function DonneesPubliques() {
                     }
                     
                     const totalCA = caFreelance + caAffiliation + caLogementAtypique
-                    
-                    // Debug pour identifier les Key Results inclus
-                    console.log('🔍 Debug CA Total:', {
-                      caFreelanceKRs: caFreelanceKRs.map(kr => ({ name: kr.name, category: kr.category, target: kr.targetResult })),
-                      caAffiliationKRs: caAffiliationKRs.map(kr => ({ name: kr.name, category: kr.category, target: kr.targetResult })),
-                      caLogementAtypiqueKRs: caLogementAtypiqueKRs.map(kr => ({ name: kr.name, category: kr.category, target: kr.targetResult })),
-                      totaux: { caFreelance, caAffiliation, caLogementAtypique, totalCA }
-                    })
                     
                     if (totalCA > 0) {
                       return `${formatNumber(Math.round(totalCA))} €`
@@ -1485,7 +1871,7 @@ export default function DonneesPubliques() {
               </p>
               {!loading && (
                 <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                  Les données peuvent être temporairement indisponibles en raison de limitations de l'API Notion.
+                  Les données peuvent être temporairement indisponibles (limitation ou indisponibilité de la source).
                 </p>
               )}
             </div>
@@ -1509,10 +1895,10 @@ export default function DonneesPubliques() {
                 // Ajouter les Key Results d'échecs virtuels si on est dans la catégorie Loisir
                 let resultsToDisplay = [...results]
                 if (isLoisirCategory && chessStats && !chessLoading) {
-                  // Objectif d'échecs Rapid (défini directement, sans Notion)
+                  // Objectif d’échecs Rapid (données Chess.com, pas dans la liste des objectifs)
                   const rapidTarget = 1000
                   
-                  // Vérifier si le Key Result Rapid existe déjà dans Notion
+                  // Vérifier si le Key Result Rapid existe déjà dans les objectifs
                   const hasRapidKR = results.some(kr => {
                     const nameLower = (kr.name || '').toLowerCase()
                     return nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess')
@@ -1739,12 +2125,12 @@ export default function DonneesPubliques() {
                                   return <span className="break-words">{title}</span>
                                 })()}
                               </h2>
-                              {kr.status?.toLowerCase() === 'done' && (
+                              {isKeyResultCompleted(kr) && (
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 bg-green-600 dark:bg-green-500 text-white">
                                   Terminé
                                 </span>
                               )}
-                              {kr.status?.toLowerCase() !== 'done' && kr.status?.toLowerCase() !== 'not started' && (
+                              {!isKeyResultCompleted(kr) && !isKeyResultNotStarted(kr) && (
                                 <>
                                   {kr.progress > 100 ? (
                                     <span className="relative flex h-2 w-2 flex-shrink-0 mt-1 sm:mt-0" title="Objectif dépassé">
@@ -1894,7 +2280,7 @@ export default function DonneesPubliques() {
                                     })
                                     const totalAffiliationUSD = affiliationKRs.reduce((sum, otherKr) => sum + (otherKr.currentResult || 0), 0)
                                     actualCurrentResult = usdToEur(totalAffiliationUSD)
-                                    // Le targetResult du total est déjà en EUR dans Notion, pas besoin de conversion
+                                    // Le targetResult du total est déjà en EUR dans les données, pas besoin de conversion
                                   }
                                   
                                   const actualRemaining = actualTargetResult - actualCurrentResult
@@ -2029,20 +2415,21 @@ export default function DonneesPubliques() {
                             history = meetingsHistory
                             color = 'blue'
                           } else if (isInstagramKR) {
-                            history = abonnesHistory
+                            history = abonnesHistorySynced
                             color = 'green'
                           } else if (isApifyKR) {
-                            history = apifyUsersHistory
+                            history = apifyUsersHistorySynced
                             color = 'purple'
                           }
                           
                           if ((isMaltKR || isChessKR || isMeetingsKR || isInstagramKR || isApifyKR) && history.length > 0) {
                             return (
                               <div className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-800">
-                                <MiniGrowthChart 
-                                  history={history} 
-                                  height={32}
+                                <MiniGrowthChart
+                                  history={history}
+                                  height={36}
                                   color={color}
+                                  maxBars={18}
                                 />
                               </div>
                             )
@@ -2179,58 +2566,27 @@ export default function DonneesPubliques() {
         <GrowthChart
           title="Évolution des abonnés Logement Atypique"
           description="Croissance de la communauté Instagram de Logement Atypique. Cette métrique mesure l'engagement et la croissance de notre projet entrepreneurial."
-          history={abonnesHistory}
+          history={abonnesHistorySynced}
           loading={abonnesLoading}
           colorFrom="green"
           targetValue={(() => {
-            // Trouver l'objectif pour les abonnés Logement Atypique
-            const abonnesKR = keyResults.find(kr => {
-              const nameLower = (kr.name || '').toLowerCase()
-              const categoryLower = (kr.category || '').toLowerCase()
-              return (nameLower.includes('abonnés') || nameLower.includes('abonne')) &&
-                     (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial'))
-            })
+            const abonnesKR = findAbonnesKeyResult(keyResults)
             return abonnesKR?.targetResult || null
           })()}
-          insight={abonnesHistory.length > 1 ? `Croissance de la communauté avec ${abonnesHistory[abonnesHistory.length - 1].valeur - abonnesHistory[0].valeur >= 0 ? '+' : ''}${abonnesHistory[abonnesHistory.length - 1].valeur - abonnesHistory[0].valeur} abonnés sur la période.` : null}
+          insight={abonnesHistorySynced.length > 1 ? `Croissance de la communauté avec ${abonnesHistorySynced[abonnesHistorySynced.length - 1].valeur - abonnesHistorySynced[0].valeur >= 0 ? '+' : ''}${abonnesHistorySynced[abonnesHistorySynced.length - 1].valeur - abonnesHistorySynced[0].valeur} abonnés sur la période.` : null}
         />
 
         <GrowthChart
           title="Évolution des utilisateurs Apify"
           description="Nombre d'utilisateurs actifs de mes scrapers publics sur Apify. Cette métrique reflète l'adoption et l'utilité de mes outils open source."
-          history={apifyUsersHistory}
+          history={apifyUsersHistorySynced}
           loading={apifyUsersLoading}
           colorFrom="purple"
           targetValue={(() => {
-            // Trouver l'objectif pour les utilisateurs Apify
-            // Chercher d'abord "Utilisateurs total" ou "Total users" qui est le Key Result principal
-            let apifyKR = keyResults.find(kr => {
-              const nameLower = (kr.name || '').toLowerCase()
-              const categoryLower = (kr.category || '').toLowerCase()
-              return (nameLower.includes('utilisateurs total') || nameLower.includes('total users')) &&
-                     (categoryLower.includes('apify') || categoryLower.includes('scraping'))
-            })
-            
-            // Si pas trouvé, chercher celui avec le plus grand targetResult parmi ceux qui correspondent
-            if (!apifyKR) {
-              const matchingKRs = keyResults.filter(kr => {
-                const nameLower = (kr.name || '').toLowerCase()
-                const categoryLower = (kr.category || '').toLowerCase()
-                return (nameLower.includes('utilisateur') || nameLower.includes('user')) &&
-                       (categoryLower.includes('apify') || categoryLower.includes('scraping'))
-              })
-              
-              if (matchingKRs.length > 0) {
-                // Prendre celui avec le plus grand targetResult
-                apifyKR = matchingKRs.reduce((max, kr) => 
-                  (kr.targetResult || 0) > (max.targetResult || 0) ? kr : max
-                )
-              }
-            }
-            
+            const apifyKR = findApifyUsersTotalKeyResult(keyResults)
             return apifyKR?.targetResult || null
           })()}
-          insight={apifyUsersHistory.length > 1 ? `Adoption croissante de mes scrapers avec ${apifyUsersHistory[apifyUsersHistory.length - 1].valeur - apifyUsersHistory[0].valeur >= 0 ? '+' : ''}${apifyUsersHistory[apifyUsersHistory.length - 1].valeur - apifyUsersHistory[0].valeur} nouveaux utilisateurs.` : null}
+          insight={apifyUsersHistorySynced.length > 1 ? `Adoption croissante de mes scrapers avec ${(Number(apifyUsersHistorySynced[apifyUsersHistorySynced.length - 1].valeur) || 0) - (Number(apifyUsersHistorySynced[0].valeur) || 0) >= 0 ? '+' : ''}${formatNumber((Number(apifyUsersHistorySynced[apifyUsersHistorySynced.length - 1].valeur) || 0) - (Number(apifyUsersHistorySynced[0].valeur) || 0))} nouveaux utilisateurs.` : null}
         />
 
         <GrowthChart

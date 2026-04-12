@@ -57,7 +57,7 @@ async function generateDemoData() {
         maxPages: 1, // Limiter à 1 page pour la démo
         onlyProHosts: true
       }
-    } else if (actorId.includes('airbnb-property-scraper')) {
+    } else if (actorId.includes('airbnb-property-details-scraper')) {
       input = {
         city: [testCity],
         maxPages: 1

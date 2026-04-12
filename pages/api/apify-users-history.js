@@ -1,4 +1,5 @@
 import { getApifyUsersHistory } from '../../lib/notion'
+import { resolveApifyUsersHistoryWithBlob } from '../../lib/history-blob'
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -6,7 +7,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const history = await getApifyUsersHistory()
+    const history = await resolveApifyUsersHistoryWithBlob(getApifyUsersHistory)
     res.status(200).json(history)
   } catch (error) {
     console.error('Erreur API apify-users-history:', error)

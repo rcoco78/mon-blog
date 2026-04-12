@@ -1,0 +1,260 @@
+[
+  {
+    "slug": "base-donnees-conseillers-immobiliers-safti-france",
+    "name": "Base de données - Safti France",
+    "priceUsd": "106.92",
+    "priceUsdCents": 10692
+  },
+  {
+    "slug": "base-donnees-agents-immobiliers-iad-france",
+    "name": "Base de données - IAD France",
+    "priceUsd": "268.92",
+    "priceUsdCents": 26892
+  },
+  {
+    "slug": "base-donnees-produits-ichard-fr-ecommerce",
+    "name": "Base de données - Ichard.fr",
+    "priceUsd": "106.92",
+    "priceUsdCents": 10692
+  },
+  {
+    "slug": "base-donnees-agences-gestion-patrimoine-france",
+    "name": "Base de données - CGP France",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  },
+  {
+    "slug": "base-donnees-artisans-batiment-capeb-france",
+    "name": "Base de données - Capeb",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  },
+  {
+    "slug": "base-donnees-contacts-hse-qhse-france",
+    "name": "Base de données - Responsables/Directeurs 'HSE' ou 'QHSE'",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  },
+  {
+    "slug": "base-donnees-masseurs-kinesitherapeutes-france",
+    "name": "Base de données - Kiné via Doctolib",
+    "priceUsd": "214.92",
+    "priceUsdCents": 21492
+  },
+  {
+    "slug": "base-donnees-entreprises-services-numeriques-numeum",
+    "name": "Base de données - Numeum",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  },
+  {
+    "slug": "base-donnees-creches-micro-creches-france",
+    "name": "Base de données - Crèches & Micro crèches",
+    "priceUsd": "214.92",
+    "priceUsdCents": 21492
+  },
+  {
+    "slug": "base-donnees-logements-airbnb-annecy-france",
+    "name": "Base de données - Airbnb (annecy-menthon-veyrier-talloires)",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  },
+  {
+    "slug": "base-donnees-experts-comptables-france-b2b",
+    "name": "Base de données - Expert Comptable",
+    "priceUsd": "214.92",
+    "priceUsdCents": 21492
+  },
+  {
+    "slug": "base-donnees-agences-immobilieres-france",
+    "name": "Base de données - Agences immobilières France - Base de données complète",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  },
+  {
+    "slug": "restaurants-tripadvisor-uk-base-donnees",
+    "name": "Base de données - Restaurants TripAdvisor UK - 19,289 évaluations",
+    "priceUsd": "214.92",
+    "priceUsdCents": 21492
+  },
+  {
+    "slug": "base-donnees-avocats-specialises-bourg-en-bresse-france",
+    "name": "Base de données - Avocats spécialisés Droit des sociétés Bourg En Bresse",
+    "priceUsd": "214.92",
+    "priceUsdCents": 21492
+  },
+  {
+    "slug": "base-donnees-contacts-administrateurs-judiciaires-france",
+    "name": "Base de données - Contacts Administrateurs Judiciaires France",
+    "priceUsd": "106.92",
+    "priceUsdCents": 10692
+  },
+  {
+    "slug": "base-donnees-agences-immobilieres-france",
+    "name": "Base de données - Agences immobilières et syndics France",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  },
+  {
+    "slug": "contacts-b2b-exposants-millesime-bio-europe",
+    "name": "Base de données - Contacts B2B Millésime Bio Exposants Européens",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  },
+  {
+    "slug": "contacts-acheteurs-importateurs-vin-wine-paris-base-donnees",
+    "name": "Base de données - Contacts acheteurs et importateurs vin Wine Paris 2025",
+    "priceUsd": "214.92",
+    "priceUsdCents": 21492
+  },
+  {
+    "slug": "produits-ecommerce-staycation-prix-experiences",
+    "name": "Base de données - Produits e-commerce Staycation avec prix et expériences",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  },
+  {
+    "slug": "contacts-agences-immobilieres-notaires-france-base-donnees",
+    "name": "Base de données - Contacts d'agences immobilières et notaires en France",
+    "priceUsd": "268.92",
+    "priceUsdCents": 26892
+  },
+  {
+    "slug": "agences-immobilieres-notaires-france-base-donnees",
+    "name": "Base de données - Agences immobilières et notaires en France",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  },
+  {
+    "slug": "contacts-b2b-davos-ai-house-base-donnees",
+    "name": "Base de données - Contacts B2B Davos AI House 2023",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  },
+  {
+    "slug": "investisseurs-capital-risque-suisse",
+    "name": "Base de données - Investisseurs en capital-risque Suisse",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  },
+  {
+    "slug": "base-donnees-sites-ecommerce-antiques-collectibles",
+    "name": "Base de données - Sites e-commerce Antiques Collectibles",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  },
+  {
+    "slug": "contacts-b2b-services-paris-09-base-donnees",
+    "name": "Base de données - Contacts B2B services Paris 09",
+    "priceUsd": "106.92",
+    "priceUsdCents": 10692
+  },
+  {
+    "slug": "hotels-ajaccio-corse-base-donnees",
+    "name": "Base de données - Hôtels en Corse Ajaccio",
+    "priceUsd": "85.32",
+    "priceUsdCents": 8532
+  },
+  {
+    "slug": "agents-immobiliers-france-base-donnees",
+    "name": "Base de données - Agents immobiliers France",
+    "priceUsd": "214.92",
+    "priceUsdCents": 21492
+  },
+  {
+    "slug": "contacts-professionnels-learning-hr-france",
+    "name": "Base de données - Contacts professionnels Learning HR France",
+    "priceUsd": "214.92",
+    "priceUsdCents": 21492
+  },
+  {
+    "slug": "base-donnees-ecommerce-produits-france",
+    "name": "Base de données - E-commerce produits spécialisés France",
+    "priceUsd": "106.92",
+    "priceUsdCents": 10692
+  },
+  {
+    "slug": "conseillers-immobiliers-iad-france-base-donnees",
+    "name": "Base de données - Conseillers immobiliers IAD France",
+    "priceUsd": "268.92",
+    "priceUsdCents": 26892
+  },
+  {
+    "slug": "contacts-b2b-risk-management-france",
+    "name": "Base de données - Contacts B2B Risk Management France",
+    "priceUsd": "106.92",
+    "priceUsdCents": 10692
+  },
+  {
+    "slug": "ecoles-internationales-base-donnees",
+    "name": "Base de données - Écoles internationales du monde",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  },
+  {
+    "slug": "base-donnees-suivi-prospects-immobilier-france",
+    "name": "Base de données - Suivi des prospects immobiliers France",
+    "priceUsd": "85.32",
+    "priceUsdCents": 8532
+  },
+  {
+    "slug": "mandataires-immobilier-france-base-donnees",
+    "name": "Base de données - Mandataires immobiliers France",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  },
+  {
+    "slug": "missions-b2b-richards-automobiles",
+    "name": "Base de données - Missions B2B Richard's Automobiles",
+    "priceUsd": "85.32",
+    "priceUsdCents": 8532
+  },
+  {
+    "slug": "contacts-professionnels-geneve-base-donnees",
+    "name": "Base de données - Contacts professionnels Genève",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  },
+  {
+    "slug": "hotes-professionnels-airbnb-annecy",
+    "name": "Base de données - Hôtes professionnels Airbnb Annecy",
+    "priceUsd": "106.92",
+    "priceUsdCents": 10692
+  },
+  {
+    "slug": "contacts-cgp-france-base-donnees",
+    "name": "Base de données - Contacts CGP France",
+    "priceUsd": "106.92",
+    "priceUsdCents": 10692
+  },
+  {
+    "slug": "contacts-visiteurs-prowein-2023-base-donnees",
+    "name": "Base de données - Contacts visiteurs ProWein 2023",
+    "priceUsd": "214.92",
+    "priceUsdCents": 21492
+  },
+  {
+    "slug": "vins-france-2024-base-donnees",
+    "name": "Base de données vins France 2024",
+    "priceUsd": "85.32",
+    "priceUsdCents": 8532
+  },
+  {
+    "slug": "clubs-randonnee-france-base-donnees",
+    "name": "Base de données - Clubs de randonnée France",
+    "priceUsd": "106.92",
+    "priceUsdCents": 10692
+  },
+  {
+    "slug": "base-donnees-contacts-courtiers-independants-france",
+    "name": "Base de données - Contacts courtiers indépendants France",
+    "priceUsd": "214.92",
+    "priceUsdCents": 21492
+  },
+  {
+    "slug": "conseillers-gestion-patrimoine-france-base-donnees",
+    "name": "Base de données - Conseillers en gestion de patrimoine France",
+    "priceUsd": "160.92",
+    "priceUsdCents": 16092
+  }
+]

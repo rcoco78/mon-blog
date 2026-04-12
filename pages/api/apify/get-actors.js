@@ -25,13 +25,13 @@ export default async function handler(req, res) {
         isPublic: true
       },
       {
-        id: 'corent1robert/airbnb-property-scraper',
+        id: 'corent1robert/airbnb-property-details-scraper',
         username: 'corent1robert',
-        name: 'airbnb-property-scraper',
+        name: 'airbnb-property-details-scraper',
         title: 'Airbnb Property Scraper',
         description: 'High-performance Airbnb property data scraper with optimized pagination and memory management.',
         stats: { runs: 0, users: 14, successRate: 95.5 },
-        url: 'https://apify.com/corent1robert/airbnb-property-scraper',
+        url: 'https://apify.com/corent1robert/airbnb-property-details-scraper',
         isPublic: true
       },
       {

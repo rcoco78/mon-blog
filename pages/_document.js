@@ -1,4 +1,5 @@
 import { Html, Head, Main, NextScript } from 'next/document'
+import { siteConfig } from '../lib/config'
 
 export default function Document() {
   return (
@@ -22,7 +23,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/images/profile-picture/pp.png" />
+        <link rel="apple-touch-icon" href={siteConfig.profileImage} />
         
         {/* Theme */}
         <meta name="theme-color" content="#000000" />

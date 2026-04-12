@@ -115,6 +115,78 @@ export default function Temoignages() {
         {/* Section Témoignages */}
         <section className="mb-16">
           <div className="space-y-6">
+            {/* Malt - Franck / Overland */}
+            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Outbound • Approche pragmatique • Collaboration orientée résultats</p>
+              </div>
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
+                  &quot;J&apos;ai récemment fait appel à Corentin pour structurer et déployer une stratégie marketing outbound, et je tiens à partager mon entière satisfaction. Dès le départ, l&apos;approche a été à la fois pragmatique et orientée business. Le travail réalisé a permis de clarifier nos cibles, d&apos;optimiser nos messages et de mettre en place des actions concrètes, rapidement opérationnelles. Au-delà des compétences techniques, j&apos;ai particulièrement apprécié la capacité à comprendre nos enjeux, à challenger nos pratiques et à proposer des solutions adaptées à notre activité. Une collaboration fluide, efficace, et surtout utile. Je recommande sans hésitation.&quot;
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Franck</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Overland</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">Malt</span>
+              </div>
+            </div>
+            {/* LinkedIn - Philippa Launay */}
+            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Collecte de données • Bonnes questions • Valeur ajoutée • Échanges fluides</p>
+              </div>
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
+                  &quot;J&apos;ai eu l&apos;occasion de confier à Corentin une mission de collecte de données. Il s&apos;est tout de suite projeté dans le contexte, a su poser les bonnes questions pour apporter de la valeur ajoutée au projet. Les échanges ont été fluides et efficaces, il a été un véritable atout pour la mission.&quot;
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Philippa Launay</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Fondatrice @ Zuma Partners | Conseil &amp; formation Qualiopi</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
+              </div>
+            </div>
+            {/* Malt - Jérémie / LLOYD & DAVIS */}
+            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Lancement réussi • Efficacité</p>
+              </div>
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
+                  &quot;Parfait — nouvelle opération lancée avec succès.&quot;
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Jérémie</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Growth hacking @ LLOYD &amp; DAVIS</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">Malt</span>
+              </div>
+            </div>
+            {/* LinkedIn - Maëva Ramaël */}
+            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+              <div className="mb-3">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Transparence • Résultat rapide • Relationnel • 100 % recommandé</p>
+              </div>
+              <div className="mb-4">
+                <p className="text-neutral-900 dark:text-neutral-100 italic">
+                  &quot;Je recommande Corentin à 100 %, une très bonne communication et transparence sur les rendus finaux et un résultat rapide et efficace. Je note aussi que Corentin a un très bon relationnel et une grande aisance, ce qui facilite les échanges !&quot;
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Maëva Ramaël</p>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Ingénieur Eau, Énergie, Environnement · Ingénieur d&apos;affaires industrielles</p>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
+              </div>
+            </div>
             {/* Fiverr - JP */}
             <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
               <div className="mb-3">

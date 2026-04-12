@@ -331,7 +331,7 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
               </svg>
               <div className="rounded-full bg-white dark:bg-neutral-900 p-[2px]">
                 <Image
-                  src="/images/profile-picture/cr-pp3.png"
+                  src={siteConfig.profileImage}
                   alt="Photo de profil de Corentin Robert"
                   width={64}
                   height={64}

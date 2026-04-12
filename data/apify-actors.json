@@ -85,9 +85,9 @@
       "lastEnriched": "2026-01-11T13:49:43.870Z"
     },
     {
-      "id": "corent1robert/airbnb-property-scraper",
+      "id": "corent1robert/airbnb-property-details-scraper",
       "username": "corent1robert",
-      "name": "airbnb-property-scraper",
+      "name": "airbnb-property-details-scraper",
       "title": "Airbnb Property Scraper",
       "description": "Découvrez l'Airbnb Property Scraper, un outil performant conçu pour extraire des données précises sur les propriétés Airbnb. Grâce à sa gestion optimisée de la pagination et de la mémoire, cet outil vous permet d'accéder rapidement aux informations essentielles pour améliorer votre stratégie de location ou d'investissement immobilier.",
       "stats": {
@@ -95,7 +95,7 @@
         "users": 14,
         "successRate": 95.5
       },
-      "url": "https://apify.com/corent1robert/airbnb-property-scraper",
+      "url": "https://apify.com/corent1robert/airbnb-property-details-scraper",
       "isPublic": true,
       "enrichedData": {
         "useCases": [

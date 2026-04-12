@@ -1,13 +1,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import dynamic from 'next/dynamic'
 import { useState, useEffect, useRef } from 'react'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import SearchBar from '../components/SearchBar'
 import SortDropdown from '../components/SortDropdown'
-
-const FAQ = dynamic(() => import('../components/FAQ'), { ssr: true })
+import FAQ from '../components/FAQ'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { tools } from '../lib/tools'
@@ -898,7 +896,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
               </svg>
               <div className="rounded-full bg-white dark:bg-neutral-900 p-[2px]">
                 <Image
-                  src="/images/profile-picture/cr-pp3.png"
+                  src={siteConfig.profileImage}
                   alt="Photo de profil de Corentin Robert"
                   width={64}
                   height={64}

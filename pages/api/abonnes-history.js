@@ -1,4 +1,5 @@
 import { getAbonnesHistory } from '../../lib/notion'
+import { resolveAbonnesHistoryWithBlob } from '../../lib/history-blob'
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -6,7 +7,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const history = await getAbonnesHistory()
+    const history = await resolveAbonnesHistoryWithBlob(getAbonnesHistory)
     res.status(200).json(history)
   } catch (error) {
     console.error('Erreur API abonnes-history:', error)
