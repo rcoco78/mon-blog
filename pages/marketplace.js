@@ -25,6 +25,12 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
   const [displayedCount, setDisplayedCount] = useState(8)
   const ITEMS_PER_PAGE = 8
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const tab = new URLSearchParams(window.location.search).get('tab')
+    if (tab === 'tools') setActiveTab('tools')
+  }, [])
+
   // URL de la vidéo Tella
   const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
   const videoEmbedUrl = 'https://www.tella.tv/video/vid_cmjylsyom00bn04la9dfs342e/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0'
@@ -127,13 +133,13 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
     .filter(tool => selectedToolCategory === null || tool.category === selectedToolCategory)
     .sort((a, b) => {
       if (toolSortBy === 'users') {
-        const ua = a.apifyStats?.users || 0
-        const ub = b.apifyStats?.users || 0
+        const ua = a.apifyStats?.users ?? a.apifyStats?.totalUsers ?? 0
+        const ub = b.apifyStats?.users ?? b.apifyStats?.totalUsers ?? 0
         return ub - ua
       }
       if (toolSortBy === 'runs') {
-        const ra = a.apifyStats?.runs || 0
-        const rb = b.apifyStats?.runs || 0
+        const ra = a.apifyStats?.runs ?? a.apifyStats?.totalRuns ?? 0
+        const rb = b.apifyStats?.runs ?? b.apifyStats?.totalRuns ?? 0
         return rb - ra
       }
       const getDate = (t) => t.date ? new Date(t.date) : new Date(0)
@@ -538,11 +544,11 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                       <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
                         {[
                           tool.category,
-                          tool.apifyStats?.users
-                            ? `${tool.apifyStats.users} utilisateurs`
+                          (tool.apifyStats?.users ?? tool.apifyStats?.totalUsers)
+                            ? `${tool.apifyStats.users ?? tool.apifyStats.totalUsers} utilisateurs`
                             : null,
-                          tool.apifyStats?.runs
-                            ? `${tool.apifyStats.runs} exécutions`
+                          (tool.apifyStats?.runs ?? tool.apifyStats?.totalRuns)
+                            ? `${tool.apifyStats.runs ?? tool.apifyStats.totalRuns} exécutions`
                             : null,
                         ]
                           .filter(Boolean)
