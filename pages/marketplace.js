@@ -517,7 +517,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                 </button>
               )}
             </div>
-            <div className="flex flex-col space-y-4">
+            <div className="flex flex-col">
               {filteredApifyTools.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-neutral-600 dark:text-neutral-400 mb-4">
@@ -529,61 +529,45 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                   <Link
                     key={tool.slug}
                     href={tool.link || '#'}
-                    className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
+                    className="group flex items-start justify-between gap-4 py-4 border-b border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors"
                   >
-                    <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
-                      {tool.iconSvg === 'search' && (
-                        <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-600 dark:text-neutral-400">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
-                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                          </svg>
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-1">
-                          <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
-                            {tool.name}
-                          </h2>
-                          {tool.category && (
-                            <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
-                              {tool.category}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
+                    <div className="min-w-0 flex-1">
+                      <h2 className="font-semibold text-base tracking-tight text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
+                        {tool.name}
+                      </h2>
+                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+                        {[
+                          tool.category,
+                          tool.apifyStats?.users
+                            ? `${tool.apifyStats.users} utilisateurs`
+                            : null,
+                          tool.apifyStats?.runs
+                            ? `${tool.apifyStats.runs} exécutions`
+                            : null,
+                        ]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </p>
+                      {tool.description && (
+                        <p className="mt-1.5 text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
                           {tool.description}
                         </p>
-                      </div>
+                      )}
                     </div>
-                    
-                    {/* Séparateur fin et métadonnées */}
-                    <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex-shrink-0 w-6 h-6"></div>
-                        <div className="flex-1 min-w-0 flex items-center gap-2">
-                          <span className="text-xs text-neutral-500 dark:text-neutral-500">
-                            {tool.apifyStats?.users || 0} utilisateurs
-                          </span>
-                          <span className="text-xs text-neutral-500 dark:text-neutral-500">
-                            • {tool.apifyStats?.runs || 0} exécutions
-                          </span>
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
-                            <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
+                    <span className="flex-shrink-0 text-sm text-neutral-400 dark:text-neutral-500 pt-0.5">
+                      →
+                    </span>
                   </Link>
                 ))
               )}
             </div>
             {filteredApifyTools.length > 0 && displayedCount < filteredApifyTools.length && (
-              <div className="mt-8 text-center">
+              <div className="mt-8">
                 <button
                   onClick={() => setDisplayedCount(prev => Math.min(prev + ITEMS_PER_PAGE, filteredApifyTools.length))}
-                  className="px-6 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900/50 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
+                  className="text-sm text-neutral-600 dark:text-neutral-400 underline underline-offset-4 hover:no-underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
                 >
-                  Voir plus ({filteredApifyTools.length - displayedCount} restant{filteredApifyTools.length - displayedCount === 1 ? '' : 's'})
+                  Voir plus ({filteredApifyTools.length - displayedCount})
                 </button>
               </div>
             )}
@@ -600,15 +584,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                 ({marketplaceReviews.length} avis vérifié{marketplaceReviews.length > 1 ? 's' : ''})
               </span>
             </h2>
-            <div
-              className={`grid gap-4 ${
-                marketplaceReviews.length === 1
-                  ? 'grid-cols-1 max-w-2xl mx-auto'
-                  : marketplaceReviews.length >= 7
-                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-                    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-              }`}
-            >
+            <div className="divide-y divide-neutral-200 dark:divide-neutral-800 border-t border-neutral-200 dark:border-neutral-800">
               {marketplaceReviews.map((r) => {
                 const ProductTag = r.productLink ? Link : 'span'
                 const productProps = r.productLink ? { href: r.productLink } : {}
@@ -623,67 +599,44 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                       return d.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })
                     })()
                   : null
-                const initials = (r.authorName || '')
-                  .split(/\s+/)
-                  .map((w) => w[0])
-                  .slice(0, 2)
-                  .join('')
-                  .toUpperCase() || '?'
                 return (
-                  <div
-                    key={r.id}
-                    className="flex flex-col p-5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/80"
-                  >
-                    <div className="flex items-start gap-3 mb-4">
-                      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-xs font-semibold text-neutral-600 dark:text-neutral-300">
-                        {initials}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                          {/* Liens LinkedIn cassés connus : afficher nom sans lien */}
-                          {r.linkedinUrl && !/linkedin\.com\/in\/cycling-corsica/i.test(r.linkedinUrl) ? (
-                            <a
-                              href={r.linkedinUrl}
-                              target="_blank"
-                              rel="noopener noreferrer nofollow"
-                              className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-900 dark:text-white hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors group"
-                              title="Voir le profil LinkedIn"
-                            >
-                              {r.authorName}
-                              <svg className="w-3.5 h-3.5 text-neutral-600 dark:text-neutral-400 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                              </svg>
-                            </a>
-                          ) : (
-                            <span className="text-sm font-medium text-neutral-900 dark:text-white">{r.authorName}</span>
-                          )}
-                          {r.linkedinUrl && !/linkedin\.com\/in\/cycling-corsica/i.test(r.linkedinUrl) && (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
-                              Vérifié
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2 mt-1">
-                          <span className="text-amber-500 text-xs" aria-hidden title={`${r.rating}/5`}>
-                            {displayStars(r.rating)}
-                          </span>
-                          {r.productName && (
-                            <ProductTag {...productProps} className={`text-xs ${r.productLink ? 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors' : 'text-neutral-500 dark:text-neutral-500'}`}>
-                              {r.productName}
-                            </ProductTag>
-                          )}
-                          {dateStr && (
-                            <span className="text-xs text-neutral-400 dark:text-neutral-500">
-                              {dateStr}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed flex-1">
-                      &quot;{r.reviewBody}&quot;
+                  <blockquote key={r.id} className="py-5">
+                    <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">
+                      « {r.reviewBody} »
                     </p>
-                  </div>
+                    <footer className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-neutral-500 dark:text-neutral-500">
+                      {r.linkedinUrl && !/linkedin\.com\/in\/cycling-corsica/i.test(r.linkedinUrl) ? (
+                        <a
+                          href={r.linkedinUrl}
+                          target="_blank"
+                          rel="noopener noreferrer nofollow"
+                          className="font-medium text-neutral-900 dark:text-neutral-100 hover:underline"
+                        >
+                          {r.authorName}
+                        </a>
+                      ) : (
+                        <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                          {r.authorName}
+                        </span>
+                      )}
+                      <span aria-hidden title={`${r.rating}/5`} className="text-neutral-400">
+                        {displayStars(r.rating)}
+                      </span>
+                      {r.productName && (
+                        <ProductTag
+                          {...productProps}
+                          className={
+                            r.productLink
+                              ? 'hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors'
+                              : ''
+                          }
+                        >
+                          {r.productName}
+                        </ProductTag>
+                      )}
+                      {dateStr && <span>{dateStr}</span>}
+                    </footer>
+                  </blockquote>
                 )
               })}
             </div>

@@ -222,8 +222,11 @@ export default function MarketplaceDatabase({
     category: database.category,
     price: database.price,
     priceHT: Math.round((database.price / 1.2) * 100) / 100,
-    priceLabel: `${database.price} €`,
-    priceLabelHT: `${Math.round((database.price / 1.2) * 100) / 100} € HT`,
+    priceLabel: `${Number(database.price).toLocaleString('fr-FR')} €`,
+    priceLabelHT: `${(Math.round((database.price / 1.2) * 100) / 100).toLocaleString('fr-FR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} € HT`,
     formats: ['Google Sheets'],
     lastUpdate: new Date(database.lastEnriched).toLocaleDateString('fr-FR', {
       day: '2-digit',
@@ -390,10 +393,22 @@ export default function MarketplaceDatabase({
     return 0
   })
 
-  const sampleKeys =
+  const PREVIEW_COLUMNS_MAX = 5
+  const allSampleKeys =
     database.enrichedData?.sampleData?.[0]
       ? Object.keys(database.enrichedData.sampleData[0])
       : database.headers
+  const priorityHints = ['name', 'nom', 'title', 'email', 'ville', 'city', 'website', 'url', 'phone', 'téléphone']
+  const sampleKeys = [...allSampleKeys]
+    .sort((a, b) => {
+      const ai = priorityHints.findIndex((p) => a.toLowerCase().includes(p))
+      const bi = priorityHints.findIndex((p) => b.toLowerCase().includes(p))
+      if (ai === -1 && bi === -1) return 0
+      if (ai === -1) return 1
+      if (bi === -1) return -1
+      return ai - bi
+    })
+    .slice(0, PREVIEW_COLUMNS_MAX)
 
   return (
     <>
@@ -523,7 +538,7 @@ export default function MarketplaceDatabase({
           }}
         />
 
-        <header className="mb-10">
+        <header className="mb-8">
           <h1 className="font-semibold text-2xl md:text-3xl tracking-tighter text-neutral-900 dark:text-neutral-100 mb-3">
             {toolData.displayName}
           </h1>
@@ -532,12 +547,10 @@ export default function MarketplaceDatabase({
               database.category,
               `${database.rowCount.toLocaleString('fr-FR')} entrées`,
               `${database.headers.length} champs`,
-              'Google Sheets',
               `MAJ ${toolData.lastUpdate}`,
-              toolData.priceLabel,
             ].join(' · ')}
           </p>
-          <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-2xl mb-4">
+          <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed mb-4">
             {toolData.description}
           </p>
           {topContactSignals.length > 0 && (
@@ -555,7 +568,6 @@ export default function MarketplaceDatabase({
             </p>
           )}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-neutral-500 dark:text-neutral-500">
-            <span>Payer → copier le Sheet → prospecter</span>
             <MarketplaceViewCounter
               slug={database.slug}
               category={database.category}
@@ -565,13 +577,12 @@ export default function MarketplaceDatabase({
           </div>
         </header>
 
-        <div className="md:grid md:grid-cols-[minmax(0,1fr)_17rem] md:gap-12 md:items-start">
-          <div className="min-w-0 space-y-12">
-            <div className="md:hidden border-t border-neutral-200 dark:border-neutral-800 pt-8">
-              {toolData.isPaid && toolData.unlockType === 'payment' && (
-                <DatabasePurchasePanel {...purchasePanelProps} />
-              )}
-            </div>
+        <div className="min-w-0 space-y-10">
+          {toolData.isPaid && toolData.unlockType === 'payment' && (
+            <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
+              <DatabasePurchasePanel {...purchasePanelProps} />
+            </section>
+          )}
 
             {embedVideoUrl && (
               <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
@@ -587,18 +598,23 @@ export default function MarketplaceDatabase({
             )}
 
             <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-              <h2 className="font-semibold text-xl tracking-tighter mb-2">Aperçu</h2>
+              <div className="flex items-baseline justify-between gap-4 mb-2">
+                <h2 className="font-semibold text-xl tracking-tighter">Aperçu</h2>
+                <p className="text-xs text-neutral-500 dark:text-neutral-500 shrink-0">
+                  {sampleKeys.length} colonnes clés
+                </p>
+              </div>
               <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-4">
                 Exemple anonymisé — {database.rowCount.toLocaleString('fr-FR')} lignes au complet.
               </p>
-              <div className="overflow-x-auto -mx-1">
-                <table className="w-full text-sm">
+              <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+                <table className="w-full min-w-[18rem] text-sm">
                   <thead>
                     <tr className="border-b border-neutral-200 dark:border-neutral-800">
                       {sampleKeys.map((key) => (
                         <th
                           key={key}
-                          className="px-2 py-2 text-left text-xs font-medium text-neutral-500 dark:text-neutral-500 whitespace-nowrap"
+                          className="pr-4 py-2 text-left text-xs font-medium text-neutral-500 dark:text-neutral-500 whitespace-nowrap"
                         >
                           {key}
                         </th>
@@ -607,7 +623,7 @@ export default function MarketplaceDatabase({
                   </thead>
                   <tbody>
                     {database.enrichedData?.sampleData?.length > 0
-                      ? database.enrichedData.sampleData.slice(0, 3).map((row, rowIdx) => (
+                      ? database.enrichedData.sampleData.slice(0, 5).map((row, rowIdx) => (
                           <tr
                             key={rowIdx}
                             className="border-b border-neutral-100 dark:border-neutral-900"
@@ -615,7 +631,7 @@ export default function MarketplaceDatabase({
                             {sampleKeys.map((key) => (
                               <td
                                 key={key}
-                                className="px-2 py-2 text-neutral-800 dark:text-neutral-200 whitespace-nowrap max-w-[180px] truncate"
+                                className="pr-4 py-2.5 text-neutral-800 dark:text-neutral-200 whitespace-nowrap max-w-[10rem] truncate"
                               >
                                 {anonymizeValue(row[key] || '', key)}
                               </td>
@@ -624,10 +640,10 @@ export default function MarketplaceDatabase({
                         ))
                       : [1, 2, 3].map((rowIdx) => (
                           <tr key={rowIdx} className="border-b border-neutral-100 dark:border-neutral-900">
-                            {database.headers.map((header) => (
+                            {sampleKeys.map((header) => (
                               <td
                                 key={header}
-                                className="px-2 py-2 text-neutral-400 dark:text-neutral-600"
+                                className="pr-4 py-2.5 text-neutral-400 dark:text-neutral-600"
                               >
                                 —
                               </td>
@@ -753,7 +769,7 @@ export default function MarketplaceDatabase({
             )}
 
             {!paymentVerified && toolData.isPaid && (
-              <div className="md:hidden border-t border-neutral-200 dark:border-neutral-800 pt-8">
+              <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
                 <a
                   href="#acheter"
                   className="inline-flex text-sm font-medium underline underline-offset-4 hover:no-underline"
@@ -773,10 +789,10 @@ export default function MarketplaceDatabase({
                       href={`/marketplace/${categoryToSlug(related.category)}/${related.slug}`}
                       className="group flex items-baseline justify-between gap-4 py-3 border-b border-neutral-200 dark:border-neutral-800"
                     >
-                      <span className="font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
+                      <span className="font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors min-w-0">
                         {shortMarketplaceTitle(related.name)}
                       </span>
-                      <span className="text-sm text-neutral-500 dark:text-neutral-500 tabular-nums whitespace-nowrap">
+                      <span className="text-sm text-neutral-500 dark:text-neutral-500 tabular-nums whitespace-nowrap shrink-0">
                         {related.price ? `${related.price} €` : ''}
                       </span>
                     </Link>
@@ -790,13 +806,6 @@ export default function MarketplaceDatabase({
               <FAQ items={faqItems} />
               <StructuredData type="FAQPage" data={{ questions: faqItems }} />
             </section>
-          </div>
-
-          <aside className="hidden md:block sticky top-24 self-start border-t border-neutral-200 dark:border-neutral-800 pt-8">
-            {toolData.isPaid && toolData.unlockType === 'payment' && (
-              <DatabasePurchasePanel {...purchasePanelProps} />
-            )}
-          </aside>
         </div>
       </article>
     </>

@@ -159,41 +159,23 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
       <SEOHead {...pageSEO} />
       
       <main className="min-w-0 mt-6 flex flex-col">
-        {/* Breadcrumb */}
-        <nav className="mb-6" aria-label="Fil d'Ariane">
-          <ol className="flex items-center space-x-2 text-sm text-neutral-600 dark:text-neutral-400">
-            <li>
-              <Link href="/marketplace" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
-                Marketplace
-              </Link>
-            </li>
-            <li className="flex items-center space-x-2">
-              <span className="mx-1">/</span>
-              <span className="text-neutral-900 dark:text-neutral-100 font-medium">
-                {category}
-              </span>
-            </li>
-          </ol>
+        <nav className="mb-6 text-sm text-neutral-500 dark:text-neutral-500" aria-label="Fil d'Ariane">
+          <Link href="/marketplace" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+            Marketplace
+          </Link>
+          <span className="mx-1.5 text-neutral-300 dark:text-neutral-700">/</span>
+          <span className="text-neutral-900 dark:text-neutral-100">{category}</span>
         </nav>
 
-        <section className="mb-8">
-          <div className="mb-4">
-            <Link 
-              href="/marketplace"
-              className="text-sm text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1"
-            >
-              ← Toutes les bases de données
-            </Link>
-          </div>
-          <h1 className="font-semibold text-2xl mb-4 tracking-tighter">
-            Bases de données {category}
+        <header className="mb-8">
+          <h1 className="font-semibold text-2xl mb-2 tracking-tighter">
+            {category}
           </h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
-            <strong className="text-neutral-900 dark:text-neutral-100">{effectiveTotal} bases de données</strong> disponibles pour le secteur <strong className="text-neutral-900 dark:text-neutral-100">{category.toLowerCase()}</strong>.
+          <p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
+            {effectiveTotal} base{effectiveTotal > 1 ? 's' : ''} Google Sheets.
           </p>
-        </section>
+        </header>
 
-        {/* Barre de recherche */}
         <section className="mb-6">
           <label htmlFor="marketplace-search" className="sr-only">
             Rechercher une base de données
@@ -203,15 +185,15 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={`Rechercher parmi ${effectiveTotal} bases ${category.toLowerCase()}...`}
-            className="w-full px-4 py-2.5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-transparent"
+            placeholder="Rechercher…"
+            className="w-full px-0 py-2 text-sm border-0 border-b border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-900 dark:text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="mt-3 text-xs text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors underline"
+              className="mt-2 text-xs text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors underline"
             >
-              Réinitialiser la recherche
+              Effacer
             </button>
           )}
         </section>
@@ -290,12 +272,12 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
             {(hasMore || canLoadMore) && (
               <div id="load-more-sentinel" className="py-8">
                 {isLoading && (
-                  <div className="space-y-4">
+                  <div className="space-y-0">
                     {[1, 2, 3].map(i => (
-                      <div key={i} className="p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 animate-pulse">
-                        <div className="h-6 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded mb-2"></div>
-                        <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded mb-3"></div>
-                        <div className="h-4 w-32 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
+                      <div key={i} className="py-4 border-b border-neutral-200 dark:border-neutral-800 animate-pulse">
+                        <div className="h-5 w-2/3 bg-neutral-200 dark:bg-neutral-800 rounded mb-2"></div>
+                        <div className="h-3 w-1/3 bg-neutral-200 dark:bg-neutral-800 rounded mb-2"></div>
+                        <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded"></div>
                       </div>
                     ))}
                   </div>
@@ -434,6 +416,7 @@ export async function getStaticProps({ params }) {
     link: db.link,
     isPaid: db.isPaid,
     price: db.price,
+    rowCount: db.rowCount || 0,
     lastEnriched: db.lastEnriched || null,
     date: db.date || null,
     views: db.views || 0,
