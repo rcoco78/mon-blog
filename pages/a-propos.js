@@ -280,7 +280,7 @@ export default function About() {
           <div>
             <h2 className="font-semibold text-sm mb-2 tracking-tight text-neutral-900 dark:text-neutral-100">Ce que je construis</h2>
             <p className="text-sm text-neutral-600 dark:text-neutral-400 tracking-tight">
-              Marketplace (bases Google Sheets + scrapers Apify), et le week-end <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> avec mon frère — preuve entrepreneuriale, pas le cœur de l’offre freelance.
+              Marketplace (bases Google Sheets + scrapers Apify), et le week-end <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> avec mon frère : mise en avant de logements d’exception qu’on photographie et filme pour leur donner de la visibilité — preuve entrepreneuriale, pas le cœur de l’offre freelance.
             </p>
           </div>
         </div>

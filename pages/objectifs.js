@@ -1525,7 +1525,7 @@ export default function DonneesPubliques() {
             Journal public de ma progression métier — scraping, automatisation, data et CA cumulé, suivi en build in public.
           </p>
           <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-8 tracking-tight">
-            Inclut aussi Logement Atypique (projet avec mon frère), en annexe du cœur de métier freelance.
+            Inclut aussi Logement Atypique (mise en avant de logements d’exception, photo & vidéo, avec mon frère), en annexe du cœur de métier freelance.
           </p>
         </section>
 
@@ -2525,7 +2525,7 @@ export default function DonneesPubliques() {
 
         <GrowthChart
           title="Évolution des abonnés Logement Atypique"
-          description="Croissance de la communauté Instagram de Logement Atypique. Cette métrique mesure l'engagement et la croissance de notre projet entrepreneurial."
+          description="Croissance de la communauté Instagram de Logement Atypique — plateforme de mise en avant de logements d’exception (photo & vidéo)."
           history={abonnesHistorySynced}
           loading={abonnesLoading}
           colorFrom="green"

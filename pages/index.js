@@ -332,7 +332,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
           Expert freelance en <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> — {projectsPhrase} livrés via Malt et Fiverr. Ce site est mon journal de bord public : accomplissements, preuves terrain et ce que je construis pour devenir une référence dans mon métier.
         </p>
         <p className="mb-6 text-sm text-neutral-500 dark:text-neutral-500 tracking-tight">
-          En parallèle, je développe <strong className="text-neutral-700 dark:text-neutral-300">Logement Atypique</strong> avec mon frère — preuve entrepreneuriale, pas le cœur de mon offre freelance.
+          En parallèle, je développe <strong className="text-neutral-700 dark:text-neutral-300">Logement Atypique</strong> avec mon frère : une plateforme qui met en avant des logements d’exception — on les photographie et on les filme pour leur apporter de la visibilité. Preuve entrepreneuriale, pas le cœur de mon offre freelance.
         </p>
 
         {/* CTA principaux */}
