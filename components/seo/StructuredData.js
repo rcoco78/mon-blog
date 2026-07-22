@@ -369,7 +369,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           '@context': 'https://schema.org',
           '@type': 'AggregateRating',
           ratingValue: data.ratingValue || '4.9',
-          reviewCount: data.reviewCount || '270',
+          reviewCount: data.reviewCount || String(siteConfig.socialProof?.malt?.reviews || 115),
           bestRating: '5',
           worstRating: '1'
         };

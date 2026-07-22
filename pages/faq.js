@@ -97,7 +97,7 @@ export default function FAQPage() {
       },
       {
         question: "Pourquoi partager publiquement vos objectifs et métriques ?",
-        answer: "3 raisons : 1) Transparence et confiance : montrer mes objectifs et ma progression démontre mon engagement envers la transparence. Vous savez où j'en suis, où je vais, comment je travaille. 2) Authenticité : les objectifs ne sont pas toujours atteints, et c'est normal. Montrer les succès comme les défis donne une vision réelle de mon activité. 3) Preuve de crédibilité : 424+ projets, 270+ avis positifs, 20 scrapers publics utilisés par 150+ personnes — les chiffres parlent. Vous voyez que je suis actif, que je livre, que les clients sont satisfaits."
+        answer: "3 raisons : 1) Transparence et confiance : montrer mes objectifs et ma progression démontre mon engagement envers la transparence. Vous savez où j'en suis, où je vais, comment je travaille. 2) Authenticité : les objectifs ne sont pas toujours atteints, et c'est normal. Montrer les succès comme les défis donne une vision réelle de mon activité. 3) Preuve de crédibilité : 183 projets et 115 avis 5/5 sur Malt, scrapers publics utilisés chaque jour — les chiffres parlent. Vous voyez que je suis actif, que je livre, que les clients sont satisfaits."
       }
     ]
   }

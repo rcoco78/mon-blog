@@ -1248,7 +1248,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
               Ce qu'en disent les clients
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-6 leading-relaxed">
-              Découvrez les retours de clients qui ont utilisé le scraping et l'automatisation. 424+ projets réalisés avec 270+ avis positifs sur Malt et Fiverr.
+              Découvrez les retours de clients qui ont utilisé le scraping et l'automatisation. {siteConfig.socialProof.malt.projects}+ projets Malt, {siteConfig.socialProof.malt.reviews} avis ({siteConfig.socialProof.malt.rating}/5).
             </p>
             <div className="space-y-6">
               {selectedTestimonials.map((testimonial, index) => (
