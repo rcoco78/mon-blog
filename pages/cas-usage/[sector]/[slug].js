@@ -9,6 +9,7 @@ import { generatePageSEO } from '../../../lib/seo'
 import { siteConfig } from '../../../lib/config'
 import { slugToSector, sectorToSlug } from '../../../lib/case-studies-helpers'
 import { isCaseStudyIndexable } from '../../../lib/case-studies-quality'
+import { getCaseStudyRedirect } from '../../../lib/case-studies-gsc-policy'
 // Imports dynamiques pour réduire le temps de compilation initial
 import { tools } from '../../../lib/tools'
 // import { getAllPosts } from '../../../lib/notion' // Non utilisé - chargement côté client si nécessaire
@@ -1647,6 +1648,17 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
+  // Redirections GSC : clusters en doublon → page canonique
+  const gscRedirect = getCaseStudyRedirect(params.slug)
+  if (gscRedirect) {
+    return {
+      redirect: {
+        destination: `/cas-usage/${gscRedirect.sector}/${gscRedirect.slug}`,
+        permanent: true,
+      },
+    }
+  }
+
   // Vérifier que le secteur correspond au case study
   const sector = slugToSector(params.sector)
   

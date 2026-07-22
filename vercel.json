@@ -99,6 +99,31 @@
       "permanent": true
     },
     {
+      "source": "/cas-usage/services/scraping-devis-automatisation",
+      "destination": "/cas-usage/services/devis-scraper-collecte-offres-services",
+      "permanent": true
+    },
+    {
+      "source": "/cas-usage/services/scraping-devis-automatisation-2",
+      "destination": "/cas-usage/services/devis-scraper-collecte-offres-services",
+      "permanent": true
+    },
+    {
+      "source": "/cas-usage/services/scraping-devis-automatisation-3",
+      "destination": "/cas-usage/services/devis-scraper-collecte-offres-services",
+      "permanent": true
+    },
+    {
+      "source": "/cas-usage/juridique/devis-scraper-extraction-offres-services",
+      "destination": "/cas-usage/services/devis-scraper-collecte-offres-services",
+      "permanent": true
+    },
+    {
+      "source": "/cas-usage/e-commerce/scraping-vinted-suivi-tendances-mode",
+      "destination": "/cas-usage/e-commerce/scraping-vinted-extraction-des-annonces-et-prix",
+      "permanent": true
+    },
+    {
       "source": "/databases/:path*",
       "destination": "/marketplace",
       "permanent": true
