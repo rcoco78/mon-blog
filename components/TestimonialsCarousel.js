@@ -19,38 +19,57 @@ const HOME_TESTIMONIALS = [...testimonials]
   .sort((a, b) => new Date(b.datePublished) - new Date(a.datePublished))
   .slice(0, 5)
 
+const SWIPE_THRESHOLD = 40
+
 /**
- * Carrousel témoignages — translation contrôlée (pas de scroll natif).
- * Dots + swipe tactile + clavier.
+ * Carrousel témoignages — translation contrôlée.
+ * Dots + swipe tactile / drag souris + clavier.
  */
 export default function TestimonialsCarousel({ count = 5 }) {
   const items = HOME_TESTIMONIALS.slice(0, count)
   const [index, setIndex] = useState(0)
-  const touchStartX = useRef(null)
-  const touchDeltaX = useRef(0)
+  const [dragging, setDragging] = useState(false)
+  const pointerStartX = useRef(null)
+  const pointerDeltaX = useRef(0)
 
   const max = items.length - 1
   const goTo = (i) => setIndex(Math.max(0, Math.min(i, max)))
   const prev = () => setIndex((i) => Math.max(0, i - 1))
   const next = () => setIndex((i) => Math.min(max, i + 1))
 
-  const onTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX
-    touchDeltaX.current = 0
-  }
-
-  const onTouchMove = (e) => {
-    if (touchStartX.current == null) return
-    touchDeltaX.current = e.touches[0].clientX - touchStartX.current
-  }
-
-  const onTouchEnd = () => {
-    const delta = touchDeltaX.current
-    touchStartX.current = null
-    touchDeltaX.current = 0
-    if (Math.abs(delta) < 40) return
+  const endSwipe = () => {
+    const delta = pointerDeltaX.current
+    pointerStartX.current = null
+    pointerDeltaX.current = 0
+    setDragging(false)
+    if (Math.abs(delta) < SWIPE_THRESHOLD) return
     if (delta < 0) next()
     else prev()
+  }
+
+  const onPointerDown = (e) => {
+    // Uniquement clic principal / touch
+    if (e.pointerType === 'mouse' && e.button !== 0) return
+    pointerStartX.current = e.clientX
+    pointerDeltaX.current = 0
+    setDragging(true)
+    e.currentTarget.setPointerCapture?.(e.pointerId)
+  }
+
+  const onPointerMove = (e) => {
+    if (pointerStartX.current == null) return
+    pointerDeltaX.current = e.clientX - pointerStartX.current
+  }
+
+  const onPointerUp = () => {
+    if (pointerStartX.current == null) return
+    endSwipe()
+  }
+
+  const onPointerCancel = () => {
+    pointerStartX.current = null
+    pointerDeltaX.current = 0
+    setDragging(false)
   }
 
   if (items.length === 0) return null
@@ -80,13 +99,14 @@ export default function TestimonialsCarousel({ count = 5 }) {
         }}
       >
         <div
-          className="overflow-hidden"
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
+          className={`overflow-hidden select-none touch-pan-y ${dragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerCancel}
         >
           <div
-            className="flex transition-transform duration-300 ease-out will-change-transform"
+            className={`flex will-change-transform ${dragging ? '' : 'transition-transform duration-300 ease-out'}`}
             style={{ transform: `translate3d(-${index * 100}%, 0, 0)` }}
           >
             {items.map((t, i) => (
