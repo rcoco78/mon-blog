@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getAllPosts } from '../lib/notion'
 import { fetchHomeData } from '../lib/home-data'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { siteConfig } from '../lib/config'
 import { sectorToSlug } from '../lib/case-studies-helpers'
 import SEOHead from '../components/seo/SEOHead'
@@ -11,7 +11,7 @@ import { generatePageSEO } from '../lib/seo'
 import ProjectClickCounter from '../components/ProjectClickCounter'
 import DatabaseListRow from '../components/marketplace/DatabaseListRow'
 import ContentListRow, { ContentListRowSkeleton } from '../components/ContentListRow'
-import { testimonials } from '../lib/testimonials'
+import TestimonialsCarousel from '../components/TestimonialsCarousel'
 import { getProjectsCountPhrase } from '../lib/project-count'
 import { fetchBlobJson, withTimeout } from '../lib/blob-cache'
 import { captureDataError } from '../lib/sentry'
@@ -46,10 +46,8 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
   const [topCaseStudies] = useState(homeData?.topCaseStudies ?? [])
   const [topCaseStudiesLoading] = useState(false)
   const [projectClicks, setProjectClicks] = useState({})
-  const [testimonialIndex, setTestimonialIndex] = useState(0)
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
-  const testimonialScrollRef = useRef(null)
   const projectsPhrase = getProjectsCountPhrase(metrics)
 
   // URL de la vidéo Tella
@@ -106,28 +104,6 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
       .then((res) => res.json())
       .then((data) => setProjectClicks(data || {}))
       .catch(() => setProjectClicks({}))
-  }, [])
-
-  // Indicateurs du carrousel de témoignages
-  useEffect(() => {
-    const container = testimonialScrollRef.current
-    if (!container) return
-
-    const handleScroll = () => {
-      const itemWidth = container.clientWidth
-      if (!itemWidth) return
-      const index = Math.round(container.scrollLeft / itemWidth)
-      setTestimonialIndex(Math.min(Math.max(0, index), 4))
-    }
-
-    handleScroll()
-    container.addEventListener('scroll', handleScroll, { passive: true })
-    window.addEventListener('resize', handleScroll)
-
-    return () => {
-      container.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('resize', handleScroll)
-    }
   }, [])
 
   // Ouvrir la popup vidéo
@@ -505,96 +481,8 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
       {/* Séparateur visuel — zone Présentation */}
       <hr className="my-6 border-t border-neutral-200 dark:border-neutral-800" role="presentation" />
 
-      {/* Carousel de témoignages */}
-      {(() => {
-        const homeTestimonials = [...testimonials]
-          .sort((a, b) => new Date(b.datePublished) - new Date(a.datePublished))
-          .slice(0, 5)
-        const getSourceBadgeClass = (source) => {
-          if (source === 'LinkedIn') return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-          if (source === 'Fiverr') return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-          if (source === 'Malt') return 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
-          return 'bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300'
-        }
-        return (
-      <section className="relative" aria-label="Témoignages clients">
-        <h2 className="font-semibold text-xl mb-2 tracking-tighter">Témoignages</h2>
-        <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Avis clients Malt, Fiverr et LinkedIn.
-        </p>
-        <div
-          className="relative overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          <div
-            ref={testimonialScrollRef}
-            className="flex overflow-x-auto scroll-smooth snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-          >
-            {homeTestimonials.map((t, i) => (
-              <div
-                key={`${t.authorName}-${t.datePublished}-${i}`}
-                className="min-w-full flex-shrink-0 p-4 flex flex-col min-h-[180px] snap-start"
-              >
-                <p className="text-sm text-neutral-700 dark:text-neutral-300 italic mb-3 leading-relaxed flex-1">
-                  « {t.reviewBody} »
-                </p>
-                <div className="flex items-center justify-between gap-3 mt-auto">
-                  <div className="min-w-0">
-                    <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">{t.authorName}</p>
-                    {t.authorJob && (
-                      <p className="text-xs text-neutral-500 dark:text-neutral-500">{t.authorJob}</p>
-                    )}
-                  </div>
-                  {t.source && (
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${getSourceBadgeClass(t.source)}`}>
-                      {t.source}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex justify-center gap-2 mt-4">
-          {homeTestimonials.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => {
-                const container = testimonialScrollRef.current
-                if (!container) return
-                container.scrollTo({
-                  left: index * container.clientWidth,
-                  behavior: 'smooth',
-                })
-                setTestimonialIndex(index)
-              }}
-              className={`h-1.5 rounded-full transition-all ${
-                testimonialIndex === index
-                  ? 'w-6 bg-neutral-900 dark:bg-neutral-100'
-                  : 'w-1.5 bg-neutral-300 dark:bg-neutral-700'
-              }`}
-              aria-label={`Aller au témoignage ${index + 1}`}
-            />
-          ))}
-        </div>
-
-        <div className="mt-4 text-center">
-          <Link
-            href="/temoignages"
-            className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
-          >
-            Voir tous les témoignages
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-            </svg>
-          </Link>
-        </div>
-      </section>
-        )
-      })()}
+      {/* Carrousel de témoignages */}
+      <TestimonialsCarousel />
 
       {/* Séparateur visuel — zone Projets / Contenu */}
       <hr className="my-12 border-t border-neutral-200 dark:border-neutral-800" role="presentation" />
