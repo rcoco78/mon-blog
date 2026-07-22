@@ -21,7 +21,7 @@ const HOME_TESTIMONIALS = [...testimonials]
 
 /**
  * Carrousel témoignages — translation contrôlée (pas de scroll natif).
- * Flèches + dots + swipe tactile.
+ * Dots + swipe tactile + clavier.
  */
 export default function TestimonialsCarousel({ count = 5 }) {
   const items = HOME_TESTIMONIALS.slice(0, count)
@@ -92,7 +92,7 @@ export default function TestimonialsCarousel({ count = 5 }) {
             {items.map((t, i) => (
               <figure
                 key={`${t.authorName}-${t.datePublished}-${i}`}
-                className="w-full shrink-0 grow-0 basis-full px-12 py-5 sm:px-14 sm:py-6 flex flex-col min-h-[200px]"
+                className="w-full shrink-0 grow-0 basis-full p-5 sm:p-6 flex flex-col min-h-[200px]"
                 aria-hidden={i !== index}
               >
                 <blockquote className="flex-1">
@@ -123,35 +123,6 @@ export default function TestimonialsCarousel({ count = 5 }) {
             ))}
           </div>
         </div>
-
-        <button
-          type="button"
-          onClick={prev}
-          disabled={index === 0}
-          className="absolute left-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 dark:border-neutral-700 bg-white/95 dark:bg-neutral-900/95 text-neutral-700 dark:text-neutral-200 shadow-sm disabled:opacity-25 disabled:pointer-events-none hover:bg-white dark:hover:bg-neutral-900 transition-colors"
-          aria-label="Témoignage précédent"
-        >
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-            <path
-              fillRule="evenodd"
-              d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"
-            />
-          </svg>
-        </button>
-        <button
-          type="button"
-          onClick={next}
-          disabled={index === max}
-          className="absolute right-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full border border-neutral-200 dark:border-neutral-700 bg-white/95 dark:bg-neutral-900/95 text-neutral-700 dark:text-neutral-200 shadow-sm disabled:opacity-25 disabled:pointer-events-none hover:bg-white dark:hover:bg-neutral-900 transition-colors"
-          aria-label="Témoignage suivant"
-        >
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-            <path
-              fillRule="evenodd"
-              d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"
-            />
-          </svg>
-        </button>
       </div>
 
       <div className="flex justify-center gap-2 mt-4" role="tablist" aria-label="Navigation témoignages">
