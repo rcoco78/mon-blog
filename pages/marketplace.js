@@ -343,12 +343,38 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
               rel="noopener noreferrer"
               className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
             >
-              424+ projets réalisés (Malt & Fiverr)
+              Centaines de missions livrées (Malt & Fiverr)
             </a>
           </div>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
-            Bases de données et outils développés pour automatiser vos processus business, générer des leads et optimiser votre productivité. Une sélection de <strong className="text-neutral-900 dark:text-neutral-100">bases de données</strong> prêtes pour des analyses métiers ou de la prospection, et d'<strong className="text-neutral-900 dark:text-neutral-100">outils de scraping</strong> pour collecter vos propres données.
+          <p className="text-neutral-600 dark:text-neutral-400 mb-4 tracking-tight">
+            Les bases et scrapers que je livre déjà à mes clients — en libre-service.
           </p>
+          <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-neutral-600 dark:text-neutral-400">
+            <p>
+              <strong className="text-neutral-900 dark:text-neutral-100">Bases de données</strong>
+              {' — '}fichier Google Sheets prêt pour la prospection / CRM ; livré comme pour mes clients ; mises à jour possibles.
+            </p>
+            <p>
+              <strong className="text-neutral-900 dark:text-neutral-100">Outils Apify</strong>
+              {' — '}lance mon scraper, récupère tes données via mon API publique.
+            </p>
+          </div>
+          <div className="mb-8 text-sm text-neutral-600 dark:text-neutral-400">
+            <p className="font-medium text-neutral-800 dark:text-neutral-200 mb-2">Comment ça marche</p>
+            {activeTab === 'databases' ? (
+              <ol className="list-decimal list-inside space-y-1">
+                <li>Choisir une base</li>
+                <li>Payer</li>
+                <li>Recevoir le Google Sheet</li>
+              </ol>
+            ) : (
+              <ol className="list-decimal list-inside space-y-1">
+                <li>Entrer l&apos;input</li>
+                <li>Lancer le scraper</li>
+                <li>Débloquer les résultats</li>
+              </ol>
+            )}
+          </div>
 
           {/* Onglets pour séparer Bases de données et Outils */}
           <div className="mb-8 border-b border-neutral-200 dark:border-neutral-800">
@@ -361,9 +387,14 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                     : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
                 }`}
               >
-                Bases de données
-                <span className="ml-2 text-xs text-neutral-400 dark:text-neutral-500">
-                  ({dynamicDatabases.length})
+                <span className="block">
+                  Bases de données
+                  <span className="ml-2 text-xs text-neutral-400 dark:text-neutral-500">
+                    ({dynamicDatabases.length})
+                  </span>
+                </span>
+                <span className="block text-xs font-normal text-neutral-500 dark:text-neutral-500 mt-0.5">
+                  Fichier prêt à télécharger
                 </span>
               </button>
               <button
@@ -374,9 +405,14 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                     : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
                 }`}
               >
-                Outils
-                <span className="ml-2 text-xs text-neutral-400 dark:text-neutral-500">
-                  ({apifyTools.length})
+                <span className="block">
+                  Outils
+                  <span className="ml-2 text-xs text-neutral-400 dark:text-neutral-500">
+                    ({apifyTools.length})
+                  </span>
+                </span>
+                <span className="block text-xs font-normal text-neutral-500 dark:text-neutral-500 mt-0.5">
+                  Lance le scraper toi-même
                 </span>
               </button>
             </div>

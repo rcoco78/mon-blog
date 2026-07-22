@@ -10,6 +10,13 @@ import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import ProjectClickCounter from '../components/ProjectClickCounter'
 import { testimonials } from '../lib/testimonials'
+import {
+  marketplaceBenefit,
+  marketplacePriceLabel,
+} from '../lib/marketplace-display'
+import { getProjectsCountPhrase } from '../lib/project-count'
+import { fetchBlobJson, withTimeout } from '../lib/blob-cache'
+import { captureDataError } from '../lib/sentry'
 
 // Fonction helper pour obtenir le logo d'une entreprise
 const getCompanyLogo = (companyName) => {
@@ -34,25 +41,55 @@ const getCompanyLogo = (companyName) => {
   return null
 }
 
-export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsCount = 0, homeData }) {
+export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 0, homeData }) {
   const [topPosts] = useState(homeData?.topPosts ?? [])
   const [loading] = useState(false)
   const [metrics] = useState(homeData?.metrics ?? siteConfig.metrics)
   const [metricsLoading] = useState(false)
   const [testimonialIndex, setTestimonialIndex] = useState(0)
-  const [keyResults] = useState(homeData?.keyResults ?? [])
-  const [keyResultsLoading] = useState(false)
   const [topCaseStudies] = useState(homeData?.topCaseStudies ?? [])
   const [topCaseStudiesLoading] = useState(false)
+  const [projectClicks, setProjectClicks] = useState({})
   const [isMobile, setIsMobile] = useState(false)
   const [currentTestimonialScrollIndex, setCurrentTestimonialScrollIndex] = useState(0)
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
   const testimonialScrollRef = useRef(null)
+  const projectsPhrase = getProjectsCountPhrase(metrics)
 
   // URL de la vidéo Tella
   const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
   const videoEmbedUrl = 'https://www.tella.tv/video/vid_cmjylsyom00bn04la9dfs342e/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0'
+  const [calendlyLoaded, setCalendlyLoaded] = useState(false)
+
+  const openCalendly = () => {
+    if (!calendlyLoaded) {
+      if (!document.querySelector('link[href*="calendly.com"]')) {
+        const link = document.createElement('link')
+        link.href = 'https://assets.calendly.com/assets/external/widget.css'
+        link.rel = 'stylesheet'
+        document.head.appendChild(link)
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://assets.calendly.com/assets/external/widget.js'
+      script.type = 'text/javascript'
+      script.async = true
+      script.onload = () => {
+        setCalendlyLoaded(true)
+        if (window.Calendly) {
+          window.Calendly.initPopupWidget({
+            url: 'https://calendly.com/corentinrobert/20min'
+          })
+        }
+      }
+      document.body.appendChild(script)
+    } else if (window.Calendly) {
+      window.Calendly.initPopupWidget({
+        url: 'https://calendly.com/corentinrobert/20min'
+      })
+    }
+  }
 
   // Vérifier si la vidéo a déjà été vue
   useEffect(() => {
@@ -60,6 +97,20 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
       const seen = localStorage.getItem('profileVideoSeen') === 'true'
       setVideoSeen(seen)
     }
+  }, [])
+
+  // Un seul fetch pour tous les compteurs de clics projets
+  useEffect(() => {
+    const partnerIds = ['contributeurs-apify', 'lemlist', 'zapmail']
+    const ids = siteConfig.projects
+      .filter((p) => p.status === 'active' && !partnerIds.includes(p.id) && p.id)
+      .map((p) => p.id)
+    if (ids.length === 0) return
+
+    fetch(`/api/projects/clicks?projectIds=${ids.join(',')}`)
+      .then((res) => res.json())
+      .then((data) => setProjectClicks(data || {}))
+      .catch(() => setProjectClicks({}))
   }, [])
 
   // Ouvrir la popup vidéo
@@ -123,8 +174,8 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
   }, [isMobile])
 
   const pageSEO = generatePageSEO({
-    title: 'Corentin Robert - Expert Freelance Scraping & Automatisation | 424+ Projets',
-    description: 'Corentin Robert - Expert freelance en scraping et automatisation à Paris. 424+ projets réalisés, livraison en 7 jours. Spécialisé scraping immobilier et santé. Consultant scraping pour TPE-PME.',
+    title: 'Freelance scraping, automatisation et journal de bord',
+    description: `Corentin Robert — freelance scraping, automatisation et data. ${projectsPhrase} livrés via Malt et Fiverr. Journal public de ce que je construis, marketplace de bases et scrapers.`,
     path: '/',
     keywords: ['Corentin Robert', 'scraping freelance', 'automatisation', 'consultant scraping', 'web scraping', 'data automation', 'freelance scraping France', 'freelance scraping Paris', 'consultant scraping TPE-PME', 'scraping immobilier', 'automatisation processus business']
   })
@@ -133,11 +184,10 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
     <>
       <SEOHead {...pageSEO} />
       
-      {/* Structured Data Organization - Complet pour Google */}
       <StructuredData 
         type="Organization" 
         data={{
-          description: 'Expert freelance en scraping et automatisation. 424+ projets réalisés via Malt et Fiverr, livraison en 7 jours.',
+          description: `Expert freelance en scraping et automatisation. ${projectsPhrase} livrés via Malt et Fiverr, livraison en 7 jours.`,
           email: 'contact@corentinrobert.fr',
           sameAs: [
             siteConfig.social.linkedin,
@@ -149,14 +199,13 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
         }} 
       />
       
-      {/* Structured Data Person - Optimisé pour "Corentin Robert" */}
       <StructuredData 
         type="Person" 
         data={{
           name: 'Corentin Robert',
           alternateName: 'Corentin Robert',
           jobTitle: 'Expert Freelance en Scraping et Automatisation',
-          description: 'Corentin Robert - Expert freelance en scraping et automatisation. 424+ projets réalisés, 270+ avis positifs. Spécialisé scraping immobilier et santé pour TPE-PME.',
+          description: `Corentin Robert — expert freelance en scraping et automatisation. ${projectsPhrase} livrés. Spécialisé scraping immobilier et santé pour TPE-PME.`,
           knowsAbout: ['Web Scraping', 'Data Automation', 'Outbound Marketing', 'Growth Hacking', 'Freelance', 'Scraping Immobilier', 'Scraping Santé'],
           sameAs: [
             siteConfig.social.linkedin,
@@ -168,7 +217,6 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
         }} 
       />
       
-      {/* Structured Data FAQPage - Questions principales */}
       <StructuredData 
         type="FAQPage" 
         data={{
@@ -187,7 +235,7 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
             },
             {
               question: "Pourquoi choisir Corentin Robert plutôt qu'une agence ou un dev interne ?",
-              answer: "3 avantages clés : 1) Rapidité : livraison en moins d'une semaine vs 1-2 mois pour une agence, 2) Coûts maîtrisés : pas de frais de structure, tarifs transparents, 3) Expertise ciblée : 424+ projets en scraping/automatisation vs un dev interne qui doit tout apprendre."
+              answer: `3 avantages clés : 1) Rapidité : livraison en moins d'une semaine vs 1-2 mois pour une agence, 2) Coûts maîtrisés : pas de frais de structure, tarifs transparents, 3) Expertise ciblée : ${projectsPhrase} en scraping/automatisation vs un dev interne qui doit tout apprendre.`
             },
             {
               question: "Est-ce légal de scraper des sites web ?",
@@ -197,17 +245,15 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
         }} 
       />
       
-      {/* Structured Data SiteNavigation - Pour les sitelinks Google (À propos, Marketplace, Blog) */}
       <StructuredData type="SiteNavigation" />
       
-      {/* Structured Data WebPage - Pour améliorer l'indexation de la page d'accueil */}
       <StructuredData 
         type="WebPage" 
         data={{
           url: siteConfig.url,
-          name: 'Corentin Robert - Expert Freelance Scraping & Automatisation',
-          title: 'Corentin Robert - Expert Freelance Scraping & Automatisation | 424+ Projets',
-          description: 'Corentin Robert - Expert freelance en scraping et automatisation à Paris. 424+ projets réalisés, livraison en 7 jours. Spécialisé scraping immobilier et santé.',
+          name: 'Corentin Robert — Freelance Scraping & Automatisation',
+          title: 'Freelance scraping, automatisation et journal de bord',
+          description: `Corentin Robert — freelance scraping, automatisation et data. ${projectsPhrase} livrés, livraison en 7 jours.`,
           image: siteConfig.ogImage,
           about: {
             '@type': 'Thing',
@@ -216,13 +262,12 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
         }} 
       />
       
-      {/* Structured Data pour SEO */}
       <StructuredData 
         type="Service" 
         data={{
           name: 'Scraping et Automatisation',
           serviceType: 'Web Scraping, Data Automation, Outbound Marketing',
-          description: 'Expert freelance en scraping web et automatisation. Création d\'outils sur-mesure pour extraire, structurer et exploiter vos données. 424+ projets réalisés via Malt et Fiverr.',
+          description: `Expert freelance en scraping web et automatisation. Création d'outils sur-mesure pour extraire, structurer et exploiter vos données. ${projectsPhrase} livrés via Malt et Fiverr.`,
           url: siteConfig.url,
           offers: {
             '@type': 'Offer',
@@ -234,107 +279,6 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
               date.setFullYear(date.getFullYear() + 1);
               return date.toISOString().split('T')[0];
             })()
-          }
-          // Note: aggregateRating retiré du Service car Google n'accepte pas Service pour Review snippets
-          // Les avis sont gérés via les Review schemas séparés avec Product comme itemReviewed
-        }} 
-      />
-      {/* Review Schema 5* par défaut pour le service */}
-      <StructuredData
-        type="Review"
-        data={{
-          itemReviewed: {
-            '@type': 'Product',
-            name: 'Scraping et Automatisation',
-            url: siteConfig.url,
-            brand: {
-              '@type': 'Person',
-              name: siteConfig.author,
-              url: siteConfig.url
-            }
-          },
-          reviewRating: {
-            '@type': 'Rating',
-            ratingValue: '5',
-            bestRating: '5',
-            worstRating: '1'
-          },
-          author: {
-            '@type': 'Person',
-            name: siteConfig.author,
-            url: siteConfig.url
-          },
-          reviewBody: 'Expert freelance en scraping et automatisation. 424+ projets réalisés avec 270+ avis positifs. Livraison en 7 jours, résultats garantis.',
-          datePublished: new Date().toISOString().split('T')[0]
-        }}
-      />
-      {/* Review Schema individuelles pour Google Search Console (Extraits d'avis) */}
-      <StructuredData
-        type="Review"
-        data={{
-          author: {
-            '@type': 'Person',
-            name: siteConfig.author,
-            url: siteConfig.url
-          },
-          reviewBody: "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ.",
-          ratingValue: '5',
-          datePublished: '2024-01-15',
-          itemReviewed: {
-            '@type': 'Product',
-            name: 'Services de Scraping et Automatisation',
-            url: siteConfig.url,
-            brand: {
-              '@type': 'Person',
-              name: siteConfig.author,
-              url: siteConfig.url
-            }
-          }
-        }}
-      />
-      <StructuredData
-        type="Review"
-        data={{
-          author: {
-            '@type': 'Person',
-            name: siteConfig.author,
-            url: siteConfig.url
-          },
-          reviewBody: "Prestation de scraping impeccable : compréhension rapide du besoin, extraction propre et structurée, délais respectés. Les données livrées sont exploitables immédiatement (format clair, colonnes cohérentes, pas de doublons). Communication fluide et réactif tout au long du projet.",
-          ratingValue: '5',
-          datePublished: '2024-01-05',
-          itemReviewed: {
-            '@type': 'Product',
-            name: 'Services de Scraping et Automatisation',
-            url: siteConfig.url,
-            brand: {
-              '@type': 'Person',
-              name: siteConfig.author,
-              url: siteConfig.url
-            }
-          }
-        }}
-      />
-      <StructuredData
-        type="Review"
-        data={{
-          author: {
-            '@type': 'Person',
-            name: siteConfig.author,
-            url: siteConfig.url
-          },
-          reviewBody: "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !",
-          ratingValue: '5',
-          datePublished: '2023-12-15',
-          itemReviewed: {
-            '@type': 'Product',
-            name: 'Services de Scraping et Automatisation',
-            url: siteConfig.url,
-            brand: {
-              '@type': 'Person',
-              name: siteConfig.author,
-              url: siteConfig.url
-            }
           }
         }} 
       />
@@ -432,11 +376,40 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
             </div>
           )}
           
-          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Corentin Robert</h1>
+          <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Corentin Robert</h1>
         </div>
-        <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Je transforme vos processus manuels en automatisations opérationnelles en moins d'une semaine. Expert <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> pour dirigeants qui veulent des résultats rapides, pas des promesses à long terme. Le week-end, je développe <strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong> avec mon frère — on parcourt la France pour mettre en avant des logements d'exception.
+        <p className="mb-3 text-neutral-800 dark:text-neutral-200 tracking-tight font-medium">
+          Scraping, automatisation et data pour générer du business.
         </p>
+        <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
+          Expert freelance en <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong> et <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> — {projectsPhrase} livrés via Malt et Fiverr. Ce site est mon journal de bord public : accomplissements, preuves terrain et ce que je construis pour devenir une référence dans mon métier.
+        </p>
+        <p className="mb-6 text-sm text-neutral-500 dark:text-neutral-500 tracking-tight">
+          En parallèle, je développe <strong className="text-neutral-700 dark:text-neutral-300">Logement Atypique</strong> avec mon frère — preuve entrepreneuriale, pas le cœur de mon offre freelance.
+        </p>
+
+        {/* CTA principaux */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-8">
+          <Link
+            href="/objectifs"
+            className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-neutral-900 dark:bg-neutral-100 text-neutral-100 dark:text-neutral-900 text-sm font-medium hover:opacity-90 transition-opacity"
+          >
+            Suivre mon journal
+          </Link>
+          <button
+            type="button"
+            onClick={openCalendly}
+            className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-800 dark:text-neutral-200 hover:border-neutral-400 dark:hover:border-neutral-500 transition-colors"
+          >
+            Réserver un appel
+          </button>
+          <Link
+            href="/marketplace"
+            className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-neutral-200 dark:border-neutral-800 text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
+          >
+            Voir la marketplace
+          </Link>
+        </div>
         
         {/* Métriques de confiance - Déplacées plus tôt sur mobile */}
         <div className="mb-6 md:mb-8">
@@ -451,8 +424,14 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
               </div>
             ))
           ) : (
-            metrics.map((metric, index) => (
-              <div key={index} className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+            metrics.map((metric, index) => {
+              const MetricWrapper = metric.href ? Link : 'div'
+              const wrapperProps = metric.href
+                ? { href: metric.href, className: 'block p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors' }
+                : { className: 'p-4 rounded-lg border border-neutral-200 dark:border-neutral-800' }
+
+              return (
+              <MetricWrapper key={index} {...wrapperProps}>
                 <div className="text-2xl font-semibold mb-1 text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
                   {metric.label === 'projets réalisés' ? (
                     <>
@@ -463,6 +442,7 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
                         rel="noopener noreferrer"
                         className="inline-flex items-center hover:opacity-70 transition-opacity text-neutral-400 dark:text-neutral-500"
                         aria-label="Profil Malt"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
@@ -479,6 +459,7 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
                           rel="noopener noreferrer"
                           className="inline-flex items-center hover:opacity-70 transition-opacity text-neutral-400 dark:text-neutral-500"
                           aria-label="Instagram Logement Atypique"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" className="bi bi-instagram" viewBox="0 0 16 16">
                             <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"/>
@@ -492,6 +473,7 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
                           rel="noopener noreferrer"
                           className="inline-flex items-center hover:opacity-70 transition-opacity text-neutral-400 dark:text-neutral-500"
                           aria-label="Voir mes scrapers sur Apify"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
@@ -503,8 +485,9 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
                 </div>
                 <div className="text-sm text-neutral-600 dark:text-neutral-400">{metric.label}</div>
                 <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">{metric.source}</div>
-              </div>
-            ))
+              </MetricWrapper>
+              )
+            })
           )}
           </div>
         </div>
@@ -602,13 +585,21 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
       {/* Séparateur visuel — zone Projets / Contenu */}
       <hr className="my-12 border-t border-neutral-200 dark:border-neutral-800" role="presentation" />
 
-      <section className="" aria-label="Projets en cours">
-        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Projets en cours</h2>
+      <section className="" aria-label="Ce que je construis">
+        <h2 className="font-semibold text-xl mb-2 tracking-tighter">Ce que je construis</h2>
+        <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400 tracking-tight">
+          Missions freelance d’abord, puis Outreacher (outbound), puis preuves entrepreneuriales.
+        </p>
         <div className="flex flex-col space-y-4">
           {siteConfig.projects.filter(project => {
             // Filtrer uniquement les projets (exclure les partenaires)
             const partnerIds = ['contributeurs-apify', 'lemlist', 'zapmail']
             return project.status === 'active' && !partnerIds.includes(project.id)
+          }).sort((a, b) => {
+            // Featured (freelance / outbound) avant le reste
+            const af = a.featured ? 0 : 1
+            const bf = b.featured ? 0 : 1
+            return af - bf
           }).map((project, index) => {
             const isActive = project.status === 'active'
             const Component = project.link ? 'a' : 'div'
@@ -718,7 +709,7 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
                       <div className="flex-shrink-0 w-6 h-6"></div>
                       <div className="flex-1 min-w-0 flex items-center gap-2">
                         {project.id ? (
-                          <ProjectClickCounter projectId={project.id} />
+                          <ProjectClickCounter projectId={project.id} clicks={projectClicks[project.id]} />
                         ) : (
                           <span></span>
                         )}
@@ -748,7 +739,7 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
 
       {/* Section Marketplace */}
       <section className="mt-12" aria-label="Marketplace">
-        <h2 className="font-semibold text-xl mb-6 tracking-tighter">
+        <h2 className="font-semibold text-xl mb-2 tracking-tighter">
           Marketplace
           {marketplaceReviewsCount > 0 && (
             <span className="ml-2 text-base font-normal text-neutral-500 dark:text-neutral-400">
@@ -757,38 +748,36 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
           )}
         </h2>
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Bases de données que j'ai développées et mets à disposition — listings, extracteurs et templates pour vous aider dans votre quotidien.
+          Bases Google Sheets en libre-service — les mêmes que je livre à mes clients. Aussi :{' '}
+          <Link href="/marketplace?tab=tools" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+            mes scrapers publics sur Apify
+          </Link>
+          .
         </p>
         <div className="flex flex-col space-y-4">
           {(() => {
-            // Top 3 bases de données les plus consultées (déjà triées côté getStaticProps)
             const topDatabases = (dynamicDatabases || []).slice(0, 3)
-            return topDatabases
-              .map((tool) => (
+            return topDatabases.map((tool) => (
             <Link
               key={tool.name}
               href={tool.link || '#'}
               className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
             >
-              <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
-                <div className="flex-1 min-w-0">
-                  <div className="mb-1">
-                    <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
-                      {tool.name}
-                    </h2>
-                  </div>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
-                    {tool.description}
-                  </p>
-                </div>
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <h3 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
+                  {tool.name}
+                </h3>
+                <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 whitespace-nowrap">
+                  {marketplacePriceLabel(tool)}
+                </span>
               </div>
-              
-              {/* Footer : contenu à gauche, flèche à droite (uniforme avec articles et cas d'usage) */}
+              <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+                {marketplaceBenefit(tool)}
+              </p>
               <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs text-neutral-500 dark:text-neutral-500 flex-1 min-w-0">
-                    {tool.isPaid ? `${tool.annualPrice || tool.price || 0}€` : 'Gratuit'}
-                    <> · {(tool.views ?? 0)} {(tool.views ?? 0) === 1 ? 'vue' : 'vues'}</>
+                  <span className="text-sm font-medium text-neutral-800 dark:text-neutral-200 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
+                    Voir la base
                   </span>
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0" aria-hidden>
                     <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
@@ -796,8 +785,8 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
                 </div>
               </div>
             </Link>
-              ))
-            })()}
+            ))
+          })()}
         </div>
         <div className="mt-6 text-center">
           <Link
@@ -813,11 +802,11 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
       </section>
 
       
-      {/* Section Articles les plus consultés */}
-      <section className="mt-12" aria-label="Articles les plus consultés">
-        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Articles les plus consultés</h2>
+      {/* Section Articles business */}
+      <section className="mt-12" aria-label="Articles métier">
+        <h2 className="font-semibold text-xl mb-2 tracking-tighter">Articles métier</h2>
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Réflexions sur le scraping, l'automatisation, l'entrepreneuriat, le freelance et le voyage.
+          Scraping, automatisation, freelance et acquisition — le journal de ce qui construit ma légitimité.
         </p>
         <div className="flex flex-col space-y-4">
           {loading ? (
@@ -875,11 +864,11 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
         </div>
       </section>
 
-      {/* Top 3 cas d'usage consultés - même design que Marketplace */}
-      <section className="mt-12 mb-8" aria-label="Cas d'usage les plus consultés">
-        <h2 className="font-semibold text-xl mb-6 tracking-tighter">Cas d&apos;usage les plus consultés</h2>
+      {/* Cas d'usage premium sélectionnés manuellement */}
+      <section className="mt-12 mb-8" aria-label="Cas d'usage scraping">
+        <h2 className="font-semibold text-xl mb-2 tracking-tighter">Cas d&apos;usage scraping</h2>
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Les cas d&apos;usage de scraping qui attirent le plus l&apos;attention.
+          Exemples concrets dans l’immobilier, la prospection LinkedIn et l’e-commerce.
         </p>
         <div className="flex flex-col space-y-4">
           {topCaseStudiesLoading ? (
@@ -908,7 +897,7 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
                 <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-xs text-neutral-500 dark:text-neutral-500 flex-1 min-w-0">
-                      {cs.sector} · {cs.views ?? 0} {(cs.views ?? 0) === 1 ? 'vue' : 'vues'}
+                      {cs.sector}
                     </span>
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0" aria-hidden>
                       <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
@@ -938,36 +927,68 @@ export default function Home({ posts, dynamicDatabases = [], marketplaceReviewsC
 
 async function getMarketplaceViewEvents() {
   try {
-    const { list } = await import('@vercel/blob')
-    const blobs = await list({ prefix: 'marketplace-views-events.json' })
-    const blob = blobs.blobs.find((b) => b.pathname === 'marketplace-views-events.json')
-    if (blob) {
-      const res = await fetch(blob.url, { next: { revalidate: 300 } })
-      if (res.ok) {
-        const data = await res.json()
-        return Array.isArray(data) ? data : []
-      }
-    }
-    return []
-  } catch {
+    const data = await withTimeout(fetchBlobJson('marketplace-views-events.json'), 8000, null)
+    return Array.isArray(data) ? data : []
+  } catch (e) {
+    captureDataError(e, { source: 'blob', tags: { area: 'marketplace-views' } })
     return []
   }
 }
 
-export async function getStaticProps() {
-  const posts = await getAllPosts()
-  let homeData = null
-  try {
-    homeData = await fetchHomeData(posts)
-  } catch (err) {
-    console.warn('getStaticProps: fetchHomeData error', err?.message)
+function lightDatabase(db) {
+  return {
+    name: db.name || null,
+    slug: db.slug || null,
+    category: db.category || null,
+    link: db.link || null,
+    description: db.description || null,
+    benefit: db.benefit || null,
+    shortDescription: db.shortDescription || null,
+    price: db.price ?? null,
+    annualPrice: db.annualPrice ?? null,
+    isPaid: db.isPaid ?? true,
+    rowCount: db.rowCount ?? null,
+    lastEnriched: db.lastEnriched || null,
+    date: db.date || null,
+    views: db.views || 0,
   }
+}
 
-  // Charger les bases de données dynamiques — top 3 les plus consultées
-  const { getDatabasesAsTools } = await import('../lib/marketplace-databases')
-  let dynamicDatabases = await getDatabasesAsTools()
+export async function getStaticProps() {
+  const started = Date.now()
+
+  const postsPromise = getAllPosts().catch((err) => {
+    captureDataError(err, { source: 'notion', tags: { area: 'home-posts' } })
+    return []
+  })
+
+  const marketplacePromise = Promise.all([
+    import('../lib/marketplace-databases')
+      .then((m) => m.getDatabasesAsTools())
+      .catch((err) => {
+        captureDataError(err, { source: 'blob', tags: { area: 'marketplace-dbs' } })
+        return []
+      }),
+    import('../lib/marketplace-reviews')
+      .then((m) => m.getMarketplaceReviews())
+      .catch((err) => {
+        captureDataError(err, { source: 'blob', tags: { area: 'marketplace-reviews' } })
+        return []
+      }),
+    getMarketplaceViewEvents(),
+  ])
+
+  const posts = await postsPromise
+  const [homeData, [dynamicDatabasesRaw, reviews, events]] = await Promise.all([
+    fetchHomeData(posts).catch((err) => {
+      captureDataError(err, { source: 'blob', tags: { area: 'home-data' } })
+      return null
+    }),
+    marketplacePromise,
+  ])
+
+  let dynamicDatabases = dynamicDatabasesRaw || []
   try {
-    const events = await getMarketplaceViewEvents()
     const viewsMap = {}
     events.forEach((e) => {
       if (e.slug && e.category) {
@@ -979,25 +1000,22 @@ export async function getStaticProps() {
       .map((db) => ({ ...db, views: viewsMap[`${db.category}/${db.slug}`] || 0 }))
       .sort((a, b) => (b.views || 0) - (a.views || 0))
       .slice(0, 3)
+      .map(lightDatabase)
   } catch (err) {
-    // Fallback : 3 premières par date si erreur
     dynamicDatabases = dynamicDatabases
       .sort((a, b) => new Date(b.lastEnriched || b.date || 0) - new Date(a.lastEnriched || a.date || 0))
       .slice(0, 3)
+      .map(lightDatabase)
   }
 
-  let marketplaceReviewsCount = 0
-  try {
-    const { getMarketplaceReviews } = await import('../lib/marketplace-reviews')
-    const reviews = await getMarketplaceReviews()
-    marketplaceReviewsCount = reviews.length
-  } catch {
-    // ignore
+  const marketplaceReviewsCount = Array.isArray(reviews) ? reviews.length : 0
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`[home] getStaticProps ${Date.now() - started}ms`)
   }
 
   return {
     props: {
-      posts,
       dynamicDatabases,
       marketplaceReviewsCount,
       homeData,

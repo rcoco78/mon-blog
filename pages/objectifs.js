@@ -394,46 +394,9 @@ export default function DonneesPubliques() {
   }, [])
 
   useEffect(() => {
-    const fetchChessStats = async () => {
-      try {
-        setChessLoading(true)
-        const response = await fetch('/api/chess-stats')
-        if (response.ok) {
-          const data = await response.json()
-          setChessStats(data)
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération des stats d\'échecs:', error)
-      } finally {
-        setChessLoading(false)
-      }
-    }
-
-    fetchChessStats()
-  }, [])
-
-  useEffect(() => {
-    const fetchChessHistory = async () => {
-      try {
-        setChessHistoryLoading(true)
-        const response = await fetch('/api/chess-history')
-        if (response.ok) {
-          const data = await response.json()
-          setChessHistory(Array.isArray(data) ? data : [])
-        } else {
-          // Même en cas d'erreur HTTP, on peut avoir reçu un tableau vide
-          const data = await response.json().catch(() => [])
-          setChessHistory(Array.isArray(data) ? data : [])
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération de l\'historique Chess.com:', error)
-        setChessHistory([])
-      } finally {
-        setChessHistoryLoading(false)
-      }
-    }
-
-    fetchChessHistory()
+    // Échecs retirés de /objectifs (journal pro uniquement)
+    setChessLoading(false)
+    setChessHistoryLoading(false)
   }, [])
 
   // Récupérer l'historique pour chaque Key Result selon la période sélectionnée
@@ -598,60 +561,23 @@ export default function DonneesPubliques() {
     ? Object.fromEntries(Object.entries(groupedByCategory).filter(([cat]) => cat === selectedCategory))
     : groupedByCategory
 
-  // Calculer les objectifs virtuels Chess.com qui seront ajoutés
-  const chessVirtualKRsCount = (() => {
-    if (!chessStats || chessLoading) return 0
-    
-    // Vérifier si on a une catégorie Loisir/Bien-être/Santé
-    const hasLoisirCategory = Object.keys(groupedByCategory).some(cat => 
-      cat.toLowerCase().includes('santé') || 
-      cat.toLowerCase().includes('loisir') || 
-      cat.toLowerCase().includes('bien-être')
-    )
-    
-    if (!hasLoisirCategory) return 0
-    
-    // Trouver la catégorie Loisir
-    const loisirCategory = Object.keys(groupedByCategory).find(cat => 
-      cat.toLowerCase().includes('santé') || 
-      cat.toLowerCase().includes('loisir') || 
-      cat.toLowerCase().includes('bien-être')
-    )
-    
-    if (!loisirCategory) return 0
-    
-    const loisirResults = groupedByCategory[loisirCategory] || []
-    
-    // Vérifier si le Key Result Rapid existe déjà dans les objectifs
-    const hasRapidKR = loisirResults.some(kr => {
-      const nameLower = (kr.name || '').toLowerCase()
-      return nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess')
-    })
-    
-    // Ajouter Rapid si les données existent et qu'il n'existe pas déjà
-    if (!hasRapidKR && chessStats.rapid && chessStats.rapid.current > 0) {
-      return 1
-    }
-    
-    return 0
-  })()
-
-  // Calculer les statistiques globales (incluant les objectifs virtuels Chess.com)
-  const totalKeyResults = keyResults.length + chessVirtualKRsCount
-  const completedKeyResults = keyResults.filter(isKeyResultCompleted).length
-  const inProgressKeyResults =
-    keyResults.filter((kr) => {
-      if (isKeyResultCompleted(kr)) return false
-      if (isKeyResultNotStarted(kr)) return false
-      return true
-    }).length + chessVirtualKRsCount
-  // Calculer la progression globale basée sur le pourcentage moyen de tous les objectifs
-  // Inclure la progression de l'objectif Chess.com virtuel
-  const chessVirtualProgress = chessVirtualKRsCount > 0 && chessStats && chessStats.rapid
-    ? (chessStats.rapid.current / 1000) * 100 // Objectif Rapid: 1000
-    : 0
-  const overallProgress = totalKeyResults > 0 
-    ? Math.round((keyResults.reduce((sum, kr) => sum + (kr.progress || 0), 0) + chessVirtualProgress) / totalKeyResults)
+  // Calculer les statistiques globales (sans échecs / loisirs)
+  const businessKeyResults = keyResults.filter((kr) => {
+    const categoryLower = (kr.category || '').toLowerCase()
+    const nameLower = (kr.name || '').toLowerCase()
+    if (categoryLower.includes('santé') || categoryLower.includes('sante') || categoryLower.includes('loisir') || categoryLower.includes('bien-être') || categoryLower.includes('bien-etre')) return false
+    if (nameLower.includes('chess') || nameLower.includes('échec') || nameLower.includes('elo')) return false
+    return true
+  })
+  const totalKeyResults = businessKeyResults.length
+  const completedKeyResults = businessKeyResults.filter(isKeyResultCompleted).length
+  const inProgressKeyResults = businessKeyResults.filter((kr) => {
+    if (isKeyResultCompleted(kr)) return false
+    if (isKeyResultNotStarted(kr)) return false
+    return true
+  }).length
+  const overallProgress = totalKeyResults > 0
+    ? Math.round(businessKeyResults.reduce((sum, kr) => sum + (kr.progress || 0), 0) / totalKeyResults)
     : 0
 
   // Fonction pour obtenir la couleur du statut
@@ -1496,29 +1422,6 @@ export default function DonneesPubliques() {
     <>
       <SEOHead {...pageSEO} />
       
-      {/* Review Schema 5* par défaut */}
-      <StructuredData
-        type="Review"
-        data={{
-          itemReviewed: {
-            '@type': 'Product',
-            name: 'Objectifs 2026 - Métriques Business',
-            url: `${siteConfig.url}/objectifs`
-          },
-          reviewRating: {
-            '@type': 'Rating',
-            ratingValue: '5',
-            bestRating: '5',
-            worstRating: '1'
-          },
-          author: {
-            '@type': 'Person',
-            name: 'Visiteur satisfait'
-          },
-          reviewBody: 'Transparence totale sur les objectifs 2026 et la progression business. Métriques mises à jour en temps réel. Expert freelance scraping et automatisation.',
-          datePublished: new Date().toISOString().split('T')[0]
-        }}
-      />
       <StructuredData type="BreadcrumbList" data={{
         items: [
           {
@@ -1547,234 +1450,123 @@ export default function DonneesPubliques() {
         <section className="mb-8">
           <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Objectifs 2026</h1>
           <p className="text-neutral-600 dark:text-neutral-400 mb-2 tracking-tight">
-            Je rends publique ma progression business — missions, revenus, croissance d&apos;audience. Certains indicateurs se mettent à jour automatiquement (abonnés, utilisateurs Apify) ; d&apos;autres sont renseignés manuellement chaque mois.
+            Journal public de ma progression métier — scraping, automatisation, data et CA cumulé, suivi en build in public.
           </p>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight">
-            En parallèle, je co-développe{' '}
-            <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 text-neutral-900 dark:text-neutral-100">
-              Logement Atypique
-            </Link>{' '}
-            avec mon frère — des logements d&apos;exception partout en France.
+          <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-8 tracking-tight">
+            Inclut aussi Logement Atypique (projet avec mon frère), en annexe du cœur de métier freelance.
           </p>
-
         </section>
 
-        {/* TL;DR - Métriques clés */}
+        {/* Hero CA cumulé */}
         {!loading && (
-          <section className="mb-12 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50" aria-label="Métriques clés">
-            <h2 className="font-semibold text-lg mb-4 tracking-tighter">En un coup d'œil</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
-                  {(() => {
-                    const maltRemaining = keyResults
-                      .filter(kr => {
-                        const nameLower = (kr.name || '').toLowerCase()
-                        return nameLower.includes('mission malt')
-                      })
-                      .reduce((sum, kr) => {
-                        const remaining = (kr.targetResult || 0) - (kr.currentResult || 0)
-                        return sum + Math.max(0, remaining) // Ne pas afficher de nombre négatif
-                      }, 0)
-                    const fiverrRemaining = keyResults
-                      .filter(kr => {
-                        const nameLower = (kr.name || '').toLowerCase()
-                        return nameLower.includes('mission fiverr')
-                      })
-                      .reduce((sum, kr) => {
-                        const remaining = (kr.targetResult || 0) - (kr.currentResult || 0)
-                        return sum + Math.max(0, remaining) // Ne pas afficher de nombre négatif
-                      }, 0)
-                    const totalRemaining = maltRemaining + fiverrRemaining
-                    return totalRemaining > 0 ? `${totalRemaining}+` : '0'
-                  })()}
-                </p>
-                <p className="text-xs text-neutral-600 dark:text-neutral-400">Missions restantes 2026</p>
-              </div>
-              <div>
-                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">5/5</p>
-                <p className="text-xs text-neutral-600 dark:text-neutral-400">Note moyenne Malt & Fiverr</p>
-                <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5">410 avis cumulés</p>
-              </div>
-              <div>
-                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">&lt; 7 jours</p>
-                <p className="text-xs text-neutral-600 dark:text-neutral-400">Délai moyen de livraison</p>
-                <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5">90 % des projets</p>
-              </div>
-              <div>
-                <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">20–30</p>
-                <p className="text-xs text-neutral-600 dark:text-neutral-400">Projets livrés / mois</p>
-                <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5">moyenne 2024–2025</p>
-              </div>
-            </div>
+          <section className="mb-12" aria-label="CA cumulé objectif 2026">
+            {(() => {
+              const caFreelanceKRs = keyResults.filter(kr => {
+                const categoryLower = (kr.category || '').toLowerCase()
+                const nameLower = (kr.name || '').toLowerCase()
+                return (categoryLower.includes('freelance') || categoryLower.includes('freelancing')) &&
+                       (nameLower.includes('ca') || nameLower.includes('chiffre')) &&
+                       !nameLower.includes('affiliation')
+              })
+              const caFreelanceTotalKR = caFreelanceKRs.find(kr => (kr.name || '').toLowerCase().includes('total'))
+              const caFreelance = caFreelanceTotalKR
+                ? (caFreelanceTotalKR.targetResult || 0)
+                : (caFreelanceKRs.length > 0 ? Math.max(...caFreelanceKRs.map(kr => kr.targetResult || 0)) : 0)
+
+              const caAffiliationKRs = keyResults.filter(kr => {
+                const categoryLower = (kr.category || '').toLowerCase()
+                const nameLower = (kr.name || '').toLowerCase()
+                return (categoryLower.includes('affiliation') || categoryLower.includes('partenariats')) &&
+                       (nameLower.includes('ca') || nameLower.includes('chiffre') || nameLower.includes('revenus'))
+              })
+              const caAffiliationTotalKR = caAffiliationKRs.find(kr => (kr.name || '').toLowerCase().includes('total'))
+              const caAffiliation = caAffiliationTotalKR
+                ? (caAffiliationTotalKR.targetResult || 0)
+                : (caAffiliationKRs.length > 0 ? caAffiliationKRs.reduce((sum, kr) => sum + (kr.targetResult || 0), 0) : 0)
+
+              const caLogementAtypiqueKRs = keyResults.filter(kr => {
+                const categoryLower = (kr.category || '').toLowerCase()
+                const nameLower = (kr.name || '').toLowerCase()
+                return (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial')) &&
+                       (nameLower.includes('arr') || nameLower.includes('ca') || nameLower.includes('chiffre')) &&
+                       nameLower.includes('logement')
+              })
+              const caLogementAtypiqueTotalKR = caLogementAtypiqueKRs.find(kr => (kr.name || '').toLowerCase().includes('arr'))
+              const caLogementAtypique = caLogementAtypiqueTotalKR
+                ? (caLogementAtypiqueTotalKR.targetResult || 0)
+                : (caLogementAtypiqueKRs.length > 0 ? Math.max(...caLogementAtypiqueKRs.map(kr => kr.targetResult || 0)) : 0)
+
+              const totalCA = caFreelance + caAffiliation + caLogementAtypique
+
+              return (
+                <>
+                  <div className="mb-6 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+                    <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2">Objectif 2026 — CA cumulé</p>
+                    <p className="text-4xl font-semibold text-neutral-900 dark:text-neutral-100 mb-2 tracking-tight">
+                      {totalCA > 0 ? `${formatNumber(Math.round(totalCA))} €` : '—'}
+                    </p>
+                    <p className="text-sm text-neutral-500 dark:text-neutral-500">
+                      Freelance + affiliation + projets, suivi en build in public
+                    </p>
+                    {overallProgress > 0 && (
+                      <div className="mt-4">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-neutral-600 dark:text-neutral-400">Progression globale</span>
+                          <span className="text-xs text-neutral-600 dark:text-neutral-400">{overallProgress}%</span>
+                        </div>
+                        <div className="w-full h-2 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-neutral-900 dark:bg-neutral-100 transition-all duration-500"
+                            style={{ width: `${Math.min(100, overallProgress)}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                    <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                      <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Freelance</p>
+                      <p className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                        {caFreelance > 0 ? `${formatNumber(Math.round(caFreelance))} €` : '—'}
+                      </p>
+                    </div>
+                    <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                      <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Affiliation</p>
+                      <p className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+                        {caAffiliation > 0 ? `${formatNumber(Math.round(caAffiliation))} €` : '—'}
+                      </p>
+                    </div>
+                    <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                      <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Logement Atypique</p>
+                      <p className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+                        {caLogementAtypique > 0 ? `${formatNumber(Math.round(caLogementAtypique))} €` : '—'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">5/5</p>
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400">Note moyenne Malt & Fiverr</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">&lt; 7 jours</p>
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400">Délai moyen de livraison</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">20–30</p>
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400">Projets livrés / mois</p>
+                    </div>
+                  </div>
+                </>
+              )
+            })()}
           </section>
         )}
 
 
-        {/* Tableaux détaillés des Key Results par catégorie */}
         <section className="mb-16" aria-label="Détail des objectifs par catégorie">
-          {/* Vue d'ensemble - Objectifs et résultats */}
-          <div className="mb-8">
-            <h2 className="font-semibold text-xl mb-6 tracking-tighter">Vue d'ensemble</h2>
-            
-            {loading ? (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-                  {[...Array(1)].map((_, i) => (
-                    <div key={i} className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 relative overflow-hidden">
-                      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent"></div>
-                      <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4 mb-3"></div>
-                      <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2 mb-2"></div>
-                      <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-full"></div>
-                    </div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[...Array(2)].map((_, i) => (
-                    <div key={i} className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 relative overflow-hidden">
-                      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent"></div>
-                      <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4 mb-3"></div>
-                      <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2 mb-2"></div>
-                      <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-full"></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Objectifs globaux */}
-                <div>
-                  <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-3">Objectifs 2026</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-                    {/* CA/Turnover */}
-                    <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-                      <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2">Chiffre d'affaires</h3>
-                      <p className="text-3xl font-semibold mb-2 text-neutral-900 dark:text-neutral-100">
-                        {(() => {
-                    // Calculer le CA total objectif depuis les Key Results
-                    // Chercher spécifiquement les Key Results de CA principal par catégorie
-                    
-                    // CA Freelance : chercher le KR principal (le plus grand ou celui avec "total")
-                    const caFreelanceKRs = keyResults.filter(kr => {
-                      const categoryLower = (kr.category || '').toLowerCase()
-                      const nameLower = (kr.name || '').toLowerCase()
-                      return (categoryLower.includes('freelance') || categoryLower.includes('freelancing')) &&
-                             (nameLower.includes('ca') || nameLower.includes('chiffre')) &&
-                             !nameLower.includes('affiliation')
-                    })
-                    
-                    // Prendre le KR avec "total" s'il existe, sinon le plus grand
-                    const caFreelanceTotalKR = caFreelanceKRs.find(kr => {
-                      const nameLower = (kr.name || '').toLowerCase()
-                      return nameLower.includes('total')
-                    })
-                    
-                    let caFreelance = 0
-                    if (caFreelanceTotalKR) {
-                      caFreelance = caFreelanceTotalKR.targetResult || 0
-                    } else if (caFreelanceKRs.length > 0) {
-                      // Prendre le plus grand si pas de "total"
-                      caFreelance = Math.max(...caFreelanceKRs.map(kr => kr.targetResult || 0))
-                    }
-                    
-                    // CA Affiliation : chercher le KR principal (le plus grand ou celui avec "total")
-                    const caAffiliationKRs = keyResults.filter(kr => {
-                      const categoryLower = (kr.category || '').toLowerCase()
-                      const nameLower = (kr.name || '').toLowerCase()
-                      return (categoryLower.includes('affiliation') || categoryLower.includes('partenariats')) &&
-                             (nameLower.includes('ca') || nameLower.includes('chiffre') || nameLower.includes('revenus'))
-                    })
-                    
-                    // Prendre le KR avec "total" s'il existe, sinon additionner tous les revenus d'affiliation
-                    const caAffiliationTotalKR = caAffiliationKRs.find(kr => {
-                      const nameLower = (kr.name || '').toLowerCase()
-                      return nameLower.includes('total')
-                    })
-                    
-                    let caAffiliation = 0
-                    if (caAffiliationTotalKR) {
-                      caAffiliation = caAffiliationTotalKR.targetResult || 0
-                    } else if (caAffiliationKRs.length > 0) {
-                      // Additionner tous les revenus d'affiliation (Apify, Lemlist, Zapmail, etc.)
-                      caAffiliation = caAffiliationKRs.reduce((sum, kr) => sum + (kr.targetResult || 0), 0)
-                    }
-                    
-                    // CA Logement Atypique : chercher le KR avec "ARR" (Annual Recurring Revenue)
-                    const caLogementAtypiqueKRs = keyResults.filter(kr => {
-                      const categoryLower = (kr.category || '').toLowerCase()
-                      const nameLower = (kr.name || '').toLowerCase()
-                      return (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial')) &&
-                             (nameLower.includes('arr') || nameLower.includes('ca') || nameLower.includes('chiffre')) &&
-                             nameLower.includes('logement')
-                    })
-                    
-                    // Prendre le KR avec "ARR" s'il existe, sinon le plus grand
-                    const caLogementAtypiqueTotalKR = caLogementAtypiqueKRs.find(kr => {
-                      const nameLower = (kr.name || '').toLowerCase()
-                      return nameLower.includes('arr')
-                    })
-                    
-                    let caLogementAtypique = 0
-                    if (caLogementAtypiqueTotalKR) {
-                      caLogementAtypique = caLogementAtypiqueTotalKR.targetResult || 0
-                    } else if (caLogementAtypiqueKRs.length > 0) {
-                      // Prendre le plus grand si pas d'ARR
-                      caLogementAtypique = Math.max(...caLogementAtypiqueKRs.map(kr => kr.targetResult || 0))
-                    }
-                    
-                    const totalCA = caFreelance + caAffiliation + caLogementAtypique
-                    
-                    if (totalCA > 0) {
-                      return `${formatNumber(Math.round(totalCA))} €`
-                    }
-                    return '—'
-                  })()}
-                </p>
-                <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                  Objectif 2026 (Freelance + Affiliation + Logement Atypique)
-                </p>
-              </div>
-                  </div>
-                </div>
-
-                {/* Performance */}
-                <div>
-                  <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-3">Performance</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Délai moyen de livraison */}
-                    <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-                      <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2">Délai moyen de livraison</h3>
-                      <p className="text-3xl font-semibold mb-2 text-neutral-900 dark:text-neutral-100">7 jours</p>
-                      <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                        Temps moyen pour livrer un projet
-                      </p>
-                    </div>
-
-                    {/* Taux de réussite */}
-                    <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-                      <h3 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-4">Taux de réussite</h3>
-                      <div className="flex flex-col md:flex-row md:gap-4 space-y-3 md:space-y-0">
-                        <div className="flex-1">
-                          <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">5/5</p>
-                          <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Malt</p>
-                          <p className="text-sm text-neutral-600 dark:text-neutral-400">sur 160 missions</p>
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-1">4,9/5</p>
-                          <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Fiverr</p>
-                          <p className="text-sm text-neutral-600 dark:text-neutral-400">sur 250 missions</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Séparateur */}
-          <div className="my-8 border-t border-neutral-200 dark:border-neutral-800"></div>
-          
           {/* Vue détaillée des Key Results */}
           <div className="mb-8">
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">Objectifs 2026 — Détail</h2>
@@ -1879,44 +1671,37 @@ export default function DonneesPubliques() {
             <div className="space-y-12">
               {Object.entries(groupedByCategory)
                 .filter(([category]) => {
-                  // Exclure les catégories "Mission Malt" et "Mission Fiverr"
                   const categoryLower = category.toLowerCase()
-                  return !categoryLower.includes('mission malt') && !categoryLower.includes('mission fiverr')
+                  // Exclure mission malt/fiverr, loisirs/échecs
+                  if (categoryLower.includes('mission malt') || categoryLower.includes('mission fiverr')) return false
+                  if (categoryLower.includes('santé') || categoryLower.includes('sante') || categoryLower.includes('loisir') || categoryLower.includes('bien-être') || categoryLower.includes('bien-etre') || categoryLower.includes('chess') || categoryLower.includes('échec')) return false
+                  return true
+                })
+                .sort(([a], [b]) => {
+                  const score = (cat) => {
+                    const c = cat.toLowerCase()
+                    if (c.includes('freelance') || c.includes('freelancing')) return 0
+                    if (c.includes('outbound') || c.includes('prospection')) return 1
+                    if (c.includes('scraping') || c.includes('data')) return 2
+                    if (c.includes('apify')) return 3
+                    if (c.includes('affiliation') || c.includes('partenariat')) return 4
+                    if (c.includes('logement') || c.includes('entrepreneurial')) return 5
+                    return 6
+                  }
+                  return score(a) - score(b)
                 })
                 .map(([category, results]) => {
                 const translatedCategory = translateCategory(category)
                 const categoryLower = category.toLowerCase()
-                const translatedLower = translatedCategory.toLowerCase()
                 const isApifyCategory = categoryLower.includes('apify') || translatedCategory === 'Scrapers publics'
                 const isLogementAtypiqueCategory = categoryLower.includes('logement')
                 const isFreelanceCategory = categoryLower.includes('freelance') || categoryLower.includes('freelancing')
-                const isLoisirCategory = categoryLower.includes('santé') || categoryLower.includes('loisir') || categoryLower.includes('bien-être')
                 
-                // Ajouter les Key Results d'échecs virtuels si on est dans la catégorie Loisir
-                let resultsToDisplay = [...results]
-                if (isLoisirCategory && chessStats && !chessLoading) {
-                  // Objectif d’échecs Rapid (données Chess.com, pas dans la liste des objectifs)
-                  const rapidTarget = 1000
-                  
-                  // Vérifier si le Key Result Rapid existe déjà dans les objectifs
-                  const hasRapidKR = results.some(kr => {
-                    const nameLower = (kr.name || '').toLowerCase()
-                    return nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess')
-                  })
-                  
-                  // Ajouter Rapid si les données existent
-                  if (!hasRapidKR && chessStats.rapid.current > 0) {
-                    resultsToDisplay.push({
-                      id: 'chess-rapid-virtual',
-                      name: 'Classement échecs (Rapid)',
-                      category: category,
-                      status: 'In progress',
-                      currentResult: chessStats.rapid.current,
-                      targetResult: rapidTarget,
-                      progress: rapidTarget > 0 ? (chessStats.rapid.current / rapidTarget) * 100 : 0
-                    })
-                  }
-                }
+                // Filtrer les KR échecs même hors catégorie loisir
+                let resultsToDisplay = results.filter((kr) => {
+                  const nameLower = (kr.name || '').toLowerCase()
+                  return !(nameLower.includes('chess') || nameLower.includes('échec') || nameLower.includes('elo'))
+                })
                 
                 // Trier les résultats dans un ordre logique
                 const sortedResults = sortKeyResults(resultsToDisplay, category)
@@ -2756,69 +2541,47 @@ export default function DonneesPubliques() {
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">Pour aller plus loin</h2>
           <div className="space-y-2 text-neutral-600 dark:text-neutral-400">
             <p>
-              <Link href="/a-propos" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Découvrez mon parcours
-              </Link>
-              {' • '}
               <Link href="/blog" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Lisez mes articles
-              </Link>
-              {' • '}
-              <Link href="/newsletter" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Inscrivez-vous à la newsletter
-              </Link>
-              {' • '}
-              <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Découvrez la marketplace
-              </Link>
-              {' • '}
-              <Link href="/cas-usage" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Découvrez les cas d'usage
+                Articles métier
               </Link>
               {' • '}
               <Link href="/temoignages" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Lisez les témoignages clients
+                Témoignages clients
               </Link>
               {' • '}
-              <Link href="/spotify" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Découvrez mes playlists et artistes favoris
+              <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Marketplace
               </Link>
               {' • '}
-              <Link href="/faq" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Consultez la FAQ
+              <Link href="/a-propos" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                À propos
               </Link>
             </p>
           </div>
         </section>
 
-        {/* CTA */}
+        {/* CTA secondaire */}
         <section className="mb-16 pt-8 border-t border-neutral-200 dark:border-neutral-800" aria-label="Contact">
-          <div className="text-center">
-            <h2 className="font-semibold text-xl mb-6 tracking-tighter">Discutons de votre projet</h2>
-            <p className="text-neutral-600 dark:text-neutral-400 mb-6 max-w-xl mx-auto">
-              Vous avez un projet de scraping, d'automatisation ou d'outbound marketing ? 
-              Réservez un créneau pour échanger sur vos besoins et voir comment je peux vous aider.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-            <button
-              onClick={openCalendly}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors font-medium"
-              aria-label="Réserver un créneau Calendly"
-            >
-              Réserver un créneau
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-              </svg>
-            </button>
-              <Link 
+          <div>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3">
+              Un projet de scraping ou d&apos;automatisation ?{' '}
+              <button
+                onClick={openCalendly}
+                className="underline hover:text-neutral-900 dark:hover:text-neutral-100 text-neutral-800 dark:text-neutral-200"
+                aria-label="Réserver un créneau Calendly"
+              >
+                Réserver un appel
+              </button>
+              {' · '}
+              <Link
                 href={siteConfig.social.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block px-6 py-3 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                className="underline hover:text-neutral-900 dark:hover:text-neutral-100"
               >
-                Me contacter sur LinkedIn
+                LinkedIn
               </Link>
-            </div>
+            </p>
           </div>
         </section>
 

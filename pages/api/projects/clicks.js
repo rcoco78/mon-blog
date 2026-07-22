@@ -1,4 +1,5 @@
 import { getProjectClicksByIds } from '../../../lib/projectClicks'
+import { captureDataError } from '../../../lib/sentry'
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -17,8 +18,8 @@ export default async function handler(req, res) {
 
     res.status(200).json(clicksMap)
   } catch (error) {
+    captureDataError(error, { source: 'blob', tags: { area: 'project-clicks' } })
     console.error('Error fetching project clicks:', error)
-    // En cas d'erreur (ex: Blob non configuré), retourner des zéros
     const projectIdArray = req.query.projectIds?.split(',') || []
     const clicksMap = projectIdArray.reduce((acc, projectId) => {
       acc[projectId] = 0
@@ -27,4 +28,3 @@ export default async function handler(req, res) {
     res.status(200).json(clicksMap)
   }
 }
-

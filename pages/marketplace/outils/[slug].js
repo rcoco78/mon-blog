@@ -493,9 +493,24 @@ export default function MarketplaceTool({ tool, notFound }) {
           <h1 className="font-semibold text-3xl mb-4 tracking-tighter">
             {tool.name}
           </h1>
+          <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3 max-w-2xl mx-auto">
+            Scraper public sur Apify — tu utilises mon API. Entre ton input, lance le run, débloque les résultats.
+          </p>
           <p className="text-neutral-600 dark:text-neutral-400 text-lg max-w-2xl mx-auto">
             {tool.description}
           </p>
+          {tool.apifyUrl || tool.url ? (
+            <p className="mt-3 text-sm">
+              <a
+                href={tool.apifyUrl || tool.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-neutral-900 dark:hover:text-neutral-100 text-neutral-600 dark:text-neutral-400"
+              >
+                Voir sur Apify
+              </a>
+            </p>
+          ) : null}
         </div>
 
         {/* Section principale : Grande barre de recherche centrale */}

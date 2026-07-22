@@ -2,14 +2,16 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import SEOHead from '../components/seo/SEOHead'
 import { siteConfig } from '../lib/config'
+import * as Sentry from '@sentry/nextjs'
 
-function Error({ statusCode }) {
+function Error({ statusCode, err }) {
   useEffect(() => {
-    // Log l'erreur pour le debugging (seulement en développement)
-    if (process.env.NODE_ENV === 'development') {
+    if (err) {
+      Sentry.captureException(err)
+    } else if (process.env.NODE_ENV === 'development') {
       console.error('Error page rendered:', { statusCode })
     }
-  }, [statusCode])
+  }, [statusCode, err])
 
   return (
     <>
@@ -51,8 +53,11 @@ function Error({ statusCode }) {
 }
 
 Error.getInitialProps = ({ res, err }) => {
+  if (err) {
+    Sentry.captureException(err)
+  }
   const statusCode = res ? res.statusCode : err ? err.statusCode : 404
-  return { statusCode }
+  return { statusCode, err: undefined }
 }
 
 export default Error

@@ -584,6 +584,11 @@ export default function MarketplaceDatabase({ database, relatedDatabases, addonD
           <h1 className="font-semibold text-2xl mb-3 tracking-tighter md:mb-8">
             {toolData.name}
           </h1>
+          <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4 tracking-tight">
+            Livraison = Google Sheets. Après paiement : recevoir le lien → copier le Sheet → utiliser les données.
+            {database.rowCount ? ` ${database.rowCount.toLocaleString('fr-FR')} entrées.` : ''}
+            {database.lastEnriched ? ` Dernière MAJ : ${new Date(database.lastEnriched).toLocaleDateString('fr-FR')}.` : ''}
+          </p>
           {/* Header - Mobile first */}
           <div className="mb-8 md:hidden">
             <p className="text-neutral-600 dark:text-neutral-400 tracking-tight mb-3 text-base leading-relaxed">

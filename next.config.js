@@ -27,4 +27,21 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig 
+const { withSentryConfig } = require('@sentry/nextjs')
+
+module.exports = withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG || 'logement-atypique',
+  project: process.env.SENTRY_PROJECT || 'corentin-blog',
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  // Ne pas uploader les source maps sans auth token
+  sourcemaps: {
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+  },
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+    automaticVercelMonitors: true,
+  },
+})

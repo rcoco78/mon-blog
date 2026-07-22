@@ -1,121 +1,142 @@
-import { getPostBlocks, getPostBySlug, getAllPosts } from '../../lib/notion'
-import { head, list } from '@vercel/blob'
+import { getPostBySlug, getAllPosts } from '../../lib/notion'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import ViewCounter from '../../components/ViewCounter'
 import Block from '../../components/Block'
 import MarkdownRenderer from '../../components/MarkdownRenderer'
 import NewsletterForm from '../../components/NewsletterForm'
-import Tag from '../../components/Tag'
 import RelatedPosts from '../../components/RelatedPosts'
 import TableOfContents from '../../components/TableOfContents'
-import Link from 'next/link'
 import ReadingProgress from '../../components/ReadingProgress'
 import ShareButtons from '../../components/ShareButtons'
 import SEOHead from '../../components/seo/SEOHead'
 import StructuredData from '../../components/seo/StructuredData'
 import { siteConfig } from '../../lib/config'
+import { fetchBlobJson, fetchBlobJsonByHead } from '../../lib/blob-cache'
+import { captureDataError } from '../../lib/sentry'
+
+function extractPlainText(contentMarkdown, blocks, fallback = '') {
+  const markdownText = normalizeMarkdown(contentMarkdown)
+  if (markdownText) {
+    return markdownText
+      .replace(/[#*`\[\]()]/g, '')
+      .replace(/\n+/g, ' ')
+      .trim()
+  }
+  if (blocks?.length) {
+    return blocks
+      .map((block) => {
+        if (block.type === 'paragraph' && block.paragraph?.rich_text) {
+          return block.paragraph.rich_text
+            .map((text) => text?.plain_text || '')
+            .filter((text) => text.length > 0)
+            .join(' ')
+        }
+        return ''
+      })
+      .filter((text) => text.length > 0)
+      .join(' ')
+  }
+  return fallback
+}
+
+function normalizeMarkdown(contentMarkdown) {
+  if (!contentMarkdown) return null
+  if (typeof contentMarkdown === 'string') return contentMarkdown
+  if (typeof contentMarkdown?.parent === 'string') return contentMarkdown.parent
+  return null
+}
+
+function serializePost(post) {
+  return {
+    id: post.id || null,
+    title: post.title || null,
+    date: post.date || null,
+    slug: post.slug || null,
+    tags: post.tags || null,
+    metaDescription: post.metaDescription || null,
+    coverImage: post.coverImage || null,
+    lastEdited: post.lastEdited || null,
+    contentMarkdown: normalizeMarkdown(post.contentMarkdown),
+    blocks: post.blocks || null,
+  }
+}
 
 export default function Post({ post, allPosts }) {
   const router = useRouter()
-  const [contentMarkdown, setContentMarkdown] = useState(null)
-  const [blocks, setBlocks] = useState(null)
-  const [loadingMarkdown, setLoadingMarkdown] = useState(false)
+  const [contentMarkdown, setContentMarkdown] = useState(normalizeMarkdown(post?.contentMarkdown))
+  const [blocks, setBlocks] = useState(post?.blocks || null)
+  const hasInitialContent = !!(normalizeMarkdown(post?.contentMarkdown) || post?.blocks?.length)
+  const [loadingMarkdown, setLoadingMarkdown] = useState(!hasInitialContent && !!post?.slug)
 
   // Incrémenter la vue à chaque chargement de page (sans cache)
   useEffect(() => {
     if (post?.slug) {
-      // Incrémenter la vue en arrière-plan (ne pas attendre la réponse)
       fetch(`/api/views/${post.slug}?increment=true`)
-        .then(res => res.json())
-        .then(data => {
-          // Vue incrémentée avec succès
-        })
-        .catch(error => {
+        .catch((error) => {
           console.warn('Erreur lors de l\'incrémentation des vues:', error)
-          // Ne pas bloquer si l'incrémentation échoue
         })
     }
   }, [post?.slug])
 
-  // Charger le markdown/blocks côté client pour réduire la taille des props
+  // Refresh optionnel uniquement si le contenu n'était pas en SSR
   useEffect(() => {
-    if (post?.slug && !contentMarkdown && !blocks) {
-      setLoadingMarkdown(true)
-      fetch(`/api/blog-posts/${post.slug}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.contentMarkdown) {
-            setContentMarkdown(data.contentMarkdown)
-          } else if (data.blocks) {
-            // Si pas de markdown mais des blocks, les utiliser
-            setBlocks(data.blocks)
-          }
-          setLoadingMarkdown(false)
-        })
-        .catch(error => {
-          console.warn('Erreur lors du chargement du contenu:', error)
-          setLoadingMarkdown(false)
-        })
-    }
-  }, [post?.slug])
+    if (!post?.slug || hasInitialContent) return
 
+    let cancelled = false
+    setLoadingMarkdown(true)
+    fetch(`/api/blog-posts/${post.slug}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled) return
+        if (data.contentMarkdown) setContentMarkdown(normalizeMarkdown(data.contentMarkdown))
+        else if (data.blocks) setBlocks(data.blocks)
+      })
+      .catch((error) => {
+        console.warn('Erreur lors du chargement du contenu:', error)
+        captureDataError(error, { source: 'blog', tags: { area: 'client-fetch', slug: post.slug } })
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingMarkdown(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [post?.slug, hasInitialContent])
+
+  // fallback: 'blocking' ne devrait plus servir de HTML indexable vide ;
+  // noindex de sécurité si jamais isFallback est vrai.
   if (router.isFallback) {
-    return <div>Chargement...</div>
+    return (
+      <>
+        <SEOHead title="Chargement" description="Chargement de l'article" noindex />
+        <div>Chargement...</div>
+      </>
+    )
   }
 
   if (!post) {
     return <div>Article non trouvé</div>
   }
 
-  // Extraire le contenu textuel pour le calcul du temps de lecture
-  // Utiliser le contenu disponible (markdown chargé côté client ou fallback)
-  let content = ''
-  if (contentMarkdown) {
-    // Si on a du markdown, l'utiliser
-    const markdownText = typeof contentMarkdown === 'string' 
-      ? contentMarkdown 
-      : (contentMarkdown.parent || '')
-    // Nettoyer le markdown pour compter les mots (enlever les caractères markdown)
-    content = markdownText
-      .replace(/[#*`\[\]()]/g, '') // Enlever les caractères markdown
-      .replace(/\n+/g, ' ') // Remplacer les retours à la ligne par des espaces
-      .trim()
-  } else if (blocks) {
-    // Sinon, utiliser les blocks Notion (chargés côté client)
-    content = blocks
-    .map(block => {
-      if (block.type === 'paragraph' && block.paragraph?.rich_text) {
-        return block.paragraph.rich_text
-          .map(text => text?.plain_text || '')
-          .filter(text => text.length > 0)
-          .join(' ')
-      }
-      return ''
-    })
-    .filter(text => text.length > 0)
-    .join(' ')
-  } else {
-    // Fallback : utiliser la meta description pour le calcul minimal
-    content = post.metaDescription || post.title || ''
-  }
+  const content = extractPlainText(
+    contentMarkdown,
+    blocks,
+    post.metaDescription || post.title || ''
+  )
 
-  // Calculer le temps de lecture (200 mots par minute)
-  // Si le contenu n'est pas encore chargé, on ne peut pas calculer le temps de lecture
-  const wordCount = content.trim().split(/\s+/).filter(word => word.length > 0).length
-  const readingTime = loadingMarkdown ? null : Math.ceil(wordCount / 200)
+  const wordCount = content.trim().split(/\s+/).filter((word) => word.length > 0).length
+  const readingTime = loadingMarkdown && !hasInitialContent ? null : Math.max(1, Math.ceil(wordCount / 200))
 
-  const articleUrl = `${siteConfig.url}/blog/${post.slug}`;
-  
-  // Générer une meta description optimisée (150-160 caractères pour SEO)
-  const metaDescription = post.metaDescription 
+  const articleUrl = `${siteConfig.url}/blog/${post.slug}`
+
+  const metaDescription = post.metaDescription
     ? post.metaDescription.substring(0, 160).replace(/\s+\S*$/, '')
-    : content 
-    ? content.substring(0, 155).replace(/\s+\S*$/, '...')
-    : `Découvrez ${post.title} sur le blog de Corentin Robert. Article sur le scraping, l'automatisation et le growth hacking.`;
+    : content
+      ? content.substring(0, 155).replace(/\s+\S*$/, '...')
+      : `Découvrez ${post.title} sur le blog de Corentin Robert. Article sur le scraping, l'automatisation et le growth hacking.`
 
-  // Extraire le contenu textuel pour articleBody (premiers 5000 caractères)
-  // Utiliser le contenu disponible (blocks ou contenu minimal pour SEO)
   const articleBody = content.substring(0, 5000)
 
   // Préparer les images pour Schema (array)
@@ -377,28 +398,18 @@ export default function Post({ post, allPosts }) {
 }
 
 export async function getStaticPaths() {
-  // Essayer de récupérer depuis Blob Storage directement, sinon fallback vers Notion
   let posts = []
-  
+
   try {
-    const blobs = await list({ prefix: 'blog-posts.json' })
-    const existingBlob = blobs.blobs.find((blob) => blob.pathname === 'blog-posts.json')
-
-    if (existingBlob) {
-      const response = await fetch(existingBlob.url, { next: { revalidate: 300 } })
-
-      if (response.ok) {
-        const data = await response.json()
-        if (data.posts && Array.isArray(data.posts)) {
-          posts = data.posts
-        }
-      }
+    const data = await fetchBlobJson('blog-posts.json')
+    if (data?.posts && Array.isArray(data.posts)) {
+      posts = data.posts
     }
   } catch (error) {
     console.warn('Erreur lors de la récupération depuis Blob Storage, fallback vers Notion:', error)
+    captureDataError(error, { source: 'blob', tags: { area: 'blog-paths' } })
   }
 
-  // Fallback vers Notion si Blob Storage n'est pas disponible
   if (posts.length === 0) {
     posts = await getAllPosts()
   }
@@ -409,110 +420,64 @@ export async function getStaticPaths() {
 
   return {
     paths,
-    fallback: true,
+    fallback: 'blocking',
   }
 }
 
 export async function getStaticProps({ params }) {
-  // PROTECTION SEO : Rejeter les URLs avec patterns littéraux [slug]
-  // Ces URLs ne doivent jamais être indexées par Google
   if (params.slug && (params.slug.includes('[slug]') || params.slug === '[slug]')) {
-    return {
-      notFound: true
-    }
+    return { notFound: true }
   }
-  
-  // Essayer de récupérer depuis Blob Storage directement, sinon fallback vers Notion
+
   let post = null
-  let blocks = null
-  let contentMarkdown = null
   let allPosts = []
 
   try {
-    // Récupérer l'article depuis Blob Storage
-    try {
-      const blob = await head(`blog-posts/${params.slug}.json`)
-      if (blob) {
-        const response = await fetch(blob.url, { next: { revalidate: 300 } })
-
-        if (response.ok) {
-          const article = await response.json()
-          post = {
-            ...article,
-            // Ne pas inclure contentMarkdown et blocks dans les props (trop lourd)
-            // Ils seront chargés côté client si nécessaire
-            contentMarkdown: undefined,
-            blocks: undefined
-          }
-          // Ne pas passer le contenu markdown complet dans les props (trop lourd)
-          // On le chargera côté client via l'API pour réduire la taille des props
-          contentMarkdown = null
-          blocks = null
-        }
-      }
-    } catch (blobError) {
-      // Blob n'existe pas encore (normal si cron jobs n'ont pas tourné)
-      // Pas besoin de logger l'erreur, on fait juste le fallback silencieusement
-      if (blobError.name !== 'BlobNotFoundError') {
-        // Logger seulement si ce n'est pas une erreur "not found" attendue
-        console.warn('Erreur Blob Storage (non critique):', blobError.message)
-      }
+    const article = await fetchBlobJsonByHead(`blog-posts/${params.slug}.json`)
+    if (article) {
+      post = serializePost({
+        ...article,
+        contentMarkdown: article.contentMarkdown || null,
+        blocks: article.blocks || null,
+      })
     }
 
-    // Récupérer tous les posts pour RelatedPosts
-    const blobs = await list({ prefix: 'blog-posts.json' })
-    const existingBlob = blobs.blobs.find((blob) => blob.pathname === 'blog-posts.json')
-
-    if (existingBlob) {
-      const response = await fetch(existingBlob.url, { next: { revalidate: 300 } })
-
-      if (response.ok) {
-        const data = await response.json()
-        if (data.posts && Array.isArray(data.posts)) {
-          allPosts = data.posts
-        }
-      }
+    const indexData = await fetchBlobJson('blog-posts.json')
+    if (indexData?.posts && Array.isArray(indexData.posts)) {
+      allPosts = indexData.posts
     }
   } catch (error) {
     console.warn('Erreur lors de la récupération depuis Blob Storage, fallback vers Notion:', error)
+    captureDataError(error, { source: 'blob', tags: { area: 'blog-ssr', slug: params.slug } })
   }
 
-  // Fallback vers Notion si Blob Storage n'est pas disponible
   if (!post) {
-    post = await getPostBySlug(params.slug)
-    if (post) {
-      // Ne pas charger les blocks dans getStaticProps (trop lourd)
-      // Ils seront chargés côté client si nécessaire
-      blocks = null
+    try {
+      const notionPost = await getPostBySlug(params.slug)
+      if (notionPost) {
+        post = serializePost(notionPost)
+      }
+    } catch (error) {
+      captureDataError(error, { source: 'notion', tags: { area: 'blog-ssr', slug: params.slug } })
     }
   }
 
   if (allPosts.length === 0) {
-    allPosts = await getAllPosts()
-  }
-
-  if (!post) {
-    return {
-      notFound: true,
+    try {
+      allPosts = await getAllPosts()
+    } catch (error) {
+      captureDataError(error, { source: 'notion', tags: { area: 'blog-related' } })
     }
   }
 
-  // Ne pas passer blocks ni contentMarkdown dans les props pour réduire la taille
-  // Ils seront chargés côté client via l'API si nécessaire
-  // Convertir undefined en null pour la sérialisation JSON
+  if (!post) {
+    return { notFound: true }
+  }
+
   return {
     props: {
-      post: {
-        id: post.id || null,
-        title: post.title || null,
-        date: post.date || null,
-        slug: post.slug || null,
-        tags: post.tags || null,
-        metaDescription: post.metaDescription || null,
-        coverImage: post.coverImage || null,
-        lastEdited: post.lastEdited || null,
-      },
-      allPosts: allPosts.map(p => ({
+      post,
+      allPosts: allPosts.map((p) => ({
         id: p.id || null,
         title: p.title || null,
         date: p.date || null,
@@ -523,4 +488,5 @@ export async function getStaticProps({ params }) {
     },
     revalidate: 60,
   }
-} 
+}
+ 

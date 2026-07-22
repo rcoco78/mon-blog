@@ -36,6 +36,7 @@
     "@google-analytics/data": "^5.1.0",
     "@next/third-parties": "^15.2.4",
     "@notionhq/client": "^2.2.14",
+    "@sentry/nextjs": "^10.67.0",
     "@vercel/analytics": "^1.5.0",
     "@vercel/blob": "^2.0.0",
     "@vercel/edge-config": "^1.4.0",

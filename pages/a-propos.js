@@ -179,35 +179,6 @@ export default function About() {
     <>
       <SEOHead {...pageSEO} />
       
-      {/* Review Schema 5* par défaut */}
-      <StructuredData
-        type="Review"
-        data={{
-          itemReviewed: {
-            '@type': 'Service',
-            name: 'Services de Scraping et Automatisation',
-            provider: {
-              '@type': 'Person',
-              name: siteConfig.author,
-              url: `${siteConfig.url}/a-propos`
-            }
-          },
-          reviewRating: {
-            '@type': 'Rating',
-            ratingValue: '5',
-            bestRating: '5',
-            worstRating: '1'
-          },
-          author: {
-            '@type': 'Person',
-            name: siteConfig.author,
-            url: siteConfig.url
-          },
-          reviewBody: 'Expert freelance en scraping et automatisation. 424+ projets réalisés, 5/5 sur Malt. Parcours de growth marketeux chez Airbnb à entrepreneur indépendant.',
-          datePublished: new Date().toISOString().split('T')[0]
-        }}
-      />
-      
       <StructuredData type="Person" data={{
         name: siteConfig.author,
         description: siteConfig.seo.pages.aPropos.description,
@@ -256,8 +227,47 @@ export default function About() {
         <h1 className="font-semibold text-2xl mb-8 tracking-tighter">À propos</h1>
         
         <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          De growth marketeux chez Airbnb à entrepreneur indépendant, je me suis spécialisé en <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong>, <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> et <strong className="text-neutral-900 dark:text-neutral-100">outbound marketing</strong>. J'accompagne les dirigeants à gagner du temps et acquérir les bonnes pratiques sur ces sujets. 28 ans, Parisien. Le week-end, je développe <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> avec mon frère — on parcourt la France pour mettre en avant des logements d'exception.
+          De growth marketeux chez Airbnb à entrepreneur indépendant, je me suis spécialisé en <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong>, <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> et <strong className="text-neutral-900 dark:text-neutral-100">data</strong>. J&apos;accompagne les dirigeants à gagner du temps et acquérir les bonnes pratiques sur ces sujets. 28 ans, Parisien.
         </p>
+
+        {/* Mini timeline métier */}
+        <div className="mb-8 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/40">
+          <h2 className="font-semibold text-sm mb-3 tracking-tight text-neutral-900 dark:text-neutral-100">Le fil conducteur</h2>
+          <ol className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-0 text-sm text-neutral-600 dark:text-neutral-400">
+            {[
+              'Freelance',
+              'Outbound',
+              'Scraping & data',
+              'Apify',
+              'Logement Atypique',
+            ].map((step, i, arr) => (
+              <li key={step} className="flex items-center gap-2">
+                <span className="font-medium text-neutral-800 dark:text-neutral-200">{step}</span>
+                {i < arr.length - 1 && (
+                  <span className="hidden sm:inline text-neutral-400 dark:text-neutral-600 mx-1" aria-hidden>→</span>
+                )}
+              </li>
+            ))}
+          </ol>
+          <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-500">
+            Une trajectoire unique : prouver par le terrain, documenter en public, et faire porter ma voix dans le scraping et l’automatisation.
+          </p>
+        </div>
+
+        <div className="mb-8 space-y-4">
+          <div>
+            <h2 className="font-semibold text-sm mb-2 tracking-tight text-neutral-900 dark:text-neutral-100">Pour mes clients</h2>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 tracking-tight">
+              Missions freelance de scraping et automatisation (Malt, Fiverr, direct), et accompagnement outbound pour équipes commerciales via <strong className="text-neutral-800 dark:text-neutral-200">Outreacher</strong>.
+            </p>
+          </div>
+          <div>
+            <h2 className="font-semibold text-sm mb-2 tracking-tight text-neutral-900 dark:text-neutral-100">Ce que je construis</h2>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 tracking-tight">
+              Marketplace (bases Google Sheets + scrapers Apify), et le week-end <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> avec mon frère — preuve entrepreneuriale, pas le cœur de l’offre freelance.
+            </p>
+          </div>
+        </div>
         
         <div className="mb-8 space-y-6">
           <div>

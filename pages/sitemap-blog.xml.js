@@ -1,19 +1,38 @@
 import { getAllPosts } from '../lib/notion'
+import { fetchBlobJson } from '../lib/blob-cache'
 
 const SitemapBlog = () => {}
 
 export const getServerSideProps = async ({ res }) => {
-  const posts = await getAllPosts()
+  let posts = []
+
+  try {
+    const data = await fetchBlobJson('blog-posts.json')
+    if (data?.posts && Array.isArray(data.posts)) {
+      posts = data.posts
+    }
+  } catch {
+    // fallback Notion
+  }
+
+  if (posts.length === 0) {
+    posts = await getAllPosts()
+  }
+
   const baseUrl = 'https://www.corentinrobert.fr'
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   ${posts
     .map((post) => {
+      const lastmod = post.lastEdited || post.date
+      const lastmodIso = lastmod
+        ? new Date(lastmod).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0]
       return `
   <url>
     <loc>${baseUrl}/blog/${post.slug}</loc>
-    <lastmod>${post.date}</lastmod>
+    <lastmod>${lastmodIso}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>`
@@ -32,4 +51,3 @@ export const getServerSideProps = async ({ res }) => {
 }
 
 export default SitemapBlog
-
