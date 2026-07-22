@@ -8,6 +8,7 @@ import { sectorToSlug } from '../lib/case-studies-helpers'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
+import ProjectClickCounter from '../components/ProjectClickCounter'
 import DatabaseListRow from '../components/marketplace/DatabaseListRow'
 import ContentListRow, { ContentListRowSkeleton } from '../components/ContentListRow'
 import { testimonials } from '../lib/testimonials'
@@ -357,22 +358,84 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
           </Link>
         </div>
         
-        {/* Métriques de confiance — lignes, comme le reste du blog */}
-        <div className="mb-6 md:mb-8" aria-label="Métriques de confiance">
-          <div className="flex flex-col">
+        {/* Métriques de confiance — cartes */}
+        <div className="mb-6 md:mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3" aria-label="Métriques de confiance">
             {metrics.map((metric, index) => {
-              const trailing =
-                metric.label === 'projets réalisés' && metric.breakdown
-                  ? `${metric.value} (${metric.breakdown.malt} + ${metric.breakdown.fiverr})`
-                  : metric.value
+              const MetricWrapper = metric.href ? Link : 'div'
+              const wrapperProps = metric.href
+                ? {
+                    href: metric.href,
+                    className:
+                      'block p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors',
+                  }
+                : {
+                    className:
+                      'p-4 rounded-lg border border-neutral-200 dark:border-neutral-800',
+                  }
+
               return (
-                <ContentListRow
-                  key={metric.label || index}
-                  href={metric.href || null}
-                  title={metric.label}
-                  meta={metric.source || null}
-                  trailing={trailing}
-                />
+                <MetricWrapper key={metric.label || index} {...wrapperProps}>
+                  <div className="text-2xl font-semibold mb-1 text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+                    {metric.label === 'projets réalisés' ? (
+                      <>
+                        {metric.value}{' '}
+                        {metric.breakdown && (
+                          <span className="text-base font-normal text-neutral-500 dark:text-neutral-500">
+                            ({metric.breakdown.malt} + {metric.breakdown.fiverr})
+                          </span>
+                        )}
+                        <a
+                          href={siteConfig.social.malt}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center hover:opacity-70 transition-opacity text-neutral-400 dark:text-neutral-500"
+                          aria-label="Profil Malt"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                          </svg>
+                        </a>
+                      </>
+                    ) : (
+                      <>
+                        {metric.value}
+                        {metric.label === 'abonnés' && metric.source === 'Logement Atypique' && (
+                          <a
+                            href="https://www.instagram.com/logement.atypique"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center hover:opacity-70 transition-opacity text-neutral-400 dark:text-neutral-500"
+                            aria-label="Instagram Logement Atypique"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" className="bi bi-instagram" viewBox="0 0 16 16">
+                              <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334" />
+                            </svg>
+                          </a>
+                        )}
+                        {(metric.label === 'utilisateurs actifs' ||
+                          metric.label?.includes('utilisateurs')) && (
+                          <a
+                            href="https://apify.com?fpr=0n7ukq"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center hover:opacity-70 transition-opacity text-neutral-400 dark:text-neutral-500"
+                            aria-label="Voir mes scrapers sur Apify"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                            </svg>
+                          </a>
+                        )}
+                      </>
+                    )}
+                  </div>
+                  <div className="text-sm text-neutral-600 dark:text-neutral-400">{metric.label}</div>
+                  <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">{metric.source}</div>
+                </MetricWrapper>
               )
             })}
           </div>
@@ -382,29 +445,46 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
       {/* Séparateur visuel — zone Présentation */}
       <hr className="my-6 border-t border-neutral-200 dark:border-neutral-800" role="presentation" />
 
-      {/* Témoignages — liste alignée marketplace */}
+      {/* Témoignages — cartes */}
       {(() => {
         const homeTestimonials = [...testimonials]
           .sort((a, b) => new Date(b.datePublished) - new Date(a.datePublished))
           .slice(0, 5)
+        const getSourceBadgeClass = (source) => {
+          if (source === 'LinkedIn') return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+          if (source === 'Fiverr') return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+          if (source === 'Malt') return 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+          return 'bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300'
+        }
         return (
       <section className="relative" aria-label="Témoignages clients">
         <h2 className="font-semibold text-xl mb-2 tracking-tighter">Témoignages</h2>
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
           Avis clients Malt, Fiverr et LinkedIn.
         </p>
-        <div className="divide-y divide-neutral-200 dark:divide-neutral-800 border-t border-neutral-200 dark:border-neutral-800">
+        <div className="flex flex-col space-y-4">
           {homeTestimonials.map((t, i) => (
-            <blockquote key={`${t.authorName}-${t.datePublished}-${i}`} className="py-5">
-              <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">
+            <blockquote
+              key={`${t.authorName}-${t.datePublished}-${i}`}
+              className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50"
+            >
+              <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed italic">
                 « {t.reviewBody} »
               </p>
-              <footer className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-neutral-500 dark:text-neutral-500">
-                <span className="font-medium text-neutral-900 dark:text-neutral-100">
-                  {t.authorName}
-                </span>
-                {t.authorJob && <span>{t.authorJob}</span>}
-                {t.source && <span>{t.source}</span>}
+              <footer className="mt-4 flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                    {t.authorName}
+                  </p>
+                  {t.authorJob && (
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">{t.authorJob}</p>
+                  )}
+                </div>
+                {t.source && (
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${getSourceBadgeClass(t.source)}`}>
+                    {t.source}
+                  </span>
+                )}
               </footer>
             </blockquote>
           ))}
@@ -433,7 +513,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
         <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400 tracking-tight">
           Missions freelance d’abord, puis Outreacher (outbound), puis preuves entrepreneuriales.
         </p>
-        <div className="flex flex-col">
+        <div className="flex flex-col space-y-4">
           {siteConfig.projects.filter(project => {
             const partnerIds = ['contributeurs-apify', 'lemlist', 'zapmail']
             return project.status === 'active' && !partnerIds.includes(project.id)
@@ -442,6 +522,9 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
             const bf = b.featured ? 0 : 1
             return af - bf
           }).map((project) => {
+            const isActive = project.status === 'active'
+            const Component = project.link ? 'a' : 'div'
+
             const handleClick = () => {
               if (!project.link || !project.id) return
               const timestamp = Date.now()
@@ -462,22 +545,90 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
               }
             }
 
-            const clicks = project.id != null ? projectClicks[project.id] : null
-            const trailing =
-              typeof clicks === 'number'
-                ? `${clicks.toLocaleString('fr-FR')} clic${clicks === 1 ? '' : 's'}`
-                : null
+            const props = project.link
+              ? {
+                  href: project.link,
+                  target: '_blank',
+                  rel: 'noopener noreferrer',
+                  onClick: handleClick,
+                  className:
+                    'relative flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group',
+                }
+              : {
+                  className:
+                    'flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50',
+                }
 
             return (
-              <ContentListRow
-                key={project.id || project.title}
-                href={project.link || null}
-                title={project.title}
-                meta={project.status === 'active' ? 'Actif' : null}
-                description={project.description}
-                trailing={trailing}
-                onClick={project.link ? handleClick : undefined}
-              />
+              <Component key={project.id || project.title} {...props}>
+                <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
+                  {project.image ? (
+                    <div className="flex-shrink-0 w-6 h-6">
+                      <Image
+                        src={project.image}
+                        alt={project.imageAlt || `${project.title} - ${project.description}`}
+                        width={24}
+                        height={24}
+                        sizes="24px"
+                        loading="lazy"
+                        className={`w-6 h-6 rounded-lg object-cover border border-neutral-200 dark:border-neutral-800 ${!isActive ? 'opacity-50 grayscale' : ''}`}
+                      />
+                    </div>
+                  ) : project.icon ? (
+                    project.icon.startsWith('/') ? (
+                      <div className="flex-shrink-0 w-6 h-6">
+                        <Image
+                          src={project.icon}
+                          alt={project.iconAlt || `${project.title} - ${project.description}`}
+                          width={24}
+                          height={24}
+                          sizes="24px"
+                          loading="lazy"
+                          className={`w-6 h-6 rounded-lg object-contain ${!isActive ? 'opacity-50 grayscale' : ''}`}
+                        />
+                      </div>
+                    ) : (
+                      <div className={`flex-shrink-0 w-6 h-6 flex items-center justify-center text-xl leading-none ${!isActive ? 'opacity-50' : ''}`}>
+                        {project.icon}
+                      </div>
+                    )
+                  ) : null}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start sm:items-center gap-2 mb-1 flex-wrap sm:flex-nowrap">
+                      <h3 className={`font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 flex-1 min-w-0 sm:flex-initial ${!isActive ? 'text-neutral-500 dark:text-neutral-400' : ''}`}>
+                        {project.title}
+                      </h3>
+                      {project.status === 'active' && (
+                        <span className="relative flex h-2 w-2 flex-shrink-0 mt-1 sm:mt-0" title="Projet actif">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                      )}
+                    </div>
+                    <p className={`text-sm ${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} line-clamp-2`}>
+                      {project.description}
+                    </p>
+                  </div>
+                </div>
+
+                {project.link && (
+                  <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
+                    <div className="flex items-center gap-3">
+                      <div className="flex-shrink-0 w-6 h-6"></div>
+                      <div className="flex-1 min-w-0 flex items-center gap-2">
+                        {project.id ? (
+                          <ProjectClickCounter projectId={project.id} clicks={projectClicks[project.id]} />
+                        ) : (
+                          <span></span>
+                        )}
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
+                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </Component>
             )
           })}
         </div>
