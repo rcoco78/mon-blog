@@ -6,6 +6,7 @@ import StructuredData from '../components/seo/StructuredData'
 import SearchBar from '../components/SearchBar'
 import SortDropdown from '../components/SortDropdown'
 import FAQ from '../components/FAQ'
+import DatabaseListRow from '../components/marketplace/DatabaseListRow'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { tools } from '../lib/tools'
@@ -316,216 +317,128 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
       <StructuredData type="ItemList" data={toolsStructuredData} />
       <StructuredData type="FAQPage" data={faqData} />
       <main className="min-w-0 mt-6 flex flex-col overflow-x-hidden">
-        <section className="mb-8 overflow-x-hidden">
-          <h1 className="font-semibold text-2xl mb-4 tracking-tighter">
+        <header className="mb-10">
+          <h1 className="font-semibold text-2xl mb-3 tracking-tighter">
             Marketplace
           </h1>
-          {/* Badge confiance : note réelle + avis Malt/Fiverr */}
-          <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-neutral-600 dark:text-neutral-400">
-            <span className="inline-flex items-center gap-1.5" aria-label={`Note ${avgRating} sur 5`}>
-              <span className="text-amber-500" aria-hidden>
-                {displayStars(parseFloat(avgRating))}
-              </span>
-              <span>{avgRating}/5</span>
-            </span>
-            <span className="text-neutral-300 dark:text-neutral-600" aria-hidden>·</span>
+          <p className="text-neutral-600 dark:text-neutral-400 tracking-tight max-w-2xl mb-2">
+            Bases Google Sheets et scrapers Apify — les mêmes livrables que pour mes clients, en libre-service.
+          </p>
+          <p className="text-sm text-neutral-500 dark:text-neutral-500">
+            {activeTab === 'databases'
+              ? 'Choisir une base · Payer · Copier le Sheet'
+              : 'Entrer l’input · Lancer · Débloquer les résultats'}
             {marketplaceReviews.length > 0 && (
               <>
-                <a href="#avis" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors underline hover:no-underline">
-                  {marketplaceReviews.length} avis client{marketplaceReviews.length > 1 ? 's' : ''} vérifié{marketplaceReviews.length > 1 ? 's' : ''}
+                <span className="mx-2 text-neutral-300 dark:text-neutral-700">·</span>
+                <a href="#avis" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+                  {marketplaceReviews.length} avis
                 </a>
-                <span className="text-neutral-300 dark:text-neutral-600" aria-hidden>·</span>
               </>
             )}
-            <a
-              href={siteConfig.social.malt}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-            >
-              Centaines de missions livrées (Malt & Fiverr)
-            </a>
-          </div>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-4 tracking-tight">
-            Les bases et scrapers que je livre déjà à mes clients — en libre-service.
           </p>
-          <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-neutral-600 dark:text-neutral-400">
-            <p>
-              <strong className="text-neutral-900 dark:text-neutral-100">Bases de données</strong>
-              {' — '}fichier Google Sheets prêt pour la prospection / CRM ; livré comme pour mes clients ; mises à jour possibles.
-            </p>
-            <p>
-              <strong className="text-neutral-900 dark:text-neutral-100">Outils Apify</strong>
-              {' — '}lance mon scraper, récupère tes données via mon API publique.
-            </p>
-          </div>
-          <div className="mb-8 text-sm text-neutral-600 dark:text-neutral-400">
-            <p className="font-medium text-neutral-800 dark:text-neutral-200 mb-2">Comment ça marche</p>
-            {activeTab === 'databases' ? (
-              <ol className="list-decimal list-inside space-y-1">
-                <li>Choisir une base</li>
-                <li>Payer</li>
-                <li>Recevoir le Google Sheet</li>
-              </ol>
-            ) : (
-              <ol className="list-decimal list-inside space-y-1">
-                <li>Entrer l&apos;input</li>
-                <li>Lancer le scraper</li>
-                <li>Débloquer les résultats</li>
-              </ol>
-            )}
-          </div>
+        </header>
 
-          {/* Onglets pour séparer Bases de données et Outils */}
+        <section className="mb-8 overflow-x-hidden">
+          {/* Onglets */}
           <div className="mb-8 border-b border-neutral-200 dark:border-neutral-800">
-            <div className="flex gap-4">
+            <div className="flex gap-6">
               <button
                 onClick={() => setActiveTab('databases')}
-                className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 ${
+                className={`pb-3 text-sm transition-colors border-b-2 ${
                   activeTab === 'databases'
-                    ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white'
+                    ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-medium'
                     : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
                 }`}
               >
-                <span className="block">
-                  Bases de données
-                  <span className="ml-2 text-xs text-neutral-400 dark:text-neutral-500">
-                    ({dynamicDatabases.length})
-                  </span>
-                </span>
-                <span className="block text-xs font-normal text-neutral-500 dark:text-neutral-500 mt-0.5">
-                  Fichier prêt à télécharger
+                Bases
+                <span className="ml-1.5 text-neutral-400 dark:text-neutral-500 font-normal">
+                  {dynamicDatabases.length}
                 </span>
               </button>
               <button
                 onClick={() => setActiveTab('tools')}
-                className={`pb-3 px-1 text-sm font-medium transition-colors border-b-2 ${
+                className={`pb-3 text-sm transition-colors border-b-2 ${
                   activeTab === 'tools'
-                    ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white'
+                    ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-medium'
                     : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
                 }`}
               >
-                <span className="block">
-                  Outils
-                  <span className="ml-2 text-xs text-neutral-400 dark:text-neutral-500">
-                    ({apifyTools.length})
-                  </span>
-                </span>
-                <span className="block text-xs font-normal text-neutral-500 dark:text-neutral-500 mt-0.5">
-                  Lance le scraper toi-même
+                Outils
+                <span className="ml-1.5 text-neutral-400 dark:text-neutral-500 font-normal">
+                  {apifyTools.length}
                 </span>
               </button>
             </div>
           </div>
 
-          {/* Barre de recherche texte — desktop uniquement */}
           {activeTab === 'databases' && (
             <div className="hidden sm:block mb-6">
-              <div className="relative">
-                <svg
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 dark:text-neutral-500 pointer-events-none"
-                  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                >
-                  <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clipRule="evenodd" />
-                </svg>
-                <input
-                  type="search"
-                  value={searchQuery}
-                  onChange={e => { setSearchQuery(e.target.value); setDisplayedCount(8) }}
-                  placeholder="Rechercher une base de données…"
-                  aria-label="Rechercher une base de données dans la marketplace"
-                  className="w-full pl-9 pr-4 py-2 text-sm rounded-md border border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600 transition-colors"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
-                    aria-label="Effacer la recherche"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                      <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
-                    </svg>
-                  </button>
-                )}
-              </div>
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  setDisplayedCount(8)
+                }}
+                placeholder="Rechercher…"
+                aria-label="Rechercher une base de données"
+                className="w-full px-0 py-2 text-sm border-0 border-b border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:border-neutral-500 dark:focus:border-neutral-500 transition-colors"
+              />
             </div>
           )}
 
-          {/* Filtres - uniquement pour les bases de données */}
           {activeTab === 'databases' && (
-          <div className="flex flex-col gap-6 mb-8 min-w-0 overflow-x-hidden">
-            {/* Ligne 1 — Prix */}
-            <div className="min-w-0 w-full overflow-hidden">
-              <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                Prix
-              </label>
-              <SearchBar
-                tags={pricingRanges.filter(r => r.value !== undefined && r.value !== null)}
-                selectedTag={selectedPricing}
-                onTagSelect={setSelectedPricing}
-                allLabel={pricingRanges.find(r => r.value === null || r.value === undefined)?.label ?? 'Tous'}
-                allValue={null}
-              />
-            </div>
-
-            {/* Ligne 2 — Catégorie (scroll horizontal) */}
-            <div className="min-w-0 w-full overflow-hidden">
-              <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                Catégorie
-              </label>
-              <div className="min-w-0">
-              <SearchBar 
-                tags={categories}
-                selectedTag={selectedCategory}
-                onTagSelect={setSelectedCategory}
-              />
+            <div className="flex flex-col gap-5 mb-8 min-w-0 overflow-x-hidden">
+              <div className="min-w-0 w-full overflow-hidden">
+                <SearchBar
+                  tags={pricingRanges.filter((r) => r.value !== undefined && r.value !== null)}
+                  selectedTag={selectedPricing}
+                  onTagSelect={setSelectedPricing}
+                  allLabel={pricingRanges.find((r) => r.value === null || r.value === undefined)?.label ?? 'Tous'}
+                  allValue={null}
+                />
               </div>
-            </div>
-
-            {/* Ligne 3 — Tri */}
-            <div>
+              <div className="min-w-0 w-full overflow-hidden">
+                <SearchBar
+                  tags={categories}
+                  selectedTag={selectedCategory}
+                  onTagSelect={setSelectedCategory}
+                />
+              </div>
               <SortDropdown
                 id="marketplace-sort"
-                label="Trier par"
+                label="Trier"
                 value={sortBy}
                 onChange={setSortBy}
                 options={[
                   { value: 'date', label: 'Plus récents' },
                   { value: 'price_desc', label: 'Prix décroissant' },
-                  { value: 'views', label: 'Plus consultés' }
+                  { value: 'views', label: 'Plus consultés' },
                 ]}
               />
             </div>
-          </div>
           )}
 
-          {/* Filtres — onglet Outils */}
           {activeTab === 'tools' && (
-          <div className="flex flex-col gap-6 mb-8">
-            <div>
-              <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                Catégorie
-              </label>
+            <div className="flex flex-col gap-5 mb-8">
               <SearchBar
                 tags={toolCategories}
                 selectedTag={selectedToolCategory}
                 onTagSelect={setSelectedToolCategory}
               />
-            </div>
-            <div>
               <SortDropdown
                 id="tool-sort"
-                label="Trier par"
+                label="Trier"
                 value={toolSortBy}
                 onChange={setToolSortBy}
                 options={[
                   { value: 'users', label: "Plus d'utilisateurs" },
                   { value: 'runs', label: "Plus d'exécutions" },
-                  { value: 'date', label: 'Plus récents' }
+                  { value: 'date', label: 'Plus récents' },
                 ]}
               />
             </div>
-          </div>
           )}
         </section>
 
@@ -566,106 +479,22 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                 </button>
               )}
             </div>
-            <div className="flex flex-col space-y-4">
+            <div className="flex flex-col">
               {filteredTools.slice(0, displayedCount).map((tool) => (
-                <Link
-                  key={tool.name}
-                  href={tool.link || '#'}
-                  className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-                >
-                  <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
-                    {tool.iconSvg ? (
-                      <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-600 dark:text-neutral-400">
-                        {tool.iconSvg === 'email' && (
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
-                            <path d="M8.47 1.318a1 1 0 0 0-.94 0l-6 3.2A1 1 0 0 0 1 5.4v.817l5.75 3.45L8 8.917l1.25.75L15 6.217V5.4a1 1 0 0 0-.53-.882zM15 7.383l-4.778 2.867L15 13.117zm-.035 6.88L8 10.082l-6.965 4.18A1 1 0 0 0 2 15h12a1 1 0 0 0 .965-.738ZM1 13.116l4.778-2.867L1 7.383v5.734ZM7.059.435a2 2 0 0 1 1.882 0l6 3.2A2 2 0 0 1 16 5.4V14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V5.4a2 2 0 0 1 1.059-1.765z"/>
-                          </svg>
-                        )}
-                        {tool.iconSvg === 'search' && (
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
-                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                          </svg>
-                        )}
-                        {tool.iconSvg === 'house' && (
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
-                            <path d="M8 6.982C9.664 5.309 13.825 8.236 8 12 2.175 8.236 6.336 5.309 8 6.982"/>
-                            <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.707L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.646a.5.5 0 0 0 .708-.707L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z"/>
-                          </svg>
-                        )}
-                        {tool.iconSvg === 'grid' && (
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="w-4 h-4">
-                            <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm15 2h-4v3h4zm0 4h-4v3h4zm0 4h-4v3h3a1 1 0 0 0 1-1zm-5 3v-3H6v3zm-5 0v-3H1v2a1 1 0 0 0 1 1zm-4-4h4V7H1zm0-4h4V3H1a1 1 0 0 0-1 1zm5 0v3h4V3zm4 4H6v3h4z"/>
-                          </svg>
-                        )}
-                      </div>
-                    ) : tool.icon && tool.icon.startsWith('/') ? (
-                      <div className="flex-shrink-0 w-6 h-6">
-                        <Image
-                          src={tool.icon}
-                          alt={`${tool.name} - ${tool.description}`}
-                          width={24}
-                          height={24}
-                          loading="lazy"
-                          className="w-6 h-6 rounded-lg object-contain"
-                        />
-                      </div>
-                    ) : tool.icon ? (
-                      <span className="flex-shrink-0 text-2xl">{tool.icon}</span>
-                    ) : null}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
-                          {tool.name}
-                        </h2>
-                        {tool.category && (
-                          <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400">
-                            {tool.category}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
-                        {tool.description}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Séparateur fin et prix */}
-                  <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
-                    <div className="flex items-center justify-between gap-3">
-                      {/* Espaceur pour aligner avec l'icône */}
-                      <div className="flex-shrink-0 w-6 h-6"></div>
-                      <div className="flex-1 min-w-0 flex items-center gap-2">
-                        <span className="text-xs text-neutral-500 dark:text-neutral-500">
-                          {(tool.views ?? 0)} {(tool.views ?? 0) <= 1 ? 'vue' : 'vues'}
-                          <span className="mx-1.5">•</span>
-                          {tool.isPaid ? `À partir de ${tool.annualPrice || tool.price || 0}€` : 'Gratuit'}
-                        </span>
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
-                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                        </svg>
-                      </div>
-                      {tool.lastEnriched && (
-                        <span className="text-xs text-neutral-500 dark:text-neutral-500 flex-shrink-0">
-                          {new Date(tool.lastEnriched).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })} {new Date(tool.lastEnriched).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      )}
-                      {!tool.lastEnriched && tool.date && (
-                        <span className="text-xs text-neutral-500 dark:text-neutral-500 flex-shrink-0">
-                          {new Date(tool.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })} {new Date(tool.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
+                <DatabaseListRow key={tool.slug || tool.name} tool={tool} />
               ))}
             </div>
             {displayedCount < filteredTools.length && (
-              <div className="mt-8 text-center">
+              <div className="mt-8">
                 <button
-                  onClick={() => setDisplayedCount(prev => Math.min(prev + ITEMS_PER_PAGE, filteredTools.length))}
-                  className="px-6 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900/50 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
+                  onClick={() =>
+                    setDisplayedCount((prev) =>
+                      Math.min(prev + ITEMS_PER_PAGE, filteredTools.length),
+                    )
+                  }
+                  className="text-sm text-neutral-600 dark:text-neutral-400 underline underline-offset-4 hover:no-underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
                 >
-                  Voir plus ({filteredTools.length - displayedCount} restant{filteredTools.length - displayedCount === 1 ? '' : 's'})
+                  Voir plus ({filteredTools.length - displayedCount})
                 </button>
               </div>
             )}

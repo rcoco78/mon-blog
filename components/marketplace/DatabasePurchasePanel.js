@@ -1,5 +1,5 @@
 /**
- * Panneau d’achat / livraison pour une fiche base de données marketplace.
+ * Panneau d’achat — minimal, aligné sur l’identité du blog.
  */
 
 function resolvePurchasedDb(toolId, database, addonDatabases = [], relatedDatabases = []) {
@@ -21,9 +21,9 @@ function DeliverySuccess({
   const ids = purchasedToolIds.length > 0 ? purchasedToolIds : [database.slug]
 
   return (
-    <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 space-y-3">
+    <div className="space-y-3" id="acheter">
       <p className="text-sm text-neutral-700 dark:text-neutral-300">
-        Paiement confirmé. Copiez {ids.length > 1 ? 'vos bases' : 'la base'} sur Google Sheets :
+        Paiement confirmé. Copiez {ids.length > 1 ? 'vos bases' : 'la base'} sur Google Sheets.
       </p>
       <div className="space-y-2">
         {ids.map((toolId) => {
@@ -37,12 +37,9 @@ function DeliverySuccess({
                 href={copyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors w-full sm:w-fit"
+                className="inline-flex items-center gap-2 text-sm font-medium underline underline-offset-4 hover:no-underline text-neutral-900 dark:text-neutral-100"
               >
-                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-                {ids.length > 1 ? `Copier « ${name} »` : 'Copier sur Google Sheets'}
+                {ids.length > 1 ? `Copier « ${name} »` : 'Copier sur Google Sheets'} →
               </a>
             )
           }
@@ -50,7 +47,7 @@ function DeliverySuccess({
             <a
               key={toolId}
               href={`mailto:corentinrobert648@gmail.com?subject=${encodeURIComponent(`Demande de base de données - ${name}`)}&body=${encodeURIComponent(`Hey je viens d'acheter la base "${name}" — peux-tu m'envoyer le lien Sheets ? Merci`)}`}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors w-full sm:w-fit"
+              className="inline-flex items-center gap-2 text-sm font-medium underline underline-offset-4 hover:no-underline"
             >
               Demander le lien — {name}
             </a>
@@ -81,7 +78,6 @@ export default function DatabasePurchasePanel({
   totalPriceLabel,
   priceLabel,
   priceLabelHT,
-  compact = false,
 }) {
   if (paymentVerified) {
     return (
@@ -95,21 +91,17 @@ export default function DatabasePurchasePanel({
     )
   }
 
-  const buttonClass = compact
-    ? 'w-full px-4 py-2.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium relative overflow-hidden'
-    : 'w-full px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium relative overflow-hidden'
-
   return (
-    <div className="space-y-4" id="acheter">
-      <div className="flex items-center justify-between p-1 bg-neutral-100 dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800">
+    <div className="space-y-5" id="acheter">
+      <div className="flex gap-4 text-sm">
         <button
           type="button"
           onClick={() => setSubscriptionType('one-time')}
           disabled={isLoading}
-          className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all ${
+          className={`pb-1 border-b-2 transition-colors ${
             subscriptionType === 'one-time'
-              ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 shadow-sm'
-              : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'
+              ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-neutral-100 font-medium'
+              : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'
           } disabled:opacity-50`}
         >
           Google Sheets
@@ -118,48 +110,47 @@ export default function DatabasePurchasePanel({
           type="button"
           onClick={() => setSubscriptionType('api')}
           disabled={isLoading}
-          className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all ${
+          className={`pb-1 border-b-2 transition-colors ${
             subscriptionType === 'api'
-              ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 shadow-sm'
-              : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100'
+              ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-neutral-100 font-medium'
+              : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'
           } disabled:opacity-50`}
         >
-          API (Apify)
+          API Apify
         </button>
       </div>
 
       {subscriptionType === 'one-time' && addonDatabases.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          <p className="text-xs text-neutral-500 dark:text-neutral-500">
             Bundle : 2 bases −10 %, 3+ bases −15 %
           </p>
-          <div className="space-y-2 p-3 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/50">
+          <ul className="space-y-2">
             {addonDatabases.map((addon) => (
-              <label
-                key={addon.slug}
-                className="flex items-center justify-between gap-3 cursor-pointer group"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedAddons.includes(addon.slug)}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setSelectedAddons((prev) => [...prev, addon.slug])
-                    } else {
-                      setSelectedAddons((prev) => prev.filter((s) => s !== addon.slug))
-                    }
-                  }}
-                  className="rounded border-neutral-300 dark:border-neutral-600 text-neutral-900 focus:ring-neutral-500"
-                />
-                <span className="flex-1 text-sm text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
-                  {addon.name}
-                </span>
-                <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                  +{addon.price}€
-                </span>
-              </label>
+              <li key={addon.slug}>
+                <label className="flex items-start gap-2 cursor-pointer text-sm">
+                  <input
+                    type="checkbox"
+                    checked={selectedAddons.includes(addon.slug)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedAddons((prev) => [...prev, addon.slug])
+                      } else {
+                        setSelectedAddons((prev) => prev.filter((s) => s !== addon.slug))
+                      }
+                    }}
+                    className="mt-1 rounded border-neutral-300 dark:border-neutral-600"
+                  />
+                  <span className="flex-1 text-neutral-700 dark:text-neutral-300">
+                    {addon.name}
+                  </span>
+                  <span className="tabular-nums text-neutral-900 dark:text-neutral-100">
+                    +{addon.price}€
+                  </span>
+                </label>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       )}
 
@@ -167,81 +158,37 @@ export default function DatabasePurchasePanel({
         type="button"
         onClick={onUnlock}
         disabled={isLoading}
-        className={buttonClass}
+        className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isLoading ? (
-          <span className="flex items-center justify-center gap-2">
-            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-            </svg>
-            {loadingStep || 'Redirection...'}
-          </span>
-        ) : (
-          <div className="text-center">
-            <div className="font-semibold">
-              {subscriptionType === 'api'
-                ? 'Demander l’accès API'
-                : `Acheter — ${totalPriceLabel.replace(' TTC', '')}`}
-            </div>
-            <div className="text-xs opacity-70 mt-0.5">
-              {subscriptionType === 'api'
-                ? 'Mises à jour continues via Apify'
-                : 'Accès immédiat · Google Sheets'}
-            </div>
-          </div>
-        )}
+        {isLoading
+          ? loadingStep || 'Redirection…'
+          : subscriptionType === 'api'
+            ? 'Demander l’accès API'
+            : `Acheter — ${totalPriceLabel.replace(' TTC', '')}`}
       </button>
 
-      <div className="text-xs text-neutral-600 dark:text-neutral-400 space-y-1">
+      <div className="text-sm text-neutral-600 dark:text-neutral-400 space-y-1">
         {subscriptionType === 'api' ? (
-          <>
-            <p>
-              <strong className="text-neutral-700 dark:text-neutral-300">API Apify :</strong>{' '}
-              script qui récupère et met à jour les données régulièrement.
-            </p>
-            <p className="text-neutral-500 dark:text-neutral-500">
-              Idéal si vous avez besoin d’un flux à jour, pas d’un export ponctuel.
-            </p>
-          </>
+          <p>
+            Accès récurrent via Apify, données mises à jour automatiquement.
+          </p>
         ) : (
           <>
             <p>
-              <strong className="text-neutral-700 dark:text-neutral-300">Achat unique :</strong>{' '}
-              après paiement, lien pour copier la base complète dans votre Google Drive.
+              Après paiement : lien pour copier la base dans votre Drive.
+              Snapshot à la date indiquée — export CSV / Excel depuis Sheets.
             </p>
-            <p className="text-neutral-500 dark:text-neutral-500">
-              Snapshot à la date indiquée. Export CSV / Excel depuis Sheets.
+            <p className="text-xs text-neutral-500 dark:text-neutral-500">
+              {priceLabel}
+              {priceLabelHT ? ` · ${priceLabelHT}` : ''}
             </p>
             {selectedAddons.length > 0 && (
-              <p className="text-neutral-600 dark:text-neutral-400 mt-2 text-sm font-medium">
-                Code promo au checkout : <span className="text-neutral-900 dark:text-neutral-100">PROMO10</span> (−10 %)
+              <p className="text-xs">
+                Code promo au checkout : <span className="font-medium text-neutral-900 dark:text-neutral-100">PROMO10</span>
               </p>
             )}
           </>
         )}
-      </div>
-
-      <div className="space-y-3 text-sm pt-1 border-t border-neutral-200 dark:border-neutral-800">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <span className="text-neutral-500 dark:text-neutral-500 block">Google Sheets</span>
-            <span className="text-xs text-neutral-400 dark:text-neutral-500">Snapshot à l’achat</span>
-          </div>
-          <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
-            <div>{priceLabel}</div>
-            <div className="text-xs text-neutral-500 dark:text-neutral-500">{priceLabelHT}</div>
-          </span>
-        </div>
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <span className="text-neutral-500 dark:text-neutral-500 block">API Apify</span>
-            <span className="text-xs text-neutral-400 dark:text-neutral-500">Mises à jour continues</span>
-          </div>
-          <span className="text-neutral-900 dark:text-neutral-100 font-medium text-right">
-            Sur devis
-          </span>
-        </div>
       </div>
     </div>
   )

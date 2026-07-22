@@ -9,11 +9,8 @@ import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import ProjectClickCounter from '../components/ProjectClickCounter'
+import DatabaseListRow from '../components/marketplace/DatabaseListRow'
 import { testimonials } from '../lib/testimonials'
-import {
-  marketplaceBenefit,
-  marketplacePriceLabel,
-} from '../lib/marketplace-display'
 import { getProjectsCountPhrase } from '../lib/project-count'
 import { fetchBlobJson, withTimeout } from '../lib/blob-cache'
 import { captureDataError } from '../lib/sentry'
@@ -754,37 +751,11 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
           </Link>
           .
         </p>
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col">
           {(() => {
             const topDatabases = (dynamicDatabases || []).slice(0, 3)
             return topDatabases.map((tool) => (
-            <Link
-              key={tool.name}
-              href={tool.link || '#'}
-              className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-            >
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <h3 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200">
-                  {tool.name}
-                </h3>
-                <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 whitespace-nowrap">
-                  {marketplacePriceLabel(tool)}
-                </span>
-              </div>
-              <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-                {marketplaceBenefit(tool)}
-              </p>
-              <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm font-medium text-neutral-800 dark:text-neutral-200 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">
-                    Voir la base
-                  </span>
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0" aria-hidden>
-                    <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                  </svg>
-                </div>
-              </div>
-            </Link>
+            <DatabaseListRow key={tool.slug || tool.name} tool={tool} />
             ))
           })()}
         </div>

@@ -15,6 +15,7 @@ import DatabasePurchasePanel from '../../../components/marketplace/DatabasePurch
 import { generatePageSEO } from '../../../lib/seo'
 import { siteConfig } from '../../../lib/config'
 import { categoryToSlug } from '../../../lib/marketplace-helpers'
+import { shortMarketplaceTitle } from '../../../lib/marketplace-display'
 
 const getPriceValidUntil = () => {
   const date = new Date()
@@ -215,12 +216,13 @@ export default function MarketplaceDatabase({
 
   const toolData = {
     name: database.name,
+    displayName: shortMarketplaceTitle(database.name),
     description: database.shortDescription || database.description,
     fullDescription: database.description,
     category: database.category,
     price: database.price,
     priceHT: Math.round((database.price / 1.2) * 100) / 100,
-    priceLabel: `${database.price} € TTC`,
+    priceLabel: `${database.price} €`,
     priceLabelHT: `${Math.round((database.price / 1.2) * 100) / 100} € HT`,
     formats: ['Google Sheets'],
     lastUpdate: new Date(database.lastEnriched).toLocaleDateString('fr-FR', {
@@ -481,33 +483,18 @@ export default function MarketplaceDatabase({
 
       {toast && <Toast {...toast} onClose={hideToast} />}
 
-      <main className="min-w-0 mt-6 flex flex-col">
-        <nav className="mb-6" aria-label="Fil d'Ariane">
-          <ol className="flex items-center flex-wrap gap-x-1.5 sm:gap-x-2 gap-y-1 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
-            <li>
-              <Link
-                href="/marketplace"
-                className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors whitespace-nowrap"
-              >
-                Marketplace
-              </Link>
-            </li>
-            <li className="flex items-center gap-x-1.5 sm:gap-x-2">
-              <span className="text-neutral-400 dark:text-neutral-600">/</span>
-              <Link
-                href={`/marketplace/${categorySlug}`}
-                className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors whitespace-nowrap"
-              >
-                {database.category}
-              </Link>
-            </li>
-            <li className="flex items-center gap-x-1.5 sm:gap-x-2 min-w-0">
-              <span className="text-neutral-400 dark:text-neutral-600">/</span>
-              <span className="text-neutral-900 dark:text-neutral-100 font-medium truncate max-w-[200px] sm:max-w-none">
-                {toolData.name}
-              </span>
-            </li>
-          </ol>
+      <article className="min-w-0 mt-6 flex flex-col">
+        <nav className="mb-6 text-sm text-neutral-500 dark:text-neutral-500" aria-label="Fil d'Ariane">
+          <Link href="/marketplace" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+            Marketplace
+          </Link>
+          <span className="mx-1.5 text-neutral-300 dark:text-neutral-700">/</span>
+          <Link
+            href={`/marketplace/${categorySlug}`}
+            className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+          >
+            {database.category}
+          </Link>
         </nav>
 
         <StructuredData
@@ -529,52 +516,37 @@ export default function MarketplaceDatabase({
               {
                 '@type': 'ListItem',
                 position: 3,
-                name: toolData.name,
+                name: toolData.displayName,
                 item: `${siteConfig.url}/marketplace/${categorySlug}/${database.slug}`,
               },
             ],
           }}
         />
 
-        <section className="mb-10">
-          <h1 className="font-semibold text-2xl mb-3 tracking-tighter md:text-3xl">
-            {toolData.name}
+        <header className="mb-10">
+          <h1 className="font-semibold text-2xl md:text-3xl tracking-tighter text-neutral-900 dark:text-neutral-100 mb-3">
+            {toolData.displayName}
           </h1>
-          <p className="text-neutral-600 dark:text-neutral-400 tracking-tight mb-4 text-base leading-relaxed max-w-2xl">
+          <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-4">
+            {[
+              database.category,
+              `${database.rowCount.toLocaleString('fr-FR')} entrées`,
+              `${database.headers.length} champs`,
+              'Google Sheets',
+              `MAJ ${toolData.lastUpdate}`,
+              toolData.priceLabel,
+            ].join(' · ')}
+          </p>
+          <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-2xl mb-4">
             {toolData.description}
           </p>
-
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-            <span className="font-medium text-neutral-900 dark:text-neutral-100">
-              {database.rowCount.toLocaleString('fr-FR')} entrées
-            </span>
-            <span aria-hidden="true" className="text-neutral-300 dark:text-neutral-700">
-              ·
-            </span>
-            <span>{database.headers.length} champs</span>
-            <span aria-hidden="true" className="text-neutral-300 dark:text-neutral-700">
-              ·
-            </span>
-            <span>Google Sheets</span>
-            <span aria-hidden="true" className="text-neutral-300 dark:text-neutral-700">
-              ·
-            </span>
-            <span>MAJ {toolData.lastUpdate}</span>
-            <span aria-hidden="true" className="text-neutral-300 dark:text-neutral-700">
-              ·
-            </span>
-            <span className="font-medium text-neutral-900 dark:text-neutral-100">
-              {toolData.priceLabel}
-            </span>
-          </div>
-
           {topContactSignals.length > 0 && (
             <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
               Contacts :{' '}
               {topContactSignals.map((c, i) => (
                 <span key={c.field}>
                   {i > 0 ? ' · ' : ''}
-                  <span className="text-neutral-900 dark:text-neutral-100 font-medium">
+                  <span className="text-neutral-900 dark:text-neutral-100 font-medium tabular-nums">
                     {c.filled.toLocaleString('fr-FR')}
                   </span>{' '}
                   {c.field}
@@ -582,8 +554,8 @@ export default function MarketplaceDatabase({
               ))}
             </p>
           )}
-
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-neutral-500 dark:text-neutral-500">
+            <span>Payer → copier le Sheet → prospecter</span>
             <MarketplaceViewCounter
               slug={database.slug}
               category={database.category}
@@ -591,310 +563,242 @@ export default function MarketplaceDatabase({
             />
             <DownloadCounter toolId={database.slug} />
           </div>
+        </header>
 
-          <ol className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-10 text-sm">
-            {toolData.howToSteps.map((step, index) => (
-              <li
-                key={step.name}
-                className="flex gap-3 sm:block border-t border-neutral-200 dark:border-neutral-800 pt-3"
-              >
-                <span className="text-neutral-400 dark:text-neutral-500 font-medium tabular-nums">
-                  {index + 1}.
-                </span>
-                <div>
-                  <p className="font-medium text-neutral-900 dark:text-neutral-100">{step.name}</p>
-                  <p className="text-neutral-600 dark:text-neutral-400 mt-0.5">{step.text}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
+        <div className="md:grid md:grid-cols-[minmax(0,1fr)_17rem] md:gap-12 md:items-start">
+          <div className="min-w-0 space-y-12">
+            <div className="md:hidden border-t border-neutral-200 dark:border-neutral-800 pt-8">
+              {toolData.isPaid && toolData.unlockType === 'payment' && (
+                <DatabasePurchasePanel {...purchasePanelProps} />
+              )}
+            </div>
 
-          <div className="md:grid md:grid-cols-[minmax(0,1fr)_20rem] md:gap-10 md:items-start">
-            <div className="min-w-0 space-y-10">
-              {embedVideoUrl && (
-                <div
-                  className="relative w-full aspect-video rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900"
-                  style={{
-                    boxShadow:
-                      '0 0 0 1px rgba(255, 255, 255, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.1)',
-                    filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05))',
-                  }}
-                >
+            {embedVideoUrl && (
+              <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
+                <div className="relative w-full aspect-video overflow-hidden bg-neutral-100 dark:bg-neutral-900">
                   <iframe
                     className="absolute top-0 left-0 w-full h-full border-0"
                     src={embedVideoUrl}
                     allowFullScreen
-                    allowTransparency
-                    title={`Présentation ${toolData.name}`}
+                    title={`Présentation ${toolData.displayName}`}
                   />
                 </div>
-              )}
+              </section>
+            )}
 
-              <div className="md:hidden">
-                {toolData.isPaid && toolData.unlockType === 'payment' && (
-                  <DatabasePurchasePanel {...purchasePanelProps} compact />
-                )}
-              </div>
-
-              {/* Aperçu des données — preuve avant le reste */}
-              <div>
-                <h2 className="font-semibold text-xl mb-3 tracking-tighter">Aperçu des données</h2>
-                <p className="text-neutral-600 dark:text-neutral-400 mb-4 text-sm">
-                  Exemple anonymisé — {database.rowCount.toLocaleString('fr-FR')} lignes dans la
-                  version complète.
-                </p>
-
-                <div className="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="bg-neutral-100 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700">
-                          {sampleKeys.map((key) => (
-                            <th
-                              key={key}
-                              className="px-4 py-3 text-left text-xs font-medium text-neutral-700 dark:text-neutral-300 whitespace-nowrap"
-                            >
-                              {key}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
-                        {database.enrichedData?.sampleData?.length > 0
-                          ? database.enrichedData.sampleData.slice(0, 3).map((row, rowIdx) => (
-                              <tr
-                                key={rowIdx}
-                                className="hover:bg-neutral-100 dark:hover:bg-neutral-800/50 transition-colors"
-                              >
-                                {sampleKeys.map((key) => (
-                                  <td
-                                    key={key}
-                                    className="px-4 py-3 text-neutral-900 dark:text-neutral-100 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]"
-                                  >
-                                    {anonymizeValue(row[key] || '', key)}
-                                  </td>
-                                ))}
-                              </tr>
-                            ))
-                          : [1, 2, 3].map((rowIdx) => (
-                              <tr key={rowIdx}>
-                                {database.headers.map((header) => (
-                                  <td
-                                    key={header}
-                                    className="px-4 py-3 text-neutral-500 dark:text-neutral-500 italic whitespace-nowrap"
-                                  >
-                                    —
-                                  </td>
-                                ))}
-                              </tr>
-                            ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-
-              {(toolData.problem?.length > 0 || toolData.solution?.length > 0) && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {toolData.problem?.length > 0 && (
-                    <div>
-                      <h2 className="font-semibold text-xl mb-4 tracking-tighter">Sans cette base</h2>
-                      <ul className="space-y-3">
-                        {toolData.problem.map((item, index) => (
-                          <li key={index} className="flex items-start gap-3 text-neutral-700 dark:text-neutral-300">
-                            <span className="text-neutral-400 mt-0.5 flex-shrink-0">—</span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {toolData.solution?.length > 0 && (
-                    <div>
-                      <h2 className="font-semibold text-xl mb-4 tracking-tighter">Avec cette base</h2>
-                      <ul className="space-y-3">
-                        {toolData.solution.map((item, index) => (
-                          <li key={index} className="flex items-start gap-3 text-neutral-700 dark:text-neutral-300">
-                            <span className="text-neutral-900 dark:text-neutral-100 mt-0.5 flex-shrink-0">
-                              ✓
-                            </span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div>
-                <h2 className="font-semibold text-xl mb-4 tracking-tighter">
-                  Colonnes incluses ({database.headers.length})
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {sortedHeaders.map((header) => {
-                    const completeness = contactCompleteness[header]
-                    const showContactTags =
-                      hasRealContactData &&
-                      isContactField(header) &&
-                      completeness &&
-                      !completeness.isEstimate
-
-                    return (
-                      <div key={header} className="flex items-start gap-2 py-1.5">
-                        <span className="text-neutral-400 dark:text-neutral-500 mt-0.5">·</span>
-                        <div className="min-w-0">
-                          <p
-                            className={`${
-                              showContactTags ? 'font-semibold' : 'font-medium'
-                            } text-neutral-900 dark:text-neutral-100 text-sm`}
-                          >
-                            {header}
-                            {showContactTags && completeness.filled > 0 && (
-                              <span className="ml-2 font-normal text-neutral-500 dark:text-neutral-500">
-                                {completeness.filled.toLocaleString('fr-FR')} renseignés
-                              </span>
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {toolData.useCases?.length > 0 && (
-                <div>
-                  <h2 className="font-semibold text-xl mb-4 tracking-tighter">
-                    Cas d&apos;usage
-                  </h2>
-                  <ul className="space-y-2">
-                    {toolData.useCases.slice(0, 4).map((useCase) => (
-                      <li
-                        key={useCase}
-                        className="text-neutral-700 dark:text-neutral-300 text-sm flex gap-2"
-                      >
-                        <span className="text-neutral-400">→</span>
-                        <span>{useCase}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {pageTestimonials.length > 0 && (
-                <div>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                    <h2 className="font-semibold text-xl tracking-tighter">
-                      Ce qu&apos;en disent les clients
-                    </h2>
-                    <Link
-                      href="/temoignages"
-                      className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
-                    >
-                      Tous les témoignages →
-                    </Link>
-                  </div>
-                  <div className="space-y-6">
-                    {pageTestimonials.map((testimonial, index) => (
-                      <div key={index}>
-                        <blockquote className="border-l-2 border-neutral-200 dark:border-neutral-800 pl-4">
-                          <p className="text-neutral-900 dark:text-neutral-100 italic">
-                            « {testimonial.reviewBody} »
-                          </p>
-                          <footer className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
-                            {testimonial.authorName}
-                            {testimonial.authorJob ? ` — ${testimonial.authorJob}` : ''}
-                            {testimonial.source ? ` · ${testimonial.source}` : ''}
-                          </footer>
-                        </blockquote>
-                        <StructuredData
-                          type="Review"
-                          data={{
-                            author: {
-                              '@type': 'Person',
-                              name: testimonial.authorName,
-                            },
-                            datePublished: testimonial.datePublished,
-                            reviewBody: testimonial.reviewBody,
-                            ratingValue: testimonial.ratingValue,
-                            itemReviewed: {
-                              '@type': 'Product',
-                              name: toolData.name,
-                              url: `${siteConfig.url}/marketplace/${categorySlug}/${database.slug}`,
-                            },
-                          }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {!paymentVerified && toolData.isPaid && (
-                <div className="md:hidden">
-                  <a
-                    href="#acheter"
-                    className="inline-flex items-center justify-center w-full px-4 py-3 text-sm font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg"
-                  >
-                    Acheter — {toolData.priceLabel}
-                  </a>
-                </div>
-              )}
-
-              {relatedDatabases?.length > 0 && (
-                <div>
-                  <h2 className="font-semibold text-xl mb-4 tracking-tighter">Bases proches</h2>
-                  <div className="space-y-3">
-                    {relatedDatabases.map((related) => (
-                      <Link
-                        key={related.slug}
-                        href={`/marketplace/${categoryToSlug(related.category)}/${related.slug}`}
-                        className="group flex items-center justify-between py-2 border-b border-neutral-200 dark:border-neutral-800"
-                      >
-                        <div>
-                          <p className="font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-400 transition-colors">
-                            {related.name}
-                          </p>
-                          <p className="text-sm text-neutral-500 dark:text-neutral-500">
-                            {related.category}
-                            {related.price ? ` · ${related.price} €` : ''}
-                          </p>
-                        </div>
-                        <span className="text-neutral-400">→</span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <h2 className="font-semibold text-xl mb-4 tracking-tighter">
-                  Questions fréquentes
-                </h2>
-                <FAQ items={faqItems} />
-                <StructuredData type="FAQPage" data={{ questions: faqItems }} />
-              </div>
-            </div>
-
-            {/* Buy box sticky — desktop */}
-            <aside className="hidden md:block sticky top-24 self-start space-y-4">
-              {toolData.isPaid && toolData.unlockType === 'payment' && (
-                <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-3">
-                    {database.rowCount.toLocaleString('fr-FR')} entrées · livraison Google Sheets
-                  </p>
-                  <DatabasePurchasePanel {...purchasePanelProps} />
-                </div>
-              )}
-              <p className="text-xs text-neutral-500 dark:text-neutral-500 px-1">
-                Paiement Stripe. Après achat, copie immédiate dans votre Drive — pas d’attente
-                manuelle.
+            <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
+              <h2 className="font-semibold text-xl tracking-tighter mb-2">Aperçu</h2>
+              <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-4">
+                Exemple anonymisé — {database.rowCount.toLocaleString('fr-FR')} lignes au complet.
               </p>
-            </aside>
+              <div className="overflow-x-auto -mx-1">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-neutral-200 dark:border-neutral-800">
+                      {sampleKeys.map((key) => (
+                        <th
+                          key={key}
+                          className="px-2 py-2 text-left text-xs font-medium text-neutral-500 dark:text-neutral-500 whitespace-nowrap"
+                        >
+                          {key}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {database.enrichedData?.sampleData?.length > 0
+                      ? database.enrichedData.sampleData.slice(0, 3).map((row, rowIdx) => (
+                          <tr
+                            key={rowIdx}
+                            className="border-b border-neutral-100 dark:border-neutral-900"
+                          >
+                            {sampleKeys.map((key) => (
+                              <td
+                                key={key}
+                                className="px-2 py-2 text-neutral-800 dark:text-neutral-200 whitespace-nowrap max-w-[180px] truncate"
+                              >
+                                {anonymizeValue(row[key] || '', key)}
+                              </td>
+                            ))}
+                          </tr>
+                        ))
+                      : [1, 2, 3].map((rowIdx) => (
+                          <tr key={rowIdx} className="border-b border-neutral-100 dark:border-neutral-900">
+                            {database.headers.map((header) => (
+                              <td
+                                key={header}
+                                className="px-2 py-2 text-neutral-400 dark:text-neutral-600"
+                              >
+                                —
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
+              <h2 className="font-semibold text-xl tracking-tighter mb-4">
+                Colonnes ({database.headers.length})
+              </h2>
+              <ul className="columns-1 sm:columns-2 gap-x-8 text-sm text-neutral-700 dark:text-neutral-300">
+                {sortedHeaders.map((header) => {
+                  const completeness = contactCompleteness[header]
+                  const showCount =
+                    hasRealContactData &&
+                    isContactField(header) &&
+                    completeness &&
+                    !completeness.isEstimate &&
+                    completeness.filled > 0
+
+                  return (
+                    <li key={header} className="break-inside-avoid py-1">
+                      {header}
+                      {showCount && (
+                        <span className="text-neutral-400 dark:text-neutral-500">
+                          {' '}
+                          · {completeness.filled.toLocaleString('fr-FR')}
+                        </span>
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+            </section>
+
+            {(toolData.problem?.length > 0 || toolData.solution?.length > 0) && (
+              <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8 space-y-8">
+                {toolData.problem?.length > 0 && (
+                  <div>
+                    <h2 className="font-semibold text-xl tracking-tighter mb-3">Sans cette base</h2>
+                    <ul className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
+                      {toolData.problem.map((item, index) => (
+                        <li key={index}>— {item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {toolData.solution?.length > 0 && (
+                  <div>
+                    <h2 className="font-semibold text-xl tracking-tighter mb-3">Avec cette base</h2>
+                    <ul className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
+                      {toolData.solution.map((item, index) => (
+                        <li key={index}>→ {item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {toolData.useCases?.length > 0 && (
+              <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
+                <h2 className="font-semibold text-xl tracking-tighter mb-3">Cas d&apos;usage</h2>
+                <ul className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
+                  {toolData.useCases.slice(0, 4).map((useCase) => (
+                    <li key={useCase}>→ {useCase}</li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {pageTestimonials.length > 0 && (
+              <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
+                <div className="flex items-baseline justify-between gap-3 mb-4">
+                  <h2 className="font-semibold text-xl tracking-tighter">Clients</h2>
+                  <Link
+                    href="/temoignages"
+                    className="text-sm text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                  >
+                    Tous →
+                  </Link>
+                </div>
+                <div className="space-y-6">
+                  {pageTestimonials.map((testimonial, index) => (
+                    <blockquote
+                      key={index}
+                      className="border-l border-neutral-200 dark:border-neutral-800 pl-4"
+                    >
+                      <p className="text-neutral-800 dark:text-neutral-200">
+                        « {testimonial.reviewBody} »
+                      </p>
+                      <footer className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
+                        {testimonial.authorName}
+                        {testimonial.authorJob ? ` — ${testimonial.authorJob}` : ''}
+                        {testimonial.source ? ` · ${testimonial.source}` : ''}
+                      </footer>
+                      <StructuredData
+                        type="Review"
+                        data={{
+                          author: {
+                            '@type': 'Person',
+                            name: testimonial.authorName,
+                          },
+                          datePublished: testimonial.datePublished,
+                          reviewBody: testimonial.reviewBody,
+                          ratingValue: testimonial.ratingValue,
+                          itemReviewed: {
+                            '@type': 'Product',
+                            name: toolData.name,
+                            url: `${siteConfig.url}/marketplace/${categorySlug}/${database.slug}`,
+                          },
+                        }}
+                      />
+                    </blockquote>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {!paymentVerified && toolData.isPaid && (
+              <div className="md:hidden border-t border-neutral-200 dark:border-neutral-800 pt-8">
+                <a
+                  href="#acheter"
+                  className="inline-flex text-sm font-medium underline underline-offset-4 hover:no-underline"
+                >
+                  Acheter — {toolData.priceLabel} →
+                </a>
+              </div>
+            )}
+
+            {relatedDatabases?.length > 0 && (
+              <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
+                <h2 className="font-semibold text-xl tracking-tighter mb-2">Bases proches</h2>
+                <div>
+                  {relatedDatabases.map((related) => (
+                    <Link
+                      key={related.slug}
+                      href={`/marketplace/${categoryToSlug(related.category)}/${related.slug}`}
+                      className="group flex items-baseline justify-between gap-4 py-3 border-b border-neutral-200 dark:border-neutral-800"
+                    >
+                      <span className="font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
+                        {shortMarketplaceTitle(related.name)}
+                      </span>
+                      <span className="text-sm text-neutral-500 dark:text-neutral-500 tabular-nums whitespace-nowrap">
+                        {related.price ? `${related.price} €` : ''}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8 mb-16">
+              <h2 className="font-semibold text-xl tracking-tighter mb-4">Questions</h2>
+              <FAQ items={faqItems} />
+              <StructuredData type="FAQPage" data={{ questions: faqItems }} />
+            </section>
           </div>
-        </section>
-      </main>
+
+          <aside className="hidden md:block sticky top-24 self-start border-t border-neutral-200 dark:border-neutral-800 pt-8">
+            {toolData.isPaid && toolData.unlockType === 'payment' && (
+              <DatabasePurchasePanel {...purchasePanelProps} />
+            )}
+          </aside>
+        </div>
+      </article>
     </>
   )
 }
