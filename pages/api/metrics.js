@@ -1,8 +1,11 @@
 // API route pour récupérer les métriques mises à jour
 // Les métriques sont mises à jour par le cron job et stockées dans Vercel Blob Storage
+// Users / actors Apify enrichis en live depuis le profil public.
 
 import { list } from '@vercel/blob'
 import { siteConfig } from '../../lib/config'
+import { enrichMetricsWithApifyLive } from '../../lib/apify-live-stats'
+import { captureDataError } from '../../lib/sentry'
 
 const BLOB_FILENAME = 'metrics.json'
 
@@ -12,39 +15,44 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Récupérer les métriques depuis Vercel Blob Storage
-    const blobs = await list({ prefix: BLOB_FILENAME })
-    const existingBlob = blobs.blobs.find(blob => blob.pathname === BLOB_FILENAME)
+    let metrics = siteConfig.metrics
+    let lastUpdated = null
 
-    if (existingBlob) {
-      const response = await fetch(existingBlob.url, { next: { revalidate: 300 } })
-      
-      if (response.ok) {
-        const data = await response.json()
-        return res.status(200).json({
-          success: true,
-          metrics: data.metrics || [],
-          lastUpdated: data.lastUpdated || null
-        })
+    try {
+      const blobs = await list({ prefix: BLOB_FILENAME })
+      const existingBlob = blobs.blobs.find((blob) => blob.pathname === BLOB_FILENAME)
+
+      if (existingBlob) {
+        const response = await fetch(existingBlob.url, { next: { revalidate: 300 } })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.metrics?.length) {
+            metrics = data.metrics
+            lastUpdated = data.lastUpdated || null
+          }
+        }
       }
+    } catch (e) {
+      console.warn('metrics: blob read failed', e?.message)
     }
-    
-    // Fallback vers les métriques statiques si le blob n'existe pas encore
+
+    metrics = await enrichMetricsWithApifyLive(metrics)
+
     return res.status(200).json({
       success: true,
-      metrics: siteConfig.metrics,
-      lastUpdated: null
+      metrics,
+      lastUpdated,
     })
   } catch (error) {
+    captureDataError(error, { source: 'blob', tags: { area: 'metrics' } })
     console.error('Erreur lors de la récupération des métriques:', error)
-    
-    // Fallback vers les métriques statiques en cas d'erreur
+
     return res.status(200).json({
       success: true,
       metrics: siteConfig.metrics,
       lastUpdated: null,
-      error: 'Using fallback metrics'
+      error: 'Using fallback metrics',
     })
   }
 }
-

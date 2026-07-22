@@ -3,6 +3,7 @@
 
 import { getMetrics } from '../../../lib/notion'
 import { put, list } from '@vercel/blob'
+import { enrichMetricsWithApifyLive } from '../../../lib/apify-live-stats'
 
 const BLOB_FILENAME = 'metrics.json'
 
@@ -31,15 +32,16 @@ export default async function handler(req, res) {
       throw new Error('Blob not configured: BLOB_READ_WRITE_TOKEN missing')
     }
 
-    // Récupérer les métriques depuis Notion
+    // Récupérer les métriques depuis Notion + enrichir Apify live
     const notionMetrics = await getMetrics()
     
     // Transformer les métriques Notion au format attendu
-    const metrics = notionMetrics.map(metric => ({
+    let metrics = notionMetrics.map(metric => ({
       value: metric.value,
       label: metric.label,
       source: metric.source
     }))
+    metrics = await enrichMetricsWithApifyLive(metrics)
 
     // Sauvegarder les métriques dans Vercel Blob Storage
     const dataToSave = {

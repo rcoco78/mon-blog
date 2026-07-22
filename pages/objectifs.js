@@ -180,8 +180,10 @@ function findApifyUsersTotalKeyResult(keyResults) {
     const nameLower = (k.name || '').toLowerCase()
     const categoryLower = (k.category || '').toLowerCase()
     return (
-      (nameLower.includes('utilisateurs total') || nameLower.includes('total users')) &&
-      (categoryLower.includes('apify') || categoryLower.includes('scraping'))
+      (nameLower.includes('utilisateurs total') || nameLower.includes('total users') || nameLower.includes('total utilisateurs')) &&
+      (nameLower.includes('apify') || categoryLower.includes('apify') || categoryLower.includes('scraping')) &&
+      !nameLower.includes('mensuel') &&
+      !nameLower.includes('monthly')
     )
   })
   if (!kr) {
@@ -190,12 +192,15 @@ function findApifyUsersTotalKeyResult(keyResults) {
       const categoryLower = (k.category || '').toLowerCase()
       return (
         (nameLower.includes('utilisateur') || nameLower.includes('user')) &&
-        (categoryLower.includes('apify') || categoryLower.includes('scraping'))
+        (nameLower.includes('apify') || categoryLower.includes('apify') || categoryLower.includes('scraping')) &&
+        !nameLower.includes('mensuel') &&
+        !nameLower.includes('monthly')
       )
     })
     if (matchingKRs.length > 0) {
+      // Préférer le KR avec le plus grand currentResult (pas la cible)
       kr = matchingKRs.reduce((max, k) =>
-        (k.targetResult || 0) > (max.targetResult || 0) ? k : max
+        (k.currentResult || 0) > (max.currentResult || 0) ? k : max
       )
     }
   }
