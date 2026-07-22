@@ -203,6 +203,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
             siteConfig.social.linkedin,
             siteConfig.social.malt,
             siteConfig.social.github,
+            siteConfig.social.youtube,
             'https://apify.com?fpr=0n7ukq'
           ]
         };
@@ -223,7 +224,8 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
             sameAs: [
               siteConfig.social.linkedin,
               siteConfig.social.malt,
-              'https://github.com/rcoco78'
+              siteConfig.social.github,
+              siteConfig.social.youtube,
             ]
           },
           publisher: {
@@ -311,6 +313,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
             siteConfig.social.linkedin,
             siteConfig.social.malt,
             siteConfig.social.fiverr,
+            siteConfig.social.youtube,
             'https://apify.com?fpr=0n7ukq',
             siteConfig.social.github
           ],

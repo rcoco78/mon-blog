@@ -254,6 +254,7 @@ export default function Layout({ children }) {
                     <FooterArrowLink href="/confidentialite" active={router.pathname === '/confidentialite'}>confidentialité</FooterArrowLink>
                     <FooterArrowLink href="/cas-usage" active={router.pathname === '/cas-usage' || router.pathname.startsWith('/cas-usage/')}>cas d&apos;usage</FooterArrowLink>
                     <FooterArrowLink href="/newsletter" active={router.pathname === '/newsletter'}>newsletter</FooterArrowLink>
+                    <FooterArrowLink href={siteConfig.social.youtube} external active={false}>youtube</FooterArrowLink>
                     <FooterArrowLink href="https://www.linkedin.com/in/robertcorentin/" external active={false}>linkedin</FooterArrowLink>
                     <FooterArrowLink href="/spotify" active={router.pathname === '/spotify'} isPlaying={isPlaying} onHover={handleSpotifyHover}>spotify</FooterArrowLink>
                   </ul>
