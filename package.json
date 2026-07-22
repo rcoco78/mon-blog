@@ -1,7 +1,7 @@
 {
   "name": "notion-blog",
   "version": "1.0.0",
-  "description": "Blog personnel alimenté par Notion",
+  "description": "Site de Corentin Robert — freelance scraping, automatisation et journal public",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -1,533 +1,132 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { testimonials } from '../lib/testimonials'
-
-// Fonction helper pour obtenir le logo d'une entreprise
-const getCompanyLogo = (companyName) => {
-  if (!companyName) return null
-  const nameLower = companyName.toLowerCase()
-  
-  // Mapping des entreprises aux logos disponibles
-  const logoMap = {
-    'ngi': '/images/logos/ngi.png',
-    'inovesta': '/images/logos/vibe-2025-07-01.webp', // À ajuster si tu as le logo Inovesta
-    'kent': '/images/logos/lloyd & davis.png', // À ajuster si tu as le logo Kent
-    'assursafe': '/images/logos/assursafe.jpeg',
-    'parallel': '/images/logos/vibe-2025-07-01.webp', // À ajuster si tu as le logo Parallel
-    'canopée': '/images/logos/vibe-2025-07-01.webp', // À ajuster si tu as le logo Canopée
-    'inxpress': '/images/logos/vibe-2025-07-01.webp', // À ajuster si tu as le logo InXpress
-    'biche-renard': '/images/logos/vibe-2025-07-01.webp', // À ajuster si tu as le logo La Biche-Renard
-  }
-  
-  // Chercher une correspondance partielle
-  for (const [key, logo] of Object.entries(logoMap)) {
-    if (nameLower.includes(key)) {
-      return logo
-    }
-  }
-  
-  return null
-}
+import { getProjectsCountPhrase } from '../lib/project-count'
 
 export default function Temoignages() {
-  const pageSEO = generatePageSEO({
-    title: 'Témoignages Clients - Corentin Robert',
-    description: 'Témoignages et avis clients vérifiés de Corentin Robert. 424+ projets scraping et automatisation réalisés via Malt, Fiverr et LinkedIn. Retours clients avec notes et recommandations.',
-    path: '/temoignages',
-    keywords: ['témoignages', 'avis clients', 'recommandations', 'Malt', 'Fiverr', 'LinkedIn']
-  })
+  const projectsPhrase = getProjectsCountPhrase()
+  const sorted = [...testimonials].sort(
+    (a, b) => new Date(b.datePublished) - new Date(a.datePublished)
+  )
 
-  // Les témoignages sont maintenant importés depuis lib/testimonials.js
+  const pageSEO = generatePageSEO({
+    title: 'Témoignages clients',
+    description: `Avis clients vérifiés — scraping, automatisation et outbound. ${projectsPhrase} livrés via Malt, Fiverr et LinkedIn.`,
+    path: '/temoignages',
+    keywords: ['témoignages', 'avis clients', 'recommandations', 'Malt', 'Fiverr', 'LinkedIn'],
+  })
 
   return (
     <>
       <SEOHead {...pageSEO} />
-      
-      {/* Review Schema 5* par défaut pour la page */}
-      <StructuredData
-        type="Review"
-        data={{
-          itemReviewed: {
-            '@type': 'Product',
-            name: 'Services de Scraping et Automatisation',
-            url: siteConfig.url,
-            brand: {
-              '@type': 'Person',
-              name: siteConfig.author,
-              url: siteConfig.url
-            }
-          },
-          reviewRating: {
-            '@type': 'Rating',
-            ratingValue: '5',
-            bestRating: '5',
-            worstRating: '1'
-          },
-          author: {
-            '@type': 'Person',
-            name: siteConfig.author,
-            url: siteConfig.url
-          },
-          reviewBody: '424+ projets réalisés avec 270+ avis positifs. Expert freelance scraping et automatisation. Livraison en 7 jours, résultats garantis.',
-          datePublished: new Date().toISOString().split('T')[0]
-        }}
-      />
-      
-      {/* Review Schema pour chaque témoignage */}
-      {testimonials.map((testimonial, index) => (
+
+      {sorted.map((testimonial, index) => (
         <StructuredData
-          key={index}
+          key={`${testimonial.authorName}-${testimonial.datePublished}-${index}`}
           type="Review"
           data={{
             author: {
               '@type': 'Person',
-              name: siteConfig.author,
-              url: siteConfig.url
+              name: testimonial.authorName,
             },
             reviewBody: testimonial.reviewBody,
             ratingValue: testimonial.ratingValue,
             datePublished: testimonial.datePublished,
             itemReviewed: {
-              '@type': 'Product',
-              name: 'Services de Scraping et Automatisation',
+              '@type': 'Service',
+              name: 'Services de scraping et automatisation',
               url: siteConfig.url,
-              brand: {
+              provider: {
                 '@type': 'Person',
                 name: siteConfig.author,
-                url: siteConfig.url
-              }
-            }
+                url: siteConfig.url,
+              },
+            },
           }}
         />
       ))}
-      <main className="flex-auto min-w-0 mt-6 flex flex-col">
-        <section className="mb-16">
-          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Témoignages</h1>
-          <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Retours de mes clients sur Malt, Fiverr et LinkedIn. 424+ projets réalisés avec 270+ avis positifs.
+
+      <main className="flex-auto min-w-0 mt-6 flex flex-col pb-16">
+        <header className="mb-10">
+          <h1 className="font-semibold text-2xl mb-3 tracking-tighter">Témoignages</h1>
+          <p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
+            Retours clients Malt, Fiverr et LinkedIn — {sorted.length} avis publiés ici.
           </p>
+        </header>
+
+        <section aria-label="Liste des témoignages">
+          <div className="divide-y divide-neutral-200 dark:divide-neutral-800 border-t border-neutral-200 dark:border-neutral-800">
+            {sorted.map((t, i) => {
+              const dateLabel = t.datePublished
+                ? new Date(t.datePublished).toLocaleDateString('fr-FR', {
+                    month: 'short',
+                    year: 'numeric',
+                  })
+                : null
+              return (
+                <blockquote
+                  key={`${t.authorName}-${t.datePublished}-${i}`}
+                  className="py-5"
+                >
+                  <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">
+                    « {t.reviewBody} »
+                  </p>
+                  <footer className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-neutral-500 dark:text-neutral-500">
+                    <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                      {t.authorName}
+                    </span>
+                    {t.authorJob && <span>{t.authorJob}</span>}
+                    {t.source && <span>{t.source}</span>}
+                    {dateLabel && <span>{dateLabel}</span>}
+                  </footer>
+                </blockquote>
+              )
+            })}
+          </div>
         </section>
 
-        {/* Section Témoignages */}
-        <section className="mb-16">
-          <div className="space-y-6">
-            {/* Malt - Franck / Overland */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Outbound • Approche pragmatique • Collaboration orientée résultats</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  &quot;J&apos;ai récemment fait appel à Corentin pour structurer et déployer une stratégie marketing outbound, et je tiens à partager mon entière satisfaction. Dès le départ, l&apos;approche a été à la fois pragmatique et orientée business. Le travail réalisé a permis de clarifier nos cibles, d&apos;optimiser nos messages et de mettre en place des actions concrètes, rapidement opérationnelles. Au-delà des compétences techniques, j&apos;ai particulièrement apprécié la capacité à comprendre nos enjeux, à challenger nos pratiques et à proposer des solutions adaptées à notre activité. Une collaboration fluide, efficace, et surtout utile. Je recommande sans hésitation.&quot;
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Franck</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Overland</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">Malt</span>
-              </div>
-            </div>
-            {/* LinkedIn - Philippa Launay */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Collecte de données • Bonnes questions • Valeur ajoutée • Échanges fluides</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  &quot;J&apos;ai eu l&apos;occasion de confier à Corentin une mission de collecte de données. Il s&apos;est tout de suite projeté dans le contexte, a su poser les bonnes questions pour apporter de la valeur ajoutée au projet. Les échanges ont été fluides et efficaces, il a été un véritable atout pour la mission.&quot;
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Philippa Launay</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Fondatrice @ Zuma Partners | Conseil &amp; formation Qualiopi</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
-              </div>
-            </div>
-            {/* Malt - Jérémie / LLOYD & DAVIS */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Lancement réussi • Efficacité</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  &quot;Parfait — nouvelle opération lancée avec succès.&quot;
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Jérémie</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Growth hacking @ LLOYD &amp; DAVIS</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">Malt</span>
-              </div>
-            </div>
-            {/* LinkedIn - Maëva Ramaël */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Transparence • Résultat rapide • Relationnel • 100 % recommandé</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  &quot;Je recommande Corentin à 100 %, une très bonne communication et transparence sur les rendus finaux et un résultat rapide et efficace. Je note aussi que Corentin a un très bon relationnel et une grande aisance, ce qui facilite les échanges !&quot;
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Maëva Ramaël</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Ingénieur Eau, Énergie, Environnement · Ingénieur d&apos;affaires industrielles</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
-              </div>
-            </div>
-            {/* Fiverr - JP */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">1 an de collaboration • Qualité • Rapidité • Force de proposition</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  "Cela fait plusieurs missions de scrapping que nous confions à Corentin depuis maintenant 1 an et nous avons toujours été ravis de travailler avec lui tant au niveau de la qualité des résultats que de la rapidité de la livraison. Un point important à souligner, Corentin est également force de proposition et c'est un véritable dialogue qui se construit autour de chacun des projets, en toute fluidité, au bénéfice d'une grande efficience. Nous recommandons Vivement."
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Jean Paul Crenn</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Dirigeant VUCA Strategy</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
-              </div>
-            </div>
-            {/* LinkedIn - Aymeric Faillenot */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">1ère collaboration • Rapide et efficace • Économie de plusieurs milliers d&apos;euros</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  &quot;1ère collaboration avec Corentin et grande satisfaction. Rapide et efficace dans l&apos;exécution de la mission, qui m&apos;a fait économiser plusieurs milliers d&apos;euros et un projet casse-tête ! Je recommande ;)&quot;
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Aymeric Faillenot</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">DG & Associé @ Atelier du Drainage Lymphatique</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
-              </div>
-            </div>
-            {/* LinkedIn - Boris Fievet */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Pro et efficace • Je recommande</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  &quot;Pro et efficace ! Je ne peux que recommander Corentin&quot;
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Boris Fievet</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Founder @ Iziday</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
-              </div>
-            </div>
-            {/* LinkedIn - Céline Arethens */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Réactif • Travail de qualité • Plaisir de travailler ensemble</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  &quot;C&apos;est toujours un plaisir de travailler avec Corentin, il est très réactif et délivre du travail de qualité !&quot;
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Céline Arethens</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">CEO @ WW Technologies | Forbes 30U30 | Founder @ LANE</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
-              </div>
-            </div>
-            {/* LinkedIn */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Automatisation • Compréhension immédiate • Valeur apportée dès le départ</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  "J'ai eu le plaisir de travailler avec Corentin dans le cadre de l'automatisation de plusieurs tâches. Très à l'écoute, il a su comprendre et détecter nos besoins immédiatement, avec une vraie capacité d'analyse et une grande efficacité dans la mise en œuvre. Super compétent, réactif et force de proposition, Corentin a clairement apporté de la valeur dès le départ."
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Adnane Amahou</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Responsable CX @ NGI</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
-              </div>
-            </div>
-            {/* Fiverr */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Projet complexe • Révisions rapides • 100% satisfait</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  "Corentin did an excellent job and my cooperation with him was smooth and easy. He delivered what he promised, he was very open and quick to discuss revisions and delivered even them in no time. My project was not a simple one, as it required collecting information from different places. I'm 100% satisfied with the result."
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">lampro74</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Belgique</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
-              </div>
-            </div>
-            {/* LinkedIn */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Délais respectés • Données exploitables immédiatement • Communication fluide</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  "Prestation de scraping impeccable : compréhension rapide du besoin, extraction propre et structurée, délais respectés. Les données livrées sont exploitables immédiatement (format clair, colonnes cohérentes, pas de doublons). Communication fluide et réactif tout au long du projet."
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Mohamed-Amine Zaghdoud</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Fondateur Kent</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
-              </div>
-            </div>
-            {/* Malt */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Délais respectés • Clarté dès le départ • Professionnalisme</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  "Très professionnel dans les échanges et a respecté à la fois la demande et les délais. Corentin a aussi été très clair sur ce qu'il allait faire dès le départ, évitant les déceptions ou mauvaises surprises. Je recommande."
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Denis</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Inovesta</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">Malt</span>
-              </div>
-            </div>
-            {/* LinkedIn */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Plusieurs missions • Professionnel • À l'écoute</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  "Nous avons travaillé à plusieurs reprises avec Corentin qui est très professionnel, rigoureux et à l'écoute de nos besoins. Je le recommande !"
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Hugues Chavrier</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Président @ Assursafe</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
-              </div>
-            </div>
-            {/* Fiverr */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Livraison exceptionnellement rapide • Grande expertise</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  "Corentin has been exceptionally fast at delivering that order. Great level of expertise! Kudos Corentin."
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">tigerparts</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Pays-Bas</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
-              </div>
-            </div>
-            {/* LinkedIn */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">2 missions • Réactivité • Accompagnement exemplaire</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  "Je recommande vivement Corentin pour sa réactivité et son professionnalisme. J'ai eu la chance de faire appel à lui à deux reprises, et à chaque fois, son accompagnement a été exemplaire."
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Chris Rydahl</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Cofounder & CTO @ Parallel</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
-              </div>
-            </div>
-            
-            {/* Call-to-Action au milieu */}
-            <div className="my-12 py-8 text-center border-t border-b border-neutral-200 dark:border-neutral-800">
-              <h2 className="font-semibold text-xl mb-4 tracking-tighter">Démarrons votre projet ensemble</h2>
-              <p className="text-neutral-600 dark:text-neutral-400 mb-6">
-                Discutons de votre projet et voyons comment je peux vous aider à le concrétiser.
-              </p>
-              <Link 
-                href="/contact"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
-              >
-                Réserver un créneau
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                </svg>
-              </Link>
-            </div>
-            
-            {/* Malt */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Expertise • Conseils • Force de proposition</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  "Corentin est très pro. Il connait son métier, est de très bon conseils, et force de proposition."
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Charlotte</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Agence Canopée</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium">Malt</span>
-              </div>
-            </div>
-            {/* LinkedIn */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">3+ ans de collaboration • Conseils • Réactivité</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  "Nous travaillons avec Corentin depuis plus de 3 ans. Il a toujours été de très bons conseils, réactif et appliqué. Je recommande à 💯 % !"
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Julien Vabre</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Dirigeant InXpress Gironde</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
-              </div>
-            </div>
-            {/* Fiverr */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Résultat dépasse attentes • Communication fluide • Professionnalisme</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  "Nous sommes extrêmement satisfaits du travail réalisé. Corentin a fait preuve d'un grand professionnalisme, d'une excellente réactivité et d'un sens du détail remarquable. La communication a toujours été fluide et agréable, et le résultat final dépasse largement nos attentes."
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">jma225845</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">France</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
-              </div>
-            </div>
-            {/* LinkedIn */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Efficacité • Compréhension rapide • Travail rapide</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  "Corentin est redoutablement efficace, il comprend vite et travaille vite. Un plaisir."
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">Arthur Dalaise</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">Co-fondateur @ La Biche-Renard</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">LinkedIn</span>
-              </div>
-            </div>
-            {/* Fiverr */}
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <div className="mb-3">
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">400K entreprises scrapées • Site complexe • Expertise scraping</p>
-              </div>
-              <div className="mb-4">
-                <p className="text-neutral-900 dark:text-neutral-100 italic">
-                  "For any scraping needs, he is amazing, was able to scrape 400K companies from a complex site."
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-neutral-800 dark:text-neutral-200">buzzinsider</p>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500">États-Unis</p>
-                </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Fiverr</span>
-              </div>
-            </div>
-          </div>
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="text-center flex flex-col items-center">
-              <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-                <strong>167 projets</strong> réalisés sur Malt avec <strong>107 avis</strong>
-              </p>
-              <a 
-                href={siteConfig.social.malt}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center px-4 py-2 text-sm border border-pink-200 dark:border-pink-800 rounded-lg hover:border-pink-300 dark:hover:border-pink-700 transition-colors group text-pink-700 dark:text-pink-400 hover:text-pink-800 dark:hover:text-pink-300"
-              >
-                Voir tous les témoignages sur Malt
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-2 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                  <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                </svg>
-              </a>
-            </div>
-            <div className="text-center flex flex-col items-center">
-              <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4 whitespace-nowrap">
-                <strong>103 avis</strong> sur Fiverr • <strong>4,9/5</strong> • <strong>257 commandes</strong>
-              </p>
-              <a 
-                href={siteConfig.social.fiverr}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center px-4 py-2 text-sm border border-green-200 dark:border-green-800 rounded-lg hover:border-green-300 dark:hover:border-green-700 transition-colors group text-green-700 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300"
-              >
-                Voir tous les témoignages sur Fiverr
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-2 transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                  <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                </svg>
-              </a>
-            </div>
-          </div>
+        <section className="mt-12 pt-8 border-t border-neutral-200 dark:border-neutral-800 space-y-3 text-sm text-neutral-600 dark:text-neutral-400">
+          <p>
+            Voir aussi sur{' '}
+            <a
+              href={siteConfig.social.malt}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-neutral-900 dark:hover:text-neutral-100"
+            >
+              Malt
+            </a>
+            {' · '}
+            <a
+              href={siteConfig.social.fiverr}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-neutral-900 dark:hover:text-neutral-100"
+            >
+              Fiverr
+            </a>
+            {' · '}
+            <a
+              href={siteConfig.social.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-neutral-900 dark:hover:text-neutral-100"
+            >
+              LinkedIn
+            </a>
+            .
+          </p>
+          <p>
+            <Link
+              href="/contact"
+              className="underline underline-offset-2 hover:text-neutral-900 dark:hover:text-neutral-100"
+            >
+              Discuter d’un projet
+            </Link>
+          </p>
         </section>
       </main>
     </>

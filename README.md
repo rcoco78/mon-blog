@@ -1,6 +1,6 @@
-# Blog Personnel - Corentin Robert
+# Corentin Robert — Freelance scraping & automatisation
 
-Blog personnel alimenté par Notion, optimisé pour le SEO et les performances.
+Site pro alimenté par Notion : journal public, marketplace et articles métier.
 
 ## 🏗️ Structure du Projet
 

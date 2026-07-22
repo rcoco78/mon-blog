@@ -2003,8 +2003,12 @@ export default function DonneesPubliques() {
                                   const affiliationLink = isAffiliationKR ? getAffiliationLink(kr.name) : null
                                   
                                   // Détecter les liens externes spécifiques
-                                  const isChessKR = (nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess')) && 
-                                                   (title.includes('Classement échecs') || title.includes('échecs chess.com'))
+                                  const isChessKR =
+                                    nameLower.includes('échecs') ||
+                                    nameLower.includes('chess') ||
+                                    nameLower.includes('elo') ||
+                                    (nameLower.includes('rapid') &&
+                                      (title.includes('Classement') || title.includes('échecs') || title.includes('chess')))
                                   const isInstagramKR = (nameLower.includes('abonnés') || nameLower.includes('abonne')) && 
                                                        (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial'))
                                   const isStravaKR = (nameLower.includes('running') || nameLower.includes('sorties running') || 

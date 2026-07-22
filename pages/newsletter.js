@@ -1,10 +1,33 @@
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import NewsletterForm from '../components/NewsletterForm'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
-import Link from 'next/link'
+
+const BENEFITS = [
+  {
+    title: 'Articles en avant-première',
+    description:
+      'Nouveaux articles scraping, automatisation et freelance, avant le partage public.',
+  },
+  {
+    title: 'Cas d’usage concrets',
+    description:
+      'Comment j’ai résolu des problèmes réels de data et d’automatisation pour des clients.',
+  },
+  {
+    title: 'Outils et ressources',
+    description:
+      'Priorité sur les nouveaux scrapers, bases marketplace et outils utiles.',
+  },
+  {
+    title: 'Notes de terrain',
+    description:
+      'Apprentissages freelance et build in public que je ne partage pas toujours ailleurs.',
+  },
+]
 
 export default function NewsletterPage() {
   const [subscriberCount, setSubscriberCount] = useState(null)
@@ -23,114 +46,85 @@ export default function NewsletterPage() {
   }, [])
 
   const pageSEO = generatePageSEO({
-    title: 'Newsletter - Restez informé de mes articles | Corentin Robert',
-    description: 'Inscrivez-vous à ma newsletter pour recevoir mes derniers articles sur le scraping, l\'automatisation et l\'entrepreneuriat. Rejoignez une communauté de professionnels passionnés.',
+    title: 'Newsletter — scraping, automatisation, freelance',
+    description:
+      'Recevez les articles métier sur le scraping, l’automatisation et le freelance. Pas de spam, désinscription en un clic.',
     path: '/newsletter',
-    keywords: ['newsletter', 'inscription newsletter', 'articles scraping', 'automatisation', 'entrepreneuriat', 'community']
+    keywords: [
+      'newsletter scraping',
+      'newsletter automatisation',
+      'freelance data',
+      'articles scraping',
+    ],
   })
 
   return (
     <>
       <SEOHead {...pageSEO} />
-      
-      {/* Structured Data */}
-      <StructuredData type="Service" data={{
-        name: 'Newsletter - Articles sur le scraping et l\'automatisation',
-        description: 'Recevez mes derniers articles et réflexions directement dans votre boîte mail',
-        provider: {
-          '@type': 'Person',
-          name: siteConfig.author,
-          url: siteConfig.url
-        },
-        areaServed: 'FR',
-        serviceType: 'Newsletter'
-      }} />
 
-      <main className="flex-auto min-w-0 mt-6 flex flex-col">
-        <section className="mb-16">
+      <StructuredData
+        type="Service"
+        data={{
+          name: 'Newsletter — scraping et automatisation',
+          description:
+            'Articles métier et notes de terrain sur le scraping, l’automatisation et le freelance.',
+          provider: {
+            '@type': 'Person',
+            name: siteConfig.author,
+            url: siteConfig.url,
+          },
+          areaServed: 'FR',
+          serviceType: 'Newsletter',
+        }}
+      />
+
+      <main className="flex-auto min-w-0 mt-6 flex flex-col pb-16">
+        <header className="mb-10">
           <h1 className="font-semibold text-2xl mb-3 tracking-tighter">Newsletter</h1>
-          <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Rejoignez une communauté de professionnels passionnés par le scraping, l'automatisation et l'entrepreneuriat.
+          <p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
+            Scraping, automatisation et freelance — le même journal que sur le site, dans votre
+            boîte mail.
           </p>
+        </header>
 
-          {/* Formulaire d'inscription */}
-          <div className="mb-12">
-            <NewsletterForm compact={false} subscriberCount={subscriberCount} />
-          </div>
+        <div className="mb-12">
+          <NewsletterForm compact={false} subscriberCount={subscriberCount} />
+        </div>
 
-          {/* Bénéfices */}
-          <div className="mb-12">
-            <h2 className="font-semibold text-lg mb-6 tracking-tighter">Ce que vous recevrez</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Articles en avant-première</h3>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                  Recevez mes nouveaux articles directement dans votre boîte mail, avant même qu'ils ne soient partagés sur les réseaux sociaux.
+        <section className="mb-12 border-t border-neutral-200 dark:border-neutral-800 pt-8">
+          <h2 className="font-semibold text-xl mb-4 tracking-tighter">Ce que vous recevez</h2>
+          <ul className="divide-y divide-neutral-200 dark:divide-neutral-800 border-t border-neutral-200 dark:border-neutral-800">
+            {BENEFITS.map((item) => (
+              <li key={item.title} className="py-4">
+                <p className="font-medium text-neutral-900 dark:text-neutral-100">{item.title}</p>
+                <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                  {item.description}
                 </p>
-              </div>
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Cas d'usage concrets</h3>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                  Découvrez comment j'ai résolu des problèmes réels de scraping et d'automatisation pour mes clients.
-                </p>
-              </div>
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Outils et ressources</h3>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                  Accès en priorité à mes nouveaux outils gratuits et bases de données que je développe régulièrement.
-                </p>
-              </div>
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                <h3 className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">Contenu exclusif</h3>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                  Réflexions sur l'entrepreneuriat, le freelance et mes apprentissages que je ne partage que par email.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Engagement */}
-          <div className="mb-12">
-            <h2 className="font-semibold text-lg mb-6 tracking-tighter">Mon engagement</h2>
-            <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-              <ul className="space-y-3 text-sm text-neutral-600 dark:text-neutral-400">
-                <li className="flex items-start gap-3">
-                  <span className="text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0">✓</span>
-                  <span><strong className="text-neutral-900 dark:text-neutral-100">Pas de spam</strong> — Maximum 1 email par semaine, uniquement pour les nouveaux articles</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0">✓</span>
-                  <span><strong className="text-neutral-900 dark:text-neutral-100">Désinscription facile</strong> — Un clic dans chaque email pour vous désinscrire à tout moment</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0">✓</span>
-                  <span><strong className="text-neutral-900 dark:text-neutral-100">Données protégées</strong> — Vos emails ne sont jamais partagés et sont stockés de manière sécurisée</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0">✓</span>
-                  <span><strong className="text-neutral-900 dark:text-neutral-100">Contenu de qualité</strong> — Seulement du contenu utile, pas de publicité</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Liens vers le blog */}
-          <div className="pt-8 border-t border-neutral-200 dark:border-neutral-800">
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-              En attendant, découvrez mes derniers articles :
-            </p>
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-            >
-              Voir tous les articles
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-              </svg>
-            </Link>
-          </div>
+              </li>
+            ))}
+          </ul>
         </section>
+
+        <section className="mb-12 border-t border-neutral-200 dark:border-neutral-800 pt-8">
+          <h2 className="font-semibold text-xl mb-4 tracking-tighter">Engagement</h2>
+          <ul className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+            <li>— Maximum 1 email par semaine, uniquement du contenu utile</li>
+            <li>— Désinscription en un clic</li>
+            <li>— Emails jamais revendus ni partagés</li>
+          </ul>
+        </section>
+
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          En attendant,{' '}
+          <Link
+            href="/blog"
+            className="underline underline-offset-2 hover:text-neutral-900 dark:hover:text-neutral-100"
+          >
+            lire les articles
+          </Link>
+          .
+        </p>
       </main>
     </>
   )
-} 
+}

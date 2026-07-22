@@ -1,9 +1,11 @@
 /**
  * Ligne de liste générique — style blog (pas de carte).
- * Alignée sur DatabaseListRow / marketplace.
  */
 
 import Link from 'next/link'
+
+const rowClassName =
+  'group flex items-start justify-between gap-4 py-4 border-b border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors'
 
 export default function ContentListRow({
   href,
@@ -11,16 +13,14 @@ export default function ContentListRow({
   meta = null,
   description = null,
   trailing = null,
+  onClick,
+  external = false,
 }) {
-  if (!href || !title) return null
+  if (!title) return null
 
   const metaText = Array.isArray(meta) ? meta.filter(Boolean).join(' · ') : meta
-
-  return (
-    <Link
-      href={href}
-      className="group flex items-start justify-between gap-4 py-4 border-b border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors"
-    >
+  const content = (
+    <>
       <div className="min-w-0 flex-1">
         <h3 className="font-semibold text-base tracking-tight text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
           {title}
@@ -41,6 +41,38 @@ export default function ContentListRow({
           </span>
         </div>
       )}
+    </>
+  )
+
+  if (!href) {
+    return <div className={rowClassName}>{content}</div>
+  }
+
+  const isExternal =
+    external ||
+    /^https?:\/\//i.test(href) ||
+    href.startsWith('mailto:') ||
+    href.startsWith('//')
+
+  if (isExternal) {
+    const isMail = href.startsWith('mailto:')
+    return (
+      <a
+        href={href}
+        onClick={onClick}
+        className={rowClassName}
+        {...(!isMail
+          ? { target: '_blank', rel: 'noopener noreferrer' }
+          : {})}
+      >
+        {content}
+      </a>
+    )
+  }
+
+  return (
+    <Link href={href} onClick={onClick} className={rowClassName}>
+      {content}
     </Link>
   )
 }

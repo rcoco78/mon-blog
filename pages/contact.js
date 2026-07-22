@@ -8,7 +8,7 @@ export default function Contact() {
     title: siteConfig.seo.pages.contact.title,
     description: siteConfig.seo.pages.contact.description,
     path: '/contact',
-    keywords: siteConfig.seo.pages.contact.keywords
+    keywords: siteConfig.seo.pages.contact.keywords,
   })
 
   return (
@@ -21,41 +21,45 @@ export default function Contact() {
           name: siteConfig.seo.pages.contact.title,
           description: siteConfig.seo.pages.contact.description,
           email: 'contact@corentinrobert.fr',
-          bookingUrl: 'https://calendly.com/corentinrobert/20min'
+          bookingUrl: 'https://calendly.com/corentinrobert/20min',
         }}
       />
 
-      <div className="flex-auto min-w-0 mt-6 flex flex-col">
-        <section className="mb-16">
-          <h1 className="font-semibold text-2xl mb-8 tracking-tighter">Contact</h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-0 tracking-tight">
-            Réservez un créneau pour discuter de vos projets de scraping, d'automatisation ou d'outbound marketing.
+      <div className="flex-auto min-w-0 mt-6 flex flex-col pb-16">
+        <header className="mb-10">
+          <h1 className="font-semibold text-2xl mb-3 tracking-tighter">Contact</h1>
+          <p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
+            Réservez un créneau pour discuter de scraping, automatisation ou outbound.
           </p>
+        </header>
+
+        <section className="mb-10 border-t border-neutral-200 dark:border-neutral-800 pt-8">
+          <h2 className="font-semibold text-xl mb-4 tracking-tighter">Méthode</h2>
+          <ol className="space-y-3 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+            <li>
+              <span className="font-medium text-neutral-900 dark:text-neutral-100">1.</span> Appel
+              de 20 minutes pour comprendre le besoin.
+            </li>
+            <li>
+              <span className="font-medium text-neutral-900 dark:text-neutral-100">2.</span>{' '}
+              Proposition technique et délais.
+            </li>
+            <li>
+              <span className="font-medium text-neutral-900 dark:text-neutral-100">3.</span>{' '}
+              Validation, puis démarrage.
+            </li>
+            <li>
+              <span className="font-medium text-neutral-900 dark:text-neutral-100">4.</span> Livraison
+              en moins d’une semaine, avec allers-retours si besoin.
+            </li>
+            <li>
+              <span className="font-medium text-neutral-900 dark:text-neutral-100">5.</span> Suivi
+              après livraison.
+            </li>
+          </ol>
         </section>
 
-        {/* Section Ma méthode de travail */}
-        <section className="mb-12 p-4 md:p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Ma méthode de travail</h2>
-          <div className="space-y-4 text-sm text-neutral-600 dark:text-neutral-400">
-            <div>
-              <p className="mb-2"><strong className="text-neutral-900 dark:text-neutral-100">1. Appel de 20 minutes</strong> pour comprendre vos besoins et votre contexte.</p>
-            </div>
-            <div>
-              <p className="mb-2"><strong className="text-neutral-900 dark:text-neutral-100">2. Proposition</strong> détaillée avec approche technique et délais.</p>
-            </div>
-            <div>
-              <p className="mb-2"><strong className="text-neutral-900 dark:text-neutral-100">3. Validation</strong> de votre côté, puis démarrage du projet.</p>
-            </div>
-            <div>
-              <p className="mb-2"><strong className="text-neutral-900 dark:text-neutral-100">4. Livraison</strong> en moins d'une semaine, avec aller-retour si nécessaire.</p>
-            </div>
-            <div>
-              <p><strong className="text-neutral-900 dark:text-neutral-100">5. Suivi</strong> — on se reparle si besoin d'ajustements ou d'évolutions.</p>
-            </div>
-          </div>
-        </section>
-
-        <div className="h-[600px] rounded-lg overflow-hidden">
+        <div className="h-[600px] overflow-hidden border-t border-neutral-200 dark:border-neutral-800 pt-8">
           <iframe
             src="https://calendly.com/corentinrobert/20min?embed_type=Inline&hide_event_type_details=1&hide_gdpr_banner=1&hide_cookie_banner=1"
             width="100%"
@@ -67,4 +71,4 @@ export default function Contact() {
       </div>
     </>
   )
-} 
+}
