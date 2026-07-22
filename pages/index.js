@@ -350,6 +350,12 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
           >
             Réserver un appel
           </button>
+          <Link
+            href="/marketplace?tab=tools"
+            className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-800 dark:text-neutral-200 hover:border-neutral-400 dark:hover:border-neutral-500 transition-colors"
+          >
+            Utiliser mes API
+          </Link>
         </div>
 
         {/* Challenge YouTube — seul point d’entrée chaîne */}
