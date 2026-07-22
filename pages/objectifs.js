@@ -399,9 +399,45 @@ export default function DonneesPubliques() {
   }, [])
 
   useEffect(() => {
-    // Échecs retirés de /objectifs (journal pro uniquement)
-    setChessLoading(false)
-    setChessHistoryLoading(false)
+    const fetchChessStats = async () => {
+      try {
+        setChessLoading(true)
+        const response = await fetch('/api/chess-stats')
+        if (response.ok) {
+          const data = await response.json()
+          setChessStats(data)
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des stats d\'échecs:', error)
+      } finally {
+        setChessLoading(false)
+      }
+    }
+
+    fetchChessStats()
+  }, [])
+
+  useEffect(() => {
+    const fetchChessHistory = async () => {
+      try {
+        setChessHistoryLoading(true)
+        const response = await fetch('/api/chess-history')
+        if (response.ok) {
+          const data = await response.json()
+          setChessHistory(Array.isArray(data) ? data : [])
+        } else {
+          const data = await response.json().catch(() => [])
+          setChessHistory(Array.isArray(data) ? data : [])
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération de l\'historique Chess.com:', error)
+        setChessHistory([])
+      } finally {
+        setChessHistoryLoading(false)
+      }
+    }
+
+    fetchChessHistory()
   }, [])
 
   // Récupérer l'historique pour chaque Key Result selon la période sélectionnée
@@ -566,24 +602,55 @@ export default function DonneesPubliques() {
     ? Object.fromEntries(Object.entries(groupedByCategory).filter(([cat]) => cat === selectedCategory))
     : groupedByCategory
 
-  // Calculer les statistiques globales (sans échecs / loisirs)
+  // Objectif Chess.com virtuel (si pas déjà présent dans Notion)
+  const chessVirtualKRsCount = (() => {
+    if (!chessStats || chessLoading) return 0
+    if (!(chessStats.rapid && chessStats.rapid.current > 0)) return 0
+    const hasChessKR = keyResults.some((kr) => {
+      const nameLower = (kr.name || '').toLowerCase()
+      return nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess') || nameLower.includes('elo')
+    })
+    return hasChessKR ? 0 : 1
+  })()
+
+  // Stats globales métier (+ classement échecs)
   const businessKeyResults = keyResults.filter((kr) => {
     const categoryLower = (kr.category || '').toLowerCase()
     const nameLower = (kr.name || '').toLowerCase()
-    if (categoryLower.includes('santé') || categoryLower.includes('sante') || categoryLower.includes('loisir') || categoryLower.includes('bien-être') || categoryLower.includes('bien-etre')) return false
-    if (nameLower.includes('chess') || nameLower.includes('échec') || nameLower.includes('elo')) return false
+    const isChess =
+      nameLower.includes('chess') ||
+      nameLower.includes('échec') ||
+      nameLower.includes('elo') ||
+      nameLower.includes('rapid')
+    const isLoisirCat =
+      categoryLower.includes('santé') ||
+      categoryLower.includes('sante') ||
+      categoryLower.includes('loisir') ||
+      categoryLower.includes('bien-être') ||
+      categoryLower.includes('bien-etre')
+    // Dans loisir / santé : ne garder que le classement échecs
+    if (isLoisirCat) return isChess
     return true
   })
-  const totalKeyResults = businessKeyResults.length
+  const chessVirtualProgress =
+    chessVirtualKRsCount > 0 && chessStats?.rapid
+      ? (chessStats.rapid.current / 1000) * 100
+      : 0
+  const totalKeyResults = businessKeyResults.length + chessVirtualKRsCount
   const completedKeyResults = businessKeyResults.filter(isKeyResultCompleted).length
-  const inProgressKeyResults = businessKeyResults.filter((kr) => {
-    if (isKeyResultCompleted(kr)) return false
-    if (isKeyResultNotStarted(kr)) return false
-    return true
-  }).length
-  const overallProgress = totalKeyResults > 0
-    ? Math.round(businessKeyResults.reduce((sum, kr) => sum + (kr.progress || 0), 0) / totalKeyResults)
-    : 0
+  const inProgressKeyResults =
+    businessKeyResults.filter((kr) => {
+      if (isKeyResultCompleted(kr)) return false
+      if (isKeyResultNotStarted(kr)) return false
+      return true
+    }).length + chessVirtualKRsCount
+  const overallProgress =
+    totalKeyResults > 0
+      ? Math.round(
+          (businessKeyResults.reduce((sum, kr) => sum + (kr.progress || 0), 0) + chessVirtualProgress) /
+            totalKeyResults
+        )
+      : 0
 
   // Fonction pour obtenir la couleur du statut
   const getStatusColor = (status) => {
@@ -1674,12 +1741,51 @@ export default function DonneesPubliques() {
             </div>
           ) : (
             <div className="space-y-12">
-              {Object.entries(groupedByCategory)
-                .filter(([category]) => {
+              {Object.entries((() => {
+                const entries = { ...groupedByCategory }
+                const isChessName = (name = '') => {
+                  const n = name.toLowerCase()
+                  return n.includes('chess') || n.includes('échec') || n.includes('elo') || n.includes('rapid')
+                }
+                const isLoisirCat = (cat = '') => {
+                  const c = cat.toLowerCase()
+                  return (
+                    c.includes('santé') ||
+                    c.includes('sante') ||
+                    c.includes('loisir') ||
+                    c.includes('bien-être') ||
+                    c.includes('bien-etre')
+                  )
+                }
+                const hasChessKR = Object.values(entries).some((results) =>
+                  results.some((kr) => isChessName(kr.name))
+                )
+                // Garantir une section pour le classement Chess si les données live existent
+                if (!hasChessKR && chessStats?.rapid?.current > 0 && !chessLoading) {
+                  const loisirKey =
+                    Object.keys(entries).find((cat) => isLoisirCat(cat)) || 'Loisir'
+                  if (!entries[loisirKey]) entries[loisirKey] = []
+                }
+                return entries
+              })())
+                .filter(([category, results]) => {
                   const categoryLower = category.toLowerCase()
-                  // Exclure mission malt/fiverr, loisirs/échecs
+                  // Exclure mission malt/fiverr
                   if (categoryLower.includes('mission malt') || categoryLower.includes('mission fiverr')) return false
-                  if (categoryLower.includes('santé') || categoryLower.includes('sante') || categoryLower.includes('loisir') || categoryLower.includes('bien-être') || categoryLower.includes('bien-etre') || categoryLower.includes('chess') || categoryLower.includes('échec')) return false
+                  // Loisir / santé : n’afficher que s’il y a (ou aura) le classement échecs
+                  if (
+                    categoryLower.includes('santé') ||
+                    categoryLower.includes('sante') ||
+                    categoryLower.includes('loisir') ||
+                    categoryLower.includes('bien-être') ||
+                    categoryLower.includes('bien-etre')
+                  ) {
+                    const hasChess = results.some((kr) => {
+                      const n = (kr.name || '').toLowerCase()
+                      return n.includes('chess') || n.includes('échec') || n.includes('elo') || n.includes('rapid')
+                    })
+                    return hasChess || (chessStats?.rapid?.current > 0 && !chessLoading)
+                  }
                   return true
                 })
                 .sort(([a], [b]) => {
@@ -1691,6 +1797,7 @@ export default function DonneesPubliques() {
                     if (c.includes('apify')) return 3
                     if (c.includes('affiliation') || c.includes('partenariat')) return 4
                     if (c.includes('logement') || c.includes('entrepreneurial')) return 5
+                    if (c.includes('santé') || c.includes('sante') || c.includes('loisir') || c.includes('bien-être') || c.includes('bien-etre')) return 9
                     return 6
                   }
                   return score(a) - score(b)
@@ -1701,13 +1808,53 @@ export default function DonneesPubliques() {
                 const isApifyCategory = categoryLower.includes('apify') || translatedCategory === 'Scrapers publics'
                 const isLogementAtypiqueCategory = categoryLower.includes('logement')
                 const isFreelanceCategory = categoryLower.includes('freelance') || categoryLower.includes('freelancing')
-                
-                // Filtrer les KR échecs même hors catégorie loisir
-                let resultsToDisplay = results.filter((kr) => {
-                  const nameLower = (kr.name || '').toLowerCase()
-                  return !(nameLower.includes('chess') || nameLower.includes('échec') || nameLower.includes('elo'))
-                })
-                
+                const isLoisirCategory =
+                  categoryLower.includes('santé') ||
+                  categoryLower.includes('sante') ||
+                  categoryLower.includes('loisir') ||
+                  categoryLower.includes('bien-être') ||
+                  categoryLower.includes('bien-etre')
+
+                // Ajouter le classement Chess.com live si absent de Notion
+                let resultsToDisplay = isLoisirCategory
+                  ? results.filter((kr) => {
+                      const nameLower = (kr.name || '').toLowerCase()
+                      return (
+                        nameLower.includes('chess') ||
+                        nameLower.includes('échec') ||
+                        nameLower.includes('elo') ||
+                        nameLower.includes('rapid')
+                      )
+                    })
+                  : [...results]
+
+                if (isLoisirCategory && chessStats && !chessLoading) {
+                  const rapidTarget = 1000
+                  const hasRapidKR = resultsToDisplay.some((kr) => {
+                    const nameLower = (kr.name || '').toLowerCase()
+                    return (
+                      nameLower.includes('rapid') ||
+                      nameLower.includes('échecs') ||
+                      nameLower.includes('chess') ||
+                      nameLower.includes('elo')
+                    )
+                  })
+                  if (!hasRapidKR && chessStats.rapid?.current > 0) {
+                    resultsToDisplay.push({
+                      id: 'chess-rapid-virtual',
+                      name: 'Classement échecs (Rapid)',
+                      category,
+                      status: 'In progress',
+                      currentResult: chessStats.rapid.current,
+                      targetResult: rapidTarget,
+                      progress:
+                        rapidTarget > 0
+                          ? (chessStats.rapid.current / rapidTarget) * 100
+                          : 0,
+                    })
+                  }
+                }
+
                 // Trier les résultats dans un ordre logique
                 const sortedResults = sortKeyResults(resultsToDisplay, category)
                 
@@ -1750,6 +1897,18 @@ export default function DonneesPubliques() {
                           <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                         </svg>
                       </Link>
+                    ) : isLoisirCategory ? (
+                      <Link
+                        href="https://link.chess.com/friend/GYjATb"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors"
+                      >
+                        {translatedCategory === category ? 'Loisir' : translatedCategory}
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                        </svg>
+                      </Link>
                     ) : (
                       translatedCategory
                     )}
@@ -1765,8 +1924,7 @@ export default function DonneesPubliques() {
                                  !nameLower.includes('ad-hoc') &&
                                  !nameLower.includes('ad hoc') &&
                                  !(nameLower.includes('calendly') && (nameLower.includes('%') || nameLower.includes('pourcentage') || nameLower.includes('génération'))) &&
-                                 !(nameLower.includes('appels malt') || nameLower.includes('appels fiverr')) &&
-                                 !(categoryLower.includes('personnel') && (nameLower.includes('elo') || nameLower.includes('chess') || nameLower.includes('échecs')))
+                                 !(nameLower.includes('appels malt') || nameLower.includes('appels fiverr'))
                         }).length
                         return `(${filteredCount} ${filteredCount > 1 ? 'objectifs' : 'objectif'})`
                       })()}
@@ -1809,14 +1967,12 @@ export default function DonneesPubliques() {
                         const nameLower = (kr.name || '').toLowerCase()
                         const categoryLower = (kr.category || '').toLowerCase()
                         // Exclure "Rendez-vous ponctuels", "% Calendly (génération de leads)", et les appels Malt/Fiverr (ils seront affichés comme sous-éléments)
-                        // Exclure "Elo chess.com" de la catégorie Blog/Personnel
                         return !title.includes('Rendez-vous ponctuels') &&
                                !title.includes('ponctuels') &&
                                !nameLower.includes('ad-hoc') &&
                                !nameLower.includes('ad hoc') &&
                                !(nameLower.includes('calendly') && (nameLower.includes('%') || nameLower.includes('pourcentage') || nameLower.includes('génération'))) &&
-                               !(nameLower.includes('appels malt') || nameLower.includes('appels fiverr')) &&
-                               !(categoryLower.includes('personnel') && (nameLower.includes('elo') || nameLower.includes('chess') || nameLower.includes('échecs')))
+                               !(nameLower.includes('appels malt') || nameLower.includes('appels fiverr'))
                       })
                       .map((kr) => {
                         // Détecter si c'est "Rendez-vous obtenu via Calendly"
@@ -1945,19 +2101,23 @@ export default function DonneesPubliques() {
                                     // Pour les objectifs d'échecs, utiliser les données Chess.com
                                     const nameLower = (kr.name || '').toLowerCase()
                                     const categoryLower = (kr.category || '').toLowerCase()
-                                    const isChessKR = (nameLower.includes('rapid') || nameLower.includes('blitz') || nameLower.includes('tactics') || nameLower.includes('tactiques') || nameLower.includes('échecs') || nameLower.includes('chess')) &&
-                                                      (categoryLower.includes('santé') || categoryLower.includes('loisir') || categoryLower.includes('bien-être'))
-                                    
+                                    const isChessKR =
+                                      nameLower.includes('rapid') ||
+                                      nameLower.includes('blitz') ||
+                                      nameLower.includes('tactics') ||
+                                      nameLower.includes('tactiques') ||
+                                      nameLower.includes('échecs') ||
+                                      nameLower.includes('chess') ||
+                                      nameLower.includes('elo')
+
                                     if (isChessKR && chessStats) {
-                                      if (nameLower.includes('rapid')) {
-                                        return formatNumber(chessStats.rapid.current || 0)
-                                      }
                                       if (nameLower.includes('blitz')) {
                                         return formatNumber(chessStats.blitz.current || 0)
                                       }
                                       if (nameLower.includes('tactics') || nameLower.includes('tactiques')) {
                                         return formatNumber(chessStats.tactics.highest || 0)
                                       }
+                                      return formatNumber(chessStats.rapid?.current || 0)
                                     }
                                     
                                     // Pour "Revenus d'affiliation" (sans nom de service), calculer la somme de tous les revenus d'affiliation individuels
@@ -2102,19 +2262,25 @@ export default function DonneesPubliques() {
                               const categoryLower = (kr.category || '').toLowerCase()
                               
                               // Pour les objectifs d'échecs, utiliser les données Chess.com
-                              const isChessKR = (nameLower.includes('rapid') || nameLower.includes('blitz') || nameLower.includes('tactics') || nameLower.includes('tactiques') || nameLower.includes('échecs') || nameLower.includes('chess')) &&
-                                                (categoryLower.includes('santé') || categoryLower.includes('loisir') || categoryLower.includes('bien-être'))
-                              
+                              const isChessKR =
+                                nameLower.includes('rapid') ||
+                                nameLower.includes('blitz') ||
+                                nameLower.includes('tactics') ||
+                                nameLower.includes('tactiques') ||
+                                nameLower.includes('échecs') ||
+                                nameLower.includes('chess') ||
+                                nameLower.includes('elo')
+
                               let actualCurrentResult = kr.currentResult || 0
                               let actualTargetResult = kr.targetResult || 0
-                              
+
                               if (isChessKR && chessStats) {
-                                if (nameLower.includes('rapid')) {
-                                  actualCurrentResult = chessStats.rapid.current || 0
-                                } else if (nameLower.includes('blitz')) {
+                                if (nameLower.includes('blitz')) {
                                   actualCurrentResult = chessStats.blitz.current || 0
                                 } else if (nameLower.includes('tactics') || nameLower.includes('tactiques')) {
                                   actualCurrentResult = chessStats.tactics.highest || 0
+                                } else {
+                                  actualCurrentResult = chessStats.rapid?.current || 0
                                 }
                               }
                               
