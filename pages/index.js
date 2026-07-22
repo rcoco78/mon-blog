@@ -10,6 +10,7 @@ import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import ProjectClickCounter from '../components/ProjectClickCounter'
 import DatabaseListRow from '../components/marketplace/DatabaseListRow'
+import ContentListRow, { ContentListRowSkeleton } from '../components/ContentListRow'
 import { testimonials } from '../lib/testimonials'
 import { getProjectsCountPhrase } from '../lib/project-count'
 import { fetchBlobJson, withTimeout } from '../lib/blob-cache'
@@ -779,47 +780,35 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
           Scraping, automatisation, freelance et acquisition — le journal de ce qui construit ma légitimité.
         </p>
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col">
           {loading ? (
-            Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-24 bg-neutral-100 dark:bg-neutral-800 rounded-lg animate-pulse" />
-            ))
+            Array.from({ length: 3 }).map((_, i) => <ContentListRowSkeleton key={i} />)
           ) : topPosts.length > 0 ? (
-            topPosts.map((post) => (
-              <Link
-                key={post.slug}
-                href={`/blog/${post.slug}`}
-                className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-              >
-                <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
-                  <div className="flex-1 min-w-0">
-                    <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 mb-1">
-                      {post.title}
-                    </h2>
-                    {post.metaDescription && (
-                      <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
-                        {post.metaDescription}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-xs text-neutral-500 dark:text-neutral-500 flex-1 min-w-0">
-                      {(() => {
-                        const d = new Date(post.date)
-                        return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()} · ${post.views ?? 0} ${(post.views ?? 0) === 1 ? 'vue' : 'vues'}`
-                      })()}
-                    </span>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0" aria-hidden>
-                      <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                    </svg>
-                  </div>
-                </div>
-              </Link>
-            ))
+            topPosts.map((post) => {
+              const d = new Date(post.date)
+              const dateLabel = Number.isNaN(d.getTime())
+                ? null
+                : d.toLocaleDateString('fr-FR', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  })
+              const views = post.views ?? 0
+              return (
+                <ContentListRow
+                  key={post.slug}
+                  href={`/blog/${post.slug}`}
+                  title={post.title}
+                  meta={dateLabel}
+                  description={post.metaDescription || null}
+                  trailing={`${views.toLocaleString('fr-FR')} vue${views === 1 ? '' : 's'}`}
+                />
+              )
+            })
           ) : (
-            <p className="text-neutral-600 dark:text-neutral-400">Aucun article disponible pour le moment.</p>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 py-4">
+              Aucun article disponible pour le moment.
+            </p>
           )}
         </div>
         <div className="mt-6 text-center">
@@ -841,41 +830,18 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
           Exemples concrets dans l’immobilier, la prospection LinkedIn et l’e-commerce.
         </p>
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col">
           {topCaseStudiesLoading ? (
-            Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-24 bg-neutral-100 dark:bg-neutral-800 rounded-lg animate-pulse" />
-            ))
+            Array.from({ length: 3 }).map((_, i) => <ContentListRowSkeleton key={i} />)
           ) : topCaseStudies.length > 0 ? (
             topCaseStudies.map((cs) => (
-              <Link
+              <ContentListRow
                 key={cs.slug}
                 href={`/cas-usage/${sectorToSlug(cs.sector || '')}/${cs.slug}`}
-                className="block p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group"
-              >
-                <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
-                  <div className="flex-1 min-w-0">
-                    <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 mb-1">
-                      {cs.title}
-                    </h2>
-                    {cs.description && (
-                      <p className="text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
-                        {cs.description}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-xs text-neutral-500 dark:text-neutral-500 flex-1 min-w-0">
-                      {cs.sector}
-                    </span>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0" aria-hidden>
-                      <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                    </svg>
-                  </div>
-                </div>
-              </Link>
+                title={cs.title}
+                meta={cs.sector || null}
+                description={cs.description || null}
+              />
             ))
           ) : null}
         </div>
