@@ -143,10 +143,6 @@ export default function TestimonialsCarousel({ count = 5 }) {
         ))}
       </div>
 
-      <p className="mt-3 text-center text-xs text-neutral-500 dark:text-neutral-500 tabular-nums" aria-live="polite">
-        {index + 1} / {items.length}
-      </p>
-
       <div className="mt-4 text-center">
         <Link
           href="/temoignages"
