@@ -18,9 +18,11 @@ import fs from 'fs/promises'
 import path from 'path'
 import { siteConfig } from '../../../lib/config'
 import { sectorToSlug } from '../../../lib/case-studies-helpers'
+import { putCaseStudiesSplit } from '../../../lib/case-studies-blob-write'
 
 const BLOB_FILENAME = 'case-studies.json'
 const DAYS_TO_CHECK = 60 // Pages créées dans les 60 derniers jours
+const NOINDEX_AFTER_DAYS = 45 // 0 impression après N jours → noindex (libère le crawl budget)
 const SITE_URL = 'sc-domain:corentinrobert.fr'
 const BASE_URL = siteConfig?.url || 'https://www.corentinrobert.fr'
 
@@ -198,11 +200,46 @@ export default async function handler(req, res) {
     if (notIndexed.length > 0) {
       reportLines.push(`\n🔴 *Non indexées (0 imp après 14j) — ${notIndexed.length}*`)
       reportLines.push(...notIndexed.slice(0, 5).map(formatLine))
-      reportLines.push(`  _→ Soumettre manuellement dans Search Console_`)
+      reportLines.push(`  _→ noindex auto après ${NOINDEX_AFTER_DAYS}j sans impression_`)
     }
 
     if (tooRecent.length > 0) {
       reportLines.push(`\n⏳ *Trop récentes (<14j) — ${tooRecent.length}* (pas encore indexées, normal)`)
+    }
+
+    // 5) noindex automatique : pages générées sans aucune impression après NOINDEX_AFTER_DAYS
+    // Libère le crawl budget et réduit la cannibalisation avec le blog
+    let noindexApplied = 0
+    const slugToNoindex = new Set(
+      results
+        .filter((r) => r.status === 'not_indexed' && r.agedays >= NOINDEX_AFTER_DAYS && !r.cs.forceIndex)
+        .map((r) => r.cs.slug),
+    )
+
+    if (slugToNoindex.size > 0) {
+      let changed = false
+      const updatedCases = allCases.map((cs) => {
+        if (!slugToNoindex.has(cs.slug) || cs.noindex === true) return cs
+        changed = true
+        noindexApplied++
+        return {
+          ...cs,
+          noindex: true,
+          noindexReason: `0 impressions Search Console après ${NOINDEX_AFTER_DAYS}j`,
+          noindexAt: new Date().toISOString(),
+        }
+      })
+
+      if (changed) {
+        blobData.caseStudies = updatedCases
+        blobData.lastUpdated = new Date().toISOString()
+        await putCaseStudiesSplit(updatedCases, {
+          skipFull: false,
+          onlyNewSlugs: [...slugToNoindex],
+        })
+        console.log(`[ranking-check] noindex appliqué sur ${noindexApplied} pages`)
+        reportLines.push(`\n🧹 *noindex auto* : ${noindexApplied} pages (0 imp après ${NOINDEX_AFTER_DAYS}j)`)
+      }
     }
 
     reportLines.push(`\n_Cron: /api/cron/case-studies-ranking-check_`)
@@ -217,6 +254,7 @@ export default async function handler(req, res) {
       stagnating: stagnating.length,
       notIndexed: notIndexed.length,
       tooRecent: tooRecent.length,
+      noindexApplied,
     })
   } catch (error) {
     console.error('[ranking-check] Erreur:', error)

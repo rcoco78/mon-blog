@@ -1,6 +1,7 @@
 import { getCaseStudiesFromBlob, getAllSectors as getAllSectorsFromBlob } from '../lib/case-studies-blob'
 import { caseStudies as localCaseStudies, getAllSectors as getAllSectorsLocal } from '../lib/case-studies'
 import { sectorToSlug } from '../lib/case-studies-helpers'
+import { isCaseStudyIndexable } from '../lib/case-studies-quality'
 import { list } from '@vercel/blob'
 
 const VIEWS_EVENTS_FILENAME = 'case-studies-views-events.json'
@@ -87,8 +88,13 @@ export const getServerSideProps = async ({ res }) => {
     views: viewsMap[cs.slug] || 0
   })).sort((a, b) => b.views !== a.views ? b.views - a.views : a.title.localeCompare(b.title))
 
-  const top3Slugs = new Set(caseStudiesWithViews.slice(0, 3).map(cs => cs.slug))
-  const top10Slugs = new Set(caseStudiesWithViews.slice(0, 10).map(cs => cs.slug))
+  // Ne soumettre à Google que les pages indexables (évite crawl budget sur thin content)
+  const indexableCaseStudies = caseStudiesWithViews.filter((cs) =>
+    isCaseStudyIndexable(cs, cs.personalized || null),
+  )
+
+  const top3Slugs = new Set(indexableCaseStudies.slice(0, 3).map(cs => cs.slug))
+  const top10Slugs = new Set(indexableCaseStudies.slice(0, 10).map(cs => cs.slug))
 
   // Helper : vraie date de dernière modification
   const getLastmod = (cs) => {
@@ -118,7 +124,7 @@ export const getServerSideProps = async ({ res }) => {
 
   // URLs des pages par secteur — lastmod = page la plus récente du secteur
   const sectorLastmod = {}
-  for (const cs of caseStudies) {
+  for (const cs of indexableCaseStudies) {
     const s = cs.sector
     const d = getLastmod(cs)
     if (!sectorLastmod[s] || d > sectorLastmod[s]) sectorLastmod[s] = d
@@ -138,7 +144,7 @@ export const getServerSideProps = async ({ res }) => {
     })
     .join('')
 
-  const caseStudyUrls = caseStudies
+  const caseStudyUrls = indexableCaseStudies
     .map((cs) => {
       const sectorSlug = sectorToSlug(cs.sector)
       const lastmod = getLastmod(cs)

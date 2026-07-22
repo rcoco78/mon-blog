@@ -15,6 +15,11 @@ import { caseStudies as localCaseStudies } from '../../../lib/case-studies'
 import { siteConfig } from '../../../lib/config'
 import { sectorToSlug } from '../../../lib/case-studies-helpers'
 import { getSearchConsoleData } from '../../../lib/search-console'
+import {
+  checkBlogCannibalization,
+  loadBlogIndexFromBlob,
+  hasCommercialIntent,
+} from '../../../lib/case-studies-quality'
 
 const BLOB_FILENAME = 'case-studies.json'
 const SEARCH_CONSOLE_STATE_FILENAME = 'search-console-state.json'
@@ -489,10 +494,22 @@ Réponds UNIQUEMENT par un JSON valide :
   }
 }
 
-// Décision finale : script + IA en zone incertaine
+// Décision finale : script + IA en zone incertaine + anti-cannibalisation blog
 // Zones : score < 0.45 = accept | 0.45-0.75 = IA décide | >= 0.75 = reject
-// (seuil relevé pour réduire les rejets excessifs de l'IA en zone limite)
-async function shouldRejectCase(newCase, existingCases) {
+async function shouldRejectCase(newCase, existingCases, blogPosts = []) {
+  // 0) Intention informationnelle ou trop proche d'un article blog
+  const blogCheck = checkBlogCannibalization(newCase, blogPosts)
+  if (blogCheck.cannibalizes) {
+    return { reject: true, reason: `blog: ${blogCheck.reason}`, matched: blogCheck.blog }
+  }
+
+  if (!hasCommercialIntent(newCase.title || '') && !hasCommercialIntent((newCase.keywords || []).join(' '))) {
+    return {
+      reject: true,
+      reason: 'pas d’intention commerciale (laisser au blog)',
+    }
+  }
+
   const candidates = findSimilarCandidates(newCase, existingCases)
   const best = candidates[0]
 
@@ -829,12 +846,20 @@ async function agentExploreIdeas(summary, options = {}) {
       return `  ${i + 1}. requête: "${c.mainQuery}"${variantsStr} | pos ${Math.round(c.position)} | ${c.impressions} imp | ${c.clicks || 0} clics${rankWarning}`
     }).join('\n')
 
-    prompt = `Tu es un expert SEO et scraping. Tu dois générer des idées de cas d'usage scraping en 2 parties.
+    prompt = `Tu es un expert SEO et scraping. Tu génères des LANDINGS COMMERCIALES (/cas-usage), PAS des articles de blog.
+
+RÔLE DES PAGES :
+- /cas-usage = intention TRANSACTIONNELLE (« je veux faire scraper X / extraire des leads Y »)
+- /blog = intention INFORMATIONNELLE (« comment ça marche », guides, tutoriels) — NE PAS concurrencer le blog
+
+INTERDIT : titres type « Comment faire… », « Guide… », « Qu’est-ce que… », « Tutoriel… ».
+OBLIGATOIRE : format « Scraping [Plateforme] : [résultat business concret] ».
 
 TITRES EXISTANTS (à ne pas dupliquer) :
 ${titlesSample.slice(0, 6000)}
 
 REQUÊTES DÉJÀ COUVERTES (ne pas cannibaliser) : ${toAvoid || 'aucune'}
+REQUÊTES DÉJÀ PORTÉES PAR LE BLOG (ne pas cibler) : ${(sc.blogOwnedQueries || []).slice(0, 40).map((b) => b.query || b).join(', ') || 'aucune'}
 SECTEURS PERFORMANTS (priorité) : ${perfSectors || 'aucun'}
 SECTEURS RÉCENTS À DIVERSIFIER : ${(summary.gaps?.recentSectors || []).join(', ') || 'aucun'}
 
@@ -1140,9 +1165,11 @@ async function generateNewCaseStudies(existingCaseStudies, count, excludeQueries
     if (searchConsole.hasData) {
       const excluded = excludeQueries.length
       const opps = searchConsole.queriesToTarget || []
+      const blogOwned = searchConsole.blogOwnedQueries || []
       console.log(
-        `[generate-new-case-studies] Search Console : ${opps.length} opportunités` +
+        `[generate-new-case-studies] Search Console : ${opps.length} opportunités commerciales` +
           (excluded ? ` (${excluded} exclues du run précédent)` : '') +
+          `, ${blogOwned.length} requêtes réservées au blog` +
           `, ${searchConsole.queriesWeRankFor.length} requêtes couvertes, ` +
           `secteurs performants: ${(searchConsole.performingSectors || []).slice(0, 5).join(', ')}`,
       )
@@ -1439,7 +1466,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'OPENAI_API_KEY manquant côté serveur' })
   }
 
-  const maxPerRun = Number(process.env.CASE_STUDIES_PER_RUN || 8)
+  const maxPerRun = Number(process.env.CASE_STUDIES_PER_RUN || 3)
 
   try {
     // 1) Charger le blob existant, ou reconstruire depuis local
@@ -1458,6 +1485,10 @@ export default async function handler(req, res) {
         .filter((cs) => cs.title)
         .map((cs) => cs.title.toLowerCase().trim()),
     )
+
+    // Index blog pour anti-cannibalisation
+    const blogPosts = await loadBlogIndexFromBlob()
+    console.log(`[generate-new-case-studies] Blog index: ${blogPosts.length} articles`)
 
     // 2) Charger les requêtes déjà traitées au run précédent (éviter répétition)
     const scState = await loadSearchConsoleState()
@@ -1487,7 +1518,7 @@ export default async function handler(req, res) {
 
           const normalized = normalizeGeneratedCaseStudy(raw, existingSlugs)
 
-          const { reject, reason } = await shouldRejectCase(normalized, existingCaseStudies)
+          const { reject, reason } = await shouldRejectCase(normalized, existingCaseStudies, blogPosts)
           if (reject) {
             console.log(`[generate-new-case-studies] [${batchLabel}] Ignoré: ${raw.title} - ${reason}`)
             rejectedLog.push({ title: raw.title, reason })
@@ -1506,6 +1537,10 @@ export default async function handler(req, res) {
 
           // Maillage interne : trouver les 4 cas les plus proches thématiquement
           normalized.relatedLinks = findRelatedCases(normalized, existingCaseStudies, 4)
+
+          // Marquer comme généré pour le feedback ranking-check
+          normalized.generated = true
+          if (!normalized.createdAt) normalized.createdAt = new Date().toISOString()
 
           existingCaseStudies.push(normalized)
           existingSlugs.add(normalized.slug)

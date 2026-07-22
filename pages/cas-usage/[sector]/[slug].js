@@ -8,6 +8,7 @@ import FAQ from '../../../components/FAQ'
 import { generatePageSEO } from '../../../lib/seo'
 import { siteConfig } from '../../../lib/config'
 import { slugToSector, sectorToSlug } from '../../../lib/case-studies-helpers'
+import { isCaseStudyIndexable } from '../../../lib/case-studies-quality'
 // Imports dynamiques pour réduire le temps de compilation initial
 import { tools } from '../../../lib/tools'
 // import { getAllPosts } from '../../../lib/notion' // Non utilisé - chargement côté client si nécessaire
@@ -175,14 +176,17 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
   }
 
   // SEO : priorité aux champs optimisés par le cron CTR si présents
+  // Canonical avec secteur (évite /cas-usage/slug sans secteur)
+  const pagePath = `/cas-usage/${sectorSlug}/${caseStudy.slug}`
   const seoTitle = caseStudy.metaTitle || `${caseStudy.title} | Scraping & Automatisation ${caseStudy.sector}`
   const enrichedDescription = `${caseStudy.description} Extraction automatisée de données depuis ${(caseStudy.examples || []).slice(0, 3).join(', ')}. Données extractibles : ${(caseStudy.dataExtracted || []).slice(0, 5).join(', ')}. Solution sur-mesure pour ${(caseStudy.sector || '').toLowerCase()}. Délai moyen 7 jours, livraison dans le format de votre choix (CSV, Excel, JSON, API).`
   const seoDescription = caseStudy.metaDescription || enrichedDescription
+  const shouldIndex = isCaseStudyIndexable(caseStudy, personalizedData)
 
   const pageSEO = generatePageSEO({
     title: seoTitle,
     description: seoDescription,
-    path: `/cas-usage/${caseStudy.slug}`,
+    path: pagePath,
     keywords: caseStudy.keywords,
     publishedTime: today,
     modifiedTime: today
@@ -472,7 +476,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
 
   return (
     <>
-      <SEOHead {...pageSEO} />
+      <SEOHead {...pageSEO} noindex={!shouldIndex} />
       
       {/* Preload des liens vers les cas d'usage similaires pour améliorer la navigation */}
       {relatedCaseStudies.length > 0 && (

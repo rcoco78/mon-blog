@@ -38,7 +38,7 @@
     },
     {
       "path": "/api/cron/generate-new-case-studies",
-      "schedule": "0 6,17 * * *"
+      "schedule": "0 6 * * *"
     },
     {
       "path": "/api/cron/tella-marketplace-videos",
