@@ -31,8 +31,8 @@ export default function TestimonialsCarousel({ count = 5 }) {
 
   const max = items.length - 1
   const goTo = (i) => setIndex(Math.max(0, Math.min(i, max)))
-  const prev = () => goTo(index - 1)
-  const next = () => goTo(index + 1)
+  const prev = () => setIndex((i) => Math.max(0, i - 1))
+  const next = () => setIndex((i) => Math.min(max, i + 1))
 
   const onTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX
