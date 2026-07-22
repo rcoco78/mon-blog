@@ -47,10 +47,25 @@ export default async function handler(req, res) {
       }
       effectiveToolIds = [...new Set(effectiveToolIds)]
 
+      // Liens de livraison uniquement après paiement (pas exposés sur la page publique)
+      const deliveryUrls = {}
+      try {
+        const { getDatabaseBySlug } = await import('../../../lib/marketplace-databases')
+        for (const slug of effectiveToolIds) {
+          const db = await getDatabaseBySlug(slug)
+          if (db?.sheetUrl) {
+            deliveryUrls[slug] = `${db.sheetUrl.replace(/\/$/, '')}/copy`
+          }
+        }
+      } catch (e) {
+        console.warn('verify-payment: livraison Sheets:', e.message)
+      }
+
       return res.status(200).json({
         paid: true,
         toolId,
         toolIds: effectiveToolIds,
+        deliveryUrls,
         email: session.customer_email || session.metadata?.email,
       })
     }

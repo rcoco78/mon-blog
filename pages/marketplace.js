@@ -226,7 +226,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
         name: 'Comment utiliser concrètement les bases de données ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'C\'est très simple : 1) Cliquez sur la base de données qui vous intéresse dans la marketplace, 2) Sur la page de la base, cliquez sur "Acheter la base de données" pour accéder à la page de paiement, 3) Choisissez entre l\'achat unique ou l\'abonnement annuel (même prix), 4) Après le paiement, vous recevez un accès à la base de données complète sur Google Sheets, 5) Vous pouvez exporter les données dans le format de votre choix (CSV, Excel, etc.) ou les utiliser directement dans Google Sheets. Les données sont prêtes à l\'emploi pour votre CRM, votre outil de prospection ou vos analyses. Aucune compétence technique requise.'
+          text: '1) Ouvrez la fiche de la base, 2) Payez en un clic via Stripe (Google Sheets), 3) Sur la page de confirmation, cliquez sur « Copier sur Google Sheets » pour créer une copie dans votre Drive, 4) Utilisez le Sheet tel quel ou exportez en CSV / Excel vers votre CRM. Aucune compétence technique requise.'
         }
       },
       {
@@ -234,15 +234,15 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
         name: 'Quelle est la qualité et la fraîcheur des données ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Toutes les bases de données sont régulièrement mises à jour et enrichies. Chaque base indique sa date de dernière mise à jour. Les données sont vérifiées et structurées pour garantir leur qualité. Les taux de complétude des champs de contact (email, téléphone, etc.) sont indiqués sur chaque page de base de données. Si vous choisissez l\'abonnement annuel, vous recevez automatiquement les mises à jour chaque année avec de nouvelles données, des corrections et des enrichissements. Les bases sont conçues pour être directement utilisables dans vos outils de prospection et CRM.'
+          text: 'Chaque base affiche sa date de dernière mise à jour et, quand c’est disponible, le nombre de contacts renseignés (email, téléphone, LinkedIn…). L’achat Google Sheets livre le snapshot à cette date. Pour des données qui évoluent en continu, choisissez l’accès API via Apify.'
         }
       },
       {
         '@type': 'Question',
-        name: 'Quelle est la différence entre l\'achat unique et l\'abonnement annuel pour les bases de données ?',
+        name: 'Quelle est la différence entre Google Sheets et l’API Apify ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Les deux options sont au même prix. L\'achat unique : vous recevez la base de données une fois, sans mise à jour. L\'abonnement annuel : vous recevez la base de données initiale + une mise à jour automatique chaque année (nouvelles données, corrections, enrichissements). Exemple : Base de données à 149€ - avec l\'abonnement, vous recevez la version actuelle maintenant, puis automatiquement la version mise à jour dans un an, puis l\'année suivante, etc. L\'abonnement est recommandé si vous utilisez les données sur le long terme et voulez garder vos fichiers à jour sans avoir à racheter chaque année.'
+          text: 'Google Sheets = achat unique, accès immédiat, snapshot à la date indiquée, export CSV / Excel. API Apify = accès récurrent avec mises à jour automatiques, idéal si vous avez besoin d’un flux à jour en continu plutôt que d’un export ponctuel.'
         }
       },
       {
@@ -867,15 +867,15 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
             items={[
               {
                 question: "Comment utiliser concrètement les bases de données ?",
-                answer: "C'est très simple : 1) Cliquez sur la base de données qui vous intéresse dans la marketplace, 2) Sur la page de la base, cliquez sur \"Acheter la base de données\" pour accéder à la page de paiement, 3) Choisissez entre l'achat unique ou l'abonnement annuel (même prix), 4) Après le paiement, vous recevez un accès à la base de données complète sur Google Sheets, 5) Vous pouvez exporter les données dans le format de votre choix (CSV, Excel, etc.) ou les utiliser directement dans Google Sheets. Les données sont prêtes à l'emploi pour votre CRM, votre outil de prospection ou vos analyses. Aucune compétence technique requise."
+                answer: "1) Ouvrez la fiche de la base, 2) Payez en un clic via Stripe (Google Sheets), 3) Sur la page de confirmation, cliquez sur « Copier sur Google Sheets » pour créer une copie dans votre Drive, 4) Utilisez le Sheet tel quel ou exportez en CSV / Excel vers votre CRM. Aucune compétence technique requise."
               },
               {
                 question: "Quelle est la qualité et la fraîcheur des données ?",
-                answer: "Toutes les bases de données sont régulièrement mises à jour et enrichies. Chaque base indique sa date de dernière mise à jour. Les données sont vérifiées et structurées pour garantir leur qualité. Les taux de complétude des champs de contact (email, téléphone, etc.) sont indiqués sur chaque page de base de données. Si vous choisissez l'abonnement annuel, vous recevez automatiquement les mises à jour chaque année avec de nouvelles données, des corrections et des enrichissements. Les bases sont conçues pour être directement utilisables dans vos outils de prospection et CRM."
+                answer: "Chaque base affiche sa date de dernière mise à jour et, quand c’est disponible, le nombre de contacts renseignés (email, téléphone, LinkedIn…). L’achat Google Sheets livre le snapshot à cette date. Pour des données qui évoluent en continu, choisissez l’accès API via Apify."
               },
               {
-                question: "Quelle est la différence entre l'achat unique et l'abonnement annuel pour les bases de données ?",
-                answer: "Les deux options sont au même prix. L'achat unique : vous recevez la base de données une fois, sans mise à jour. L'abonnement annuel : vous recevez la base de données initiale + une mise à jour automatique chaque année (nouvelles données, corrections, enrichissements). Exemple : Base de données à 149€ - avec l'abonnement, vous recevez la version actuelle maintenant, puis automatiquement la version mise à jour dans un an, puis l'année suivante, etc. L'abonnement est recommandé si vous utilisez les données sur le long terme et voulez garder vos fichiers à jour sans avoir à racheter chaque année."
+                question: "Quelle est la différence entre Google Sheets et l’API Apify ?",
+                answer: "Google Sheets = achat unique, accès immédiat, snapshot à la date indiquée, export CSV / Excel. API Apify = accès récurrent avec mises à jour automatiques, idéal si vous avez besoin d’un flux à jour en continu plutôt que d’un export ponctuel."
               },
               {
                 question: "Puis-je avoir une base de données sur-mesure adaptée à mon secteur ?",
