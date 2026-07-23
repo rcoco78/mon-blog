@@ -388,14 +388,14 @@ export default function MarkdownRenderer({ children }) {
               </p>
             )
           },
-          // Blockquote
+          // Callouts Notion (exportés en blockquote `> 💡 ...`) → carte, pas un tiret à gauche
           blockquote: ({ node, children, ...props }) => (
-            <blockquote
-              className="border-l-4 border-neutral-300 dark:border-neutral-700 pl-4 italic my-4 text-neutral-600 dark:text-neutral-400"
+            <aside
+              className="my-6 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 px-5 py-4 text-neutral-800 dark:text-neutral-200 not-italic shadow-sm [&>p]:mb-0 [&>p]:leading-relaxed [&>p+p]:mt-2"
               {...props}
             >
               {children}
-            </blockquote>
+            </aside>
           ),
           // Séparateur
           hr: ({ node, ...props }) => (

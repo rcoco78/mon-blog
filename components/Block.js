@@ -168,12 +168,12 @@ export default function Block({ block }) {
       const calloutIcon =
         value.icon?.type === 'emoji' ? value.icon.emoji : value.icon?.emoji || '💡'
       return (
-        <div className="my-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/40 px-4 py-3">
+        <div className="my-6 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 px-5 py-4 shadow-sm">
           <div className="flex gap-3">
-            <span className="shrink-0 text-lg leading-6" aria-hidden="true">
+            <span className="shrink-0 text-xl leading-7" aria-hidden="true">
               {calloutIcon}
             </span>
-            <div className="min-w-0 text-neutral-800 dark:text-neutral-200">
+            <div className="min-w-0 leading-relaxed text-neutral-800 dark:text-neutral-200">
               <RichText texts={value.rich_text} />
             </div>
           </div>
