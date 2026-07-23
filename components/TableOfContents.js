@@ -11,10 +11,10 @@ function normalizeMarkdown(markdown) {
   return null
 }
 
-function TocNav({ headings, activeId, onNavigate, compact = false }) {
+function TocNav({ headings, activeId, onNavigate }) {
   return (
     <nav aria-label="Sommaire de l'article">
-      <ul className={compact ? 'space-y-0.5' : 'space-y-1'}>
+      <ul className="space-y-1">
         {headings.map((heading, index) => {
           const isActive = activeId === heading.id
           return (
@@ -24,8 +24,8 @@ function TocNav({ headings, activeId, onNavigate, compact = false }) {
                 heading.level === 1 || heading.level === 2
                   ? 'ml-0'
                   : heading.level === 3
-                    ? 'ml-2'
-                    : 'ml-4'
+                    ? 'ml-3'
+                    : 'ml-6'
               }
             >
               <a
@@ -35,8 +35,7 @@ function TocNav({ headings, activeId, onNavigate, compact = false }) {
                   onNavigate(heading.id)
                 }}
                 className={[
-                  'block border-l pl-2.5 py-1 transition-colors leading-snug',
-                  compact ? 'text-xs' : 'text-sm',
+                  'block border-l pl-3 py-1 text-sm transition-colors',
                   isActive
                     ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100 font-medium'
                     : 'border-transparent text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:border-neutral-300 dark:hover:border-neutral-600',
@@ -133,7 +132,7 @@ export default function TableOfContents({ markdown }) {
   return (
     <>
       {/* Mobile / tablette : sommaire repliable */}
-      <details className="xl:hidden mb-8 rounded-lg border border-neutral-200 dark:border-neutral-800 group">
+      <details className="md:hidden mb-8 rounded-lg border border-neutral-200 dark:border-neutral-800 group">
         <summary className="cursor-pointer list-none flex items-center justify-between gap-3 px-4 py-3.5 select-none [&::-webkit-details-marker]:hidden">
           <span className="uppercase tracking-wide text-neutral-500 dark:text-neutral-500 text-xs font-medium">
             Sommaire
@@ -156,23 +155,13 @@ export default function TableOfContents({ markdown }) {
         </div>
       </details>
 
-      {/* Desktop large : sticky latéral discret */}
-      <aside
-        className="hidden xl:block absolute top-0 right-full mr-10 w-44 pointer-events-none"
-        aria-hidden={false}
-      >
-        <div className="sticky top-24 pointer-events-auto max-h-[calc(100vh-7rem)] overflow-y-auto pr-1 scrollbar-hide">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-3">
-            Sommaire
-          </p>
-          <TocNav
-            headings={headings}
-            activeId={activeId}
-            onNavigate={scrollToHeading}
-            compact
-          />
-        </div>
-      </aside>
+      {/* Desktop : bloc dans le flux de lecture */}
+      <div className="hidden md:block mb-8 p-5 rounded-lg border border-neutral-200 dark:border-neutral-800">
+        <h2 className="text-sm font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-3">
+          Sommaire
+        </h2>
+        <TocNav headings={headings} activeId={activeId} onNavigate={scrollToHeading} />
+      </div>
     </>
   )
 }
