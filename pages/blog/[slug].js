@@ -333,12 +333,16 @@ export default function Post({ post, allPosts }) {
 
         <ReadingProgress />
         
-        {/* Contenu principal — relative pour TOC sticky latéral (xl+) */}
-        <div className="relative mt-8">
-            {/* Sommaire - Skeleton mobile pendant le chargement */}
+        <div className="mt-8">
+            {/* Sommaire - Skeleton pendant le chargement */}
             {loadingMarkdown ? (
-              <div className="xl:hidden mb-8 rounded-lg border border-neutral-200 dark:border-neutral-800 animate-pulse px-4 py-3.5">
-                <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded" />
+              <div className="mb-8 rounded-lg border border-neutral-200 dark:border-neutral-800 animate-pulse px-4 py-3.5 md:p-5">
+                <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded mb-3" />
+                <div className="hidden md:block space-y-2">
+                  <div className="h-3 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded" />
+                  <div className="h-3 w-2/3 bg-neutral-200 dark:bg-neutral-800 rounded" />
+                  <div className="h-3 w-1/2 bg-neutral-200 dark:bg-neutral-800 rounded" />
+                </div>
               </div>
             ) : contentMarkdown ? (
               <TableOfContents markdown={contentMarkdown} />

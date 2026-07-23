@@ -78,15 +78,8 @@ export default function Layout({ children }) {
   // Utiliser resolvedTheme qui est toujours défini (même si theme peut être 'system')
   const currentTheme = mounted ? (resolvedTheme || 'light') : 'light'
 
-  // Articles blog : overflow visible pour le sommaire sticky latéral (xl+)
-  const isBlogArticle = router.pathname === '/blog/[slug]'
-
   return (
-    <div
-      className={`mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 ${
-        isBlogArticle ? 'overflow-x-visible' : 'overflow-x-hidden'
-      }`}
-    >
+    <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 overflow-x-hidden">
       <div className="flex flex-col min-h-screen mt-8 sm:mt-8">
         <nav className="flex flex-row items-center justify-between relative px-0 pb-8 fade md:overflow-auto scroll-pr-6 md:relative" id="nav">
           <div className="flex flex-row items-start sm:items-center flex-wrap gap-x-1 sm:gap-x-2 gap-y-1">
