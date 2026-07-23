@@ -157,7 +157,7 @@ export default function Block({ block }) {
         return null
       }
       return (
-        <blockquote className="border-l-4 border-neutral-300 dark:border-neutral-700 pl-4 my-4 italic text-neutral-700 dark:text-neutral-300">
+        <blockquote className="border-l border-neutral-300 dark:border-neutral-700 pl-4 my-6 italic text-neutral-700 dark:text-neutral-300">
           <RichText texts={value.rich_text} />
         </blockquote>
       )
@@ -165,19 +165,10 @@ export default function Block({ block }) {
       if (!value.rich_text || !Array.isArray(value.rich_text) || value.rich_text.length === 0) {
         return null
       }
-      const calloutIcon =
-        value.icon?.type === 'emoji' ? value.icon.emoji : value.icon?.emoji || '💡'
       return (
-        <div className="my-6 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 px-5 py-4 shadow-sm">
-          <div className="flex gap-3">
-            <span className="shrink-0 text-xl leading-7" aria-hidden="true">
-              {calloutIcon}
-            </span>
-            <div className="min-w-0 leading-relaxed text-neutral-800 dark:text-neutral-200">
-              <RichText texts={value.rich_text} />
-            </div>
-          </div>
-        </div>
+        <aside className="my-6 border-l border-neutral-300 dark:border-neutral-700 pl-4 text-neutral-800 dark:text-neutral-200 leading-relaxed">
+          <RichText texts={value.rich_text} />
+        </aside>
       )
     }
     case 'table': {
@@ -189,7 +180,7 @@ export default function Block({ block }) {
       const hasColumnHeader = Boolean(value.has_column_header)
 
       return (
-        <div className="overflow-x-auto my-6 rounded-lg border border-neutral-200 dark:border-neutral-800 shadow-sm">
+        <div className="overflow-x-auto my-6 border border-neutral-200 dark:border-neutral-800">
           <table className="min-w-full border-collapse">
             {hasColumnHeader ? (
               <thead className="bg-neutral-50 dark:bg-neutral-900/50">

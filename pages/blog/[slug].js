@@ -1,7 +1,6 @@
 import { getPostBySlug, getAllPosts } from '../../lib/notion'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import { Newsreader, Source_Sans_3 } from 'next/font/google'
 import ViewCounter from '../../components/ViewCounter'
 import Block from '../../components/Block'
 import MarkdownRenderer from '../../components/MarkdownRenderer'
@@ -15,20 +14,6 @@ import StructuredData from '../../components/seo/StructuredData'
 import { siteConfig } from '../../lib/config'
 import { fetchBlobJson, fetchBlobJsonByHead } from '../../lib/blob-cache'
 import { captureDataError } from '../../lib/sentry'
-
-const articleDisplay = Newsreader({
-  subsets: ['latin'],
-  weight: ['600', '700'],
-  variable: '--font-article-display',
-  display: 'swap',
-})
-
-const articleBody = Source_Sans_3({
-  subsets: ['latin'],
-  weight: ['400', '600', '700'],
-  variable: '--font-article-body',
-  display: 'swap',
-})
 
 function extractPlainText(contentMarkdown, blocks, fallback = '') {
   const markdownText = normalizeMarkdown(contentMarkdown)
@@ -223,9 +208,7 @@ export default function Post({ post, allPosts }) {
       />
       
       {/* Note: Breadcrumb Schema est déjà géré par le composant <Breadcrumb /> */}
-      <article
-        className={`${articleDisplay.variable} ${articleBody.variable} flex-auto min-w-0 mt-6 flex flex-col font-[family-name:var(--font-article-body)]`}
-      >
+      <article className="flex-auto min-w-0 mt-6 flex flex-col">
         <header className="mb-8">
           {/* Breadcrumb Schema.org pour SEO (invisible) */}
           <StructuredData
@@ -253,10 +236,10 @@ export default function Post({ post, allPosts }) {
               ]
             }}
           />
-          <h1 className="article-enter font-[family-name:var(--font-article-display)] text-4xl sm:text-5xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 mb-5 leading-[1.15]">
+          <h1 className="font-semibold text-3xl sm:text-4xl tracking-tighter text-neutral-900 dark:text-neutral-100 mb-5 leading-tight">
             {post.title}
           </h1>
-          <div className="article-enter article-enter-delay-1 flex flex-col space-y-4">
+          <div className="flex flex-col space-y-4">
             {/* Version mobile */}
             <div className="md:hidden flex flex-col space-y-3">
               <div className="flex items-center space-x-2">
@@ -358,11 +341,11 @@ export default function Post({ post, allPosts }) {
         <ReadingProgress />
         
         {/* Contenu principal */}
-        <div className="article-enter article-enter-delay-2 mt-8">
+        <div className="mt-8">
             {/* Sommaire - Skeleton pendant le chargement */}
             {loadingMarkdown ? (
-              <div className="mb-8 p-6 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 animate-pulse">
-                <div className="h-6 w-24 bg-neutral-200 dark:bg-neutral-800 rounded mb-4"></div>
+              <div className="mb-8 pb-6 border-b border-neutral-200 dark:border-neutral-800 animate-pulse">
+                <div className="h-5 w-20 bg-neutral-200 dark:bg-neutral-800 rounded mb-4"></div>
                 <div className="space-y-2">
                   <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded"></div>
                   <div className="h-4 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded"></div>

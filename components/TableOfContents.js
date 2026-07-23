@@ -61,7 +61,6 @@ export default function TableOfContents({ markdown }) {
           return
         }
 
-        // Fallback : dernière section au-dessus du milieu de viewport
         const midpoint = window.scrollY + window.innerHeight * 0.35
         let current = headings[0]?.id || null
         for (const heading of headings) {
@@ -90,8 +89,8 @@ export default function TableOfContents({ markdown }) {
   }
 
   return (
-    <div className="mb-10 p-5 sm:p-6 bg-neutral-50 dark:bg-neutral-900/50 rounded-xl border border-neutral-200 dark:border-neutral-800">
-      <h2 className="text-sm font-semibold tracking-wide uppercase text-neutral-500 dark:text-neutral-400 mb-4">
+    <div className="mb-8 pb-6 border-b border-neutral-200 dark:border-neutral-800">
+      <h2 className="text-sm font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-3">
         Sommaire
       </h2>
       <nav aria-label="Sommaire de l'article">
@@ -102,13 +101,11 @@ export default function TableOfContents({ markdown }) {
               <li
                 key={`${heading.id}-${index}`}
                 className={
-                  heading.level === 1
+                  heading.level === 1 || heading.level === 2
                     ? 'ml-0'
-                    : heading.level === 2
-                      ? 'ml-0'
-                      : heading.level === 3
-                        ? 'ml-3'
-                        : 'ml-6'
+                    : heading.level === 3
+                      ? 'ml-3'
+                      : 'ml-6'
                 }
               >
                 <a
@@ -118,20 +115,13 @@ export default function TableOfContents({ markdown }) {
                     scrollToHeading(heading.id)
                   }}
                   className={[
-                    'group relative block rounded-md px-2.5 py-1.5 text-sm transition-colors',
+                    'block border-l pl-3 py-1 text-sm transition-colors',
                     isActive
-                      ? 'bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-medium shadow-sm'
-                      : 'text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-white/70 dark:hover:bg-neutral-800/60',
+                      ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100 font-medium'
+                      : 'border-transparent text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:border-neutral-300 dark:hover:border-neutral-600',
                   ].join(' ')}
                   aria-current={isActive ? 'location' : undefined}
                 >
-                  <span
-                    className={[
-                      'absolute left-0 top-1/2 -translate-y-1/2 h-4 w-0.5 rounded-full transition-opacity',
-                      isActive ? 'opacity-100 bg-neutral-900 dark:bg-neutral-100' : 'opacity-0',
-                    ].join(' ')}
-                    aria-hidden="true"
-                  />
                   {heading.text}
                 </a>
               </li>
