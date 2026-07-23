@@ -1,17 +1,11 @@
 import Link from 'next/link'
 import Tag from './Tag'
-
-/** Série éditoriale Freelance & growth — hub + leviers */
-export const FREELANCE_GROWTH_SERIES = [
-  'freelance-3-ans-malt-fiverr-affiliation-apify-logement-atypique',
-  'affiliation-saas-lemlist-100000-revenus-24-mois',
-  'gagner-argent-apify-bilan-8-mois-location-scripts',
-  'logement-atypique-genese-histoire-vision-plateforme',
-  'chatseo-outrank-outils-ia-contenu-seo-automatique',
-]
+import { getPrimarySeries, getSeriesPosts } from '../lib/blog-series'
 
 function byTagScore(currentPost, allPosts, excludeSlugs = new Set()) {
   const currentTags = currentPost.tags || []
+  if (currentTags.length === 0) return []
+
   return allPosts
     .filter(
       (post) =>
@@ -27,26 +21,53 @@ function byTagScore(currentPost, allPosts, excludeSlugs = new Set()) {
     .sort((a, b) => b.score - a.score)
 }
 
+function byRecency(currentPost, allPosts, excludeSlugs = new Set()) {
+  return [...allPosts]
+    .filter((post) => post.slug !== currentPost.slug && !excludeSlugs.has(post.slug))
+    .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0))
+}
+
+/**
+ * Interlinking pour TOUS les articles :
+ * 1) autres articles de la série primaire
+ * 2) tags communs
+ * 3) articles récents (filet de sécurité)
+ */
 export default function RelatedPosts({ currentPost, allPosts }) {
-  const inSeries = FREELANCE_GROWTH_SERIES.includes(currentPost?.slug)
+  if (!currentPost?.slug || !Array.isArray(allPosts) || allPosts.length === 0) return null
+
+  const availableSlugs = allPosts.map((p) => p.slug)
+  const series = getPrimarySeries(currentPost.slug, availableSlugs)
+
   let relatedPosts = []
   let heading = 'Articles similaires'
 
-  if (inSeries) {
-    heading = 'Dans la série Freelance & growth'
-    relatedPosts = FREELANCE_GROWTH_SERIES.filter((slug) => slug !== currentPost.slug)
-      .map((slug) => allPosts.find((post) => post.slug === slug))
-      .filter(Boolean)
+  if (series) {
+    heading = `Dans la série ${series.title}`
+    relatedPosts = getSeriesPosts(series, allPosts, { excludeSlug: currentPost.slug })
   }
 
-  if (relatedPosts.length < 3) {
-    const exclude = new Set(relatedPosts.map((p) => p.slug))
-    const fillers = byTagScore(currentPost, allPosts, exclude).slice(0, 3 - relatedPosts.length)
-    relatedPosts = [...relatedPosts, ...fillers]
+  const exclude = new Set([currentPost.slug, ...relatedPosts.map((p) => p.slug)])
+  const LIMIT = series ? Math.min(6, Math.max(3, relatedPosts.length)) : 3
+
+  if (relatedPosts.length < LIMIT) {
+    const need = LIMIT - relatedPosts.length
+    const byTags = byTagScore(currentPost, allPosts, exclude).slice(0, need)
+    relatedPosts = [...relatedPosts, ...byTags]
+    byTags.forEach((p) => exclude.add(p.slug))
   }
 
-  if (!inSeries) {
-    relatedPosts = byTagScore(currentPost, allPosts).slice(0, 3)
+  if (relatedPosts.length < LIMIT) {
+    const need = LIMIT - relatedPosts.length
+    const recent = byRecency(currentPost, allPosts, exclude).slice(0, need)
+    relatedPosts = [...relatedPosts, ...recent]
+  }
+
+  if (!series && relatedPosts.length > 0) {
+    const hasTagMatch = relatedPosts.some((p) =>
+      (currentPost.tags || []).some((t) => (p.tags || []).includes(t))
+    )
+    heading = hasTagMatch ? 'Articles similaires' : 'À lire aussi'
   }
 
   if (relatedPosts.length === 0) return null
@@ -72,6 +93,17 @@ export default function RelatedPosts({ currentPost, allPosts }) {
           </Link>
         ))}
       </div>
+      {series?.hub && series.hub !== currentPost.slug ? (
+        <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-500">
+          Hub de la série :{' '}
+          <Link
+            href={`/blog/${series.hub}`}
+            className="text-neutral-800 dark:text-neutral-200 underline underline-offset-2 hover:no-underline"
+          >
+            {allPosts.find((p) => p.slug === series.hub)?.title || 'voir le hub'}
+          </Link>
+        </p>
+      ) : null}
     </div>
   )
 }

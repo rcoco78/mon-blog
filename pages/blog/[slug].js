@@ -7,7 +7,9 @@ import MarkdownRenderer from '../../components/MarkdownRenderer'
 import NewsletterForm from '../../components/NewsletterForm'
 import ArticleNewsletterNudge from '../../components/ArticleNewsletterNudge'
 import RelatedPosts from '../../components/RelatedPosts'
+import SeriesBanner from '../../components/SeriesBanner'
 import TableOfContents from '../../components/TableOfContents'
+import { getPrimarySeries } from '../../lib/blog-series'
 import ReadingProgress from '../../components/ReadingProgress'
 import ShareButtons from '../../components/ShareButtons'
 import SEOHead from '../../components/seo/SEOHead'
@@ -69,6 +71,10 @@ export default function Post({ post, allPosts }) {
   const [blocks, setBlocks] = useState(post?.blocks || null)
   const hasInitialContent = !!(normalizeMarkdown(post?.contentMarkdown) || post?.blocks?.length)
   const [loadingMarkdown, setLoadingMarkdown] = useState(!hasInitialContent && !!post?.slug)
+  const primarySeries = getPrimarySeries(
+    post?.slug,
+    (allPosts || []).map((p) => p.slug)
+  )
 
   // Incrémenter la vue à chaque chargement de page (sans cache)
   useEffect(() => {
@@ -332,6 +338,12 @@ export default function Post({ post, allPosts }) {
         </header>
 
         <ReadingProgress />
+
+        {primarySeries ? (
+          <div className="mt-8">
+            <SeriesBanner series={primarySeries} isHub={primarySeries.hub === post.slug} />
+          </div>
+        ) : null}
         
         <div className="mt-8">
             {/* Sommaire - Skeleton pendant le chargement */}
