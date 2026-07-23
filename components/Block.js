@@ -152,6 +152,82 @@ export default function Block({ block }) {
           : ''
 
       return <ImageWithZoom src={imageUrl} alt={caption || "Image illustrative de l'article"} />
+    case 'quote':
+      if (!value.rich_text || !Array.isArray(value.rich_text) || value.rich_text.length === 0) {
+        return null
+      }
+      return (
+        <blockquote className="border-l-4 border-neutral-300 dark:border-neutral-700 pl-4 my-4 italic text-neutral-700 dark:text-neutral-300">
+          <RichText texts={value.rich_text} />
+        </blockquote>
+      )
+    case 'callout': {
+      if (!value.rich_text || !Array.isArray(value.rich_text) || value.rich_text.length === 0) {
+        return null
+      }
+      const calloutIcon =
+        value.icon?.type === 'emoji' ? value.icon.emoji : value.icon?.emoji || '💡'
+      return (
+        <div className="my-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/40 px-4 py-3">
+          <div className="flex gap-3">
+            <span className="shrink-0 text-lg leading-6" aria-hidden="true">
+              {calloutIcon}
+            </span>
+            <div className="min-w-0 text-neutral-800 dark:text-neutral-200">
+              <RichText texts={value.rich_text} />
+            </div>
+          </div>
+        </div>
+      )
+    }
+    case 'table': {
+      const rows = Array.isArray(block.children)
+        ? block.children.filter((child) => child?.type === 'table_row')
+        : []
+      if (rows.length === 0) return null
+
+      const hasColumnHeader = Boolean(value.has_column_header)
+
+      return (
+        <div className="overflow-x-auto my-6 rounded-lg border border-neutral-200 dark:border-neutral-800 shadow-sm">
+          <table className="min-w-full border-collapse">
+            {hasColumnHeader ? (
+              <thead className="bg-neutral-50 dark:bg-neutral-900/50">
+                <tr className="border-b border-neutral-200 dark:border-neutral-800">
+                  {(rows[0].table_row?.cells || []).map((cell, cellIndex) => (
+                    <th
+                      key={`${rows[0].id || 'head'}-${cellIndex}`}
+                      className="px-4 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-neutral-100"
+                    >
+                      <RichText texts={cell} />
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+            ) : null}
+            <tbody className="bg-white dark:bg-neutral-950">
+              {(hasColumnHeader ? rows.slice(1) : rows).map((row) => (
+                <tr
+                  key={row.id}
+                  className="border-b border-neutral-200 dark:border-neutral-800 last:border-b-0"
+                >
+                  {(row.table_row?.cells || []).map((cell, cellIndex) => (
+                    <td
+                      key={`${row.id}-${cellIndex}`}
+                      className="px-4 py-3 text-sm text-neutral-700 dark:text-neutral-300"
+                    >
+                      <RichText texts={cell} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
+    }
+    case 'divider':
+      return <hr className="my-8 border-neutral-200 dark:border-neutral-800" />
     default:
       return null
   }

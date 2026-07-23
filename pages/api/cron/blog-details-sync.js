@@ -77,15 +77,44 @@ async function processMarkdownImages(markdown, slug) {
   return processedMarkdown
 }
 
+async function listAllBlockChildren(blockId) {
+  const results = []
+  let cursor = undefined
+  do {
+    const response = await notion.blocks.children.list({
+      block_id: blockId,
+      page_size: 100,
+      start_cursor: cursor,
+    })
+    results.push(...response.results)
+    cursor = response.has_more ? response.next_cursor : undefined
+  } while (cursor)
+  return results
+}
+
+async function enrichBlocksWithChildren(blocks) {
+  const enriched = []
+  for (const block of blocks) {
+    if (block?.has_children && (block.type === 'table' || block.type === 'column_list' || block.type === 'column')) {
+      const children = await listAllBlockChildren(block.id)
+      enriched.push({
+        ...block,
+        children: await enrichBlocksWithChildren(children),
+      })
+    } else {
+      enriched.push(block)
+    }
+  }
+  return enriched
+}
+
 async function getFullPost(post) {
   try {
     console.log(`[blog-details-sync] Récupération de l'article id=${post.id}, slug=${post.slug}`)
 
-    // Récupérer les blocs de la page
-    const blocks = await notion.blocks.children.list({
-      block_id: post.id,
-      page_size: 100,
-    })
+    // Récupérer tous les blocs (pagination) + enfants des tableaux
+    const topLevelBlocks = await listAllBlockChildren(post.id)
+    const blocks = await enrichBlocksWithChildren(topLevelBlocks)
 
     // Convertir en markdown avec notion-to-md (comme dans logement-atypique)
     const n2m = new NotionToMarkdown({ notionClient: notion })
@@ -103,7 +132,7 @@ async function getFullPost(post) {
     return {
       ...post,
       contentMarkdown: processedMarkdown,
-      blocks: blocks.results,
+      blocks,
     }
   } catch (error) {
     console.error(`[blog-details-sync] Erreur pour l'article id=${post.id}, slug=${post.slug} :`, error)
