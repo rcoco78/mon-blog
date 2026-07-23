@@ -206,9 +206,25 @@ async function fetchAndSavePostDetails() {
     const data = await response.json()
     const allPosts = data.posts || []
 
-    // Traiter les 10 derniers articles publiés
-    const postsToProcess = allPosts.slice(0, 10)
-    console.log(`[blog-details-sync] Traitement des ${postsToProcess.length} derniers articles publiés`)
+    // Traiter les 15 derniers articles + tout article indexé sans fichier détail
+    const recentPosts = allPosts.slice(0, 15)
+    const detailBlobs = await list({ prefix: 'blog-posts/' })
+    const existingSlugs = new Set(
+      detailBlobs.blobs
+        .map((blob) => blob.pathname)
+        .filter((pathname) => pathname.startsWith('blog-posts/') && pathname.endsWith('.json'))
+        .map((pathname) => pathname.slice('blog-posts/'.length, -'.json'.length))
+    )
+
+    const missingPosts = allPosts.filter((post) => post?.slug && !existingSlugs.has(post.slug))
+    const postsBySlug = new Map()
+    for (const post of [...recentPosts, ...missingPosts]) {
+      if (post?.slug) postsBySlug.set(post.slug, post)
+    }
+    const postsToProcess = Array.from(postsBySlug.values())
+    console.log(
+      `[blog-details-sync] Traitement de ${postsToProcess.length} articles (${recentPosts.length} récents, ${missingPosts.length} manquants)`
+    )
 
     // Log des articles à traiter
     postsToProcess.forEach((post, index) => {
