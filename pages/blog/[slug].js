@@ -241,40 +241,35 @@ export default function Post({ post, allPosts }) {
             {post.title}
           </h1>
           <div className="flex flex-col space-y-4">
-            {/* Version mobile */}
-            <div className="md:hidden flex flex-col space-y-3">
-              <div className="flex items-center space-x-2">
-                <time 
-                  dateTime={post.date} 
-                  className="text-sm text-neutral-600 dark:text-neutral-400"
-                >
-                  {(() => {
-                    const date = new Date(post.date)
-                    const day = String(date.getDate()).padStart(2, '0')
-                    const month = String(date.getMonth() + 1).padStart(2, '0')
-                    const year = date.getFullYear()
-                    return `${day}-${month}-${year}`
-                  })()}
-                </time>
-                <span className="text-neutral-400">•</span>
-                <ViewCounter slug={post.slug} />
-              </div>
-              <div className="flex flex-col space-y-2">
-                <div className="flex items-center space-x-2">
-                  {loadingMarkdown ? (
-                    <div className="h-5 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
-                  ) : (
-                    <span className="text-sm text-neutral-600 dark:text-neutral-400">
-                      {readingTime} min de lecture
-                    </span>
-                  )}
+            {/* Version mobile — meta aérées */}
+            <div className="md:hidden flex flex-col gap-4">
+              <div className="flex flex-col gap-2.5 text-sm text-neutral-600 dark:text-neutral-400">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <time dateTime={post.date}>
+                    {(() => {
+                      const date = new Date(post.date)
+                      const day = String(date.getDate()).padStart(2, '0')
+                      const month = String(date.getMonth() + 1).padStart(2, '0')
+                      const year = date.getFullYear()
+                      return `${day}-${month}-${year}`
+                    })()}
+                  </time>
+                  <span className="text-neutral-400" aria-hidden>
+                    ·
+                  </span>
+                  <ViewCounter slug={post.slug} />
                 </div>
+                {loadingMarkdown ? (
+                  <div className="h-5 w-28 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+                ) : (
+                  <p>{readingTime} min de lecture</p>
+                )}
                 {post.tags && post.tags.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-1.5">
+                  <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                     {post.tags.map((tag, index) => (
                       <span
                         key={index}
-                        className="px-1.5 py-0.5 rounded text-xs transition-colors bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400"
+                        className="px-1.5 py-0.5 rounded text-xs bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400"
                       >
                         {tag}
                       </span>
@@ -282,11 +277,8 @@ export default function Post({ post, allPosts }) {
                   </div>
                 )}
               </div>
-              <div className="flex items-center space-x-3 pt-2">
-                <ShareButtons 
-                  url={articleUrl}
-                  title={post.title} 
-                />
+              <div className="pt-3 border-t border-neutral-200 dark:border-neutral-800">
+                <ShareButtons url={articleUrl} title={post.title} />
               </div>
             </div>
 
@@ -341,17 +333,12 @@ export default function Post({ post, allPosts }) {
 
         <ReadingProgress />
         
-        {/* Contenu principal */}
-        <div className="mt-8">
-            {/* Sommaire - Skeleton pendant le chargement */}
+        {/* Contenu principal — relative pour TOC sticky latéral (xl+) */}
+        <div className="relative mt-8">
+            {/* Sommaire - Skeleton mobile pendant le chargement */}
             {loadingMarkdown ? (
-              <div className="mb-8 p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 animate-pulse">
-                <div className="h-5 w-20 bg-neutral-200 dark:bg-neutral-800 rounded mb-4"></div>
-                <div className="space-y-2">
-                  <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded"></div>
-                  <div className="h-4 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
-                  <div className="h-4 w-5/6 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
-                </div>
+              <div className="xl:hidden mb-8 rounded-lg border border-neutral-200 dark:border-neutral-800 animate-pulse px-4 py-3.5">
+                <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded" />
               </div>
             ) : contentMarkdown ? (
               <TableOfContents markdown={contentMarkdown} />

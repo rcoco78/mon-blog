@@ -11,6 +11,48 @@ function normalizeMarkdown(markdown) {
   return null
 }
 
+function TocNav({ headings, activeId, onNavigate, compact = false }) {
+  return (
+    <nav aria-label="Sommaire de l'article">
+      <ul className={compact ? 'space-y-0.5' : 'space-y-1'}>
+        {headings.map((heading, index) => {
+          const isActive = activeId === heading.id
+          return (
+            <li
+              key={`${heading.id}-${index}`}
+              className={
+                heading.level === 1 || heading.level === 2
+                  ? 'ml-0'
+                  : heading.level === 3
+                    ? 'ml-2'
+                    : 'ml-4'
+              }
+            >
+              <a
+                href={`#${heading.id}`}
+                onClick={(e) => {
+                  e.preventDefault()
+                  onNavigate(heading.id)
+                }}
+                className={[
+                  'block border-l pl-2.5 py-1 transition-colors leading-snug',
+                  compact ? 'text-xs' : 'text-sm',
+                  isActive
+                    ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100 font-medium'
+                    : 'border-transparent text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:border-neutral-300 dark:hover:border-neutral-600',
+                ].join(' ')}
+                aria-current={isActive ? 'location' : undefined}
+              >
+                {heading.text}
+              </a>
+            </li>
+          )
+        })}
+      </ul>
+    </nav>
+  )
+}
+
 export default function TableOfContents({ markdown }) {
   const headings = useMemo(() => {
     const markdownContent = normalizeMarkdown(markdown)
@@ -89,46 +131,48 @@ export default function TableOfContents({ markdown }) {
   }
 
   return (
-    <div className="mb-8 p-5 rounded-lg border border-neutral-200 dark:border-neutral-800">
-      <h2 className="text-sm font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-3">
-        Sommaire
-      </h2>
-      <nav aria-label="Sommaire de l'article">
-        <ul className="space-y-1">
-          {headings.map((heading, index) => {
-            const isActive = activeId === heading.id
-            return (
-              <li
-                key={`${heading.id}-${index}`}
-                className={
-                  heading.level === 1 || heading.level === 2
-                    ? 'ml-0'
-                    : heading.level === 3
-                      ? 'ml-3'
-                      : 'ml-6'
-                }
-              >
-                <a
-                  href={`#${heading.id}`}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    scrollToHeading(heading.id)
-                  }}
-                  className={[
-                    'block border-l pl-3 py-1 text-sm transition-colors',
-                    isActive
-                      ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100 font-medium'
-                      : 'border-transparent text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:border-neutral-300 dark:hover:border-neutral-600',
-                  ].join(' ')}
-                  aria-current={isActive ? 'location' : undefined}
-                >
-                  {heading.text}
-                </a>
-              </li>
-            )
-          })}
-        </ul>
-      </nav>
-    </div>
+    <>
+      {/* Mobile / tablette : sommaire repliable */}
+      <details className="xl:hidden mb-8 rounded-lg border border-neutral-200 dark:border-neutral-800 group">
+        <summary className="cursor-pointer list-none flex items-center justify-between gap-3 px-4 py-3.5 text-sm font-medium text-neutral-900 dark:text-neutral-100 select-none [&::-webkit-details-marker]:hidden">
+          <span className="uppercase tracking-wide text-neutral-500 dark:text-neutral-500 text-xs font-medium">
+            Sommaire
+          </span>
+          <span className="text-neutral-400 dark:text-neutral-500 text-xs font-normal normal-case tracking-normal">
+            {headings.length} sections
+          </span>
+          <svg
+            className="w-4 h-4 text-neutral-500 shrink-0 ml-auto transition-transform group-open:rotate-180"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </summary>
+        <div className="px-4 pb-4 pt-1 border-t border-neutral-200 dark:border-neutral-800">
+          <TocNav headings={headings} activeId={activeId} onNavigate={scrollToHeading} />
+        </div>
+      </details>
+
+      {/* Desktop large : sticky latéral discret */}
+      <aside
+        className="hidden xl:block absolute top-0 right-full mr-10 w-44 pointer-events-none"
+        aria-hidden={false}
+      >
+        <div className="sticky top-24 pointer-events-auto max-h-[calc(100vh-7rem)] overflow-y-auto pr-1 scrollbar-hide">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-3">
+            Sommaire
+          </p>
+          <TocNav
+            headings={headings}
+            activeId={activeId}
+            onNavigate={scrollToHeading}
+            compact
+          />
+        </div>
+      </aside>
+    </>
   )
 }
