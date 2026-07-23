@@ -134,22 +134,22 @@ export default function TableOfContents({ markdown }) {
     <>
       {/* Mobile / tablette : sommaire repliable */}
       <details className="xl:hidden mb-8 rounded-lg border border-neutral-200 dark:border-neutral-800 group">
-        <summary className="cursor-pointer list-none flex items-center justify-between gap-3 px-4 py-3.5 text-sm font-medium text-neutral-900 dark:text-neutral-100 select-none [&::-webkit-details-marker]:hidden">
+        <summary className="cursor-pointer list-none flex items-center justify-between gap-3 px-4 py-3.5 select-none [&::-webkit-details-marker]:hidden">
           <span className="uppercase tracking-wide text-neutral-500 dark:text-neutral-500 text-xs font-medium">
             Sommaire
           </span>
-          <span className="text-neutral-400 dark:text-neutral-500 text-xs font-normal normal-case tracking-normal">
-            {headings.length} sections
+          <span className="inline-flex items-center gap-2 text-neutral-400 dark:text-neutral-500">
+            <span className="text-xs">{headings.length} sections</span>
+            <svg
+              className="w-4 h-4 shrink-0 transition-transform group-open:rotate-180"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
           </span>
-          <svg
-            className="w-4 h-4 text-neutral-500 shrink-0 ml-auto transition-transform group-open:rotate-180"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
         </summary>
         <div className="px-4 pb-4 pt-1 border-t border-neutral-200 dark:border-neutral-800">
           <TocNav headings={headings} activeId={activeId} onNavigate={scrollToHeading} />
