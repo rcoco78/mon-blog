@@ -84,24 +84,22 @@ export default function MarkdownRenderer({ children }) {
             const { src, alt, title } = props
             if (!src) return null
 
-            let altText = alt || title || ''
-
-            if (!altText && src) {
-              const fileName = src.split('/').pop()?.split('?')[0] || ''
-              if (fileName) {
-                altText = fileName
-                  .replace(/\.(jpg|jpeg|png|gif|webp|svg)$/i, '')
-                  .replace(/[-_]/g, ' ')
-                  .replace(/\b\w/g, (l) => l.toUpperCase())
-                  .trim()
-              }
+            const fileName = src.split('/').pop()?.split('?')[0] || ''
+            const looksLikeFilename = (value) => {
+              if (!value || typeof value !== 'string') return false
+              const v = value.trim()
+              if (!v) return false
+              if (fileName && v === fileName) return true
+              if (/\.(jpe?g|png|gif|webp|svg|heic|avif)$/i.test(v)) return true
+              const stem = fileName.replace(/\.[^.]+$/, '')
+              if (stem && v.toLowerCase() === stem.toLowerCase()) return true
+              return false
             }
 
-            if (!altText) {
-              altText = "Image illustrative de l'article"
-            }
-
-            const caption = alt || title || ''
+            // Notion / sync : l'alt est souvent le nom de fichier — pas une légende
+            const rawCaption = [alt, title].find((v) => v && !looksLikeFilename(v)) || ''
+            const altText = rawCaption || "Image illustrative de l'article"
+            const caption = rawCaption
             const isExternal = src.startsWith('http://') || src.startsWith('https://')
 
             return (

@@ -44,6 +44,22 @@ async function downloadAndStoreImage(imageUrl, slug, imageIndex) {
   }
 }
 
+// Alt Notion souvent = nom de fichier (ex: hyeres-mai-2026.jpeg) → pas une légende
+function sanitizeImageAlt(altText, imageUrl) {
+  const alt = (altText || '').trim()
+  if (!alt) return ''
+
+  const fileName = (imageUrl || '').split('/').pop()?.split('?')[0] || ''
+  if (fileName && alt === fileName) return ''
+  if (/\.(jpe?g|png|gif|webp|svg|heic|avif)$/i.test(alt)) return ''
+  if (fileName) {
+    const stem = fileName.replace(/\.[^.]+$/, '')
+    if (stem && alt.toLowerCase() === stem.toLowerCase()) return ''
+  }
+
+  return alt
+}
+
 // Fonction pour traiter les images dans le markdown
 async function processMarkdownImages(markdown, slug) {
   // Regex pour trouver les images markdown: ![alt](url)
@@ -62,15 +78,18 @@ async function processMarkdownImages(markdown, slug) {
   // Traiter chaque image
   for (const match of matches) {
     const [fullMatch, altText, imageUrl] = match
+    const cleanAlt = sanitizeImageAlt(altText, imageUrl)
     
     // Vérifier si c'est une URL Notion (S3)
     if (imageUrl.includes('prod-files-secure.s3') || imageUrl.includes('notion.so') || imageUrl.includes('amazonaws.com')) {
       console.log(`[blog-details-sync] Téléchargement image Notion: ${imageUrl.substring(0, 100)}...`)
       const newUrl = await downloadAndStoreImage(imageUrl, slug, imageIndex)
       
-      // Remplacer l'URL dans le markdown
-      processedMarkdown = processedMarkdown.replace(fullMatch, `![${altText}](${newUrl})`)
+      // Remplacer l'URL dans le markdown (sans alt fichier)
+      processedMarkdown = processedMarkdown.replace(fullMatch, `![${cleanAlt}](${newUrl})`)
       imageIndex++
+    } else if (cleanAlt !== altText) {
+      processedMarkdown = processedMarkdown.replace(fullMatch, `![${cleanAlt}](${imageUrl})`)
     }
   }
   

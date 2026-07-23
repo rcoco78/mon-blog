@@ -8,9 +8,16 @@ export default function ImageWithZoom({ src, alt, caption, children }) {
   const [isOpen, setIsOpen] = useState(false)
 
   const captionText = caption ?? alt
+  const looksLikeFilename =
+    captionText &&
+    (/\.(jpe?g|png|gif|webp|svg|heic|avif)$/i.test(captionText.trim()) ||
+      (src &&
+        captionText.trim() ===
+          (src.split('/').pop()?.split('?')[0] || '')))
   const showCaption =
     captionText &&
     captionText.trim() &&
+    !looksLikeFilename &&
     !/^image illustrative/i.test(captionText) &&
     !/^capture[_\s-]?d/i.test(captionText)
 
