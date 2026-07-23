@@ -2,6 +2,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Image from 'next/image'
 import ImageWithZoom from './ImageWithZoom'
+import SocialEmbed, { isInstagramUrl } from './SocialEmbed'
 
 function BlogFigure({ src, alt, caption, local = false }) {
   const image = local ? (
@@ -227,6 +228,18 @@ export default function MarkdownRenderer({ children }) {
             )
           },
           a: ({ node, children, href, ...props }) => {
+            // Instagram (export Notion bookmark → [bookmark](https://instagram.com/...))
+            if (href && isInstagramUrl(href)) {
+              const label = Array.isArray(children)
+                ? children.map((c) => (typeof c === 'string' ? c : '')).join('')
+                : typeof children === 'string'
+                  ? children
+                  : ''
+              const caption =
+                label && !/^bookmark$/i.test(label.trim()) ? label.trim() : ''
+              return <SocialEmbed url={href} caption={caption} />
+            }
+
             if (href && (href.includes('youtube.com/embed/') || href.includes('youtu.be/') || href.includes('youtube.com/watch?v='))) {
               let videoId = ''
 

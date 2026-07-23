@@ -1,4 +1,5 @@
 import ImageWithZoom from './ImageWithZoom'
+import SocialEmbed from './SocialEmbed'
 
 const linkClassName =
   'underline decoration-neutral-300 dark:decoration-neutral-600 underline-offset-[3px] hover:decoration-neutral-900 dark:hover:decoration-neutral-100 transition-colors text-neutral-900 dark:text-neutral-100'
@@ -219,6 +220,25 @@ export default function Block({ block }) {
     }
     case 'divider':
       return <hr className="my-8 border-neutral-200 dark:border-neutral-800" />
+    case 'bookmark': {
+      const url = value?.url
+      if (!url) return null
+      const caption =
+        Array.isArray(value.caption) && value.caption[0]?.plain_text
+          ? value.caption[0].plain_text
+          : ''
+      return <SocialEmbed url={url} caption={caption} />
+    }
+    case 'embed': {
+      const url = value?.url
+      if (!url) return null
+      return <SocialEmbed url={url} />
+    }
+    case 'link_preview': {
+      const url = value?.url
+      if (!url) return null
+      return <SocialEmbed url={url} />
+    }
     default:
       return null
   }
