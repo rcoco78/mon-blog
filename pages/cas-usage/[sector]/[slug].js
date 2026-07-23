@@ -42,7 +42,22 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
   const [mounted, setMounted] = useState(false)
   // Utiliser les données personnalisées depuis props (Blob Storage) ou depuis caseStudy.personalized
   const [personalizedData, setPersonalizedData] = useState(personalizedDataProp || caseStudyProp?.personalized || null)
+  // Normaliser les tableaux — certains blobs / relatedLinks arrivent incomplets (Sentry CORENTIN-BLOG-3)
   const caseStudy = caseStudyProp
+    ? {
+        ...caseStudyProp,
+        examples: Array.isArray(caseStudyProp.examples) ? caseStudyProp.examples : [],
+        dataExtracted: Array.isArray(caseStudyProp.dataExtracted) ? caseStudyProp.dataExtracted : [],
+        keywords: Array.isArray(caseStudyProp.keywords) ? caseStudyProp.keywords : [],
+        sector: caseStudyProp.sector || '',
+        faq: Array.isArray(caseStudyProp.faq) ? caseStudyProp.faq : [],
+      }
+    : null
+  const safeRelatedCaseStudies = (relatedCaseStudies || []).map((related) => ({
+    ...related,
+    examples: Array.isArray(related?.examples) ? related.examples : [],
+    dataExtracted: Array.isArray(related?.dataExtracted) ? related.dataExtracted : [],
+  }))
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
 
@@ -480,7 +495,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
       <SEOHead {...pageSEO} noindex={!shouldIndex} />
       
       {/* Preload des liens vers les cas d'usage similaires pour améliorer la navigation */}
-      {relatedCaseStudies.length > 0 && (
+      {safeRelatedCaseStudies.length > 0 && (
         <Head>
           {relatedCaseStudies.slice(0, 4).map(related => (
             <link
@@ -1567,7 +1582,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
         </section>
 
         {/* Cas d'usage similaires */}
-        {relatedCaseStudies.length > 0 && (
+        {safeRelatedCaseStudies.length > 0 && (
           <section className="mb-16">
             <div className="border-t border-neutral-200 dark:border-neutral-800 pt-10">
               <h2 className="font-semibold text-2xl mb-8 tracking-tighter text-neutral-900 dark:text-neutral-100">
@@ -1577,7 +1592,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
                 Découvrez d'autres cas d'usage de scraping et automatisation pour {caseStudy.sector.toLowerCase()} :
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {relatedCaseStudies.map(related => {
+                {safeRelatedCaseStudies.map(related => {
                   const relatedUrl = `/cas-usage/${sectorSlug}/${related.slug}`
                   return (
                     <Link
@@ -1600,7 +1615,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
                       </p>
                       <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-500">
                         <span>{related.dataExtracted?.length || 0} types de données</span>
-                        {related.examples.length > 0 && (
+                        {(related.examples?.length || 0) > 0 && (
                           <>
                             <span>•</span>
                             <span>{related.examples[0]}</span>
@@ -1648,6 +1663,16 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
+  // Requête malformée (ex. URL littérale /cas-usage/[sector]/[slug]) — ne pas planter
+  if (
+    !params?.slug ||
+    !params?.sector ||
+    String(params.slug).includes('[') ||
+    String(params.sector).includes('[')
+  ) {
+    return { notFound: true }
+  }
+
   // Redirections GSC : clusters en doublon → page canonique
   const gscRedirect = getCaseStudyRedirect(params.slug)
   if (gscRedirect) {

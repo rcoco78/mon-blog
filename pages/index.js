@@ -48,12 +48,18 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
   const [projectClicks, setProjectClicks] = useState({})
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const projectsPhrase = getProjectsCountPhrase(metrics)
 
   // URL de la vidéo Tella
   const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
   const videoEmbedUrl = 'https://www.tella.tv/video/vid_cmjylsyom00bn04la9dfs342e/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0'
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
+
+  // Éviter mismatch hydratation (localStorage videoSeen) — Sentry CORENTIN-BLOG-2
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const openCalendly = () => {
     if (!calendlyLoaded) {
@@ -260,14 +266,14 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
                 cy="35"
                 r="33"
                 fill="none"
-                stroke={videoSeen ? "#a3a3a3" : "url(#instagram-gradient)"}
+                stroke={mounted && videoSeen ? "#a3a3a3" : "url(#instagram-gradient)"}
                 strokeWidth="2"
                 strokeDasharray="207.35"
-                strokeDashoffset={videoSeen ? "0" : "207.35"}
-                className={videoSeen ? "" : "animate-draw-circle"}
+                strokeDashoffset={mounted && videoSeen ? "0" : "207.35"}
+                className={mounted && videoSeen ? "" : "animate-draw-circle"}
                 style={{
                   transformOrigin: '35px 35px',
-                  transition: videoSeen ? 'stroke 0.5s ease-out' : 'none'
+                  transition: mounted && videoSeen ? 'stroke 0.5s ease-out' : 'none'
                 }}
               />
             </svg>

@@ -3,6 +3,7 @@
 import { head } from '@vercel/blob'
 import { getPostBySlug, getPostBlocks } from '../../../lib/notion'
 import { captureDataError } from '../../../lib/sentry'
+import { isBlobNotFoundError } from '../../../lib/blob-cache'
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -11,15 +12,15 @@ export default async function handler(req, res) {
 
   const { slug } = req.query
 
-  if (!slug) {
+  if (!slug || typeof slug !== 'string') {
     return res.status(400).json({ error: 'Slug requis' })
   }
 
   try {
     try {
       const blob = await head(`blog-posts/${slug}.json`)
-      if (blob) {
-        const response = await fetch(blob.url, { next: { revalidate: 300 } })
+      if (blob?.url) {
+        const response = await fetch(blob.url, { cache: 'no-store' })
 
         if (response.ok) {
           const article = await response.json()
@@ -27,7 +28,9 @@ export default async function handler(req, res) {
         }
       }
     } catch (blobError) {
-      if (blobError.name !== 'BlobNotFoundError') {
+      // Absence de blob = cas normal (article tout juste publié / pas encore sync).
+      // Ne pas remonter à Sentry.
+      if (!isBlobNotFoundError(blobError)) {
         captureDataError(blobError, { source: 'blob', tags: { area: 'blog-api', slug } })
         console.warn(`⚠️ Erreur Blob pour ${slug}, fallback Notion:`, blobError.message)
       }
@@ -48,6 +51,6 @@ export default async function handler(req, res) {
   } catch (error) {
     captureDataError(error, { source: 'notion', tags: { area: 'blog-api', slug } })
     console.error(`Erreur API blog-posts/[slug] pour ${slug}:`, error)
-    res.status(500).json({ error: 'Erreur lors de la récupération de l\'article' })
+    res.status(500).json({ error: "Erreur lors de la récupération de l'article" })
   }
 }

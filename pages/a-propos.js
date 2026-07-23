@@ -672,14 +672,14 @@ export default function About() {
                 cy="35"
                 r="33"
                 fill="none"
-                stroke={videoSeen ? "#a3a3a3" : "url(#instagram-gradient-about)"}
+                stroke={mounted && videoSeen ? "#a3a3a3" : "url(#instagram-gradient-about)"}
                 strokeWidth="2"
                 strokeDasharray="207.35"
-                strokeDashoffset={videoSeen ? "0" : "207.35"}
-                className={videoSeen ? "" : "animate-draw-circle"}
+                strokeDashoffset={mounted && videoSeen ? "0" : "207.35"}
+                className={mounted && videoSeen ? "" : "animate-draw-circle"}
                 style={{
                   transformOrigin: '35px 35px',
-                  transition: videoSeen ? 'stroke 0.5s ease-out' : 'none'
+                  transition: mounted && videoSeen ? 'stroke 0.5s ease-out' : 'none'
                 }}
               />
             </svg>
