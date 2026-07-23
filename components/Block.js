@@ -1,7 +1,7 @@
 import ImageWithZoom from './ImageWithZoom'
 
 const linkClassName =
-  'text-neutral-900 dark:text-neutral-100 underline hover:text-neutral-600 dark:hover:text-neutral-400'
+  'underline decoration-neutral-300 dark:decoration-neutral-600 underline-offset-[3px] hover:decoration-neutral-900 dark:hover:decoration-neutral-100 transition-colors text-neutral-900 dark:text-neutral-100'
 
 function getRichTextHref(text) {
   if (!text) return null

@@ -1,6 +1,7 @@
 import { getPostBySlug, getAllPosts } from '../../lib/notion'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
+import { Newsreader, Source_Sans_3 } from 'next/font/google'
 import ViewCounter from '../../components/ViewCounter'
 import Block from '../../components/Block'
 import MarkdownRenderer from '../../components/MarkdownRenderer'
@@ -14,6 +15,20 @@ import StructuredData from '../../components/seo/StructuredData'
 import { siteConfig } from '../../lib/config'
 import { fetchBlobJson, fetchBlobJsonByHead } from '../../lib/blob-cache'
 import { captureDataError } from '../../lib/sentry'
+
+const articleDisplay = Newsreader({
+  subsets: ['latin'],
+  weight: ['600', '700'],
+  variable: '--font-article-display',
+  display: 'swap',
+})
+
+const articleBody = Source_Sans_3({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  variable: '--font-article-body',
+  display: 'swap',
+})
 
 function extractPlainText(contentMarkdown, blocks, fallback = '') {
   const markdownText = normalizeMarkdown(contentMarkdown)
@@ -208,7 +223,9 @@ export default function Post({ post, allPosts }) {
       />
       
       {/* Note: Breadcrumb Schema est déjà géré par le composant <Breadcrumb /> */}
-      <article className="flex-auto min-w-0 mt-6 flex flex-col">
+      <article
+        className={`${articleDisplay.variable} ${articleBody.variable} flex-auto min-w-0 mt-6 flex flex-col font-[family-name:var(--font-article-body)]`}
+      >
         <header className="mb-8">
           {/* Breadcrumb Schema.org pour SEO (invisible) */}
           <StructuredData
@@ -236,10 +253,10 @@ export default function Post({ post, allPosts }) {
               ]
             }}
           />
-          <h1 className="text-4xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-5xl mb-4">
+          <h1 className="article-enter font-[family-name:var(--font-article-display)] text-4xl sm:text-5xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 mb-5 leading-[1.15]">
             {post.title}
           </h1>
-          <div className="flex flex-col space-y-4">
+          <div className="article-enter article-enter-delay-1 flex flex-col space-y-4">
             {/* Version mobile */}
             <div className="md:hidden flex flex-col space-y-3">
               <div className="flex items-center space-x-2">
@@ -271,12 +288,12 @@ export default function Post({ post, allPosts }) {
                 {post.tags && post.tags.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5">
                     {post.tags.map((tag, index) => (
-                      <button
+                      <span
                         key={index}
-                        className="px-1.5 py-0.5 rounded text-xs transition-colors bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                        className="px-1.5 py-0.5 rounded text-xs transition-colors bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400"
                       >
                         {tag}
-                      </button>
+                      </span>
                     ))}
                   </div>
                 )}
@@ -318,12 +335,12 @@ export default function Post({ post, allPosts }) {
                   <>
                     <span className="text-neutral-400 shrink-0">•</span>
                     {post.tags.map((tag, index) => (
-                      <button
+                      <span
                         key={index}
-                        className="px-1.5 py-0.5 rounded text-xs leading-none transition-colors bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700 whitespace-nowrap"
+                        className="px-1.5 py-0.5 rounded text-xs leading-none transition-colors bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 whitespace-nowrap"
                       >
                         {tag}
-                      </button>
+                      </span>
                     ))}
                   </>
                 )}
@@ -338,13 +355,13 @@ export default function Post({ post, allPosts }) {
           </div>
         </header>
 
-        <ReadingProgress content={content} />
+        <ReadingProgress />
         
-        {/* Contenu principal en pleine largeur */}
-        <div className="mt-8">
+        {/* Contenu principal */}
+        <div className="article-enter article-enter-delay-2 mt-8">
             {/* Sommaire - Skeleton pendant le chargement */}
             {loadingMarkdown ? (
-              <div className="mb-8 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 animate-pulse">
+              <div className="mb-8 p-6 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 animate-pulse">
                 <div className="h-6 w-24 bg-neutral-200 dark:bg-neutral-800 rounded mb-4"></div>
                 <div className="space-y-2">
                   <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded"></div>
@@ -368,7 +385,7 @@ export default function Post({ post, allPosts }) {
             ) : contentMarkdown ? (
               <MarkdownRenderer>{contentMarkdown}</MarkdownRenderer>
             ) : blocks ? (
-        <div className="prose prose-neutral dark:prose-invert max-w-none">
+        <div className="blog-prose prose prose-neutral dark:prose-invert max-w-none sm:max-w-[65ch]">
           {blocks.map((block) => (
             <Block key={block.id} block={block} />
           ))}
@@ -377,7 +394,7 @@ export default function Post({ post, allPosts }) {
 
             {/* Partage social en fin d'article */}
             <div className="mt-12 pt-8 border-t border-neutral-200 dark:border-neutral-800">
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <span className="text-sm text-neutral-600 dark:text-neutral-400">Partager cet article :</span>
                 <ShareButtons 
                   url={articleUrl}

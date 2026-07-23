@@ -73,7 +73,7 @@ export default function MarkdownRenderer({ children }) {
     })
 
   return (
-    <div className="prose prose-neutral dark:prose-invert max-w-none">
+    <div className="blog-prose prose prose-neutral dark:prose-invert max-w-none sm:max-w-[65ch]">
       <ReactMarkdown
         components={{
           // Images avec Next.js Image - toujours avec alt-text (comme logement-atypique)
@@ -105,11 +105,11 @@ export default function MarkdownRenderer({ children }) {
             // Si c'est une URL externe, utiliser img normal + lightbox au clic
             if (src.startsWith('http://') || src.startsWith('https://')) {
               return (
-                <BlogImageLightbox src={src} alt={altText}>
+                <BlogImageLightbox src={src} alt={altText} caption={alt || title || ''}>
                   <img
                     src={src}
                     alt={altText}
-                    className="rounded-lg w-full h-auto cursor-zoom-in"
+                    className="rounded-xl w-full h-auto cursor-zoom-in"
                     loading="lazy"
                   />
                 </BlogImageLightbox>
@@ -118,13 +118,13 @@ export default function MarkdownRenderer({ children }) {
 
             // Sinon, essayer avec Next.js Image (pour les images locales) + lightbox au clic
             return (
-              <BlogImageLightbox src={src} alt={altText}>
+              <BlogImageLightbox src={src} alt={altText} caption={alt || title || ''}>
                 <Image
                   src={src}
                   alt={altText}
                   width={800}
                   height={600}
-                  className="rounded-lg w-full h-auto cursor-zoom-in"
+                  className="rounded-xl w-full h-auto cursor-zoom-in"
                   loading="lazy"
                 />
               </BlogImageLightbox>
@@ -140,7 +140,7 @@ export default function MarkdownRenderer({ children }) {
               .replace(/-+/g, '-')
               .trim()
             return (
-              <h1 id={id} className="text-3xl font-bold mb-4 mt-8" {...props}>
+              <h1 id={id} className="text-3xl font-bold tracking-tight mb-4 mt-10 scroll-mt-24" {...props}>
                 {children}
               </h1>
             )
@@ -154,7 +154,7 @@ export default function MarkdownRenderer({ children }) {
               .replace(/-+/g, '-')
               .trim()
             return (
-              <h2 id={id} className="text-2xl font-bold mb-4 mt-6" {...props}>
+              <h2 id={id} className="text-2xl font-bold tracking-tight mb-4 mt-10 scroll-mt-24" {...props}>
                 {children}
               </h2>
             )
@@ -168,14 +168,14 @@ export default function MarkdownRenderer({ children }) {
               .replace(/-+/g, '-')
               .trim()
             return (
-              <h3 id={id} className="text-xl font-semibold mb-3 mt-5" {...props}>
+              <h3 id={id} className="text-xl font-semibold tracking-tight mb-3 mt-8 scroll-mt-24" {...props}>
                 {children}
               </h3>
             )
           },
           // Paragraphes
           p: ({ node, children, ...props }) => (
-            <p className="mb-4 leading-relaxed" {...props}>
+            <p className="mb-5 leading-[1.75] text-[1.05rem] text-neutral-800 dark:text-neutral-200" {...props}>
               {children}
             </p>
           ),
@@ -303,7 +303,7 @@ export default function MarkdownRenderer({ children }) {
               return (
                 <a
                   href={href}
-                  className="text-neutral-900 dark:text-neutral-100 underline hover:text-neutral-600 dark:hover:text-neutral-400"
+                  className="text-neutral-900 dark:text-neutral-100 underline decoration-neutral-300 dark:decoration-neutral-600 underline-offset-[3px] hover:decoration-neutral-900 dark:hover:decoration-neutral-100 transition-colors"
                   onClick={(e) => {
                     e.preventDefault()
                     const element = document.getElementById(href.substring(1))
@@ -322,7 +322,7 @@ export default function MarkdownRenderer({ children }) {
             return (
               <a
                 href={href}
-                className="text-neutral-900 dark:text-neutral-100 underline hover:text-neutral-600 dark:hover:text-neutral-400"
+                className="text-neutral-900 dark:text-neutral-100 underline decoration-neutral-300 dark:decoration-neutral-600 underline-offset-[3px] hover:decoration-neutral-900 dark:hover:decoration-neutral-100 transition-colors"
                 target={href?.startsWith('http') ? '_blank' : undefined}
                 rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
                 {...props}
@@ -383,7 +383,7 @@ export default function MarkdownRenderer({ children }) {
             
             // Paragraphe normal
             return (
-              <p className="mb-4 leading-relaxed" {...props}>
+              <p className="mb-5 leading-[1.75] text-[1.05rem] text-neutral-800 dark:text-neutral-200" {...props}>
                 {children}
               </p>
             )
