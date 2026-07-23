@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react'
 const STORAGE_KEY = 'cr-newsletter-nudge-dismissed'
 
 /**
- * Nudge newsletter discret après ~55 % de lecture.
- * Pas de modal : barre basse, une fois, dismissible.
- * Objectif : valeur perçue (notes terrain), pas "communauté" pushy.
+ * Nudge newsletter desktop uniquement (barre basse discrète).
+ * Sur mobile : pas de barre fixe — le formulaire de fin d'article suffit
+ * (évite l'effet popup qui mange l'écran).
  */
 export default function ArticleNewsletterNudge() {
   const [visible, setVisible] = useState(false)
@@ -21,30 +21,43 @@ export default function ArticleNewsletterNudge() {
       // ignore
     }
 
+    // Mobile / tablette étroite : pas de nudge fixed
+    const mq = window.matchMedia('(max-width: 767px)')
+    if (mq.matches) return
+
     let frame = 0
     const onScroll = () => {
       cancelAnimationFrame(frame)
       frame = requestAnimationFrame(() => {
+        if (mq.matches) {
+          setVisible(false)
+          return
+        }
         const el = document.documentElement
         const scrollTop = el.scrollTop || document.body.scrollTop
         const max = Math.max((el.scrollHeight || document.body.scrollHeight) - el.clientHeight, 1)
         const progress = (scrollTop / max) * 100
 
-        // Milieu de lecture : assez engagé, pas encore en bas
         if (progress >= 55 && progress < 88) {
           setVisible(true)
         } else if (progress >= 88) {
-          // Le formulaire de fin d'article prend le relais
           setVisible(false)
         }
       })
     }
 
+    const onMq = () => {
+      if (mq.matches) setVisible(false)
+      else onScroll()
+    }
+
     window.addEventListener('scroll', onScroll, { passive: true })
+    mq.addEventListener?.('change', onMq)
     onScroll()
     return () => {
       cancelAnimationFrame(frame)
       window.removeEventListener('scroll', onScroll)
+      mq.removeEventListener?.('change', onMq)
     }
   }, [])
 
@@ -86,31 +99,25 @@ export default function ArticleNewsletterNudge() {
 
   return (
     <div
-      className="fixed bottom-0 inset-x-0 z-40 border-t border-neutral-200 dark:border-neutral-800 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-[2px]"
+      className="hidden md:block fixed bottom-0 inset-x-0 z-40 border-t border-neutral-200 dark:border-neutral-800 bg-white/95 dark:bg-neutral-950/95"
       role="region"
       aria-label="Newsletter"
     >
-      <div className="relative max-w-2xl mx-auto px-4 py-3 pr-10 sm:pr-4 flex flex-col sm:flex-row sm:items-center gap-3">
+      <div className="relative max-w-2xl mx-auto px-4 py-2.5 flex items-center gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 tracking-tight">
             La suite de ce type de retour d&apos;expérience
           </p>
-          <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-0.5">
-            1 email / semaine max — notes terrain scraping &amp; automatisation.
+          <p className="text-xs text-neutral-500 dark:text-neutral-500">
+            1 email / semaine max
+            {status === 'success' ? ' · Inscrit — merci.' : null}
+            {status === 'already' ? ' · Déjà inscrit.' : null}
+            {status === 'error' ? ' · Erreur, réessayez.' : null}
           </p>
-          {status === 'success' ? (
-            <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">Inscrit — merci.</p>
-          ) : null}
-          {status === 'already' ? (
-            <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">Vous êtes déjà inscrit.</p>
-          ) : null}
-          {status === 'error' ? (
-            <p className="text-xs text-red-600 dark:text-red-400 mt-1">Erreur, réessayez.</p>
-          ) : null}
         </div>
 
         {status !== 'success' && status !== 'already' ? (
-          <form onSubmit={handleSubmit} className="flex gap-2 w-full sm:w-auto">
+          <form onSubmit={handleSubmit} className="flex gap-2 shrink-0">
             <label className="sr-only" htmlFor="article-nudge-email">
               Adresse email
             </label>
@@ -122,7 +129,7 @@ export default function ArticleNewsletterNudge() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
               disabled={isLoading}
-              className="flex-1 sm:w-48 px-3 py-1.5 text-sm border border-neutral-200 dark:border-neutral-700 rounded-md bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600"
+              className="w-44 px-3 py-1.5 text-sm border border-neutral-200 dark:border-neutral-700 rounded-md bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-600"
             />
             <button
               type="submit"
@@ -137,7 +144,7 @@ export default function ArticleNewsletterNudge() {
         <button
           type="button"
           onClick={dismiss}
-          className="absolute top-2 right-3 sm:static sm:ml-1 p-1 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+          className="shrink-0 p-1 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
           aria-label="Fermer"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
