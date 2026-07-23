@@ -89,7 +89,7 @@ export default function TableOfContents({ markdown }) {
   }
 
   return (
-    <div className="mb-8 pb-6 border-b border-neutral-200 dark:border-neutral-800">
+    <div className="mb-8 p-5 rounded-lg border border-neutral-200 dark:border-neutral-800">
       <h2 className="text-sm font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-3">
         Sommaire
       </h2>

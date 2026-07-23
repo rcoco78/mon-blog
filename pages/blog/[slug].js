@@ -5,6 +5,7 @@ import ViewCounter from '../../components/ViewCounter'
 import Block from '../../components/Block'
 import MarkdownRenderer from '../../components/MarkdownRenderer'
 import NewsletterForm from '../../components/NewsletterForm'
+import ArticleNewsletterNudge from '../../components/ArticleNewsletterNudge'
 import RelatedPosts from '../../components/RelatedPosts'
 import TableOfContents from '../../components/TableOfContents'
 import ReadingProgress from '../../components/ReadingProgress'
@@ -344,7 +345,7 @@ export default function Post({ post, allPosts }) {
         <div className="mt-8">
             {/* Sommaire - Skeleton pendant le chargement */}
             {loadingMarkdown ? (
-              <div className="mb-8 pb-6 border-b border-neutral-200 dark:border-neutral-800 animate-pulse">
+              <div className="mb-8 p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 animate-pulse">
                 <div className="h-5 w-20 bg-neutral-200 dark:bg-neutral-800 rounded mb-4"></div>
                 <div className="space-y-2">
                   <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded"></div>
@@ -392,6 +393,7 @@ export default function Post({ post, allPosts }) {
             {/* Newsletter en fin d'article */}
             <NewsletterForm compact={false} />
         </div>
+        <ArticleNewsletterNudge />
       </article>
     </>
   )

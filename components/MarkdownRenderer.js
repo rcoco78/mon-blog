@@ -1,39 +1,31 @@
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Image from 'next/image'
+import ImageWithZoom from './ImageWithZoom'
 
 function BlogFigure({ src, alt, caption, local = false }) {
-  const showCaption =
-    caption &&
-    caption.trim() &&
-    !/^image illustrative/i.test(caption) &&
-    !/^capture[_\s-]?d/i.test(caption)
+  const image = local ? (
+    <Image
+      src={src}
+      alt={alt}
+      width={800}
+      height={600}
+      className="rounded-lg w-full h-auto"
+      loading="lazy"
+    />
+  ) : (
+    <img
+      src={src}
+      alt={alt}
+      className="rounded-lg w-full h-auto"
+      loading="lazy"
+    />
+  )
 
   return (
-    <figure className="my-8">
-      {local ? (
-        <Image
-          src={src}
-          alt={alt}
-          width={800}
-          height={600}
-          className="rounded-lg w-full h-auto"
-          loading="lazy"
-        />
-      ) : (
-        <img
-          src={src}
-          alt={alt}
-          className="rounded-lg w-full h-auto"
-          loading="lazy"
-        />
-      )}
-      {showCaption ? (
-        <figcaption className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
-          {caption}
-        </figcaption>
-      ) : null}
-    </figure>
+    <ImageWithZoom src={src} alt={alt} caption={caption}>
+      {image}
+    </ImageWithZoom>
   )
 }
 
