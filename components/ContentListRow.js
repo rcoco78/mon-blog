@@ -1,11 +1,16 @@
 /**
- * Ligne de liste générique — style blog (pas de carte).
+ * Ligne de liste générique.
+ * - list (défaut) : bordure basse, style blog
+ * - bubble : encadré arrondi (esprit homepage « Ce que je construis »)
  */
 
 import Link from 'next/link'
 
-const rowClassName =
-  'group flex items-start justify-between gap-4 py-4 border-b border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors'
+const variants = {
+  list: 'group flex items-start justify-between gap-4 py-4 border-b border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors',
+  bubble:
+    'group flex items-start justify-between gap-4 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors',
+}
 
 export default function ContentListRow({
   href,
@@ -15,9 +20,11 @@ export default function ContentListRow({
   trailing = null,
   onClick,
   external = false,
+  variant = 'list',
 }) {
   if (!title) return null
 
+  const rowClassName = variants[variant] || variants.list
   const metaText = Array.isArray(meta) ? meta.filter(Boolean).join(' · ') : meta
   const content = (
     <>
@@ -77,7 +84,17 @@ export default function ContentListRow({
   )
 }
 
-export function ContentListRowSkeleton() {
+export function ContentListRowSkeleton({ variant = 'list' }) {
+  if (variant === 'bubble') {
+    return (
+      <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 animate-pulse">
+        <div className="h-5 w-2/3 bg-neutral-200 dark:bg-neutral-800 rounded mb-2" />
+        <div className="h-3 w-1/3 bg-neutral-200 dark:bg-neutral-800 rounded mb-2" />
+        <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded" />
+      </div>
+    )
+  }
+
   return (
     <div className="py-4 border-b border-neutral-200 dark:border-neutral-800 animate-pulse">
       <div className="h-5 w-2/3 bg-neutral-200 dark:bg-neutral-800 rounded mb-2" />

@@ -10,7 +10,7 @@ import {
 } from '../../lib/marketplace-display'
 import { categoryToSlug } from '../../lib/marketplace-helpers'
 
-export default function DatabaseListRow({ tool, showCategory = true, rank = null }) {
+export default function DatabaseListRow({ tool, showCategory = true, rank = null, variant = 'list' }) {
   if (!tool) return null
 
   const href =
@@ -49,6 +49,7 @@ export default function DatabaseListRow({ tool, showCategory = true, rank = null
       meta={meta}
       description={benefit}
       trailing={price}
+      variant={variant}
     />
   )
 }

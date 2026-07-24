@@ -625,11 +625,11 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
           </Link>
           .
         </p>
-        <div className="flex flex-col">
+        <div className="flex flex-col space-y-4">
           {(() => {
             const topDatabases = (dynamicDatabases || []).slice(0, 3)
             return topDatabases.map((tool) => (
-            <DatabaseListRow key={tool.slug || tool.name} tool={tool} />
+            <DatabaseListRow key={tool.slug || tool.name} tool={tool} variant="bubble" />
             ))
           })()}
         </div>
@@ -653,9 +653,9 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
           Scraping, automatisation, freelance et acquisition — le journal de ce qui construit ma légitimité.
         </p>
-        <div className="flex flex-col">
+        <div className="flex flex-col space-y-4">
           {loading ? (
-            Array.from({ length: 3 }).map((_, i) => <ContentListRowSkeleton key={i} />)
+            Array.from({ length: 3 }).map((_, i) => <ContentListRowSkeleton key={i} variant="bubble" />)
           ) : topPosts.length > 0 ? (
             topPosts.map((post) => {
               const d = new Date(post.date)
@@ -675,6 +675,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
                   meta={dateLabel}
                   description={post.metaDescription || null}
                   trailing={`${views.toLocaleString('fr-FR')} vue${views === 1 ? '' : 's'}`}
+                  variant="bubble"
                 />
               )
             })
@@ -703,9 +704,9 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
           Exemples concrets dans l’immobilier, la prospection LinkedIn et l’e-commerce.
         </p>
-        <div className="flex flex-col">
+        <div className="flex flex-col space-y-4">
           {topCaseStudiesLoading ? (
-            Array.from({ length: 3 }).map((_, i) => <ContentListRowSkeleton key={i} />)
+            Array.from({ length: 3 }).map((_, i) => <ContentListRowSkeleton key={i} variant="bubble" />)
           ) : topCaseStudies.length > 0 ? (
             topCaseStudies.map((cs) => (
               <ContentListRow
@@ -714,6 +715,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
                 title={cs.title}
                 meta={cs.sector || null}
                 description={cs.description || null}
+                variant="bubble"
               />
             ))
           ) : null}
