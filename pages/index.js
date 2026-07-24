@@ -446,15 +446,18 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
                 >
                   <div className="text-2xl font-semibold mb-1 text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
                     <span>{metric.value}</span>
-                    {metric.label === 'projets réalisés' && metric.breakdown && (
-                      <span className="text-base font-normal text-neutral-500 dark:text-neutral-500">
-                        ({metric.breakdown.malt} + {metric.breakdown.fiverr})
-                      </span>
-                    )}
                     {externalIcon}
                   </div>
                   <div className="text-sm text-neutral-600 dark:text-neutral-400">{metric.label}</div>
-                  <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">{metric.source}</div>
+                  <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
+                    {metric.label === 'projets réalisés' && metric.breakdown ? (
+                      <span className="whitespace-nowrap">
+                        Malt {metric.breakdown.malt} · Fiverr {metric.breakdown.fiverr}
+                      </span>
+                    ) : (
+                      metric.source
+                    )}
+                  </div>
                 </div>
               )
             })}
