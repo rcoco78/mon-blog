@@ -5,6 +5,7 @@
 import { getKeyResults, getKeyResultHistory } from '../../../lib/notion'
 import { put } from '@vercel/blob'
 import { enrichKeyResultsWithApifyLive } from '../../../lib/apify-live-stats'
+import { enrichKeyResultsWithMarketplaceProof } from '../../../lib/project-count'
 
 const KEY_RESULTS_BLOB = 'key-results.json'
 const HISTORY_PREFIX = 'key-results-history/'
@@ -35,9 +36,11 @@ export default async function handler(req, res) {
 
     console.log('🔄 Début de la synchronisation des Key Results...')
 
-    // 1. Récupérer les Key Results depuis Notion + enrichir Apify live
+    // 1. Récupérer les Key Results depuis Notion + enrichir Apify / Malt / Fiverr
     const keyResultsRaw = await getKeyResults()
-    const keyResults = await enrichKeyResultsWithApifyLive(keyResultsRaw)
+    const keyResults = enrichKeyResultsWithMarketplaceProof(
+      await enrichKeyResultsWithApifyLive(keyResultsRaw)
+    )
     console.log(`✅ ${keyResults.length} Key Results récupérés`)
 
     // 2. Sauvegarder les Key Results dans Blob Storage

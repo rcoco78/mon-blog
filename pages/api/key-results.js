@@ -5,6 +5,7 @@
 import { list } from '@vercel/blob'
 import { getKeyResults } from '../../lib/notion'
 import { enrichKeyResultsWithApifyLive } from '../../lib/apify-live-stats'
+import { enrichKeyResultsWithMarketplaceProof } from '../../lib/project-count'
 import { captureDataError } from '../../lib/sentry'
 
 const BLOB_FILENAME = 'key-results.json'
@@ -39,7 +40,9 @@ export default async function handler(req, res) {
       keyResults = await getKeyResults()
     }
 
-    keyResults = await enrichKeyResultsWithApifyLive(keyResults)
+    keyResults = enrichKeyResultsWithMarketplaceProof(
+      await enrichKeyResultsWithApifyLive(keyResults)
+    )
     res.status(200).json(keyResults)
   } catch (error) {
     captureDataError(error, { source: 'notion', tags: { area: 'key-results' } })
