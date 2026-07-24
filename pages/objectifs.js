@@ -2365,7 +2365,11 @@ export default function DonneesPubliques() {
                           let color = 'blue'
                           
                           if (isMaltKR) {
-                            history = keyResultsHistory[kr.id] || []
+                            history = mergeHistoryWithCurrentKR(
+                              keyResultsHistory[kr.id] || [],
+                              kr.currentResult,
+                              'kr-malt'
+                            )
                             color = 'blue'
                           } else if (isChessKR) {
                             // Pour Chess, utiliser l'historique Chess.com si disponible
