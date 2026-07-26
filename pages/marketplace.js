@@ -184,7 +184,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
 
   // Structured Data pour la marketplace
   const toolsStructuredData = {
-    name: 'Marketplace - Outils et Bases de Données',
+    name: 'Marketplace - Bases Google Sheets et scrapers Apify',
     description: 'Collection d\'outils scraping, automatisation et bases de données pour automatiser vos processus business',
     numberOfItems: allTools.length,
     items: allTools.map((tool, index) => {
@@ -301,7 +301,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
       <StructuredData
         type="Product"
         data={{
-          name: 'Marketplace - Outils et Bases de Données',
+          name: 'Marketplace - Bases Google Sheets et scrapers Apify',
           description: 'Marketplace de bases de données pour la prospection et l\'analyse business. Bases de données vérifiées, structurées et régulièrement mises à jour, prêtes à l\'emploi pour enrichir vos CRM et optimiser vos campagnes de prospection.',
           url: `${siteConfig.url}/marketplace`,
           brand: { '@type': 'Brand', name: siteConfig.author, url: siteConfig.url },
