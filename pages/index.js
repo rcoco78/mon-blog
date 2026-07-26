@@ -358,7 +358,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
             href="/marketplace?tab=tools"
             className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-800 dark:text-neutral-200 hover:border-neutral-400 dark:hover:border-neutral-500 transition-colors"
           >
-            Utiliser mes API
+            Scrapers free tier
           </Link>
         </div>
 
@@ -678,9 +678,9 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
           )}
         </h2>
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Bases Google Sheets en libre-service — les mêmes que je livre à mes clients. Aussi :{' '}
+          Bases Google Sheets à acheter — les mêmes que je livre à mes clients. Aussi :{' '}
           <Link href="/marketplace?tab=tools" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-            mes scrapers publics sur Apify
+            scrapers Apify en free tier
           </Link>
           .
         </p>

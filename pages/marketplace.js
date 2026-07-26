@@ -241,15 +241,23 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
         name: 'Quelle est la qualité et la fraîcheur des données ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Chaque base affiche sa date de dernière mise à jour et, quand c’est disponible, le nombre de contacts renseignés (email, téléphone, LinkedIn…). L’achat Google Sheets livre le snapshot à cette date. Pour des données qui évoluent en continu, choisissez l’accès API via Apify.'
+          text: 'Chaque base affiche sa date de dernière mise à jour et, quand c’est disponible, le nombre de contacts renseignés (email, téléphone, LinkedIn…). L’achat Google Sheets livre le snapshot à cette date. Pour un flux à jour que tu relances toi-même, utilise un scraper Apify (free tier).'
         }
       },
       {
         '@type': 'Question',
-        name: 'Quelle est la différence entre Google Sheets et l’API Apify ?',
+        name: 'Quelle est la différence entre Google Sheets et les scrapers Apify ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Google Sheets = achat unique, accès immédiat, snapshot à la date indiquée, export CSV / Excel. API Apify = accès récurrent avec mises à jour automatiques, idéal si vous avez besoin d’un flux à jour en continu plutôt que d’un export ponctuel.'
+          text: 'Google Sheets = achat unique, accès immédiat, snapshot à la date indiquée, export CSV / Excel. Scrapers Apify = tu lances toi-même en free tier (crédits gratuits Apify) ; au-delà, tu paies le compute. Idéal pour tester ou un flux récurrent. Besoin du fichier prêt sans rien lancer ? Achète la base.'
+        }
+      },
+      {
+        '@type': 'Question',
+        name: 'Les scrapers Apify sont-ils gratuits ?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Oui sur le free tier Apify : tu peux lancer mes scrapers publics sans me payer. Les crédits gratuits Apify couvrent les premiers runs. Au-delà, Apify facture le compute. Si tu veux le résultat en Google Sheets sans gérer les runs, prends une base dans l’onglet Bases.'
         }
       },
       {
@@ -328,12 +336,12 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
             Marketplace
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400 tracking-tight max-w-2xl mb-2">
-            Bases Google Sheets et scrapers Apify — les mêmes livrables que pour mes clients, en libre-service.
+            Bases Google Sheets à acheter · Scrapers Apify en free tier.
           </p>
           <p className="text-sm text-neutral-500 dark:text-neutral-500">
             {activeTab === 'databases'
               ? 'Choisir une base · Payer · Copier le Sheet'
-              : 'Entrer l’input · Lancer · Débloquer les résultats'}
+              : 'Lancer gratuitement sur Apify (free tier) · Au-delà, tu paies le compute — ou tu m’achètes la base toute faite'}
             {marketplaceReviews.length > 0 && (
               <>
                 <span className="mx-2 text-neutral-300 dark:text-neutral-700">·</span>
@@ -370,7 +378,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                     : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
                 }`}
               >
-                Outils
+                Scrapers
                 <span className="ml-1.5 text-neutral-400 dark:text-neutral-500 font-normal">
                   {apifyTools.length}
                 </span>
@@ -507,12 +515,27 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
             </div>
           )
         ) : (
-            /* Section Outils */
+            /* Section Scrapers Apify */
             <>
-            {/* Compteur + Réinitialiser pour Outils */}
+            <div className="mb-6 rounded-lg border border-neutral-200 dark:border-neutral-800 px-4 py-3.5 text-sm text-neutral-600 dark:text-neutral-400">
+              <p>
+                <span className="font-medium text-neutral-900 dark:text-neutral-100">Free tier Apify</span>
+                {' '}— lance mes scrapers sans payer. Au-delà des crédits gratuits, tu paies le compute chez Apify.
+                Besoin du fichier prêt, sans rien lancer ?{' '}
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('databases')}
+                  className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                >
+                  Achète une base Google Sheets
+                </button>
+                .
+              </p>
+            </div>
+            {/* Compteur + Réinitialiser pour Scrapers */}
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                {filteredApifyTools.length} outil{filteredApifyTools.length > 1 ? 's' : ''}
+                {filteredApifyTools.length} scraper{filteredApifyTools.length > 1 ? 's' : ''} · free tier
               </p>
               {selectedToolCategory !== null && (
                 <button
@@ -527,7 +550,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
               {filteredApifyTools.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-neutral-600 dark:text-neutral-400 mb-4">
-                    Aucun outil disponible pour le moment.
+                    Aucun scraper disponible pour le moment.
                   </p>
                 </div>
               ) : (
@@ -535,12 +558,19 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                   <Link
                     key={tool.slug}
                     href={tool.link || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="group flex items-start justify-between gap-4 py-4 border-b border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors"
                   >
                     <div className="min-w-0 flex-1">
-                      <h2 className="font-semibold text-base tracking-tight text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
-                        {tool.name}
-                      </h2>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="font-semibold text-base tracking-tight text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
+                          {tool.name}
+                        </h2>
+                        <span className="text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 border border-neutral-200 dark:border-neutral-700 px-1.5 py-0.5 rounded">
+                          Free tier
+                        </span>
+                      </div>
                       <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
                         {[
                           tool.category,
@@ -560,8 +590,8 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                         </p>
                       )}
                     </div>
-                    <span className="flex-shrink-0 text-sm text-neutral-400 dark:text-neutral-500 pt-0.5">
-                      →
+                    <span className="flex-shrink-0 text-sm text-neutral-500 dark:text-neutral-500 pt-0.5 whitespace-nowrap">
+                      Lancer →
                     </span>
                   </Link>
                 ))
@@ -659,11 +689,15 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
               },
               {
                 question: "Quelle est la qualité et la fraîcheur des données ?",
-                answer: "Chaque base affiche sa date de dernière mise à jour et, quand c’est disponible, le nombre de contacts renseignés (email, téléphone, LinkedIn…). L’achat Google Sheets livre le snapshot à cette date. Pour des données qui évoluent en continu, choisissez l’accès API via Apify."
+                answer: "Chaque base affiche sa date de dernière mise à jour et, quand c’est disponible, le nombre de contacts renseignés (email, téléphone, LinkedIn…). L’achat Google Sheets livre le snapshot à cette date. Pour un flux à jour que tu relances toi-même, utilise un scraper Apify (free tier)."
               },
               {
-                question: "Quelle est la différence entre Google Sheets et l’API Apify ?",
-                answer: "Google Sheets = achat unique, accès immédiat, snapshot à la date indiquée, export CSV / Excel. API Apify = accès récurrent avec mises à jour automatiques, idéal si vous avez besoin d’un flux à jour en continu plutôt que d’un export ponctuel."
+                question: "Quelle est la différence entre Google Sheets et les scrapers Apify ?",
+                answer: "Google Sheets = achat unique, accès immédiat, snapshot à la date indiquée, export CSV / Excel. Scrapers Apify = tu lances toi-même en free tier (crédits gratuits Apify) ; au-delà, tu paies le compute. Besoin du fichier prêt sans rien lancer ? Achète la base."
+              },
+              {
+                question: "Les scrapers Apify sont-ils gratuits ?",
+                answer: "Oui sur le free tier Apify : tu peux lancer mes scrapers publics sans me payer. Les crédits gratuits Apify couvrent les premiers runs. Au-delà, Apify facture le compute. Si tu veux le résultat en Google Sheets sans gérer les runs, prends une base dans l’onglet Bases."
               },
               {
                 question: "Puis-je avoir une base de données sur-mesure adaptée à mon secteur ?",
