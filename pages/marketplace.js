@@ -11,13 +11,18 @@ import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { tools } from '../lib/tools'
 
-export default function Marketplace({ dynamicDatabases = [], apifyTools = [], marketplaceReviews = [] }) {
+export default function Marketplace({
+  dynamicDatabases = [],
+  apifyTools = [],
+  marketplaceReviews = [],
+  initialTab = 'databases',
+}) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedPricing, setSelectedPricing] = useState(null) // '<100' | '100-200' | '200+' | 'free' | null
   const [sortBy, setSortBy] = useState('views') // 'date' | 'price_desc' | 'views' — défaut: plus consultés
   const [selectedToolCategory, setSelectedToolCategory] = useState(null)
   const [toolSortBy, setToolSortBy] = useState('users') // 'users' | 'runs' | 'date'
-  const [activeTab, setActiveTab] = useState('databases') // 'databases' | 'tools'
+  const [activeTab, setActiveTab] = useState(initialTab) // 'databases' | 'tools'
   const [searchQuery, setSearchQuery] = useState('')
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
@@ -25,10 +30,19 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
   const [displayedCount, setDisplayedCount] = useState(8)
   const ITEMS_PER_PAGE = 8
 
+  // Sync onglet si Next re-fetch getServerSideProps (navigation client)
+  useEffect(() => {
+    setActiveTab(initialTab)
+  }, [initialTab])
+
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const tab = new URLSearchParams(window.location.search).get('tab')
-    if (tab === 'tools' || tab === 'scrapers') setActiveTab('tools')
+    const syncFromUrl = () => {
+      const tab = new URLSearchParams(window.location.search).get('tab')
+      setActiveTab(tab === 'tools' || tab === 'scrapers' ? 'tools' : 'databases')
+    }
+    window.addEventListener('popstate', syncFromUrl)
+    return () => window.removeEventListener('popstate', syncFromUrl)
   }, [])
 
   const selectTab = (tab) => {
@@ -921,7 +935,10 @@ async function getMarketplaceViewEvents() {
 }
 
 // Charger les bases de données dynamiques côté serveur
-export async function getServerSideProps() {
+export async function getServerSideProps({ query }) {
+  const tabParam = typeof query?.tab === 'string' ? query.tab : ''
+  const initialTab = tabParam === 'tools' || tabParam === 'scrapers' ? 'tools' : 'databases'
+
   const { getDatabasesAsTools } = await import('../lib/marketplace-databases')
   const { getEnrichedActorsAsTools } = await import('../lib/apify-actors-enriched')
   let dynamicDatabases = []
@@ -984,7 +1001,8 @@ export async function getServerSideProps() {
     props: {
       dynamicDatabases,
       apifyTools,
-      marketplaceReviews
+      marketplaceReviews,
+      initialTab,
     }
   }
 }
