@@ -28,8 +28,18 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
   useEffect(() => {
     if (typeof window === 'undefined') return
     const tab = new URLSearchParams(window.location.search).get('tab')
-    if (tab === 'tools') setActiveTab('tools')
+    if (tab === 'tools' || tab === 'scrapers') setActiveTab('tools')
   }, [])
+
+  const selectTab = (tab) => {
+    setActiveTab(tab)
+    setDisplayedCount(ITEMS_PER_PAGE)
+    if (typeof window === 'undefined') return
+    const url = new URL(window.location.href)
+    if (tab === 'tools') url.searchParams.set('tab', 'tools')
+    else url.searchParams.delete('tab')
+    window.history.replaceState({}, '', url.pathname + url.search)
+  }
 
   // URL de la vidéo Tella
   const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
@@ -331,60 +341,83 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
       <StructuredData type="ItemList" data={toolsStructuredData} />
       <StructuredData type="FAQPage" data={faqData} />
       <main className="min-w-0 mt-6 flex flex-col overflow-x-hidden">
-        <header className="mb-10">
+        <header className="mb-8">
           <h1 className="font-semibold text-2xl mb-3 tracking-tighter">
             Marketplace
           </h1>
-          <p className="text-neutral-600 dark:text-neutral-400 tracking-tight max-w-2xl mb-2">
-            Bases Google Sheets à acheter · Scrapers Apify en free tier.
+          <p className="text-neutral-600 dark:text-neutral-400 tracking-tight max-w-2xl">
+            Deux façons d’accéder à mes données : acheter une base prête, ou lancer un scraper en free tier.
           </p>
-          <p className="text-sm text-neutral-500 dark:text-neutral-500">
-            {activeTab === 'databases'
-              ? 'Choisir une base · Payer · Copier le Sheet'
-              : 'Lancer gratuitement sur Apify (free tier) · Au-delà, tu paies le compute — ou tu m’achètes la base toute faite'}
-            {marketplaceReviews.length > 0 && (
-              <>
-                <span className="mx-2 text-neutral-300 dark:text-neutral-700">·</span>
-                <a href="#avis" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
-                  {marketplaceReviews.length} avis
-                </a>
-              </>
-            )}
-          </p>
+          {marketplaceReviews.length > 0 && (
+            <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
+              <a href="#avis" className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
+                {marketplaceReviews.length} avis
+              </a>
+            </p>
+          )}
         </header>
 
+        {/* Choix principal — très visible */}
+        <div className="mb-10 grid grid-cols-1 sm:grid-cols-2 gap-3" role="tablist" aria-label="Type de livrable">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'databases'}
+            onClick={() => selectTab('databases')}
+            className={`text-left p-5 rounded-lg border transition-colors ${
+              activeTab === 'databases'
+                ? 'border-neutral-900 dark:border-neutral-100 bg-neutral-50 dark:bg-neutral-900/60'
+                : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600'
+            }`}
+          >
+            <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-1.5">
+              Payant · Google Sheets
+            </p>
+            <p className="font-semibold text-lg tracking-tight text-neutral-900 dark:text-neutral-100">
+              Bases de données
+            </p>
+            <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+              Snapshot prêt à copier. Tu paies, tu reçois le Sheet.
+            </p>
+            <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              {dynamicDatabases.length} bases →
+            </p>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'tools'}
+            onClick={() => selectTab('tools')}
+            className={`text-left p-5 rounded-lg border transition-colors ${
+              activeTab === 'tools'
+                ? 'border-neutral-900 dark:border-neutral-100 bg-neutral-50 dark:bg-neutral-900/60'
+                : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600'
+            }`}
+          >
+            <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-1.5">
+              Gratuit · Free tier Apify
+            </p>
+            <p className="font-semibold text-lg tracking-tight text-neutral-900 dark:text-neutral-100">
+              Scrapers
+            </p>
+            <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+              Lance mes actors sans me payer. Au-delà des crédits Apify, tu paies le compute.
+            </p>
+            <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              {apifyTools.length} scrapers free →
+            </p>
+          </button>
+        </div>
+
         <section className="mb-8 overflow-x-hidden">
-          {/* Onglets */}
-          <div className="mb-8 border-b border-neutral-200 dark:border-neutral-800">
-            <div className="flex gap-6">
-              <button
-                onClick={() => setActiveTab('databases')}
-                className={`pb-3 text-sm transition-colors border-b-2 ${
-                  activeTab === 'databases'
-                    ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-medium'
-                    : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
-                }`}
-              >
-                Bases
-                <span className="ml-1.5 text-neutral-400 dark:text-neutral-500 font-normal">
-                  {dynamicDatabases.length}
-                </span>
-              </button>
-              <button
-                onClick={() => setActiveTab('tools')}
-                className={`pb-3 text-sm transition-colors border-b-2 ${
-                  activeTab === 'tools'
-                    ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-white font-medium'
-                    : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
-                }`}
-              >
-                Scrapers
-                <span className="ml-1.5 text-neutral-400 dark:text-neutral-500 font-normal">
-                  {apifyTools.length}
-                </span>
-              </button>
-            </div>
-          </div>
+          <h2 className="font-semibold text-xl mb-2 tracking-tighter">
+            {activeTab === 'databases' ? 'Bases Google Sheets' : 'Scrapers Apify — free tier'}
+          </h2>
+          <p className="mb-6 text-sm text-neutral-500 dark:text-neutral-500">
+            {activeTab === 'databases'
+              ? 'Choisir · Payer · Copier le Sheet'
+              : 'Lancer sur Apify · Free tier inclus · Sinon achète la base toute faite'}
+          </p>
 
           {activeTab === 'databases' && (
             <div className="hidden sm:block mb-6">
@@ -524,7 +557,7 @@ export default function Marketplace({ dynamicDatabases = [], apifyTools = [], ma
                 Besoin du fichier prêt, sans rien lancer ?{' '}
                 <button
                   type="button"
-                  onClick={() => setActiveTab('databases')}
+                  onClick={() => selectTab('databases')}
                   className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
                 >
                   Achète une base Google Sheets
