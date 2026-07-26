@@ -249,13 +249,16 @@ export default function About() {
       <section className="mb-16" aria-label="Présentation personnelle">
         <h1 className="font-semibold text-2xl mb-8 tracking-tighter">À propos</h1>
         
-        <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          De growth marketeux chez Airbnb à entrepreneur indépendant, je me suis spécialisé en <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong>, <strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> et <strong className="text-neutral-900 dark:text-neutral-100">data</strong>. J&apos;accompagne les dirigeants à gagner du temps et acquérir les bonnes pratiques sur ces sujets. 28 ans, Parisien.
+        <p className="mb-3 text-neutral-600 dark:text-neutral-400 tracking-tight">
+          Je scrappe, j&apos;automatise, je livre de la data. Pour des dirigeants qui veulent des résultats — pas une stack à gérer.
+        </p>
+        <p className="mb-8 text-sm text-neutral-500 dark:text-neutral-500 tracking-tight">
+          28 ans, Paris. Avant : growth chez Airbnb. Aujourd&apos;hui : freelance indépendant.
         </p>
 
         {/* Mini timeline métier */}
         <div className="mb-8 border-t border-neutral-200 dark:border-neutral-800 pt-6">
-          <h2 className="font-semibold text-sm mb-3 tracking-tight text-neutral-900 dark:text-neutral-100">Le fil conducteur</h2>
+          <h2 className="font-semibold text-sm mb-3 tracking-tight text-neutral-900 dark:text-neutral-100">Le fil</h2>
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
             {[
               'Freelance',
@@ -266,7 +269,7 @@ export default function About() {
             ].join(' → ')}
           </p>
           <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-500">
-            Une trajectoire unique : prouver par le terrain, documenter en public, et faire porter ma voix dans le scraping et l’automatisation.
+            Prouver sur le terrain, documenter en public.
           </p>
         </div>
 
@@ -274,13 +277,13 @@ export default function About() {
           <div>
             <h2 className="font-semibold text-sm mb-2 tracking-tight text-neutral-900 dark:text-neutral-100">Pour mes clients</h2>
             <p className="text-sm text-neutral-600 dark:text-neutral-400 tracking-tight">
-              Missions freelance de scraping et automatisation (Malt, Fiverr, direct), et accompagnement outbound pour équipes commerciales via <strong className="text-neutral-800 dark:text-neutral-200">Outreacher</strong>.
+              Missions scraping &amp; automatisation (Malt, Fiverr, direct). Outbound pour équipes commerciales via <strong className="text-neutral-800 dark:text-neutral-200">Outreacher</strong>.
             </p>
           </div>
           <div>
             <h2 className="font-semibold text-sm mb-2 tracking-tight text-neutral-900 dark:text-neutral-100">Ce que je construis</h2>
             <p className="text-sm text-neutral-600 dark:text-neutral-400 tracking-tight">
-              Marketplace (bases Google Sheets + scrapers Apify), et le week-end <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> avec mon frère : mise en avant de logements d’exception qu’on photographie et filme pour leur donner de la visibilité — preuve entrepreneuriale, pas le cœur de l’offre freelance.
+              Une marketplace (bases Google Sheets + scrapers Apify). Le week-end : <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> avec mon frère — on photographie et filme des logements d&apos;exception pour leur donner de la visibilité.
             </p>
           </div>
         </div>
@@ -288,21 +291,21 @@ export default function About() {
         <div className="mb-8 space-y-6">
           <div>
             <p className="text-neutral-600 dark:text-neutral-400 tracking-tight mt-2">
-              En dehors du code, j'ai longtemps pratiqué le Handball et je continue aujourd'hui avec le running et l'Hyrox. Et je me suis pris de passion pour les échecs sur mon temps libre.
+              Hors code : handball pendant longtemps, running et Hyrox maintenant. Et les échecs, le soir.
             </p>
           </div>
           
           <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
             <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-              Pour aller plus loin : <Link href="/blog" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">mes articles</Link>, <Link href="/newsletter" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">la newsletter</Link>, <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">la marketplace</Link>, <Link href="/cas-usage" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">les cas d'usage</Link>, <Link href="/temoignages" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">les témoignages clients</Link> ou <Link href="/faq" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">la FAQ</Link>.
+              Suite : <Link href="/blog" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">articles</Link>, <Link href="/newsletter" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">newsletter</Link>, <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">marketplace</Link>, <Link href="/cas-usage" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">cas d&apos;usage</Link>, <Link href="/temoignages" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">témoignages</Link>, <Link href="/faq" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">FAQ</Link>.
             </p>
             <p className="text-sm text-neutral-600 dark:text-neutral-400">
-              Curieux de savoir ce que j'écoute ? <Link href="/spotify" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors inline-flex items-center gap-1.5 group/link">
-                Découvrez mes playlists et artistes favoris
+              Ce que j&apos;écoute en ce moment → <Link href="/spotify" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors inline-flex items-center gap-1.5 group/link">
+                playlists &amp; artistes
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5">
                   <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
                 </svg>
-              </Link>.
+              </Link>
             </p>
           </div>
         </div>
