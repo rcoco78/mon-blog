@@ -10,6 +10,7 @@ import DatabaseListRow from '../components/marketplace/DatabaseListRow'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { tools } from '../lib/tools'
+import { averageStarRating } from '../lib/rating'
 
 export default function Marketplace({
   dynamicDatabases = [],
@@ -308,10 +309,11 @@ export default function Marketplace({
     return date.toISOString().split('T')[0]
   }
 
-  // Note moyenne réelle (1 décimale) — fallback 5 si aucun avis
-  const avgRating = marketplaceReviews.length > 0
-    ? (marketplaceReviews.reduce((s, r) => s + (r.rating || 5), 0) / marketplaceReviews.length).toFixed(1)
-    : '5'
+  // Note moyenne réelle (1 décimale) — Number() pour éviter la concat string ("5"+"5"=55)
+  const avgRating =
+    marketplaceReviews.length > 0
+      ? String(averageStarRating(marketplaceReviews.map((r) => r.rating)) ?? 5)
+      : '5'
   const displayStars = (n) => {
     const filled = Math.min(5, Math.max(0, Math.round(n)))
     return '★'.repeat(filled) + '☆'.repeat(5 - filled)

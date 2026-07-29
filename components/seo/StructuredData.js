@@ -1,4 +1,5 @@
 import { siteConfig } from '../../lib/config';
+import { clampRatingValue, normalizeAggregateRating } from '../../lib/rating';
 
 // Fonction helper pour générer priceValidUntil (1 an dans le futur)
 const getPriceValidUntil = () => {
@@ -360,22 +361,22 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         }
         // Ajouter aggregateRating si fourni
         if (data.aggregateRating) {
-          service.aggregateRating = data.aggregateRating;
+          service.aggregateRating = normalizeAggregateRating(data.aggregateRating);
         }
         return service;
 
       case 'AggregateRating':
-        const aggregateRating = {
+        const aggregateRating = normalizeAggregateRating({
           '@context': 'https://schema.org',
           '@type': 'AggregateRating',
           ratingValue: data.ratingValue || '4.9',
           reviewCount: data.reviewCount || String(siteConfig.socialProof?.malt?.reviews || 115),
           bestRating: '5',
           worstRating: '1'
-        };
+        });
         // Note: AggregateRating ne doit pas avoir itemReviewed selon Schema.org
         // itemReviewed est uniquement pour Review, pas pour AggregateRating
-        return aggregateRating;
+        return { ...aggregateRating, '@context': 'https://schema.org' };
 
       case 'VideoObject':
         // Normaliser uploadDate au format ISO 8601 complet avec fuseau horaire (YYYY-MM-DDTHH:mm:ss.sssZ)
@@ -599,7 +600,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           reviewBody: data.reviewBody || '',
           reviewRating: {
             '@type': 'Rating',
-            ratingValue: data.ratingValue || (data.reviewRating?.ratingValue) || '5',
+            ratingValue: clampRatingValue(data.ratingValue || (data.reviewRating?.ratingValue) || '5'),
             bestRating: '5',
             worstRating: '1'
           }
@@ -704,13 +705,13 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
               // Si on a une review, créer aggregateRating à partir de la review
               if (itemReviewed.review) {
                 const reviewRating = itemReviewed.review.reviewRating || itemReviewed.review.ratingValue;
-                const ratingValue = reviewRating?.ratingValue || reviewRating || '5';
+                const ratingValue = clampRatingValue(reviewRating?.ratingValue || reviewRating || '5');
                 itemReviewed.aggregateRating = {
                   '@type': 'AggregateRating',
                   ratingValue: ratingValue,
                   reviewCount: '1',
-                  bestRating: reviewRating?.bestRating || '5',
-                  worstRating: reviewRating?.worstRating || '1'
+                  bestRating: '5',
+                  worstRating: '1'
                 };
               } else {
                 // Sinon, créer un aggregateRating par défaut
@@ -722,6 +723,8 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
                   worstRating: '1'
                 };
               }
+            } else {
+              itemReviewed.aggregateRating = normalizeAggregateRating(itemReviewed.aggregateRating);
             }
             
             // Ajouter review si manquant (recommandé pour les extraits de produits)
@@ -889,7 +892,9 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           url: data.url,
           image: data.image || siteConfig.ogImage, // Image obligatoire pour Product schema
           brand: normalizedBrand,
-          aggregateRating: data.aggregateRating,
+          aggregateRating: data.aggregateRating
+            ? normalizeAggregateRating(data.aggregateRating)
+            : undefined,
           offers: data.offers ? enrichOffer(data.offers) : undefined,
           review: data.review || (data.reviews && data.reviews.length > 0 ? data.reviews : undefined)
         };
@@ -897,13 +902,13 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         // Si pas d'aggregateRating mais qu'on a une review, créer aggregateRating à partir de la review
         if (!product.aggregateRating && product.review) {
           const reviewRating = product.review.reviewRating || product.review.ratingValue;
-          const ratingValue = reviewRating?.ratingValue || reviewRating || '5';
+          const ratingValue = clampRatingValue(reviewRating?.ratingValue || reviewRating || '5');
           product.aggregateRating = {
             '@type': 'AggregateRating',
             ratingValue: ratingValue,
             reviewCount: '1',
-            bestRating: reviewRating?.bestRating || '5',
-            worstRating: reviewRating?.worstRating || '1'
+            bestRating: '5',
+            worstRating: '1'
           };
         } else if (!product.aggregateRating && !product.review) {
           // Si ni aggregateRating ni review, créer un aggregateRating par défaut
@@ -914,6 +919,8 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
             bestRating: '5',
             worstRating: '1'
           };
+        } else if (product.aggregateRating) {
+          product.aggregateRating = normalizeAggregateRating(product.aggregateRating);
         }
         
         // Si pas de review fournie, créer une review par défaut (recommandé pour les extraits de produits)
@@ -927,12 +934,23 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
             },
             reviewRating: {
               '@type': 'Rating',
-              ratingValue: product.aggregateRating?.ratingValue || '5',
-              bestRating: product.aggregateRating?.bestRating || '5',
-              worstRating: product.aggregateRating?.worstRating || '1'
+              ratingValue: clampRatingValue(product.aggregateRating?.ratingValue || '5'),
+              bestRating: '5',
+              worstRating: '1'
             },
             reviewBody: data.description || `Service professionnel de ${data.name || 'scraping et automatisation'}.`,
             datePublished: new Date().toISOString().split('T')[0]
+          };
+        } else if (product.review?.reviewRating) {
+          product.review = {
+            ...product.review,
+            reviewRating: {
+              ...product.review.reviewRating,
+              '@type': 'Rating',
+              ratingValue: clampRatingValue(product.review.reviewRating.ratingValue),
+              bestRating: product.review.reviewRating.bestRating || '5',
+              worstRating: product.review.reviewRating.worstRating || '1',
+            },
           };
         }
         // Ajouter d'autres champs optionnels

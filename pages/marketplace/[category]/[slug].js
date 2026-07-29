@@ -16,6 +16,7 @@ import { generatePageSEO } from '../../../lib/seo'
 import { siteConfig } from '../../../lib/config'
 import { categoryToSlug } from '../../../lib/marketplace-helpers'
 import { shortMarketplaceTitle } from '../../../lib/marketplace-display'
+import { averageStarRating } from '../../../lib/rating'
 
 const getPriceValidUntil = () => {
   const date = new Date()
@@ -365,13 +366,12 @@ export default function MarketplaceDatabase({
     priceLabelHT: toolData.priceLabelHT,
   }
 
-  const avgTestimonialRating =
-    pageTestimonials.length > 0
-      ? (
-          pageTestimonials.reduce((sum, t) => sum + (t.ratingValue || 5), 0) /
-          pageTestimonials.length
-        ).toFixed(1)
-      : null
+  const avgTestimonialRating = (() => {
+    // Number() obligatoire : ratingValue est souvent la string "5"
+    // (0 + "5" + "5" + "5" → "0555" → 185.0 hors plage Google)
+    const avg = averageStarRating(pageTestimonials.map((t) => t.ratingValue))
+    return avg != null ? String(avg) : null
+  })()
 
   const embedVideoUrl = (() => {
     const videoUrl = database.enrichedData?.videoUrl
