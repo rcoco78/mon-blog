@@ -738,9 +738,9 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
                 },
                 reviewRating: {
                   '@type': 'Rating',
-                  ratingValue: itemReviewed.aggregateRating?.ratingValue || '5',
-                  bestRating: itemReviewed.aggregateRating?.bestRating || '5',
-                  worstRating: itemReviewed.aggregateRating?.worstRating || '1'
+                  ratingValue: clampRatingValue(itemReviewed.aggregateRating?.ratingValue || '5'),
+                  bestRating: '5',
+                  worstRating: '1'
                 },
                 reviewBody: itemReviewed.description || `Service professionnel de ${itemReviewed.name || 'scraping et automatisation'}.`,
                 datePublished: new Date().toISOString().split('T')[0]
