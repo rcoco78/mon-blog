@@ -440,51 +440,44 @@ export default function DonneesPubliques() {
     fetchChessHistory()
   }, [])
 
-  // Récupérer l'historique pour chaque Key Result selon la période sélectionnée
+  // Récupérer l'historique pour tous les Key Results en un seul appel (évite N+1)
   useEffect(() => {
     const fetchAllKeyResultsHistory = async () => {
       setHistoryLoading(true)
-      console.log(`🔄 Récupération de l'historique pour ${keyResults.length} Key Results sur ${selectedPeriod} jours...`)
-      const historyPromises = keyResults
-        .filter(kr => kr.id && kr.id !== 'chess-rapid-virtual') // Exclure les Key Results virtuels
-        .map(async (kr) => {
-          try {
-            const response = await fetch(`/api/key-result-history?keyResultId=${kr.id}&days=${selectedPeriod}`)
-            // Même en cas d'erreur HTTP (rate limit géré côté serveur), essayer de récupérer les données
-            const history = await response.json().catch(() => [])
-            const historyArray = Array.isArray(history) ? history : []
-            
-            if (response.ok) {
-              if (historyArray.length > 0) {
-                console.log(`✅ ${kr.name}: ${historyArray.length} entrées d'historique trouvées`)
-              } else {
-                console.log(`⚠️ ${kr.name}: Aucun historique trouvé`)
-              }
-            } else {
-              if (response.status === 429) {
-                console.warn(`⚠️ ${kr.name}: Rate limit détecté, historique vide`)
-              } else {
-                console.error(`❌ ${kr.name}: Erreur HTTP ${response.status}`)
-              }
-            }
-            
-            return { keyResultId: kr.id, history: historyArray }
-          } catch (error) {
-            console.error(`❌ Erreur lors de la récupération de l'historique pour ${kr.name} (${kr.id}):`, error)
-            return { keyResultId: kr.id, history: [] }
-          }
+      const ids = keyResults
+        .filter((kr) => kr.id && kr.id !== 'chess-rapid-virtual')
+        .map((kr) => kr.id)
+
+      if (ids.length === 0) {
+        setKeyResultsHistory({})
+        setHistoryLoading(false)
+        return
+      }
+
+      console.log(`🔄 Récupération de l'historique pour ${ids.length} Key Results sur ${selectedPeriod} jours...`)
+      try {
+        const response = await fetch(
+          `/api/key-result-history?days=${selectedPeriod}&keyResultIds=${ids.map(encodeURIComponent).join(',')}`
+        )
+        const data = await response.json().catch(() => ({}))
+        const historyMap = data && typeof data === 'object' && !Array.isArray(data) ? data : {}
+
+        // Garantir une entrée par id même si absente
+        const normalized = {}
+        let totalWithHistory = 0
+        ids.forEach((id) => {
+          const history = Array.isArray(historyMap[id]) ? historyMap[id] : []
+          normalized[id] = history
+          if (history.length > 0) totalWithHistory++
         })
-      
-      const results = await Promise.all(historyPromises)
-      const historyMap = {}
-      let totalWithHistory = 0
-      results.forEach(({ keyResultId, history }) => {
-        historyMap[keyResultId] = history
-        if (history.length > 0) totalWithHistory++
-      })
-      console.log(`✅ Historique récupéré: ${totalWithHistory}/${results.length} Key Results ont un historique`)
-      setKeyResultsHistory(historyMap)
-      setHistoryLoading(false)
+        console.log(`✅ Historique récupéré: ${totalWithHistory}/${ids.length} Key Results ont un historique`)
+        setKeyResultsHistory(normalized)
+      } catch (error) {
+        console.error('❌ Erreur lors de la récupération de l\'historique Key Results:', error)
+        setKeyResultsHistory({})
+      } finally {
+        setHistoryLoading(false)
+      }
     }
 
     if (keyResults.length > 0 && selectedPeriod) {
