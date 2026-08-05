@@ -48,20 +48,8 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
   const [topCaseStudies] = useState(homeData?.topCaseStudies ?? [])
   const [topCaseStudiesLoading] = useState(false)
   const [projectClicks, setProjectClicks] = useState({})
-  const [showVideo, setShowVideo] = useState(false)
-  const [videoSeen, setVideoSeen] = useState(false)
-  const [mounted, setMounted] = useState(false)
   const projectsPhrase = getProjectsCountPhrase(metrics)
-
-  // URL de la vidéo Tella
-  const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
-  const videoEmbedUrl = 'https://www.tella.tv/video/vid_cmjylsyom00bn04la9dfs342e/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0'
   const [calendlyLoaded, setCalendlyLoaded] = useState(false)
-
-  // Éviter mismatch hydratation (localStorage videoSeen) — Sentry CORENTIN-BLOG-2
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   const openCalendly = () => {
     if (!calendlyLoaded) {
@@ -92,14 +80,6 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
     }
   }
 
-  // Vérifier si la vidéo a déjà été vue
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const seen = localStorage.getItem('profileVideoSeen') === 'true'
-      setVideoSeen(seen)
-    }
-  }, [])
-
   // Un seul fetch pour tous les compteurs de clics projets
   useEffect(() => {
     const partnerIds = ['contributeurs-apify', 'lemlist', 'zapmail']
@@ -113,20 +93,6 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
       .then((data) => setProjectClicks(data || {}))
       .catch(() => setProjectClicks({}))
   }, [])
-
-  // Ouvrir la popup vidéo
-  const handleVideoClick = () => {
-    setShowVideo(true)
-  }
-
-  // Marquer la vidéo comme vue quand on ferme la popup (après avoir regardé)
-  const handleCloseVideo = () => {
-    setShowVideo(false)
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('profileVideoSeen', 'true')
-      setVideoSeen(true)
-    }
-  }
 
   const pageSEO = generatePageSEO({
     title: 'Freelance scraping, automatisation et journal de bord',
@@ -243,84 +209,13 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
           <LookAtAvatar
             src={siteConfig.profileImage}
             alt="Photo de profil de Corentin Robert"
-            size={64}
-            objectPosition="center 30%"
-            onClick={handleVideoClick}
+            size={120}
+            objectPosition="center 28%"
             lookBasePath={siteConfig.profileLook?.basePath}
             lookDirections={siteConfig.profileLook?.directions || []}
             lookExt={siteConfig.profileLook?.ext || 'jpg'}
-            ring={
-              <svg
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  width: 'calc(100% + 4px)',
-                  height: 'calc(100% + 4px)',
-                  margin: '-2px',
-                  transform: 'rotate(-90deg)',
-                }}
-                viewBox="0 0 70 70"
-                aria-hidden="true"
-              >
-                <defs>
-                  <linearGradient id="instagram-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#f09433" />
-                    <stop offset="25%" stopColor="#e6683c" />
-                    <stop offset="50%" stopColor="#dc2743" />
-                    <stop offset="75%" stopColor="#cc2366" />
-                    <stop offset="100%" stopColor="#bc1888" />
-                  </linearGradient>
-                </defs>
-                <circle
-                  cx="35"
-                  cy="35"
-                  r="33"
-                  fill="none"
-                  stroke={mounted && videoSeen ? '#a3a3a3' : 'url(#instagram-gradient)'}
-                  strokeWidth="2"
-                  strokeDasharray="207.35"
-                  strokeDashoffset={mounted && videoSeen ? '0' : '207.35'}
-                  className={mounted && videoSeen ? '' : 'animate-draw-circle'}
-                  style={{
-                    transformOrigin: '35px 35px',
-                    transition: mounted && videoSeen ? 'stroke 0.5s ease-out' : 'none',
-                  }}
-                />
-              </svg>
-            }
           />
-          
-          {/* Popup vidéo */}
-          {showVideo && videoEmbedUrl && (
-            <div 
-              className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-4 bg-neutral-900/80 dark:bg-neutral-900/80 backdrop-blur-sm"
-              onClick={handleCloseVideo}
-            >
-              <div 
-                className="relative w-full max-w-[280px] md:max-w-sm rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xl"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <button
-                  onClick={handleCloseVideo}
-                  className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-neutral-900/90 dark:bg-neutral-100/90 text-white dark:text-neutral-900 hover:bg-neutral-900 dark:hover:bg-neutral-100 transition-colors"
-                  aria-label="Fermer la vidéo"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-                <div style={{ position: 'relative', paddingBottom: '177.78%', height: 0 }}>
-                  <iframe
-                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
-                    src={videoEmbedUrl}
-                    title="Présentation de Corentin Robert"
-                    allowFullScreen
-                    allowTransparency
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-          
+
           <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Corentin Robert</h1>
         </div>
         <p className="mb-3 text-neutral-800 dark:text-neutral-200 tracking-tight font-medium">
