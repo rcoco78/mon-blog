@@ -7,6 +7,7 @@ import { siteConfig } from '../lib/config'
 import { sectorToSlug } from '../lib/case-studies-helpers'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
+import LookAtAvatar from '../components/LookAtAvatar'
 import { generatePageSEO } from '../lib/seo'
 import ProjectClickCounter from '../components/ProjectClickCounter'
 import DatabaseListRow from '../components/marketplace/DatabaseListRow'
@@ -239,64 +240,54 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
       <main className="flex-auto min-w-0 mt-6 flex flex-col mb-0">
       <section aria-label="Présentation">
         <div>
-          <div 
-            className="relative inline-block mb-4 group cursor-pointer p-[2px] rounded-full"
+          <LookAtAvatar
+            src={siteConfig.profileImage}
+            alt="Photo de profil de Corentin Robert"
+            size={64}
+            objectPosition="center 30%"
             onClick={handleVideoClick}
-          >
-            <svg 
-              className="absolute inset-0"
-              style={{ 
-                width: 'calc(100% + 4px)', 
-                height: 'calc(100% + 4px)',
-                margin: '-2px',
-                transform: 'rotate(-90deg)'
-              }}
-              viewBox="0 0 70 70"
-            >
-              <defs>
-                <linearGradient id="instagram-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#f09433" />
-                  <stop offset="25%" stopColor="#e6683c" />
-                  <stop offset="50%" stopColor="#dc2743" />
-                  <stop offset="75%" stopColor="#cc2366" />
-                  <stop offset="100%" stopColor="#bc1888" />
-                </linearGradient>
-              </defs>
-              <circle
-                cx="35"
-                cy="35"
-                r="33"
-                fill="none"
-                stroke={mounted && videoSeen ? "#a3a3a3" : "url(#instagram-gradient)"}
-                strokeWidth="2"
-                strokeDasharray="207.35"
-                strokeDashoffset={mounted && videoSeen ? "0" : "207.35"}
-                className={mounted && videoSeen ? "" : "animate-draw-circle"}
+            lookBasePath={siteConfig.profileLook?.basePath}
+            lookDirections={siteConfig.profileLook?.directions || []}
+            lookExt={siteConfig.profileLook?.ext || 'jpg'}
+            ring={
+              <svg
+                className="absolute inset-0 pointer-events-none"
                 style={{
-                  transformOrigin: '35px 35px',
-                  transition: mounted && videoSeen ? 'stroke 0.5s ease-out' : 'none'
+                  width: 'calc(100% + 4px)',
+                  height: 'calc(100% + 4px)',
+                  margin: '-2px',
+                  transform: 'rotate(-90deg)',
                 }}
-              />
-            </svg>
-            <div className="rounded-full bg-white dark:bg-neutral-900 p-[2px]">
-              <Image
-                src={siteConfig.profileImage}
-                alt="Photo de profil de Corentin Robert"
-                width={64}
-                height={64}
-                sizes="64px"
-                className="w-16 h-16 rounded-full object-cover transition-all group-hover:opacity-90"
-                style={{ objectPosition: 'center 30%' }}
-                priority
-              />
-            </div>
-            {/* Overlay grisé avec icône play au hover */}
-            <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/70 dark:bg-neutral-900/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-play text-white" viewBox="0 0 16 16">
-                <path d="M10.804 8 5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z"/>
+                viewBox="0 0 70 70"
+                aria-hidden="true"
+              >
+                <defs>
+                  <linearGradient id="instagram-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#f09433" />
+                    <stop offset="25%" stopColor="#e6683c" />
+                    <stop offset="50%" stopColor="#dc2743" />
+                    <stop offset="75%" stopColor="#cc2366" />
+                    <stop offset="100%" stopColor="#bc1888" />
+                  </linearGradient>
+                </defs>
+                <circle
+                  cx="35"
+                  cy="35"
+                  r="33"
+                  fill="none"
+                  stroke={mounted && videoSeen ? '#a3a3a3' : 'url(#instagram-gradient)'}
+                  strokeWidth="2"
+                  strokeDasharray="207.35"
+                  strokeDashoffset={mounted && videoSeen ? '0' : '207.35'}
+                  className={mounted && videoSeen ? '' : 'animate-draw-circle'}
+                  style={{
+                    transformOrigin: '35px 35px',
+                    transition: mounted && videoSeen ? 'stroke 0.5s ease-out' : 'none',
+                  }}
+                />
               </svg>
-            </div>
-          </div>
+            }
+          />
           
           {/* Popup vidéo */}
           {showVideo && videoEmbedUrl && (
@@ -487,42 +478,64 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
       {/* Carrousel de témoignages */}
       <TestimonialsCarousel />
 
-      {/* Challenge YouTube — hors 1er viewport */}
-      <a
-        href={siteConfig.social.youtube}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group mt-10 mb-2 block p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
-      >
-        <div className="flex items-start justify-between gap-3">
+      {/* Challenge YouTube — repliable (le visiteur choisit) */}
+      <details className="home-fold mt-10 mb-2 border-t border-neutral-200 dark:border-neutral-800 pt-5">
+        <summary className="cursor-pointer flex items-center justify-between gap-3 py-1">
           <div className="min-w-0">
             <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-1">
-              Début {siteConfig.youtubeChallenge.startLabel}
+              YouTube · dès {siteConfig.youtubeChallenge.startLabel}
             </p>
-            <h2 className="font-semibold text-base tracking-tight text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
+            <h2 className="font-semibold text-xl tracking-tighter text-neutral-900 dark:text-neutral-100">
               {siteConfig.youtubeChallenge.title}
             </h2>
-            <p className="mt-1.5 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
-              {siteConfig.youtubeChallenge.description}
-            </p>
-            <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-neutral-100 inline-flex items-center gap-1.5">
-              {siteConfig.youtubeChallenge.cta}
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-              </svg>
-            </p>
           </div>
-          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16" className="flex-shrink-0 text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-700 dark:group-hover:text-neutral-300 transition-colors" aria-hidden="true">
-            <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.10.20.0.2.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z" />
+          <svg className="fold-chevron w-4 h-4 flex-shrink-0 text-neutral-400 dark:text-neutral-500" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <path d="M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708" />
           </svg>
-        </div>
-      </a>
+        </summary>
+        <a
+          href={siteConfig.social.youtube}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group mt-4 block p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                {siteConfig.youtubeChallenge.description}
+              </p>
+              <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-neutral-100 inline-flex items-center gap-1.5">
+                {siteConfig.youtubeChallenge.cta}
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+                </svg>
+              </p>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16" className="flex-shrink-0 text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-700 dark:group-hover:text-neutral-300 transition-colors" aria-hidden="true">
+              <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.10.20.0.2.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z" />
+            </svg>
+          </div>
+        </a>
+      </details>
 
       {/* Séparateur visuel — zone Projets / Contenu */}
       <hr className="my-12 border-t border-neutral-200 dark:border-neutral-800" role="presentation" />
 
-      <section className="" aria-label="Ce que je construis">
-        <h2 className="font-semibold text-xl mb-2 tracking-tighter">Ce que je construis</h2>
+      <details className="home-fold" aria-label="Ce que je construis">
+        <summary className="cursor-pointer flex items-center justify-between gap-3 py-1 mb-2">
+          <div className="min-w-0">
+            <h2 className="font-semibold text-xl tracking-tighter text-neutral-900 dark:text-neutral-100">
+              Ce que je construis
+            </h2>
+            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500 tracking-tight">
+              Freelance, Outreacher, Logement Atypique — ouvrir pour le détail
+            </p>
+          </div>
+          <svg className="fold-chevron w-4 h-4 flex-shrink-0 text-neutral-400 dark:text-neutral-500" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <path d="M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708" />
+          </svg>
+        </summary>
+        <div className="mt-4">
         <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400 tracking-tight">
           Missions freelance d’abord, puis Outreacher (outbound), puis preuves entrepreneuriales — dont{' '}
           <a
@@ -665,7 +678,8 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
             </svg>
           </Link>
         </div>
-      </section>
+        </div>
+      </details>
 
       {/* Section Marketplace */}
       <section className="mt-12" aria-label="Marketplace">
