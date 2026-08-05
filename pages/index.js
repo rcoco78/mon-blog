@@ -209,11 +209,12 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
           <LookAtAvatar
             src={siteConfig.profileImage}
             alt="Photo de profil de Corentin Robert"
-            size={120}
+            size={96}
             objectPosition="center 28%"
             lookBasePath={siteConfig.profileLook?.basePath}
             lookDirections={siteConfig.profileLook?.directions || []}
             lookExt={siteConfig.profileLook?.ext || 'jpg'}
+            showRing
           />
 
           <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Corentin Robert</h1>

@@ -55,15 +55,17 @@ function usePrefersReducedMotion() {
  * Look-at fluide (approche dahbi) :
  * - <img> natif + précharge (pas Next/Image → pas de cold-load /_next/image)
  * - swap immédiat de src dès que l'angle change
+ * - cerclage décoratif optionnel (sans vidéo)
  */
 export default function LookAtAvatar({
   src,
   alt = 'Photo de profil',
-  size = 120,
+  size = 96,
   objectPosition = 'center 28%',
   lookBasePath = '/images/profile-picture/look',
   lookDirections = [],
   lookExt = 'jpg',
+  showRing = true,
 }) {
   const wrapRef = useRef(null)
   const imgRef = useRef(null)
@@ -73,6 +75,7 @@ export default function LookAtAvatar({
   const availableRef = useRef([])
 
   const reducedMotion = usePrefersReducedMotion()
+  const [ringDrawn, setRingDrawn] = useState(reducedMotion)
   const directionsKey = (lookDirections || []).join(',')
   const available = useMemo(
     () => (lookDirections || []).filter((d) => ALL_DIRECTIONS.includes(d)),
@@ -88,6 +91,15 @@ export default function LookAtAvatar({
     : src
 
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 })
+
+  useEffect(() => {
+    if (reducedMotion || !showRing) {
+      setRingDrawn(true)
+      return
+    }
+    const id = window.requestAnimationFrame(() => setRingDrawn(true))
+    return () => window.cancelAnimationFrame(id)
+  }, [reducedMotion, showRing])
 
   // Précharge dès le montage (Image + link preload)
   useEffect(() => {
@@ -203,12 +215,48 @@ export default function LookAtAvatar({
           willChange: 'transform',
         }
 
+  // Cerclage SVG (viewBox 100) — rayon 47 → circonférence ~295.3
+  const ringC = 2 * Math.PI * 47
+
   return (
     <div
       ref={wrapRef}
-      className="relative inline-block mb-5 select-none"
-      style={{ width: size, height: size, perspective: useSprites ? undefined : 520 }}
+      className={`relative inline-block mb-5 select-none ${showRing ? 'p-[3px]' : ''}`}
+      style={{ perspective: useSprites ? undefined : 520 }}
     >
+      {showRing && (
+        <svg
+          className="absolute inset-0 pointer-events-none"
+          viewBox="0 0 100 100"
+          aria-hidden="true"
+          style={{ transform: 'rotate(-90deg)' }}
+        >
+          <defs>
+            <linearGradient id="avatar-ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#f09433" />
+              <stop offset="25%" stopColor="#e6683c" />
+              <stop offset="50%" stopColor="#dc2743" />
+              <stop offset="75%" stopColor="#cc2366" />
+              <stop offset="100%" stopColor="#bc1888" />
+            </linearGradient>
+          </defs>
+          <circle
+            cx="50"
+            cy="50"
+            r="47"
+            fill="none"
+            stroke="url(#avatar-ring-gradient)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeDasharray={ringC}
+            strokeDashoffset={ringDrawn ? 0 : ringC}
+            style={{
+              transition: reducedMotion ? undefined : 'stroke-dashoffset 1.4s ease-out',
+            }}
+          />
+        </svg>
+      )}
+
       {/* Force decode navigateur avant le 1er move */}
       {useSprites && (
         <div aria-hidden className="absolute w-0 h-0 overflow-hidden opacity-0 pointer-events-none">
@@ -219,8 +267,8 @@ export default function LookAtAvatar({
       )}
 
       <div
-        className="relative rounded-full overflow-hidden"
-        style={{ width: size, height: size, ...tiltStyle }}
+        className={`relative rounded-full overflow-hidden ${showRing ? 'bg-white dark:bg-neutral-900 p-[2px]' : ''}`}
+        style={tiltStyle}
       >
         <img
           ref={imgRef}
