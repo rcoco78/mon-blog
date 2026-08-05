@@ -160,15 +160,16 @@ export default function LookAtAvatar({
         <Image
           src={imageSrc}
           alt={alt}
-          width={size}
-          height={size}
-          sizes={`${size}px`}
+          width={Math.max(size * 4, 256)}
+          height={Math.max(size * 4, 256)}
+          sizes={`${size * 2}px`}
           className="rounded-full object-cover transition-opacity group-hover:opacity-95"
           style={{
             width: size,
             height: size,
             objectPosition,
           }}
+          quality={92}
           priority
         />
       </div>
