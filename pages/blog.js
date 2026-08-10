@@ -789,9 +789,24 @@ export async function getStaticProps() {
     console.warn('Erreur lors de la récupération depuis Blob Storage, fallback vers Notion:', error)
   }
 
-  // Fallback vers Notion si Blob Storage n'est pas disponible
-  if (posts.length === 0) {
-    posts = await getAllPosts()
+  // Fallback / merge Notion : ajoute les articles Publié absents du blob
+  // (évite d'attendre le cron blog-sync pour un nouvel article)
+  try {
+    const notionPosts = await getAllPosts()
+    if (posts.length === 0) {
+      posts = notionPosts
+    } else if (Array.isArray(notionPosts) && notionPosts.length > 0) {
+      const known = new Set(posts.map((p) => p.slug).filter(Boolean))
+      const missing = notionPosts.filter((p) => p.slug && !known.has(p.slug))
+      if (missing.length > 0) {
+        posts = [...missing, ...posts]
+      }
+    }
+  } catch (error) {
+    console.warn('Erreur merge Notion blog index:', error)
+    if (posts.length === 0) {
+      posts = []
+    }
   }
 
   return {
