@@ -11,6 +11,7 @@ import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { tools } from '../lib/tools'
 import { averageStarRating } from '../lib/rating'
+import { openCalendlyPopup } from '../lib/calendly'
 
 export default function Marketplace({
   dynamicDatabases = [],
@@ -25,7 +26,6 @@ export default function Marketplace({
   const [toolSortBy, setToolSortBy] = useState('users') // 'users' | 'runs' | 'date'
   const [activeTab, setActiveTab] = useState(initialTab) // 'databases' | 'tools'
   const [searchQuery, setSearchQuery] = useState('')
-  const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
   const [displayedCount, setDisplayedCount] = useState(8)
@@ -175,37 +175,7 @@ export default function Marketplace({
     setDisplayedCount(ITEMS_PER_PAGE)
   }, [selectedCategory, selectedPricing, sortBy, selectedToolCategory, toolSortBy, activeTab])
 
-  const openCalendly = () => {
-    // Charger Calendly seulement au premier clic (lazy load)
-    if (!calendlyLoaded) {
-      if (!document.querySelector('link[href*="calendly.com"]')) {
-        const link = document.createElement('link')
-        link.href = 'https://assets.calendly.com/assets/external/widget.css'
-        link.rel = 'stylesheet'
-        document.head.appendChild(link)
-      }
-
-      const script = document.createElement('script')
-      script.src = 'https://assets.calendly.com/assets/external/widget.js'
-      script.type = 'text/javascript'
-      script.async = true
-      script.onload = () => {
-        setCalendlyLoaded(true)
-        if (window.Calendly) {
-          window.Calendly.initPopupWidget({
-            url: 'https://calendly.com/corentinrobert/20min'
-          })
-        }
-      }
-      document.body.appendChild(script)
-    } else {
-      if (window.Calendly) {
-        window.Calendly.initPopupWidget({
-          url: 'https://calendly.com/corentinrobert/20min'
-        })
-      }
-    }
-  }
+  const openCalendly = () => openCalendlyPopup('marketplace')
 
   // Structured Data pour la marketplace
   const toolsStructuredData = {

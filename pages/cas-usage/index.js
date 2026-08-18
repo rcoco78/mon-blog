@@ -12,6 +12,7 @@ import { list } from '@vercel/blob'
 // Plus besoin de cette constante, on charge depuis Blob Storage dans getStaticProps
 import { useState, useEffect } from 'react'
 import CaseStudyViewCounter from '../../components/CaseStudyViewCounter'
+import { openCalendlyPopup } from '../../lib/calendly'
 
 const VIEWS_EVENTS_FILENAME = 'case-studies-views-events.json'
 
@@ -37,7 +38,6 @@ async function getViewEventsForTop() {
 
 export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies, sectorsWithCounts, viewsMap = {}, todaysCaseStudies = [], totalCount = 0 }) {
   const topCaseStudies = initialTopCaseStudies || []
-  const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
 
@@ -67,37 +67,7 @@ export default function CaseStudiesIndex({ topCaseStudies: initialTopCaseStudies
     }
   }
 
-  const openCalendly = () => {
-    // Charger Calendly seulement au premier clic (lazy load)
-    if (!calendlyLoaded) {
-      if (!document.querySelector('link[href*="calendly.com"]')) {
-        const link = document.createElement('link')
-        link.href = 'https://assets.calendly.com/assets/external/widget.css'
-        link.rel = 'stylesheet'
-        document.head.appendChild(link)
-      }
-
-      const script = document.createElement('script')
-      script.src = 'https://assets.calendly.com/assets/external/widget.js'
-      script.type = 'text/javascript'
-      script.async = true
-      script.onload = () => {
-        setCalendlyLoaded(true)
-        if (window.Calendly) {
-          window.Calendly.initPopupWidget({
-            url: 'https://calendly.com/corentinrobert/20min'
-          })
-        }
-      }
-      document.body.appendChild(script)
-    } else {
-      if (window.Calendly) {
-        window.Calendly.initPopupWidget({
-          url: 'https://calendly.com/corentinrobert/20min'
-        })
-      }
-    }
-  }
+  const openCalendly = () => openCalendlyPopup('case_studies')
 
   const sectors = sectorsWithCounts.map(({ sector }) => sector)
   // Cette page d'index est volontairement légère : on ne charge pas la liste

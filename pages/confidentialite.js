@@ -17,7 +17,7 @@ export default function Confidentialite() {
         <section className="mb-12">
           <h1 className="font-semibold text-2xl mb-6 tracking-tighter">Politique de confidentialité</h1>
           <p className="text-neutral-600 dark:text-neutral-400 mb-8 text-sm leading-relaxed">
-            Dernière mise à jour : mars 2025.
+            Dernière mise à jour : août 2026.
           </p>
 
           <div className="space-y-8 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
@@ -31,7 +31,7 @@ export default function Confidentialite() {
             <section>
               <h2 className="font-semibold text-lg mb-3 text-neutral-900 dark:text-white">Données collectées</h2>
               <p>
-                Les données personnelles que nous pouvons collecter comprennent : adresse email (newsletter, formulaire de contact), nom, prénom, coordonnées professionnelles lorsque vous nous contactez ou déposez un avis sur la marketplace. Les données de navigation (pages vues, durée) sont agrégées via Umami Analytics, sans tracking individuel ni cookies publicitaires.
+                Les données personnelles que nous pouvons collecter comprennent : adresse email (newsletter, formulaire de contact, paiement Stripe), nom, prénom, coordonnées professionnelles lorsque vous nous contactez ou déposez un avis sur la marketplace. Les données de navigation (pages vues, durée, clics de conversion) sont mesurées via Google Analytics et PostHog (hébergé en Union européenne). Les enregistrements de session PostHog masquent les champs de saisie.
               </p>
             </section>
 
@@ -45,7 +45,7 @@ export default function Confidentialite() {
             <section>
               <h2 className="font-semibold text-lg mb-3 text-neutral-900 dark:text-white">Cookies</h2>
               <p>
-                Le site utilise des cookies essentiels (préférence de thème), Google Tag Manager pour l&apos;analyse d&apos;audience et Umami Analytics (hébergé en UE, sans cookies tiers). Calendly peut déposer des cookies lors de la réservation d&apos;un rendez-vous.
+                Le site utilise des cookies essentiels (préférence de thème), Google Analytics pour l&apos;analyse d&apos;audience, et PostHog (UE) pour l&apos;analyse produit et les replay de session. Calendly et Stripe peuvent déposer des cookies lors d&apos;une réservation ou d&apos;un paiement.
               </p>
             </section>
 

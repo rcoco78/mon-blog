@@ -50,6 +50,8 @@
     "next-themes": "^0.4.6",
     "notion-to-md": "^3.1.9",
     "openai": "^4.20.0",
+    "posthog-js": "^1.417.4",
+    "posthog-node": "^5.21.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^10.1.0",

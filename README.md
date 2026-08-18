@@ -56,7 +56,14 @@ NOTION_TOKEN=your_notion_token
 NOTION_DATABASE_ID=your_database_id
 CRON_SECRET=your_cron_secret  # Pour sécuriser les cron jobs
 NEXT_PUBLIC_GA_ID=your_ga_id  # Optionnel
+
+# PostHog — projet EU dédié au blog (pas le projet Logement Atypique)
+NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=phc_xxx
+NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
+NEXT_PUBLIC_POSTHOG_UI_HOST=https://eu.posthog.com
 ```
+
+Sans `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`, le SDK est un no-op : le site continue de fonctionner. Créer le projet dans [PostHog EU](https://eu.posthog.com), puis coller la Project API Key ici et dans les env Vercel du projet `mon-blog`.
 
 ## 🔧 Développement
 

@@ -11,6 +11,7 @@ import { slugToSector, sectorToSlug } from '../../../lib/case-studies-helpers'
 import CaseStudyViewCounter from '../../../components/CaseStudyViewCounter'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
+import { openCalendlyPopup } from '../../../lib/calendly'
 import { list } from '@vercel/blob'
 
 const VIEWS_EVENTS_FILENAME = 'case-studies-views-events.json'
@@ -38,7 +39,6 @@ async function getViewEvents() {
 export default function SectorCaseStudies({ sector, sectorCaseStudies: initialCaseStudies, totalCount = 0, topCaseStudies: initialTopCaseStudies, viewsMap = {} }) {
   const router = useRouter()
   const [sectorCaseStudies, setSectorCaseStudies] = useState(initialCaseStudies || [])
-  const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState(null)
@@ -223,35 +223,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies: initialCa
 
   const openCalendly = () => {
     if (!mounted) return
-    // Charger Calendly seulement au premier clic (lazy load)
-    if (!calendlyLoaded) {
-      if (!document.querySelector('link[href*="calendly.com"]')) {
-        const link = document.createElement('link')
-        link.href = 'https://assets.calendly.com/assets/external/widget.css'
-        link.rel = 'stylesheet'
-        document.head.appendChild(link)
-      }
-
-      const script = document.createElement('script')
-      script.src = 'https://assets.calendly.com/assets/external/widget.js'
-      script.type = 'text/javascript'
-      script.async = true
-      script.onload = () => {
-        setCalendlyLoaded(true)
-        if (window.Calendly) {
-          window.Calendly.initPopupWidget({
-            url: 'https://calendly.com/corentinrobert/20min'
-          })
-        }
-      }
-      document.body.appendChild(script)
-    } else {
-      if (window.Calendly) {
-        window.Calendly.initPopupWidget({
-          url: 'https://calendly.com/corentinrobert/20min'
-        })
-      }
-    }
+    openCalendlyPopup('case_study_sector')
   }
 
 

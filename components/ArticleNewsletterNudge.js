@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { getPosthogIdentityHeaders, identifySubscriber } from '../lib/posthog-client'
 
 const STORAGE_KEY = 'cr-newsletter-nudge-dismissed'
 
@@ -77,11 +78,15 @@ export default function ArticleNewsletterNudge() {
     try {
       const response = await fetch('/api/newsletter', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getPosthogIdentityHeaders(),
+        },
         body: JSON.stringify({ email }),
       })
       const data = await response.json()
       if (response.ok && data.success) {
+        identifySubscriber(email)
         setStatus(data.alreadySubscribed ? 'already' : 'success')
         setEmail('')
         window.setTimeout(dismiss, 1600)

@@ -1,4 +1,5 @@
 import Stripe from 'stripe'
+import { captureServerEvent, captureServerException } from '../../../lib/posthog-server'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2024-12-18.acacia',
@@ -370,9 +371,24 @@ export default async function handler(req, res) {
       price: totalPrice
     })
 
+    try {
+      await captureServerEvent(req, 'checkout_started', {
+        tool_id: toolId,
+        tool_name: tool.name,
+        subscription_type: isSubscription ? 'annual' : 'one-time',
+        amount: totalPrice,
+        currency: 'eur',
+        addon_count: addonTools.length,
+        stripe_session_id: session.id,
+      })
+    } catch (analyticsError) {
+      console.warn('PostHog checkout_started:', analyticsError)
+    }
+
     return res.status(200).json({ sessionId: session.id, url: session.url })
   } catch (error) {
     console.error('Erreur Stripe:', error)
+    await captureServerException(error, req, { flow: 'create_checkout', tool_id: req.body?.toolId })
     return res.status(500).json({ error: 'Erreur lors de la création de la session de paiement' })
   }
 }

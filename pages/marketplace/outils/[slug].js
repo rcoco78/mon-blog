@@ -13,6 +13,7 @@ import { generatePageSEO } from '../../../lib/seo'
 import { siteConfig } from '../../../lib/config'
 import { getAllEnrichedActors } from '../../../lib/apify-actors-enriched'
 import { shortMarketplaceTitle } from '../../../lib/marketplace-display'
+import { getPosthogIdentityHeaders } from '../../../lib/posthog-client'
 
 export default function MarketplaceTool({ tool, notFound }) {
   // Input principal (comme URL Airbnb pour le scraper)
@@ -528,7 +529,10 @@ export default function MarketplaceTool({ tool, notFound }) {
     try {
       const response = await fetch('/api/tools/create-checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getPosthogIdentityHeaders(),
+        },
         body: JSON.stringify({
           toolId: tool.slug,
           subscriptionType: 'one-time',
