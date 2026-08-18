@@ -71,7 +71,12 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
   const [topCaseStudiesLoading] = useState(false)
   const [projectClicks, setProjectClicks] = useState({})
   const projectsPhrase = getProjectsCountPhrase(metrics)
-  const homeMetrics = (metrics || []).filter((m) => m.source !== 'Logement Atypique')
+  const homeMetrics = (metrics || [])
+    .filter((m) => m.source !== 'Logement Atypique')
+    .map((m) => ({
+      ...m,
+      source: m.source ? String(m.source).replace(/\s*[—–]\s*/g, ', ') : m.source,
+    }))
   const metricsGridClass =
     homeMetrics.length === 3 ? 'grid grid-cols-2 md:grid-cols-3 gap-4 mb-3' : 'grid grid-cols-2 md:grid-cols-4 gap-4 mb-3'
   const openCalendly = () => openCalendlyPopup('home')
@@ -92,7 +97,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
 
   const pageSEO = generatePageSEO({
     title: 'Freelance scraping, automatisation et journal de bord',
-    description: `Corentin Robert — freelance scraping, automatisation et data. ${projectsPhrase} livrés via Malt et Fiverr. Journal public de ce que je construis, marketplace de bases et scrapers.`,
+    description: `Corentin Robert, freelance scraping, automatisation et data. ${projectsPhrase} livrés via Malt et Fiverr. Journal public de ce que je construis, marketplace de bases et scrapers.`,
     path: '/',
     keywords: ['Corentin Robert', 'scraping freelance', 'automatisation', 'consultant scraping', 'web scraping', 'data automation', 'freelance scraping France', 'freelance scraping Paris', 'consultant scraping TPE-PME', 'scraping immobilier', 'automatisation processus business']
   })
@@ -122,7 +127,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
           name: 'Corentin Robert',
           alternateName: 'Corentin Robert',
           jobTitle: 'Expert Freelance en Scraping et Automatisation',
-          description: `Corentin Robert — expert freelance en scraping et automatisation. ${projectsPhrase} livrés. Spécialisé scraping immobilier et santé pour TPE-PME.`,
+          description: `Corentin Robert, expert freelance en scraping et automatisation. ${projectsPhrase} livrés. Spécialisé scraping immobilier et santé pour TPE-PME.`,
           knowsAbout: ['Web Scraping', 'Data Automation', 'Outbound Marketing', 'Growth Hacking', 'Freelance', 'Scraping Immobilier', 'Scraping Santé'],
           sameAs: [
             siteConfig.social.linkedin,
@@ -168,9 +173,9 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
         type="WebPage" 
         data={{
           url: siteConfig.url,
-          name: 'Corentin Robert — Freelance Scraping & Automatisation',
+          name: 'Corentin Robert, freelance scraping et automatisation',
           title: 'Freelance scraping, automatisation et journal de bord',
-          description: `Corentin Robert — freelance scraping, automatisation et data. ${projectsPhrase} livrés, livraison en 7 jours.`,
+          description: `Corentin Robert, freelance scraping, automatisation et data. ${projectsPhrase} livrés, livraison en 7 jours.`,
           image: siteConfig.ogImage,
           about: {
             '@type': 'Thing',
@@ -219,7 +224,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
           Scraping, automatisation et data pour générer du business.
         </p>
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Freelance — {projectsPhrase} Malt &amp; Fiverr. Journal public de ce que je livre et construis.
+          Freelance, {projectsPhrase} Malt et Fiverr. Journal public de ce que je livre et construis.
         </p>
 
         {/* CTA principaux — appel en primaire, journal en lien */}
@@ -286,7 +291,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
                 onClick={() => captureCta({ flow: FLOW.journal, source: 'home_now', cta: 'youtube' })}
                 className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
               >
-                Challenge en cours — 1 vidéo / jour
+                Challenge en cours, 1 vidéo / jour
               </a>
             </li>
           </ul>
@@ -380,7 +385,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
       <section className="mt-10" aria-label="Questions fréquentes">
         <h2 className="font-semibold text-xl mb-2 tracking-tighter">Questions fréquentes</h2>
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Prix, délais, légalité — le reste est dans la{' '}
+          Prix, délais, légalité. Le reste est dans la{' '}
           <Link href="/faq" className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100">
             FAQ
           </Link>
@@ -443,7 +448,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
               Ce que je construis
             </h2>
             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500 tracking-tight">
-              Freelance, Outreacher, Logement Atypique — ouvrir pour le détail
+              Freelance, Outreacher, Logement Atypique. Ouvrir pour le détail
             </p>
           </div>
           <svg className="fold-chevron w-4 h-4 flex-shrink-0 text-neutral-400 dark:text-neutral-500" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
@@ -452,7 +457,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
         </summary>
         <div className="mt-4">
         <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Missions freelance d’abord, puis Outreacher (outbound), puis preuves entrepreneuriales — dont{' '}
+          Missions freelance d’abord, puis Outreacher (outbound), puis preuves entrepreneuriales, dont{' '}
           <a
             href="https://logement-atypique.fr/?utm_source=corentinrobert&utm_medium=website&utm_campaign=homepage"
             target="_blank"
@@ -607,7 +612,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
           )}
         </h2>
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Bases Google Sheets à acheter — les mêmes que je livre à mes clients. Aussi :{' '}
+          Bases Google Sheets à acheter, les mêmes que je livre à mes clients. Aussi :{' '}
           <Link href="/marketplace?tab=tools" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
             scrapers Apify en free tier
           </Link>
@@ -639,7 +644,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
       <section className="mt-12" aria-label="Articles métier">
         <h2 className="font-semibold text-xl mb-2 tracking-tighter">Articles métier</h2>
         <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Scraping, automatisation, freelance et acquisition — le journal de ce qui construit ma légitimité.
+          Scraping, automatisation, freelance et acquisition. Le journal de ce qui construit ma légitimité.
         </p>
         <div className="flex flex-col space-y-4">
           {loading ? (
