@@ -17,6 +17,27 @@ import { getProjectsCountPhrase } from '../lib/project-count'
 import { fetchBlobJson, withTimeout } from '../lib/blob-cache'
 import { captureDataError } from '../lib/sentry'
 import { openCalendlyPopup } from '../lib/calendly'
+import { captureCta, trackFaqOpened } from '../lib/posthog-client'
+import { FLOW } from '../lib/posthog-events'
+import FAQ from '../components/FAQ'
+
+const HOME_FAQ = [
+  {
+    question: 'Quel est le délai de livraison réel ?',
+    answer:
+      'Moins d’une semaine pour 90 % des projets. Scraping simple : 2-3 jours. Multi-sites / anti-bot ou automatisation : 5-7 jours.',
+  },
+  {
+    question: 'Combien coûte un projet de scraping ou d’automatisation ?',
+    answer:
+      'Ordres de grandeur : 500-1 500 € (simple), 1 500-5 000 € (complexe), 2 000-8 000 € (outil + intégration). Prix et délai sur un appel de 20 min.',
+  },
+  {
+    question: 'Est-ce légal de scraper des sites web ?',
+    answer:
+      'Oui dans la plupart des cas, en respectant robots.txt, CGU, RGPD si données personnelles, et sans surcharger les serveurs. On cadrera ça ensemble.',
+  },
+]
 
 // Fonction helper pour obtenir le logo d'une entreprise
 const getCompanyLogo = (companyName) => {
@@ -50,6 +71,9 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
   const [topCaseStudiesLoading] = useState(false)
   const [projectClicks, setProjectClicks] = useState({})
   const projectsPhrase = getProjectsCountPhrase(metrics)
+  const homeMetrics = (metrics || []).filter((m) => m.source !== 'Logement Atypique')
+  const metricsGridClass =
+    homeMetrics.length === 3 ? 'grid grid-cols-2 md:grid-cols-3 gap-4 mb-3' : 'grid grid-cols-2 md:grid-cols-4 gap-4 mb-3'
   const openCalendly = () => openCalendlyPopup('home')
 
   // Un seul fetch pour tous les compteurs de clics projets
@@ -198,28 +222,33 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
           Freelance — {projectsPhrase} Malt &amp; Fiverr. Journal public de ce que je livre et construis.
         </p>
 
-        {/* CTA principaux */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-8">
-          <Link
-            href="/objectifs"
-            className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-neutral-900 dark:bg-neutral-100 text-neutral-100 dark:text-neutral-900 text-sm font-medium hover:opacity-90 transition-opacity"
-          >
-            Voir la progression 2026
-          </Link>
+        {/* CTA principaux — appel en primaire, journal en lien */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-3">
           <button
             type="button"
             onClick={openCalendly}
-            className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-800 dark:text-neutral-200 hover:border-neutral-400 dark:hover:border-neutral-500 transition-colors"
+            className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-neutral-900 dark:bg-neutral-100 text-neutral-100 dark:text-neutral-900 text-sm font-medium hover:opacity-90 transition-opacity"
           >
             Réserver un appel
           </button>
           <Link
             href="/marketplace?tab=tools"
+            onClick={() => captureCta({ flow: FLOW.marketplace, source: 'home', cta: 'scrapers' })}
             className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-800 dark:text-neutral-200 hover:border-neutral-400 dark:hover:border-neutral-500 transition-colors"
           >
             Scrapers free tier
           </Link>
         </div>
+        <p className="mb-8 text-sm text-neutral-500 dark:text-neutral-500 tracking-tight">
+          Journal public →{' '}
+          <Link
+            href="/objectifs"
+            onClick={() => captureCta({ flow: FLOW.journal, source: 'home', cta: 'objectifs' })}
+            className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors"
+          >
+            Progression 2026
+          </Link>
+        </p>
 
         {/* En ce moment — rythme journal (levels/leerob) */}
         <div className="mb-8 border-t border-neutral-200 dark:border-neutral-800 pt-5" aria-label="En ce moment">
@@ -242,6 +271,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
               <span className="text-neutral-500 dark:text-neutral-500 shrink-0">Objectifs</span>
               <Link
                 href="/objectifs"
+                onClick={() => captureCta({ flow: FLOW.journal, source: 'home_now', cta: 'objectifs' })}
                 className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
               >
                 Progression 2026 en public
@@ -253,9 +283,10 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
                 href={siteConfig.social.youtube}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => captureCta({ flow: FLOW.journal, source: 'home_now', cta: 'youtube' })}
                 className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
               >
-                Challenge — 1 vidéo / jour dès le {siteConfig.youtubeChallenge.startLabel}
+                Challenge en cours — 1 vidéo / jour
               </a>
             </li>
           </ul>
@@ -263,8 +294,8 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
         
         {/* Métriques de confiance — cartes (pas de <a> imbriqués) */}
         <div className="mb-6 md:mb-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3" aria-label="Métriques de confiance">
-            {metrics.map((metric, index) => {
+          <div className={`${metricsGridClass}`} aria-label="Métriques de confiance">
+            {homeMetrics.map((metric, index) => {
               const maltHref = metric.href || siteConfig.social.malt
               const externalIcon =
                 metric.label === 'projets réalisés' ? (
@@ -346,12 +377,27 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
       {/* Carrousel de témoignages */}
       <TestimonialsCarousel />
 
+      <section className="mt-10" aria-label="Questions fréquentes">
+        <h2 className="font-semibold text-xl mb-2 tracking-tighter">Questions fréquentes</h2>
+        <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
+          Prix, délais, légalité — le reste est dans la{' '}
+          <Link href="/faq" className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100">
+            FAQ
+          </Link>
+          .
+        </p>
+        <FAQ
+          items={HOME_FAQ}
+          onItemOpen={(item) => trackFaqOpened({ question: item.question, source: 'home' })}
+        />
+      </section>
+
       {/* Challenge YouTube — repliable (le visiteur choisit) */}
       <details className="home-fold mt-10 mb-2 border-t border-neutral-200 dark:border-neutral-800 pt-5">
         <summary className="cursor-pointer flex items-center justify-between gap-3 py-1">
           <div className="min-w-0">
             <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-1">
-              YouTube · dès {siteConfig.youtubeChallenge.startLabel}
+              YouTube · {siteConfig.youtubeChallenge.startLabel}
             </p>
             <h2 className="font-semibold text-xl tracking-tighter text-neutral-900 dark:text-neutral-100">
               {siteConfig.youtubeChallenge.title}
@@ -365,6 +411,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
           href={siteConfig.social.youtube}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => captureCta({ flow: FLOW.journal, source: 'home_youtube', cta: 'youtube' })}
           className="group mt-4 block p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
         >
           <div className="flex items-start justify-between gap-3">

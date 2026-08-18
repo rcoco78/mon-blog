@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import ViewCounter from '../../components/ViewCounter'
 import Block from '../../components/Block'
 import MarkdownRenderer from '../../components/MarkdownRenderer'
+import ArticleCallCta from '../../components/ArticleCallCta'
 import NewsletterForm from '../../components/NewsletterForm'
 import ArticleNewsletterNudge from '../../components/ArticleNewsletterNudge'
 import RelatedPosts from '../../components/RelatedPosts'
@@ -393,8 +394,8 @@ export default function Post({ post, allPosts }) {
             {/* Articles similaires */}
         <RelatedPosts currentPost={post} allPosts={allPosts} />
 
-            {/* Newsletter en fin d'article */}
-            <NewsletterForm compact={false} />
+            <ArticleCallCta />
+            <NewsletterForm compact={false} source="article" />
         </div>
         <ArticleNewsletterNudge />
       </article>

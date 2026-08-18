@@ -698,36 +698,16 @@ export default function Blog({ posts }) {
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">Pour aller plus loin</h2>
           <div className="space-y-2 text-neutral-600 dark:text-neutral-400">
             <p>
-              <Link href="/a-propos" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Découvrez mon parcours
-              </Link>
-              {' • '}
-              <Link href="/newsletter" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Inscrivez-vous à la newsletter
+              <Link href="/cas-usage" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Cas d&apos;usage
               </Link>
               {' • '}
               <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Découvrez la marketplace
+                Marketplace
               </Link>
               {' • '}
-              <Link href="/cas-usage" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Découvrez les cas d'usage
-              </Link>
-              {' • '}
-              <Link href="/temoignages" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Lisez les témoignages clients
-              </Link>
-              {' • '}
-              <Link href="/objectifs" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Suivez mes objectifs 2026
-              </Link>
-              {' • '}
-              <Link href="/spotify" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Découvrez mes playlists et artistes favoris
-              </Link>
-              {' • '}
-              <Link href="/faq" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Consultez la FAQ
+              <Link href="/newsletter" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
+                Newsletter
               </Link>
             </p>
         </div>
