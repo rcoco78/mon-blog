@@ -441,32 +441,12 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
       {/* Séparateur visuel — zone Projets / Contenu */}
       <hr className="my-12 border-t border-neutral-200 dark:border-neutral-800" role="presentation" />
 
-      <details className="home-fold" aria-label="Ce que je construis">
-        <summary className="cursor-pointer flex items-center justify-between gap-3 py-1 mb-2">
-          <div className="min-w-0">
-            <h2 className="font-semibold text-xl tracking-tighter text-neutral-900 dark:text-neutral-100">
-              Ce que je construis
-            </h2>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500 tracking-tight">
-              Freelance, Outreacher, Logement Atypique. Ouvrir pour le détail
-            </p>
-          </div>
-          <svg className="fold-chevron w-4 h-4 flex-shrink-0 text-neutral-400 dark:text-neutral-500" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-            <path d="M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708" />
-          </svg>
-        </summary>
-        <div className="mt-4">
-        <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Missions freelance d’abord, puis Outreacher (outbound), puis preuves entrepreneuriales, dont{' '}
-          <a
-            href="https://logement-atypique.fr/?utm_source=corentinrobert&utm_medium=website&utm_campaign=homepage"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 transition-colors"
-          >
-            Logement Atypique
-          </a>{' '}
-          avec mon frère.
+      <section className="mt-12" aria-label="Ce que je construis">
+        <h2 className="font-semibold text-xl mb-2 tracking-tighter text-neutral-900 dark:text-neutral-100">
+          Ce que je construis
+        </h2>
+        <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
+          Freelance, Outreacher, Logement Atypique.
         </p>
         <div className="flex flex-col space-y-4">
           {siteConfig.projects.filter(project => {
@@ -598,8 +578,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
             </svg>
           </Link>
         </div>
-        </div>
-      </details>
+      </section>
 
       {/* Section Marketplace */}
       <section className="mt-12" aria-label="Marketplace">
