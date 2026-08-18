@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { getPosthogIdentityHeaders, identifySubscriber } from '../lib/posthog-client'
 
 export default function Newsletter() {
   const [email, setEmail] = useState('')
@@ -30,6 +31,7 @@ export default function Newsletter() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...getPosthogIdentityHeaders(),
         },
         body: JSON.stringify({ email }),
       })
@@ -37,6 +39,7 @@ export default function Newsletter() {
       const data = await response.json()
       
       if (response.ok && data.success) {
+        identifySubscriber(email)
         setStatus('success')
         setEmail('')
         

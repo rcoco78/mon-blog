@@ -12,6 +12,7 @@ import StructuredData from '../components/seo/StructuredData'
 import FAQ from '../components/FAQ'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
+import { openCalendlyPopup } from '../lib/calendly'
 
 function TagFilter({ tags, selectedTag, onTagSelect }) {
   const [showMore, setShowMore] = useState(false)
@@ -93,7 +94,6 @@ export default function Blog({ posts }) {
   const [searchText, setSearchText] = useState(initialSearch)
   const [allTags, setAllTags] = useState([])
   const [filteredPosts, setFilteredPosts] = useState(posts)
-  const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [topPosts, setTopPosts] = useState([])
   const [topPostsLoading, setTopPostsLoading] = useState(true)
   const [postsLoading, setPostsLoading] = useState(true)
@@ -256,37 +256,7 @@ export default function Blog({ posts }) {
     router.replace(url, undefined, { shallow: true })
   }
 
-  const openCalendly = () => {
-    // Charger Calendly seulement au premier clic (lazy load)
-    if (!calendlyLoaded) {
-      if (!document.querySelector('link[href*="calendly.com"]')) {
-        const link = document.createElement('link')
-        link.href = 'https://assets.calendly.com/assets/external/widget.css'
-        link.rel = 'stylesheet'
-        document.head.appendChild(link)
-      }
-
-      const script = document.createElement('script')
-      script.src = 'https://assets.calendly.com/assets/external/widget.js'
-      script.type = 'text/javascript'
-      script.async = true
-      script.onload = () => {
-        setCalendlyLoaded(true)
-        if (window.Calendly) {
-          window.Calendly.initPopupWidget({
-            url: 'https://calendly.com/corentinrobert/20min'
-          })
-        }
-      }
-      document.body.appendChild(script)
-    } else {
-      if (window.Calendly) {
-        window.Calendly.initPopupWidget({
-          url: 'https://calendly.com/corentinrobert/20min'
-        })
-  }
-    }
-  }
+  const openCalendly = () => openCalendlyPopup('blog')
 
 
   const pageSEO = generatePageSEO({

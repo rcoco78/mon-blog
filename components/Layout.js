@@ -3,6 +3,7 @@ import { useTheme } from 'next-themes'
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { siteConfig } from '../lib/config'
+import { openCalendlyPopup } from '../lib/calendly'
 
 const ArrowIcon = () => (
   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -126,33 +127,7 @@ export default function Layout({ children }) {
           </div>
           <div className="flex justify-end items-center gap-0.5 max-[480px]:hidden">
             <button
-              onClick={() => {
-                if (typeof window !== 'undefined' && window.Calendly) {
-                  window.Calendly.initPopupWidget({
-                    url: 'https://calendly.com/corentinrobert/20min'
-                  })
-                } else {
-                  // Charger Calendly si pas déjà chargé
-                  if (!document.querySelector('link[href*="calendly.com"]')) {
-                    const link = document.createElement('link')
-                    link.href = 'https://assets.calendly.com/assets/external/widget.css'
-                    link.rel = 'stylesheet'
-                    document.head.appendChild(link)
-                  }
-                  const script = document.createElement('script')
-                  script.src = 'https://assets.calendly.com/assets/external/widget.js'
-                  script.type = 'text/javascript'
-                  script.async = true
-                  script.onload = () => {
-                    if (window.Calendly) {
-                      window.Calendly.initPopupWidget({
-                        url: 'https://calendly.com/corentinrobert/20min'
-                      })
-                    }
-                  }
-                  document.head.appendChild(script)
-                }
-              }}
+              onClick={() => openCalendlyPopup('nav')}
               aria-label="Réserver un appel"
               type="button"
               className="flex items-center justify-center transition-all py-1 px-2 sm:px-3 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 relative"
@@ -193,33 +168,7 @@ export default function Layout({ children }) {
                   {/* Boutons mobile pour dark mode et appel (affichés uniquement sur mobile) */}
                   <div className="flex items-center justify-center gap-4 mb-6 sm:hidden">
                     <button
-                      onClick={() => {
-                        if (typeof window !== 'undefined' && window.Calendly) {
-                          window.Calendly.initPopupWidget({
-                            url: 'https://calendly.com/corentinrobert/20min'
-                          })
-                        } else {
-                          // Charger Calendly si pas déjà chargé
-                          if (!document.querySelector('link[href*="calendly.com"]')) {
-                            const link = document.createElement('link')
-                            link.href = 'https://assets.calendly.com/assets/external/widget.css'
-                            link.rel = 'stylesheet'
-                            document.head.appendChild(link)
-                          }
-                          const script = document.createElement('script')
-                          script.src = 'https://assets.calendly.com/assets/external/widget.js'
-                          script.type = 'text/javascript'
-                          script.async = true
-                          script.onload = () => {
-                            if (window.Calendly) {
-                              window.Calendly.initPopupWidget({
-                                url: 'https://calendly.com/corentinrobert/20min'
-                              })
-                            }
-                          }
-                          document.head.appendChild(script)
-                        }
-                      }}
+                      onClick={() => openCalendlyPopup('footer_mobile')}
                       aria-label="Réserver un appel"
                       type="button"
                       className="flex items-center justify-center transition-all py-2 px-4 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 relative"

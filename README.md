@@ -56,7 +56,14 @@ NOTION_TOKEN=your_notion_token
 NOTION_DATABASE_ID=your_database_id
 CRON_SECRET=your_cron_secret  # Pour sécuriser les cron jobs
 NEXT_PUBLIC_GA_ID=your_ga_id  # Optionnel
+
+# PostHog — projet EU dédié au blog (pas le projet Logement Atypique)
+NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=phc_xxx
+NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
+NEXT_PUBLIC_POSTHOG_UI_HOST=https://eu.posthog.com
 ```
+
+Init client : même config que le snippet HTML officiel (`api_host` EU, `defaults: '2026-05-30'`, `person_profiles: identified_only`), via `posthog-js` — pas le `<script>` brut, pour éviter un double chargement.
 
 ## 🔧 Développement
 

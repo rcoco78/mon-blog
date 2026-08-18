@@ -1,6 +1,7 @@
 import Stripe from 'stripe'
 import { put } from '@vercel/blob'
 import { buffer } from 'micro'
+import { captureServerEvent, captureServerException, identifyServerUser } from '../../../lib/posthog-server'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2024-12-18.acacia',
@@ -147,6 +148,25 @@ export default async function handler(req, res) {
         }
       } catch (error) {
         console.error('Erreur enregistrement achat:', error)
+        await captureServerException(error, req, { flow: 'stripe_webhook_persist' })
+      }
+
+      try {
+        const distinctId = email || session.id
+        if (email) {
+          await identifyServerUser(email, { email })
+        }
+        await captureServerEvent(req, 'purchase_completed', {
+          tool_id: toolId,
+          tool_ids: effectiveToolIds,
+          amount: session.amount_total / 100,
+          currency: session.currency,
+          subscription_type: subscriptionType,
+          is_subscription: isSubscription,
+          stripe_session_id: session.id,
+        }, distinctId)
+      } catch (analyticsError) {
+        console.warn('PostHog purchase_completed:', analyticsError)
       }
     }
   }

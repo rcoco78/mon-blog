@@ -7,6 +7,7 @@ import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import ContentListRow from '../components/ContentListRow'
 import { photos } from '../lib/photos'
+import { openCalendlyPopup } from '../lib/calendly'
 
 function trackProjectClick(project) {
   if (!project?.link || !project?.id) return
@@ -42,7 +43,6 @@ export default function About() {
   const [photoIndex, setPhotoIndex] = useState(0)
   const [mounted, setMounted] = useState(false)
   const [itemsPerView, setItemsPerView] = useState(3)
-  const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const scrollContainerRef = useRef(null)
   const [currentScrollIndex, setCurrentScrollIndex] = useState(0)
@@ -100,37 +100,7 @@ export default function About() {
     }
   }, [])
   
-  const openCalendly = () => {
-    // Charger Calendly seulement au premier clic (lazy load)
-    if (!calendlyLoaded) {
-      if (!document.querySelector('link[href*="calendly.com"]')) {
-        const link = document.createElement('link')
-        link.href = 'https://assets.calendly.com/assets/external/widget.css'
-        link.rel = 'stylesheet'
-        document.head.appendChild(link)
-      }
-
-      const script = document.createElement('script')
-      script.src = 'https://assets.calendly.com/assets/external/widget.js'
-      script.type = 'text/javascript'
-      script.async = true
-      script.onload = () => {
-        setCalendlyLoaded(true)
-        if (window.Calendly) {
-          window.Calendly.initPopupWidget({
-            url: 'https://calendly.com/corentinrobert/20min'
-          })
-        }
-      }
-      document.body.appendChild(script)
-    } else {
-      if (window.Calendly) {
-        window.Calendly.initPopupWidget({
-          url: 'https://calendly.com/corentinrobert/20min'
-        })
-      }
-    }
-  }
+  const openCalendly = () => openCalendlyPopup('about')
   
   // Récupérer les photos les plus récentes pour le teaser (plus que 4 pour le scroll)
   const recentPhotos = photos

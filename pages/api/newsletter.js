@@ -3,6 +3,7 @@
 
 import { put, list } from '@vercel/blob'
 import { isLikelyBotEmail, normalizeNewsletterEmail } from '../../lib/newsletter-email'
+import { captureServerEvent, captureServerException, identifyServerUser } from '../../lib/posthog-server'
 
 const BLOB_FILENAME = 'newsletter-subscribers.json'
 
@@ -102,6 +103,16 @@ export default async function handler(req, res) {
     })
 
     if (existingSubscriber) {
+      try {
+        await identifyServerUser(emailLower, { email: emailLower })
+        await captureServerEvent(req, 'newsletter_subscribed', {
+          already_subscribed: true,
+          source: 'blog',
+        }, emailLower)
+      } catch (analyticsError) {
+        console.warn('PostHog newsletter (already subscribed):', analyticsError)
+      }
+
       return res.status(200).json({
         success: true,
         message: 'Vous êtes déjà inscrit à la newsletter',
@@ -136,12 +147,23 @@ export default async function handler(req, res) {
 
     console.log(`✅ Nouvel abonné newsletter: ${emailLower}`)
 
+    try {
+      await identifyServerUser(emailLower, { email: emailLower })
+      await captureServerEvent(req, 'newsletter_subscribed', {
+        already_subscribed: false,
+        source: 'blog',
+      }, emailLower)
+    } catch (analyticsError) {
+      console.warn('PostHog newsletter:', analyticsError)
+    }
+
     return res.status(200).json({
       success: true,
       message: 'Inscription réussie ! Merci de votre confiance.',
     })
   } catch (error) {
     console.error('Erreur lors de l\'inscription à la newsletter:', error)
+    await captureServerException(error, req, { flow: 'newsletter' })
     // Envoyer notification Telegram en cas d'erreur
     await sendTelegramNotification(email || 'Email inconnu', false)
     return res.status(500).json({ error: 'Erreur lors de l\'inscription' })

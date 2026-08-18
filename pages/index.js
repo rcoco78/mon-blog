@@ -16,6 +16,7 @@ import TestimonialsCarousel from '../components/TestimonialsCarousel'
 import { getProjectsCountPhrase } from '../lib/project-count'
 import { fetchBlobJson, withTimeout } from '../lib/blob-cache'
 import { captureDataError } from '../lib/sentry'
+import { openCalendlyPopup } from '../lib/calendly'
 
 // Fonction helper pour obtenir le logo d'une entreprise
 const getCompanyLogo = (companyName) => {
@@ -49,36 +50,7 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
   const [topCaseStudiesLoading] = useState(false)
   const [projectClicks, setProjectClicks] = useState({})
   const projectsPhrase = getProjectsCountPhrase(metrics)
-  const [calendlyLoaded, setCalendlyLoaded] = useState(false)
-
-  const openCalendly = () => {
-    if (!calendlyLoaded) {
-      if (!document.querySelector('link[href*="calendly.com"]')) {
-        const link = document.createElement('link')
-        link.href = 'https://assets.calendly.com/assets/external/widget.css'
-        link.rel = 'stylesheet'
-        document.head.appendChild(link)
-      }
-
-      const script = document.createElement('script')
-      script.src = 'https://assets.calendly.com/assets/external/widget.js'
-      script.type = 'text/javascript'
-      script.async = true
-      script.onload = () => {
-        setCalendlyLoaded(true)
-        if (window.Calendly) {
-          window.Calendly.initPopupWidget({
-            url: 'https://calendly.com/corentinrobert/20min'
-          })
-        }
-      }
-      document.body.appendChild(script)
-    } else if (window.Calendly) {
-      window.Calendly.initPopupWidget({
-        url: 'https://calendly.com/corentinrobert/20min'
-      })
-    }
-  }
+  const openCalendly = () => openCalendlyPopup('home')
 
   // Un seul fetch pour tous les compteurs de clics projets
   useEffect(() => {

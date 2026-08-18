@@ -6,6 +6,7 @@ import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { useState, useEffect, useMemo } from 'react'
 import FAQ from '../components/FAQ'
+import { openCalendlyPopup } from '../lib/calendly'
 
 function findAbonnesKeyResult(keyResults) {
   return keyResults.find((kr) => {
@@ -274,7 +275,6 @@ export default function DonneesPubliques() {
   const [chessLoading, setChessLoading] = useState(true)
   const [chessHistory, setChessHistory] = useState([])
   const [chessHistoryLoading, setChessHistoryLoading] = useState(true)
-  const [calendlyLoaded, setCalendlyLoaded] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState(null) // Filtre par catégorie
   const [selectedPeriod, setSelectedPeriod] = useState(7) // Période d'évolution : 3, 7 ou 30 jours
   const [keyResultsHistory, setKeyResultsHistory] = useState({}) // Historique par Key Result ID
@@ -520,37 +520,7 @@ export default function DonneesPubliques() {
     }
   }
 
-  const openCalendly = () => {
-    // Charger Calendly seulement au premier clic (lazy load)
-    if (!calendlyLoaded) {
-      if (!document.querySelector('link[href*="calendly.com"]')) {
-        const link = document.createElement('link')
-        link.href = 'https://assets.calendly.com/assets/external/widget.css'
-        link.rel = 'stylesheet'
-        document.head.appendChild(link)
-      }
-
-      const script = document.createElement('script')
-      script.src = 'https://assets.calendly.com/assets/external/widget.js'
-      script.type = 'text/javascript'
-      script.async = true
-      script.onload = () => {
-        setCalendlyLoaded(true)
-        if (window.Calendly) {
-          window.Calendly.initPopupWidget({
-            url: 'https://calendly.com/corentinrobert/20min'
-          })
-        }
-      }
-      document.body.appendChild(script)
-    } else {
-      if (window.Calendly) {
-        window.Calendly.initPopupWidget({
-          url: 'https://calendly.com/corentinrobert/20min'
-        })
-      }
-    }
-  }
+  const openCalendly = () => openCalendlyPopup('goals')
 
   // Fonction pour traduire les catégories en bénéfices business
   const translateCategory = (category) => {

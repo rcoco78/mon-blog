@@ -17,6 +17,7 @@ import { siteConfig } from '../../../lib/config'
 import { categoryToSlug } from '../../../lib/marketplace-helpers'
 import { shortMarketplaceTitle } from '../../../lib/marketplace-display'
 import { averageStarRating } from '../../../lib/rating'
+import { getPosthogIdentityHeaders } from '../../../lib/posthog-client'
 
 const getPriceValidUntil = () => {
   const date = new Date()
@@ -274,7 +275,10 @@ export default function MarketplaceDatabase({
     try {
       const response = await fetch('/api/tools/create-checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getPosthogIdentityHeaders(),
+        },
         body: JSON.stringify({
           toolId: database.slug,
           subscriptionType: 'one-time',

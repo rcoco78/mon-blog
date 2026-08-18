@@ -51,3 +51,4 @@ next-env.d.ts
 # Cursor agent skills (local uniquement)
 .agents/
 .env*
+!.env.example

@@ -18,6 +18,7 @@ import { useState, useEffect } from 'react'
 import CaseStudyViewCounter from '../../../components/CaseStudyViewCounter'
 import ReadingProgress from '../../../components/ReadingProgress'
 import PersonalVideo from '../../../components/PersonalVideo'
+import { openCalendlyPopup } from '../../../lib/calendly'
 
 // Fonction helper pour générer priceValidUntil (1 an dans le futur)
 const getPriceValidUntil = () => {
@@ -469,25 +470,7 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
 
   const openCalendly = () => {
     if (!mounted) return
-    if (!document.querySelector('link[href*="calendly.com"]')) {
-      const link = document.createElement('link')
-      link.href = 'https://assets.calendly.com/assets/external/widget.css'
-      link.rel = 'stylesheet'
-      document.head.appendChild(link)
-    }
-
-    const script = document.createElement('script')
-    script.src = 'https://assets.calendly.com/assets/external/widget.js'
-    script.type = 'text/javascript'
-    script.async = true
-    script.onload = () => {
-      if (window.Calendly) {
-        window.Calendly.initPopupWidget({
-          url: 'https://calendly.com/corentinrobert/20min'
-        })
-      }
-    }
-    document.body.appendChild(script)
+    openCalendlyPopup('case_study')
   }
 
   return (

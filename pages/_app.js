@@ -1,11 +1,17 @@
+import { useEffect } from 'react'
 import { ThemeProvider } from 'next-themes'
 import Analytics from '../components/GoogleAnalytics'
 import '../styles/globals.css'
 import Layout from '../components/Layout'
 import StructuredData from '../components/seo/StructuredData'
 import { siteConfig } from '../lib/config'
+import { initPostHog } from '../lib/posthog-client'
 
 function MyApp({ Component, pageProps }) {
+  useEffect(() => {
+    initPostHog()
+  }, [])
+
   return (
     <ThemeProvider attribute="class" enableSystem={true} defaultTheme="system">
       {/* SEOHead est fourni par chaque page — pas de défaut global (évite meta dupliquées) */}

@@ -1,3 +1,5 @@
+import { captureServerEvent, captureServerException } from '../../lib/posthog-server'
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' })
@@ -41,9 +43,20 @@ export default async function handler(req, res) {
     // Simuler un délai pour l'exemple
     await new Promise(resolve => setTimeout(resolve, 1000))
 
+    try {
+      await captureServerEvent(req, 'contact_submitted', {
+        has_subject: Boolean(subject),
+        has_message: Boolean(message),
+        type: type || null,
+      }, email)
+    } catch (analyticsError) {
+      console.warn('PostHog contact_submitted:', analyticsError)
+    }
+
     return res.status(200).json({ message: 'Message envoyé avec succès' })
   } catch (error) {
     console.error('Erreur lors de l\'envoi du message:', error)
+    await captureServerException(error, req, { flow: 'contact' })
     return res.status(500).json({ message: 'Erreur lors de l\'envoi du message' })
   }
 } 
