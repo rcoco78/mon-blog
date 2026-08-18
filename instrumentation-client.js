@@ -1,15 +1,11 @@
 // Client-side Sentry + PostHog init (Next.js instrumentation-client convention)
 import * as Sentry from '@sentry/nextjs'
 import posthog from 'posthog-js'
+import { POSTHOG_PROJECT_TOKEN, posthogInitOptions } from './lib/posthog-config'
 import { isNativeWebViewBridgeNoise } from './lib/sentry-filters'
 
-const posthogToken = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN
-if (posthogToken) {
-  posthog.init(posthogToken, {
-    api_host: '/ingest',
-    ui_host: process.env.NEXT_PUBLIC_POSTHOG_UI_HOST || 'https://eu.posthog.com',
-    defaults: '2026-05-30',
-  })
+if (POSTHOG_PROJECT_TOKEN) {
+  posthog.init(POSTHOG_PROJECT_TOKEN, posthogInitOptions)
 }
 
 Sentry.init({

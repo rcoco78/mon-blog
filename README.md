@@ -63,9 +63,7 @@ NEXT_PUBLIC_POSTHOG_HOST=https://eu.i.posthog.com
 NEXT_PUBLIC_POSTHOG_UI_HOST=https://eu.posthog.com
 ```
 
-Init client : `instrumentation-client.js` (snippet officiel, `defaults: '2026-05-30'`) + fallback `_app.js` pour Next 14. Les events passent par le proxy `/ingest`.
-
-Sans `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`, le SDK est un no-op. Coller la Project API Key dans `.env.local` et dans les env Vercel du projet `mon-blog`.
+Init client : même config que le snippet HTML officiel (`api_host` EU, `defaults: '2026-05-30'`, `person_profiles: identified_only`), via `posthog-js` — pas le `<script>` brut, pour éviter un double chargement.
 
 ## 🔧 Développement
 
