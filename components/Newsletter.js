@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { getPosthogIdentityHeaders, identifySubscriber } from '../lib/posthog-client'
+import { getPosthogIdentityHeaders, identifySubscriber, captureCta } from '../lib/posthog-client'
+import { FLOW } from '../lib/posthog-events'
 
 export default function Newsletter() {
   const [email, setEmail] = useState('')
@@ -27,13 +28,14 @@ export default function Newsletter() {
     setErrorMessage('')
     
     try {
+      captureCta({ flow: FLOW.newsletter, source: 'inline', cta: 'subscribe' })
       const response = await fetch('/api/newsletter', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...getPosthogIdentityHeaders(),
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, source: 'inline' }),
       })
       
       const data = await response.json()

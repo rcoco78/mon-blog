@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { getPosthogIdentityHeaders, identifySubscriber } from '../lib/posthog-client'
+import { getPosthogIdentityHeaders, identifySubscriber, captureCta } from '../lib/posthog-client'
+import { FLOW } from '../lib/posthog-events'
 
-export default function NewsletterForm({ compact = false, subscriberCount: propSubscriberCount = null }) {
+export default function NewsletterForm({ compact = false, subscriberCount: propSubscriberCount = null, source = 'article' }) {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState(null)
@@ -44,13 +45,14 @@ export default function NewsletterForm({ compact = false, subscriberCount: propS
     setMessage(null)
 
     try {
+      captureCta({ flow: FLOW.newsletter, source, cta: 'subscribe' })
       const response = await fetch('/api/newsletter', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...getPosthogIdentityHeaders(),
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, source }),
       })
 
       const data = await response.json()

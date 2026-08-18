@@ -2,8 +2,13 @@ import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
+import { useEffect } from 'react'
+import { trackInlineCalendly } from '../lib/calendly'
 
 export default function Contact() {
+  useEffect(() => {
+    trackInlineCalendly('contact_page')
+  }, [])
   const pageSEO = generatePageSEO({
     title: siteConfig.seo.pages.contact.title,
     description: siteConfig.seo.pages.contact.description,

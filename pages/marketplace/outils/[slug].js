@@ -13,7 +13,8 @@ import { generatePageSEO } from '../../../lib/seo'
 import { siteConfig } from '../../../lib/config'
 import { getAllEnrichedActors } from '../../../lib/apify-actors-enriched'
 import { shortMarketplaceTitle } from '../../../lib/marketplace-display'
-import { getPosthogIdentityHeaders } from '../../../lib/posthog-client'
+import { getPosthogIdentityHeaders, captureCta } from '../../../lib/posthog-client'
+import { FLOW } from '../../../lib/posthog-events'
 
 export default function MarketplaceTool({ tool, notFound }) {
   // Input principal (comme URL Airbnb pour le scraper)
@@ -527,6 +528,12 @@ export default function MarketplaceTool({ tool, notFound }) {
 
   const handlePaywallCheckout = async () => {
     try {
+      captureCta({
+        flow: FLOW.marketplace,
+        source: 'scraper',
+        cta: 'checkout',
+        tool_id: tool.slug,
+      })
       const response = await fetch('/api/tools/create-checkout', {
         method: 'POST',
         headers: {

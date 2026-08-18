@@ -88,7 +88,7 @@ export default function NewsletterPage() {
         </header>
 
         <div className="mb-12">
-          <NewsletterForm compact={false} subscriberCount={subscriberCount} />
+          <NewsletterForm compact={false} subscriberCount={subscriberCount} source="newsletter_page" />
         </div>
 
         <section className="mb-12 border-t border-neutral-200 dark:border-neutral-800 pt-8">
