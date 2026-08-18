@@ -2,43 +2,9 @@
 // Stocke dans Blob Storage et envoie une notification Telegram (comme logement-atypique)
 
 import { put, list } from '@vercel/blob'
+import { isLikelyBotEmail, normalizeNewsletterEmail } from '../../lib/newsletter-email'
 
 const BLOB_FILENAME = 'newsletter-subscribers.json'
-
-// Limites anti-bot (patterns observés sur les fakes)
-const MAX_DOTS_IN_LOCAL = 3           // ex. prenom.nom.ok, pas a.b.c.d.e.66.4
-const MAX_LOCAL_PART_LENGTH = 40       // partie avant @
-const MAX_SEGMENTS = 5                 // segments séparés par des points (prenom.nom = 2)
-const MAX_SINGLE_CHAR_SEGMENTS = 2     // au plus 2 segments d’1 seul caractère
-
-/**
- * Rejette les emails qui ressemblent à des inscriptions bot (beaucoup de points, motifs aléatoires).
- */
-function isLikelyBotEmail(email) {
-  const local = email.split('@')[0]
-  if (!local) return true
-
-  // Trop long
-  if (local.length > MAX_LOCAL_PART_LENGTH) return true
-
-  const dots = (local.match(/\./g) || []).length
-  if (dots > MAX_DOTS_IN_LOCAL) return true
-
-  // Fin en .chiffre.chiffre (ex. .66.4, .31.5) = pattern bot fréquent
-  if (/\.\d+\.\d+$/.test(local)) return true
-
-  const segments = local.split('.')
-  if (segments.length > MAX_SEGMENTS) return true
-
-  const singleCharSegments = segments.filter((s) => s.length === 1).length
-  if (singleCharSegments > MAX_SINGLE_CHAR_SEGMENTS) return true
-
-  // Beaucoup de segments très courts (ex. lu.sug.iz.ah.ay64.0)
-  const shortSegments = segments.filter((s) => s.length <= 2).length
-  if (segments.length >= 4 && shortSegments >= 3) return true
-
-  return false
-}
 
 // Fonction pour envoyer une notification Telegram
 async function sendTelegramNotification(email, success = true) {
@@ -128,12 +94,14 @@ export default async function handler(req, res) {
       console.warn('Erreur lors de la récupération des abonnés:', error)
     }
 
-    // Vérifier si l'email existe déjà
-    const existingSubscriber = subscribers.find((sub) => sub.email.toLowerCase() === emailLower)
-    
+    // Doublon exact ou alias Gmail (points / +tag ignorés)
+    const emailNormalized = normalizeNewsletterEmail(emailLower)
+    const existingSubscriber = subscribers.find((sub) => {
+      const existing = (sub.email || '').toLowerCase()
+      return existing === emailLower || normalizeNewsletterEmail(existing) === emailNormalized
+    })
+
     if (existingSubscriber) {
-      // Envoyer notification Telegram même si déjà inscrit
-      await sendTelegramNotification(emailLower, true)
       return res.status(200).json({
         success: true,
         message: 'Vous êtes déjà inscrit à la newsletter',
