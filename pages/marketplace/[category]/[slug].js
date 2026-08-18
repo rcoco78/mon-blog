@@ -17,7 +17,8 @@ import { siteConfig } from '../../../lib/config'
 import { categoryToSlug } from '../../../lib/marketplace-helpers'
 import { shortMarketplaceTitle } from '../../../lib/marketplace-display'
 import { averageStarRating } from '../../../lib/rating'
-import { getPosthogIdentityHeaders } from '../../../lib/posthog-client'
+import { getPosthogIdentityHeaders, captureCta } from '../../../lib/posthog-client'
+import { FLOW } from '../../../lib/posthog-events'
 
 const getPriceValidUntil = () => {
   const date = new Date()
@@ -263,11 +264,24 @@ export default function MarketplaceDatabase({
     if (!(toolData.isPaid && toolData.unlockType === 'payment')) return
 
     if (subscriptionType === 'api') {
+      captureCta({
+        flow: FLOW.marketplace,
+        source: 'database',
+        cta: 'apify_api',
+        tool_id: database.slug,
+      })
       setIsLoading(true)
       setLoadingStep('Redirection vers Apify...')
       window.location.href = 'https://apify.com?fpr=0n7ukq'
       return
     }
+
+    captureCta({
+      flow: FLOW.marketplace,
+      source: 'database',
+      cta: 'checkout',
+      tool_id: database.slug,
+    })
 
     setIsLoading(true)
     setLoadingStep('Redirection vers le paiement...')

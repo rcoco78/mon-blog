@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { getPosthogIdentityHeaders, identifySubscriber } from '../lib/posthog-client'
+import { getPosthogIdentityHeaders, identifySubscriber, captureCta } from '../lib/posthog-client'
+import { FLOW } from '../lib/posthog-events'
 
 const STORAGE_KEY = 'cr-newsletter-nudge-dismissed'
 
@@ -76,13 +77,14 @@ export default function ArticleNewsletterNudge() {
     setIsLoading(true)
     setStatus(null)
     try {
+      captureCta({ flow: FLOW.newsletter, source: 'article_nudge', cta: 'subscribe' })
       const response = await fetch('/api/newsletter', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...getPosthogIdentityHeaders(),
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, source: 'article_nudge' }),
       })
       const data = await response.json()
       if (response.ok && data.success) {

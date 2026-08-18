@@ -1,10 +1,14 @@
 import { useState } from 'react'
 
-export default function FAQ({ items = [] }) {
+export default function FAQ({ items = [], onItemOpen } = {}) {
   const [openIndex, setOpenIndex] = useState(null)
 
   const toggleItem = (index) => {
-    setOpenIndex(openIndex === index ? null : index)
+    const next = openIndex === index ? null : index
+    setOpenIndex(next)
+    if (next !== null && typeof onItemOpen === 'function') {
+      onItemOpen(items[next], next)
+    }
   }
 
   if (!items || items.length === 0) return null

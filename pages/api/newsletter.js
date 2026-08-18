@@ -56,7 +56,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { email } = req.body
+  const { email, source: bodySource } = req.body || {}
 
   if (!email || !email.includes('@')) {
     return res.status(400).json({ error: 'Email invalide' })
@@ -107,7 +107,7 @@ export default async function handler(req, res) {
         await identifyServerUser(emailLower, { email: emailLower })
         await captureServerEvent(req, 'newsletter_subscribed', {
           already_subscribed: true,
-          source: 'blog',
+          source: bodySource || 'blog',
         }, emailLower)
       } catch (analyticsError) {
         console.warn('PostHog newsletter (already subscribed):', analyticsError)
@@ -124,7 +124,7 @@ export default async function handler(req, res) {
     subscribers.push({
       email: emailLower,
       subscribedAt: new Date().toISOString(),
-      source: 'blog',
+      source: bodySource || 'blog',
       userAgent: req.headers['user-agent'] || 'Inconnu',
     })
 
@@ -151,7 +151,7 @@ export default async function handler(req, res) {
       await identifyServerUser(emailLower, { email: emailLower })
       await captureServerEvent(req, 'newsletter_subscribed', {
         already_subscribed: false,
-        source: 'blog',
+        source: bodySource || 'blog',
       }, emailLower)
     } catch (analyticsError) {
       console.warn('PostHog newsletter:', analyticsError)
