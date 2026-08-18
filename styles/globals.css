@@ -91,20 +91,6 @@ body {
     animation: draw-circle 1.5s ease-out forwards;
   }
 
-  /* Accordion home — style Ahmed-like, sans chrome carte */
-  details.home-fold > summary {
-    list-style: none;
-  }
-  details.home-fold > summary::-webkit-details-marker {
-    display: none;
-  }
-  details.home-fold > summary .fold-chevron {
-    transition: transform 0.2s ease;
-  }
-  details.home-fold[open] > summary .fold-chevron {
-    transform: rotate(180deg);
-  }
-  
   @keyframes dropdown {
     from {
       opacity: 0;
