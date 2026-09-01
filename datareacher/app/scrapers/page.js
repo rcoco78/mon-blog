@@ -1,4 +1,4 @@
-import ScraperList from '@/components/ScraperList'
+import MenuCards from '@/components/MenuCards'
 
 export const metadata = {
   title: 'Le menu',
@@ -14,7 +14,7 @@ export default function ScrapersPage() {
         Tu choisis. Tu prends. Tu repars. Hôtes, @, entreprises, hôtels — selon ce dont tu as besoin ce soir.
       </p>
       <div className="mt-10">
-        <ScraperList grouped />
+        <MenuCards />
       </div>
     </div>
   )

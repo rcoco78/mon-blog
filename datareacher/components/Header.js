@@ -27,7 +27,7 @@ export default function Header() {
             href="/s/airbnb-hosts"
             className="rounded-full bg-pine px-3.5 py-1.5 text-sm text-white hover:bg-pineHover"
           >
-            Goûter
+            Goûter 20 lignes
           </Link>
         </nav>
       </div>

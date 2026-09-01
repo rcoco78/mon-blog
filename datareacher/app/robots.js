@@ -2,7 +2,11 @@ import { SITE_URL } from '@/lib/site'
 
 export default function robots() {
   return {
-    rules: { userAgent: '*', allow: '/' },
+    rules: {
+      userAgent: '*',
+      allow: '/',
+      disallow: ['/api/', '/account', '/login', '/signup'],
+    },
     sitemap: `${SITE_URL}/sitemap.xml`,
   }
 }

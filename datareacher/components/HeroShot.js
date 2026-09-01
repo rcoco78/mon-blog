@@ -1,23 +1,25 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { FREE_ROWS, shotHint } from '@/lib/scrapers'
+import Link from 'next/link'
+import { FREE_ROWS } from '@/lib/scrapers'
+
+const PREVIEW = 6
 
 function columnsFromRows(rows) {
   if (!rows?.length) return []
   return Object.keys(rows[0])
 }
 
-export default function ScraperRunner({ scraper }) {
-  const [input, setInput] = useState('')
+export default function HeroShot({ scraper }) {
+  const [input, setInput] = useState(scraper.placeholder || 'Paris')
   const [running, setRunning] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState(null)
   const [paying, setPaying] = useState(false)
-  const isTextarea = scraper.inputKey === 'handles' || scraper.inputKey === 'sirens'
-  const hint = shotHint(scraper)
 
-  const columns = useMemo(() => columnsFromRows(result?.rows), [result])
+  const preview = result?.rows?.slice(0, PREVIEW) || []
+  const columns = useMemo(() => columnsFromRows(preview), [preview])
 
   async function onRun(event) {
     event.preventDefault()
@@ -59,69 +61,50 @@ export default function ScraperRunner({ scraper }) {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-5 py-12">
+    <div className="border border-ink/15 bg-paper p-5 shadow-[8px_8px_0_0_#230a44]">
       <p className="text-xs uppercase tracking-widest text-mute">{scraper.category}</p>
-      <h1 className="mt-2 font-display text-4xl leading-tight text-ink">{scraper.name}</h1>
-      <p className="mt-3 text-mute">{scraper.promise}</p>
-      <p className="mt-2 text-sm text-mute">{hint}</p>
-
-      <form onSubmit={onRun} className="mt-10">
-        <label className="block text-sm text-ink" htmlFor="scraper-input">
+      <p className="mt-1 font-display text-xl text-ink">{scraper.name}</p>
+      <form onSubmit={onRun} className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+        <label className="block flex-1 text-sm text-ink" htmlFor="hero-shot-input">
           {scraper.inputLabel}
-        </label>
-        {isTextarea ? (
-          <textarea
-            id="scraper-input"
-            required
-            rows={5}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={scraper.placeholder}
-            className="mt-2 w-full rounded-md border border-line bg-cream px-3 py-2 font-mono text-sm outline-none focus:border-pine"
-          />
-        ) : (
           <input
-            id="scraper-input"
+            id="hero-shot-input"
             required
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={scraper.placeholder}
-            className="mt-2 w-full rounded-md border border-line bg-cream px-3 py-2 outline-none focus:border-pine"
+            className="mt-1 w-full rounded-md border border-line bg-wash px-3 py-2 outline-none focus:border-pine"
           />
-        )}
+        </label>
         <button
           type="submit"
           disabled={running}
-          className="mt-4 rounded-full bg-pine px-5 py-2.5 text-sm text-white hover:bg-pineHover disabled:opacity-60"
+          className="rounded-full bg-pine px-5 py-2.5 text-sm text-white hover:bg-pineHover disabled:opacity-60"
         >
           {running ? 'Ça sort…' : `Goûter ${FREE_ROWS} lignes`}
         </button>
       </form>
 
-      {error ? <p className="mt-6 text-sm text-red-800">{error}</p> : null}
+      {error ? <p className="mt-4 text-sm text-red-800">{error}</p> : null}
 
-      {result?.rows?.length ? (
-        <div className="mt-12">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <h2 className="font-display text-2xl">Ton shoot</h2>
-              <p className="mt-1 text-sm text-mute">
-                {result.rows.length} {scraper.unit}s pour goûter. La suite, tu l’emportes.
-              </p>
-            </div>
+      {preview.length ? (
+        <div className="mt-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-mute">
+              {result.rows.length} {scraper.unit}s. En voilà {preview.length}.
+            </p>
             <button
               type="button"
               onClick={onPay}
               disabled={paying}
-              className="rounded-full bg-ink px-5 py-2.5 text-sm text-white hover:bg-pineHover disabled:opacity-60"
+              className="rounded-full bg-ink px-4 py-2 text-sm text-white hover:bg-pineHover disabled:opacity-60"
             >
               {paying ? 'Un instant…' : 'Emporter la suite'}
             </button>
           </div>
-
-          <div className="mt-6 overflow-x-auto border border-line bg-cream">
+          <div className="mt-3 overflow-x-auto border border-line">
             <table className="min-w-full text-left text-sm">
-              <thead className="border-b border-line text-mute">
+              <thead className="border-b border-line bg-wash text-mute">
                 <tr>
                   {columns.map((col) => (
                     <th key={col} className="px-3 py-2 font-normal">
@@ -131,7 +114,7 @@ export default function ScraperRunner({ scraper }) {
                 </tr>
               </thead>
               <tbody>
-                {result.rows.map((row, i) => (
+                {preview.map((row, i) => (
                   <tr key={i} className="border-b border-line last:border-0">
                     {columns.map((col) => (
                       <td key={col} className="whitespace-nowrap px-3 py-2">
@@ -143,8 +126,15 @@ export default function ScraperRunner({ scraper }) {
               </tbody>
             </table>
           </div>
+          <p className="mt-3 text-sm">
+            <Link href={scraper.youtubePath} className="underline">
+              Ouvrir la fiche
+            </Link>
+          </p>
         </div>
-      ) : null}
+      ) : (
+        <p className="mt-4 text-sm text-mute">Sans compte. Sans carte. Tu vois si c’est ça.</p>
+      )}
     </div>
   )
 }

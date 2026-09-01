@@ -31,14 +31,23 @@ export const metadata = {
     locale: 'fr_FR',
     type: 'website',
   },
+  twitter: {
+    card: 'summary_large_image',
+  },
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="fr" className={`${sans.variable} ${display.variable}`}>
       <body className="font-sans min-h-screen antialiased">
+        <a
+          href="#contenu"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-pine focus:px-3 focus:py-2 focus:text-white"
+        >
+          Aller au contenu
+        </a>
         <Header />
-        <main>{children}</main>
+        <main id="contenu">{children}</main>
         <Footer />
       </body>
     </html>
