@@ -1,6 +1,7 @@
 import { Baloo_Tamma_2, Bitter } from 'next/font/google'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from '@/lib/site'
 import './globals.css'
 
 const sans = Bitter({
@@ -17,13 +18,18 @@ const display = Baloo_Tamma_2({
 
 export const metadata = {
   title: {
-    default: 'Datareacher',
+    default: `${SITE_NAME} — ${SITE_TAGLINE}`,
     template: '%s · Datareacher',
   },
-  description: 'Tu prends ton shoot de data. Tu repars.',
+  description: SITE_DESCRIPTION,
   icons: {
     icon: '/favicon.png',
     apple: '/apple-touch-icon.png',
+  },
+  openGraph: {
+    siteName: SITE_NAME,
+    locale: 'fr_FR',
+    type: 'website',
   },
 }
 

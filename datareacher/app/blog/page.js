@@ -1,6 +1,9 @@
 import Link from 'next/link'
 
-export const metadata = { title: 'Journal' }
+export const metadata = {
+  title: 'Journal',
+  description: 'Ce qu’on sort sur Datareacher. Listes, shoots, ce qui marche.',
+}
 
 export default function BlogPage() {
   return (

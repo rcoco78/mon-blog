@@ -1,6 +1,10 @@
 import CreditPacks from '@/components/CreditPacks'
 
-export const metadata = { title: 'Tarifs' }
+export const metadata = {
+  title: 'Tarifs',
+  description:
+    'Un shoot 20 €, une tournée 50 €, un stock 150 €. Pas d’abonnement. 20 lignes pour goûter, sans carte.',
+}
 
 export default function PricingPage() {
   return (
