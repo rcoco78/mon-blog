@@ -24,7 +24,7 @@ export default function LoginPage() {
             className="mt-1 w-full rounded-md border border-line bg-cream px-3 py-2 outline-none focus:border-pine"
           />
         </label>
-        <button type="submit" className="w-full rounded-full bg-pine py-2.5 text-sm text-cream hover:bg-pineHover">
+        <button type="submit" className="w-full rounded-full bg-pine py-2.5 text-sm text-white hover:bg-pineHover">
           Entrer
         </button>
       </form>

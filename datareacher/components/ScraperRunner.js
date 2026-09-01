@@ -92,7 +92,7 @@ export default function ScraperRunner({ scraper }) {
         <button
           type="submit"
           disabled={running}
-          className="mt-4 rounded-full bg-pine px-5 py-2.5 text-sm text-cream hover:bg-pineHover disabled:opacity-60"
+          className="mt-4 rounded-full bg-pine px-5 py-2.5 text-sm text-white hover:bg-pineHover disabled:opacity-60"
         >
           {running ? 'Exécution…' : `Lancer (${FREE_ROWS} gratuits)`}
         </button>
@@ -113,7 +113,7 @@ export default function ScraperRunner({ scraper }) {
               type="button"
               onClick={onPay}
               disabled={paying}
-              className="rounded-full bg-ink px-5 py-2.5 text-sm text-cream hover:bg-pine disabled:opacity-60"
+              className="rounded-full bg-ink px-5 py-2.5 text-sm text-white hover:bg-pineHover disabled:opacity-60"
             >
               {paying ? 'Redirection Stripe…' : `Récupérer la suite — à partir de 20 €`}
             </button>

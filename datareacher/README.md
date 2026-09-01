@@ -4,6 +4,8 @@ Marque produit autonome (pas le blog).
 **YouTube → fiche `/s/…` → 20 lignes → Stripe.**  
 Exécution **Render**. Pas d’Apify dans ce dossier.
 
+DA : logo Webflow + Baloo Tamma 2 / Bitter, violet `#230a44`, crème `#f6e5cd`. Mise en page type Autom (peu d’éléments, outil au centre).
+
 ## Pages
 
 | URL | Rôle |

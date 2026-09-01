@@ -42,7 +42,7 @@ export default function CreditPacks({ scraperSlug }) {
               type="button"
               onClick={() => buy(pack.id)}
               disabled={!!loading}
-              className="mt-6 w-full rounded-full bg-pine py-2.5 text-sm text-cream hover:bg-pineHover disabled:opacity-60"
+              className="mt-6 w-full rounded-full bg-pine py-2.5 text-sm text-white hover:bg-pineHover disabled:opacity-60"
             >
               {loading === pack.id ? 'Stripe…' : 'Payer avec Stripe'}
             </button>

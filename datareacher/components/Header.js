@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Logo from './Logo'
 
 const links = [
   { href: '/scrapers', label: 'Scrapers' },
@@ -8,10 +9,10 @@ const links = [
 
 export default function Header() {
   return (
-    <header className="border-b border-line">
+    <header className="border-b border-line bg-paper">
       <div className="mx-auto flex max-w-site items-center justify-between gap-6 px-5 py-4">
-        <Link href="/" className="font-serif text-xl tracking-tight text-ink">
-          Datareacher
+        <Link href="/" className="shrink-0" aria-label="Datareacher, accueil">
+          <Logo />
         </Link>
         <nav className="flex max-w-[70%] flex-wrap items-center justify-end gap-x-4 gap-y-1 text-sm text-mute">
           {links.map((link) => (
@@ -24,7 +25,7 @@ export default function Header() {
           </Link>
           <Link
             href="/s/airbnb-hosts"
-            className="rounded-full bg-pine px-3.5 py-1.5 text-cream hover:bg-pineHover"
+            className="rounded-full bg-pine px-3.5 py-1.5 text-sm text-white hover:bg-pineHover"
           >
             Essayer
           </Link>

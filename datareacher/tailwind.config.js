@@ -4,17 +4,21 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        paper: '#f4f1ea',
-        cream: '#fbfaf6',
-        ink: '#1a1916',
-        mute: '#6b6560',
-        line: '#e4dfd4',
-        pine: '#1c3d32',
-        pineHover: '#152e26',
+        paper: '#fffdf9',
+        cream: '#ffffff',
+        wash: '#f6e5cd',
+        ink: '#230a44',
+        mute: '#6a6274',
+        line: '#e3ddeb',
+        pine: '#230a44',
+        pineHover: '#492256',
+        plum: '#492256',
+        sage: '#6d9097',
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
-        serif: ['var(--font-serif)', 'Georgia', 'serif'],
+        display: ['var(--font-display)', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-display)', 'system-ui', 'sans-serif'],
       },
       maxWidth: {
         site: '68rem',
