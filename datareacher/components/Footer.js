@@ -10,10 +10,10 @@ export default function Footer() {
         </Link>
         <div className="flex flex-wrap gap-4">
           <Link href="/docs" className="hover:text-ink">
-            Docs
+            Comment ça marche
           </Link>
           <Link href="/blog" className="hover:text-ink">
-            Blog
+            Journal
           </Link>
           <Link href="/legal/cgu" className="hover:text-ink">
             CGU

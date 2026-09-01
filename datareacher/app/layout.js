@@ -20,7 +20,7 @@ export const metadata = {
     default: 'Datareacher',
     template: '%s · Datareacher',
   },
-  description: 'Lance un scraper, paie à la ligne. Exécution Render, paiement Stripe.',
+  description: 'Tu prends ton shoot de data. Tu repars.',
   icons: {
     icon: '/favicon.png',
     apple: '/apple-touch-icon.png',

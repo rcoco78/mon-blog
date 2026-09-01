@@ -1,6 +1,5 @@
 /**
  * Catalogue Datareacher — quelques fiches phares.
- * Le Store Apify n’est pas branché : chaque scraper tourne sur Render.
  */
 
 export const FREE_ROWS = 20
@@ -8,27 +7,27 @@ export const FREE_ROWS = 20
 export const CREDIT_PACKS = [
   {
     id: 'starter',
-    name: 'Starter',
+    name: 'Un shoot',
     euros: 20,
     credits: 400,
-    blurb: 'Pour tester après une vidéo.',
+    blurb: 'Tu passes, tu prends, tu t’en vas.',
     envPrice: 'STRIPE_PRICE_STARTER',
   },
   {
     id: 'standard',
-    name: 'Standard',
+    name: 'La tournée',
     euros: 50,
     credits: 1200,
-    blurb: 'Le pack de la démo longue.',
+    blurb: 'Celui de la vidéo. Tu as de quoi faire.',
     popular: true,
     envPrice: 'STRIPE_PRICE_STANDARD',
   },
   {
     id: 'pro',
-    name: 'Pro',
+    name: 'Le stock',
     euros: 150,
     credits: 4200,
-    blurb: 'Volume, même wallet.',
+    blurb: 'Tu reviens plusieurs fois dans la semaine.',
     envPrice: 'STRIPE_PRICE_PRO',
   },
 ]
@@ -37,8 +36,8 @@ export const scrapers = [
   {
     slug: 'airbnb-hosts',
     name: 'Airbnb · emails d’hôtes pro',
-    category: 'Travel',
-    promise: 'Hôtes professionnels d’une ville, email et téléphone publics.',
+    category: 'Voyage',
+    promise: 'Les hôtes pro d’une ville. Email et téléphone, quand c’est public.',
     inputLabel: 'Ville',
     inputKey: 'city',
     placeholder: 'Paris',
@@ -49,10 +48,10 @@ export const scrapers = [
   },
   {
     slug: 'instagram-handles',
-    name: 'Instagram · dispo des handles',
-    category: 'Social',
-    promise: 'Vérifie en masse si un @ est libre.',
-    inputLabel: 'Handles (un par ligne)',
+    name: 'Instagram · @ libres',
+    category: 'Réseaux',
+    promise: 'Est-ce que ce @ est pris, ou tu peux le chopper.',
+    inputLabel: 'Les @ (un par ligne)',
     inputKey: 'handles',
     placeholder: 'corentin\ndatareacher\nlogementatypique',
     creditsPerRow: 1,
@@ -62,10 +61,10 @@ export const scrapers = [
   },
   {
     slug: 'social-handles',
-    name: 'Social · 15 réseaux',
-    category: 'Social',
-    promise: 'Disponibilité d’un handle sur IG, TikTok, X, YouTube…',
-    inputLabel: 'Handles (un par ligne)',
+    name: 'Les @ · 15 réseaux',
+    category: 'Réseaux',
+    promise: 'Instagram, TikTok, X, YouTube… un seul passage.',
+    inputLabel: 'Les @ (un par ligne)',
     inputKey: 'handles',
     placeholder: 'corentin',
     creditsPerRow: 2,
@@ -76,8 +75,8 @@ export const scrapers = [
   {
     slug: 'booking-hotels',
     name: 'Booking · hôtels d’une ville',
-    category: 'Travel',
-    promise: 'Listings, prix, notes — au-delà du cap Booking.',
+    category: 'Voyage',
+    promise: 'Les hôtels d’une ville, avec les prix et les notes.',
     inputLabel: 'Destination',
     inputKey: 'destination',
     placeholder: 'Lyon',
@@ -90,7 +89,7 @@ export const scrapers = [
     slug: 'investorlift',
     name: 'InvestorLift · deals US',
     category: 'Immo',
-    promise: 'Wholesale US, emails et tél. vendeurs.',
+    promise: 'Deals immo aux US, emails et tél des vendeurs.',
     inputLabel: 'État (US)',
     inputKey: 'state',
     placeholder: 'FL',
@@ -101,10 +100,10 @@ export const scrapers = [
   },
   {
     slug: 'siren-fr',
-    name: 'Entreprises FR · SIREN',
-    category: 'KYB',
-    promise: 'Registre INSEE, dirigeants, NAF. Les SIREN en échec ne sont pas facturés.',
-    inputLabel: 'SIREN (un par ligne)',
+    name: 'Entreprises France',
+    category: 'Entreprises',
+    promise: 'Une liste de SIREN, tu repars avec dirigeants et contacts. Ce qui ne sort pas, tu ne paies pas.',
+    inputLabel: 'Les SIREN (un par ligne)',
     inputKey: 'sirens',
     placeholder: '552032534',
     creditsPerRow: 3,
@@ -114,9 +113,9 @@ export const scrapers = [
   },
   {
     slug: 'orias',
-    name: 'ORIAS · intermédiaires assurance',
-    category: 'KYB',
-    promise: 'COA, CIF et contacts du registre.',
+    name: 'ORIAS · assurance',
+    category: 'Entreprises',
+    promise: 'Courtiers, CIF, les contacts du registre.',
     inputLabel: 'Recherche',
     inputKey: 'query',
     placeholder: 'Paris',
@@ -128,9 +127,9 @@ export const scrapers = [
   {
     slug: 'booking-availability',
     name: 'Booking · dispos jour par jour',
-    category: 'Travel',
-    promise: 'Calendrier tarifaire jusqu’à 180 jours.',
-    inputLabel: 'URL hôtel Booking',
+    category: 'Voyage',
+    promise: 'Les prix jour par jour, pour les semaines qui viennent.',
+    inputLabel: 'Lien de l’hôtel',
     inputKey: 'url',
     placeholder: 'https://www.booking.com/hotel/...',
     creditsPerRow: 6,
@@ -148,8 +147,6 @@ export function rowsForPack(pack, creditsPerRow) {
   return Math.floor(pack.credits / creditsPerRow)
 }
 
-export function creditHint(scraper) {
-  const pack = CREDIT_PACKS.find((item) => item.popular) || CREDIT_PACKS[1]
-  const rows = rowsForPack(pack, scraper.creditsPerRow)
-  return `${scraper.creditsPerRow} crédit${scraper.creditsPerRow > 1 ? 's' : ''} / ${scraper.unit} · pack ${pack.euros} € ≈ ${rows} ${scraper.unit}s`
+export function shotHint(scraper) {
+  return `20 ${scraper.unit}s pour goûter. Ensuite tu paies ce que tu emportes.`
 }

@@ -5,10 +5,8 @@ export const metadata = { title: 'Créer un compte' }
 export default function SignupPage() {
   return (
     <div className="mx-auto max-w-md px-5 py-20">
-      <h1 className="font-serif text-4xl">Compte</h1>
-      <p className="mt-3 text-mute">
-        Après les 20 lignes. Email + Stripe pour garder le solde et relancer.
-      </p>
+      <h1 className="font-display text-4xl">Pour emporter</h1>
+      <p className="mt-3 text-mute">Après les 20 lignes. Un email, et tu repars avec la suite.</p>
       <form className="mt-8 space-y-4" action="/account" method="get">
         <label className="block text-sm">
           Email
@@ -33,9 +31,9 @@ export default function SignupPage() {
         </button>
       </form>
       <p className="mt-6 text-sm text-mute">
-        Déjà un compte ?{' '}
+        Déjà passé ?{' '}
         <Link href="/login" className="text-ink underline">
-          Connexion
+          C’est par ici
         </Link>
       </p>
     </div>

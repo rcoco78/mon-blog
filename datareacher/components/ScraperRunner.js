@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { FREE_ROWS, creditHint } from '@/lib/scrapers'
+import { FREE_ROWS, shotHint } from '@/lib/scrapers'
 
 function columnsFromRows(rows) {
   if (!rows?.length) return []
@@ -15,7 +15,7 @@ export default function ScraperRunner({ scraper }) {
   const [result, setResult] = useState(null)
   const [paying, setPaying] = useState(false)
   const isTextarea = scraper.inputKey === 'handles' || scraper.inputKey === 'sirens'
-  const hint = creditHint(scraper)
+  const hint = shotHint(scraper)
 
   const columns = useMemo(() => columnsFromRows(result?.rows), [result])
 
@@ -31,10 +31,10 @@ export default function ScraperRunner({ scraper }) {
         body: JSON.stringify({ slug: scraper.slug, input: input.trim() }),
       })
       const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Le run a échoué')
+      if (!response.ok) throw new Error(data.error || 'Ça n’a pas sorti')
       setResult(data)
     } catch (err) {
-      setError(err.message || 'Erreur')
+      setError(err.message || 'Ça n’a pas sorti')
     } finally {
       setRunning(false)
     }
@@ -50,10 +50,10 @@ export default function ScraperRunner({ scraper }) {
         body: JSON.stringify({ packId: 'standard', scraperSlug: scraper.slug }),
       })
       const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Checkout impossible')
+      if (!response.ok) throw new Error(data.error || 'Paiement impossible')
       if (data.url) window.location.href = data.url
     } catch (err) {
-      setError(err.message || 'Erreur Stripe')
+      setError(err.message || 'Paiement impossible')
       setPaying(false)
     }
   }
@@ -61,9 +61,9 @@ export default function ScraperRunner({ scraper }) {
   return (
     <div className="mx-auto max-w-3xl px-5 py-12">
       <p className="text-xs uppercase tracking-widest text-mute">{scraper.category}</p>
-      <h1 className="mt-2 font-serif text-4xl leading-tight text-ink">{scraper.name}</h1>
+      <h1 className="mt-2 font-display text-4xl leading-tight text-ink">{scraper.name}</h1>
       <p className="mt-3 text-mute">{scraper.promise}</p>
-      <p className="mt-2 text-sm text-mute">{hint} · {FREE_ROWS} lignes offertes, sans compte</p>
+      <p className="mt-2 text-sm text-mute">{hint}</p>
 
       <form onSubmit={onRun} className="mt-10">
         <label className="block text-sm text-ink" htmlFor="scraper-input">
@@ -94,7 +94,7 @@ export default function ScraperRunner({ scraper }) {
           disabled={running}
           className="mt-4 rounded-full bg-pine px-5 py-2.5 text-sm text-white hover:bg-pineHover disabled:opacity-60"
         >
-          {running ? 'Exécution…' : `Lancer (${FREE_ROWS} gratuits)`}
+          {running ? 'Ça sort…' : `Goûter (${FREE_ROWS} offerts)`}
         </button>
       </form>
 
@@ -104,9 +104,9 @@ export default function ScraperRunner({ scraper }) {
         <div className="mt-12">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h2 className="font-serif text-2xl">Résultats</h2>
+              <h2 className="font-display text-2xl">Ton shoot</h2>
               <p className="mt-1 text-sm text-mute">
-                {result.rows.length} {scraper.unit}s · plafond gratuit. La suite se paie en crédits Stripe.
+                {result.rows.length} {scraper.unit}s pour goûter. La suite, tu l’emportes.
               </p>
             </div>
             <button
@@ -115,7 +115,7 @@ export default function ScraperRunner({ scraper }) {
               disabled={paying}
               className="rounded-full bg-ink px-5 py-2.5 text-sm text-white hover:bg-pineHover disabled:opacity-60"
             >
-              {paying ? 'Redirection Stripe…' : `Récupérer la suite — à partir de 20 €`}
+              {paying ? 'Un instant…' : 'Emporter la suite'}
             </button>
           </div>
 

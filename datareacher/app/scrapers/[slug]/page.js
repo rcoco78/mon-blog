@@ -8,7 +8,7 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }) {
   const scraper = getScraper(params.slug)
-  if (!scraper) return { title: 'Scraper' }
+  if (!scraper) return { title: 'Fiche' }
   return { title: scraper.name, description: scraper.promise }
 }
 

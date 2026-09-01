@@ -7,19 +7,18 @@ export async function POST(request) {
     const body = await request.json()
     const scraper = getScraper(body.slug)
     if (!scraper) {
-      return NextResponse.json({ error: 'Scraper inconnu' }, { status: 404 })
+      return NextResponse.json({ error: 'Cette fiche n’existe pas' }, { status: 404 })
     }
     const input = body.input
     if (!input || !String(input).trim()) {
-      return NextResponse.json({ error: 'Input requis' }, { status: 400 })
+      return NextResponse.json({ error: 'Il manque quelque chose' }, { status: 400 })
     }
     const result = await runOnRender(scraper, String(input))
     return NextResponse.json({
       slug: scraper.slug,
-      creditsPerRow: scraper.creditsPerRow,
       ...result,
     })
   } catch (error) {
-    return NextResponse.json({ error: error.message || 'Run impossible' }, { status: 502 })
+    return NextResponse.json({ error: 'Ça n’a pas sorti' }, { status: 502 })
   }
 }

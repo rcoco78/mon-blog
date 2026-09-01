@@ -17,7 +17,7 @@ export default function CreditPacks({ scraperSlug }) {
         body: JSON.stringify({ packId, scraperSlug }),
       })
       const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Checkout impossible')
+      if (!response.ok) throw new Error(data.error || 'Paiement impossible')
       if (data.url) window.location.href = data.url
     } catch (err) {
       setError(err.message)
@@ -34,17 +34,17 @@ export default function CreditPacks({ scraperSlug }) {
             className={`border bg-cream p-6 ${pack.popular ? 'border-pine' : 'border-line'}`}
           >
             <p className="text-xs uppercase tracking-widest text-mute">
-              {pack.popular ? 'Le plus utilisé' : pack.name}
+              {pack.popular ? 'Celui de la vidéo' : pack.name}
             </p>
-            <p className="mt-3 font-serif text-4xl">{pack.euros} €</p>
-            <p className="mt-1 text-sm text-mute">{pack.credits} crédits · {pack.blurb}</p>
+            <p className="mt-3 font-display text-4xl">{pack.euros} €</p>
+            <p className="mt-1 text-sm text-mute">{pack.blurb}</p>
             <button
               type="button"
               onClick={() => buy(pack.id)}
               disabled={!!loading}
               className="mt-6 w-full rounded-full bg-pine py-2.5 text-sm text-white hover:bg-pineHover disabled:opacity-60"
             >
-              {loading === pack.id ? 'Stripe…' : 'Payer avec Stripe'}
+              {loading === pack.id ? 'Un instant…' : 'Prendre'}
             </button>
           </div>
         ))}

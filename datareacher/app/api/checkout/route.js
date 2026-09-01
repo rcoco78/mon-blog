@@ -15,6 +15,6 @@ export async function POST(request) {
     })
     return NextResponse.json(checkout)
   } catch (error) {
-    return NextResponse.json({ error: error.message || 'Checkout impossible' }, { status: 400 })
+    return NextResponse.json({ error: 'Paiement impossible' }, { status: 400 })
   }
 }

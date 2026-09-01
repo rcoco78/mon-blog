@@ -2,9 +2,9 @@ import Link from 'next/link'
 import Logo from './Logo'
 
 const links = [
-  { href: '/scrapers', label: 'Scrapers' },
+  { href: '/scrapers', label: 'Menu' },
   { href: '/pricing', label: 'Tarifs' },
-  { href: '/docs', label: 'Docs' },
+  { href: '/docs', label: 'Comment ça marche' },
 ]
 
 export default function Header() {
@@ -27,7 +27,7 @@ export default function Header() {
             href="/s/airbnb-hosts"
             className="rounded-full bg-pine px-3.5 py-1.5 text-sm text-white hover:bg-pineHover"
           >
-            Essayer
+            Goûter
           </Link>
         </nav>
       </div>

@@ -6,32 +6,30 @@ function demoRows(scraper, input) {
     const n = i + 1
     if (scraper.inputKey === 'handles') {
       return {
-        handle: `${seed.toLowerCase().replace(/\s+/g, '')}${n === 1 ? '' : n}`,
-        available: n % 3 !== 0,
-        network: scraper.slug.includes('instagram') ? 'instagram' : 'multi',
+        '@': `${seed.toLowerCase().replace(/\s+/g, '')}${n === 1 ? '' : n}`,
+        libre: n % 3 !== 0 ? 'oui' : 'pris',
       }
     }
     if (scraper.slug === 'siren-fr') {
       return {
-        siren: String(552032534 + n),
-        name: `Société ${seed} ${n}`,
-        city: 'Paris',
-        naf: '62.01Z',
+        SIREN: String(552032534 + n),
+        entreprise: `Société ${seed} ${n}`,
+        ville: 'Paris',
       }
     }
     if (scraper.slug.includes('booking')) {
       return {
-        name: `Hôtel ${seed} ${n}`,
-        city: seed,
-        rating: (8 + (n % 20) / 10).toFixed(1),
-        price: 90 + n * 7,
+        hôtel: `Hôtel ${seed} ${n}`,
+        ville: seed,
+        note: (8 + (n % 20) / 10).toFixed(1),
+        prix: `${90 + n * 7} €`,
       }
     }
     return {
-      host: `Hôte pro ${n} · ${seed}`,
+      hôte: `Hôte pro ${n} · ${seed}`,
       email: `contact${n}@exemple-${seed.toLowerCase().replace(/[^a-z0-9]+/g, '')}.fr`,
-      phone: n % 2 === 0 ? `+33 6 00 00 00 ${String(n).padStart(2, '0')}` : '',
-      listings: 3 + (n % 8),
+      téléphone: n % 2 === 0 ? `+33 6 00 00 00 ${String(n).padStart(2, '0')}` : '',
+      annonces: 3 + (n % 8),
     }
   })
 }
@@ -64,7 +62,7 @@ export async function runOnRender(scraper, input) {
 
   if (!response.ok) {
     const text = await response.text()
-    throw new Error(text || `Render ${response.status}`)
+    throw new Error(text || 'Ça n’a pas sorti')
   }
 
   const data = await response.json()

@@ -43,7 +43,7 @@ export async function createCreditCheckout({ packId, scraperSlug, successUrl, ca
               currency: 'eur',
               unit_amount: pack.euros * 100,
               product_data: {
-                name: `Datareacher · ${pack.credits} crédits (${pack.name})`,
+                name: `Datareacher · ${pack.name}`,
               },
             },
           },
