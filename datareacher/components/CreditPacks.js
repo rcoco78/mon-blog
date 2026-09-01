@@ -36,7 +36,10 @@ export default function CreditPacks({ scraperSlug }) {
             <p className="text-xs uppercase tracking-widest text-mute">
               {pack.popular ? 'Celui de la vidéo' : pack.name}
             </p>
-            <p className="mt-3 font-display text-4xl">{pack.euros} €</p>
+            {pack.popular ? (
+              <p className="mt-2 font-display text-xl text-ink">{pack.name}</p>
+            ) : null}
+            <p className={`${pack.popular ? 'mt-1' : 'mt-3'} font-display text-4xl`}>{pack.euros} €</p>
             <p className="mt-1 text-sm text-mute">{pack.blurb}</p>
             <button
               type="button"
