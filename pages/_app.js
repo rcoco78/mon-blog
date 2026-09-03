@@ -6,10 +6,12 @@ import Layout from '../components/Layout'
 import StructuredData from '../components/seo/StructuredData'
 import { siteConfig } from '../lib/config'
 import { initPostHog } from '../lib/posthog-client'
+import { preventSameUrlHardNavigationNoise } from '../lib/sentry-filters'
 
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
     initPostHog()
+    return preventSameUrlHardNavigationNoise()
   }, [])
 
   return (
