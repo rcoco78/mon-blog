@@ -18,7 +18,7 @@ Ouvre [http://localhost:3001](http://localhost:3001).
 ## Dépôt
 
 Racine du site : ce dossier.  
-GitHub : [rcoco78/datareacher](https://github.com/rcoco78/datareacher)
+GitHub : [datareacher](https://github.com/rcoco78/datareacher)
 
 ## YouTube
 
