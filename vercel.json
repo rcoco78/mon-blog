@@ -160,7 +160,12 @@
     },
     {
       "source": "/marketplace/outils/%5Bslug%5D",
-      "destination": "/marketplace",
+      "destination": "https://datareacher.fr",
+      "permanent": true
+    },
+    {
+      "source": "/marketplace/outils/:path*",
+      "destination": "https://datareacher.fr",
       "permanent": true
     },
     {

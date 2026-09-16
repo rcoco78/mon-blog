@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import SearchBar from '../components/SearchBar'
@@ -15,46 +15,17 @@ import { openCalendlyPopup } from '../lib/calendly'
 
 export default function Marketplace({
   dynamicDatabases = [],
-  apifyTools = [],
   marketplaceReviews = [],
-  initialTab = 'databases',
 }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedPricing, setSelectedPricing] = useState(null) // '<100' | '100-200' | '200+' | 'free' | null
   const [sortBy, setSortBy] = useState('views') // 'date' | 'price_desc' | 'views' — défaut: plus consultés
-  const [selectedToolCategory, setSelectedToolCategory] = useState(null)
-  const [toolSortBy, setToolSortBy] = useState('users') // 'users' | 'runs' | 'date'
-  const [activeTab, setActiveTab] = useState(initialTab) // 'databases' | 'tools'
   const [searchQuery, setSearchQuery] = useState('')
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
   const [displayedCount, setDisplayedCount] = useState(8)
   const ITEMS_PER_PAGE = 8
-
-  // Sync onglet si Next re-fetch getServerSideProps (navigation client)
-  useEffect(() => {
-    setActiveTab(initialTab)
-  }, [initialTab])
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    const syncFromUrl = () => {
-      const tab = new URLSearchParams(window.location.search).get('tab')
-      setActiveTab(tab === 'tools' || tab === 'scrapers' ? 'tools' : 'databases')
-    }
-    window.addEventListener('popstate', syncFromUrl)
-    return () => window.removeEventListener('popstate', syncFromUrl)
-  }, [])
-
-  const selectTab = (tab) => {
-    setActiveTab(tab)
-    setDisplayedCount(ITEMS_PER_PAGE)
-    if (typeof window === 'undefined') return
-    const url = new URL(window.location.href)
-    if (tab === 'tools') url.searchParams.set('tab', 'tools')
-    else url.searchParams.delete('tab')
-    window.history.replaceState({}, '', url.pathname + url.search)
-  }
+  const datareacherHref = siteConfig.network.datareacher.href
 
   // URL de la vidéo Tella
   const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
@@ -144,43 +115,16 @@ export default function Marketplace({
       return getDate(b) - getDate(a)
     })
 
-  // Catégories des outils (Apify)
-  const toolCategories = Array.from(
-    new Set(
-      (apifyTools || [])
-        .map(t => t.category)
-        .filter(c => c && c.trim() !== '')
-    )
-  ).sort()
-
-  // Filtrer et trier les outils
-  const filteredApifyTools = (apifyTools || [])
-    .filter(tool => selectedToolCategory === null || tool.category === selectedToolCategory)
-    .sort((a, b) => {
-      if (toolSortBy === 'users') {
-        const ua = a.apifyStats?.users ?? a.apifyStats?.totalUsers ?? 0
-        const ub = b.apifyStats?.users ?? b.apifyStats?.totalUsers ?? 0
-        return ub - ua
-      }
-      if (toolSortBy === 'runs') {
-        const ra = a.apifyStats?.runs ?? a.apifyStats?.totalRuns ?? 0
-        const rb = b.apifyStats?.runs ?? b.apifyStats?.totalRuns ?? 0
-        return rb - ra
-      }
-      const getDate = (t) => t.date ? new Date(t.date) : new Date(0)
-      return getDate(b) - getDate(a)
-    })
-
   useEffect(() => {
     setDisplayedCount(ITEMS_PER_PAGE)
-  }, [selectedCategory, selectedPricing, sortBy, selectedToolCategory, toolSortBy, activeTab])
+  }, [selectedCategory, selectedPricing, sortBy, searchQuery])
 
   const openCalendly = () => openCalendlyPopup('marketplace')
 
   // Structured Data pour la marketplace
   const toolsStructuredData = {
-    name: 'Marketplace - Bases Google Sheets et scrapers Apify',
-    description: 'Collection d\'outils scraping, automatisation et bases de données pour automatiser vos processus business',
+    name: 'Marketplace — Bases Google Sheets',
+    description: 'Bases de données Google Sheets pour la prospection et l’analyse business. Achat Stripe, copie dans votre Drive.',
     numberOfItems: allTools.length,
     items: allTools.map((tool, index) => {
       const item = {
@@ -236,23 +180,15 @@ export default function Marketplace({
         name: 'Quelle est la qualité et la fraîcheur des données ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Chaque base affiche sa date de dernière mise à jour et, quand c’est disponible, le nombre de contacts renseignés (email, téléphone, LinkedIn…). L’achat Google Sheets livre le snapshot à cette date. Pour un flux à jour que tu relances toi-même, utilise un scraper Apify (free tier).'
+          text: 'Chaque base affiche sa date de dernière mise à jour et, quand c’est disponible, le nombre de contacts renseignés (email, téléphone, LinkedIn…). L’achat Google Sheets livre le snapshot à cette date. Pour lancer un script à la demande, les scripts sont sur Datareacher.'
         }
       },
       {
         '@type': 'Question',
-        name: 'Quelle est la différence entre Google Sheets et les scrapers Apify ?',
+        name: 'Où trouver les scripts de scraping ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Google Sheets = achat unique, accès immédiat, snapshot à la date indiquée, export CSV / Excel. Scrapers Apify = tu lances toi-même en free tier (crédits gratuits Apify) ; au-delà, tu paies le compute. Idéal pour tester ou un flux récurrent. Besoin du fichier prêt sans rien lancer ? Achète la base.'
-        }
-      },
-      {
-        '@type': 'Question',
-        name: 'Les scrapers Apify sont-ils gratuits ?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Oui sur le free tier Apify : tu peux lancer mes scrapers publics sans me payer. Les crédits gratuits Apify couvrent les premiers runs. Au-delà, Apify facture le compute. Si tu veux le résultat en Google Sheets sans gérer les runs, prends une base dans l’onglet Bases.'
+          text: 'Cette page vend uniquement des bases Google Sheets. Les scripts de scraping sont sur Datareacher (datareacher.fr).'
         }
       },
       {
@@ -297,7 +233,7 @@ export default function Marketplace({
       <StructuredData
         type="Product"
         data={{
-          name: 'Marketplace - Bases Google Sheets et scrapers Apify',
+          name: 'Marketplace — Bases Google Sheets',
           description: 'Marketplace de bases de données pour la prospection et l\'analyse business. Bases de données vérifiées, structurées et régulièrement mises à jour, prêtes à l\'emploi pour enrichir vos CRM et optimiser vos campagnes de prospection.',
           url: `${siteConfig.url}/marketplace`,
           brand: { '@type': 'Brand', name: siteConfig.author, url: siteConfig.url },
@@ -332,7 +268,16 @@ export default function Marketplace({
             Marketplace
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400 tracking-tight max-w-2xl">
-            Deux façons d’accéder à mes données : acheter une base prête, ou lancer un scraper en free tier.
+            Bases Google Sheets à copier après achat Stripe. Scripts de scraping :{' '}
+            <a
+              href={datareacherHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-neutral-900 dark:hover:text-neutral-100"
+            >
+              datareacher.fr
+            </a>
+            .
           </p>
           {marketplaceReviews.length > 0 && (
             <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
@@ -343,141 +288,61 @@ export default function Marketplace({
           )}
         </header>
 
-        {/* Choix principal — très visible */}
-        <div className="mb-10 grid grid-cols-1 sm:grid-cols-2 gap-3" role="tablist" aria-label="Type de livrable">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'databases'}
-            onClick={() => selectTab('databases')}
-            className={`text-left p-5 rounded-lg border transition-colors ${
-              activeTab === 'databases'
-                ? 'border-neutral-900 dark:border-neutral-100 bg-neutral-50 dark:bg-neutral-900/60'
-                : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600'
-            }`}
-          >
-            <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-1.5">
-              Payant · Google Sheets
-            </p>
-            <p className="font-semibold text-lg tracking-tight text-neutral-900 dark:text-neutral-100">
-              Bases de données
-            </p>
-            <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
-              Snapshot prêt à copier. Tu paies, tu reçois le Sheet.
-            </p>
-            <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-neutral-100">
-              {dynamicDatabases.length} bases →
-            </p>
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'tools'}
-            onClick={() => selectTab('tools')}
-            className={`text-left p-5 rounded-lg border transition-colors ${
-              activeTab === 'tools'
-                ? 'border-neutral-900 dark:border-neutral-100 bg-neutral-50 dark:bg-neutral-900/60'
-                : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600'
-            }`}
-          >
-            <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-1.5">
-              Gratuit · Free tier Apify
-            </p>
-            <p className="font-semibold text-lg tracking-tight text-neutral-900 dark:text-neutral-100">
-              Scrapers
-            </p>
-            <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
-              Lance mes actors sans me payer. Au-delà des crédits Apify, tu paies le compute.
-            </p>
-            <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-neutral-100">
-              {apifyTools.length} scrapers free →
-            </p>
-          </button>
-        </div>
-
         <section className="mb-8 overflow-x-hidden">
           <h2 className="font-semibold text-xl mb-2 tracking-tighter">
-            {activeTab === 'databases' ? 'Bases Google Sheets' : 'Scrapers Apify — free tier'}
+            Bases Google Sheets
           </h2>
           <p className="mb-6 text-sm text-neutral-500 dark:text-neutral-500">
-            {activeTab === 'databases'
-              ? 'Choisir · Payer · Copier le Sheet'
-              : 'Lancer sur Apify · Free tier inclus · Sinon achète la base toute faite'}
+            Choisir · Payer · Copier le Sheet
           </p>
 
-          {activeTab === 'databases' && (
-            <div className="hidden sm:block mb-6">
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value)
-                  setDisplayedCount(8)
-                }}
-                placeholder="Rechercher…"
-                aria-label="Rechercher une base de données"
-                className="w-full px-0 py-2 text-sm border-0 border-b border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:border-neutral-500 dark:focus:border-neutral-500 transition-colors"
-              />
-            </div>
-          )}
+          <div className="hidden sm:block mb-6">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                setDisplayedCount(8)
+              }}
+              placeholder="Rechercher…"
+              aria-label="Rechercher une base de données"
+              className="w-full px-0 py-2 text-sm border-0 border-b border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:border-neutral-500 dark:focus:border-neutral-500 transition-colors"
+            />
+          </div>
 
-          {activeTab === 'databases' && (
-            <div className="flex flex-col gap-5 mb-8 min-w-0 overflow-x-hidden">
-              <div className="min-w-0 w-full overflow-hidden">
-                <SearchBar
-                  tags={pricingRanges.filter((r) => r.value !== undefined && r.value !== null)}
-                  selectedTag={selectedPricing}
-                  onTagSelect={setSelectedPricing}
-                  allLabel={pricingRanges.find((r) => r.value === null || r.value === undefined)?.label ?? 'Tous'}
-                  allValue={null}
-                />
-              </div>
-              <div className="min-w-0 w-full overflow-hidden">
-                <SearchBar
-                  tags={categories}
-                  selectedTag={selectedCategory}
-                  onTagSelect={setSelectedCategory}
-                />
-              </div>
-              <SortDropdown
-                id="marketplace-sort"
-                label="Trier"
-                value={sortBy}
-                onChange={setSortBy}
-                options={[
-                  { value: 'date', label: 'Plus récents' },
-                  { value: 'price_desc', label: 'Prix décroissant' },
-                  { value: 'views', label: 'Plus consultés' },
-                ]}
-              />
-            </div>
-          )}
-
-          {activeTab === 'tools' && (
-            <div className="flex flex-col gap-5 mb-8">
+          <div className="flex flex-col gap-5 mb-8 min-w-0 overflow-x-hidden">
+            <div className="min-w-0 w-full overflow-hidden">
               <SearchBar
-                tags={toolCategories}
-                selectedTag={selectedToolCategory}
-                onTagSelect={setSelectedToolCategory}
-              />
-              <SortDropdown
-                id="tool-sort"
-                label="Trier"
-                value={toolSortBy}
-                onChange={setToolSortBy}
-                options={[
-                  { value: 'users', label: "Plus d'utilisateurs" },
-                  { value: 'runs', label: "Plus d'exécutions" },
-                  { value: 'date', label: 'Plus récents' },
-                ]}
+                tags={pricingRanges.filter((r) => r.value !== undefined && r.value !== null)}
+                selectedTag={selectedPricing}
+                onTagSelect={setSelectedPricing}
+                allLabel={pricingRanges.find((r) => r.value === null || r.value === undefined)?.label ?? 'Tous'}
+                allValue={null}
               />
             </div>
-          )}
+            <div className="min-w-0 w-full overflow-hidden">
+              <SearchBar
+                tags={categories}
+                selectedTag={selectedCategory}
+                onTagSelect={setSelectedCategory}
+              />
+            </div>
+            <SortDropdown
+              id="marketplace-sort"
+              label="Trier"
+              value={sortBy}
+              onChange={setSortBy}
+              options={[
+                { value: 'date', label: 'Plus récents' },
+                { value: 'price_desc', label: 'Prix décroissant' },
+                { value: 'views', label: 'Plus consultés' },
+              ]}
+            />
+          </div>
         </section>
 
         <section className="mb-16">
-          {activeTab === 'databases' ? (
-            filteredTools.length === 0 ? (
+          {filteredTools.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-neutral-600 dark:text-neutral-400 mb-4">
                 Aucun résultat ne correspond à vos filtres.
@@ -487,6 +352,7 @@ export default function Marketplace({
                   setSelectedCategory(null)
                   setSelectedPricing(null)
                   setSortBy('views')
+                  setSearchQuery('')
                 }}
                 className="text-sm text-neutral-900 dark:text-neutral-100 underline hover:no-underline"
               >
@@ -495,7 +361,6 @@ export default function Marketplace({
             </div>
           ) : (
             <div className="space-y-4">
-            {/* Compteur + Réinitialiser */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm text-neutral-600 dark:text-neutral-400">
                 {filteredTools.length} base{filteredTools.length > 1 ? 's' : ''} de données
@@ -532,101 +397,6 @@ export default function Marketplace({
               </div>
             )}
             </div>
-          )
-        ) : (
-            /* Section Scrapers Apify */
-            <>
-            <div className="mb-6 rounded-lg border border-neutral-200 dark:border-neutral-800 px-4 py-3.5 text-sm text-neutral-600 dark:text-neutral-400">
-              <p>
-                <span className="font-medium text-neutral-900 dark:text-neutral-100">Free tier Apify</span>
-                {' '}— lance mes scrapers sans payer. Au-delà des crédits gratuits, tu paies le compute chez Apify.
-                Besoin du fichier prêt, sans rien lancer ?{' '}
-                <button
-                  type="button"
-                  onClick={() => selectTab('databases')}
-                  className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-                >
-                  Achète une base Google Sheets
-                </button>
-                .
-              </p>
-            </div>
-            {/* Compteur + Réinitialiser pour Scrapers */}
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                {filteredApifyTools.length} scraper{filteredApifyTools.length > 1 ? 's' : ''} · free tier
-              </p>
-              {selectedToolCategory !== null && (
-                <button
-                  onClick={() => setSelectedToolCategory(null)}
-                  className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 underline hover:no-underline"
-                >
-                  Réinitialiser les filtres
-                </button>
-              )}
-            </div>
-            <div className="flex flex-col">
-              {filteredApifyTools.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-neutral-600 dark:text-neutral-400 mb-4">
-                    Aucun scraper disponible pour le moment.
-                  </p>
-                </div>
-              ) : (
-                filteredApifyTools.slice(0, displayedCount).map((tool) => (
-                  <Link
-                    key={tool.slug}
-                    href={tool.link || '#'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-start justify-between gap-4 py-4 border-b border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="font-semibold text-base tracking-tight text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
-                          {tool.name}
-                        </h2>
-                        <span className="text-[11px] font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 border border-neutral-200 dark:border-neutral-700 px-1.5 py-0.5 rounded">
-                          Free tier
-                        </span>
-                      </div>
-                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
-                        {[
-                          tool.category,
-                          (tool.apifyStats?.users ?? tool.apifyStats?.totalUsers)
-                            ? `${tool.apifyStats.users ?? tool.apifyStats.totalUsers} utilisateurs`
-                            : null,
-                          (tool.apifyStats?.runs ?? tool.apifyStats?.totalRuns)
-                            ? `${tool.apifyStats.runs ?? tool.apifyStats.totalRuns} exécutions`
-                            : null,
-                        ]
-                          .filter(Boolean)
-                          .join(' · ')}
-                      </p>
-                      {tool.description && (
-                        <p className="mt-1.5 text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
-                          {tool.description}
-                        </p>
-                      )}
-                    </div>
-                    <span className="flex-shrink-0 text-sm text-neutral-500 dark:text-neutral-500 pt-0.5 whitespace-nowrap">
-                      Lancer →
-                    </span>
-                  </Link>
-                ))
-              )}
-            </div>
-            {filteredApifyTools.length > 0 && displayedCount < filteredApifyTools.length && (
-              <div className="mt-8">
-                <button
-                  onClick={() => setDisplayedCount(prev => Math.min(prev + ITEMS_PER_PAGE, filteredApifyTools.length))}
-                  className="text-sm text-neutral-600 dark:text-neutral-400 underline underline-offset-4 hover:no-underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-                >
-                  Voir plus ({filteredApifyTools.length - displayedCount})
-                </button>
-              </div>
-            )}
-            </>
           )}
         </section>
 
@@ -708,15 +478,11 @@ export default function Marketplace({
               },
               {
                 question: "Quelle est la qualité et la fraîcheur des données ?",
-                answer: "Chaque base affiche sa date de dernière mise à jour et, quand c’est disponible, le nombre de contacts renseignés (email, téléphone, LinkedIn…). L’achat Google Sheets livre le snapshot à cette date. Pour un flux à jour que tu relances toi-même, utilise un scraper Apify (free tier)."
+                answer: "Chaque base affiche sa date de dernière mise à jour et, quand c’est disponible, le nombre de contacts renseignés (email, téléphone, LinkedIn…). L’achat Google Sheets livre le snapshot à cette date. Pour lancer un script à la demande, les scripts sont sur Datareacher."
               },
               {
-                question: "Quelle est la différence entre Google Sheets et les scrapers Apify ?",
-                answer: "Google Sheets = achat unique, accès immédiat, snapshot à la date indiquée, export CSV / Excel. Scrapers Apify = tu lances toi-même en free tier (crédits gratuits Apify) ; au-delà, tu paies le compute. Besoin du fichier prêt sans rien lancer ? Achète la base."
-              },
-              {
-                question: "Les scrapers Apify sont-ils gratuits ?",
-                answer: "Oui sur le free tier Apify : tu peux lancer mes scrapers publics sans me payer. Les crédits gratuits Apify couvrent les premiers runs. Au-delà, Apify facture le compute. Si tu veux le résultat en Google Sheets sans gérer les runs, prends une base dans l’onglet Bases."
+                question: "Où trouver les scripts de scraping ?",
+                answer: "Cette page vend uniquement des bases Google Sheets. Les scripts de scraping sont sur Datareacher (datareacher.fr)."
               },
               {
                 question: "Puis-je avoir une base de données sur-mesure adaptée à mon secteur ?",
@@ -909,12 +675,17 @@ async function getMarketplaceViewEvents() {
 // Charger les bases de données dynamiques côté serveur
 export async function getServerSideProps({ query }) {
   const tabParam = typeof query?.tab === 'string' ? query.tab : ''
-  const initialTab = tabParam === 'tools' || tabParam === 'scrapers' ? 'tools' : 'databases'
+  if (tabParam === 'tools' || tabParam === 'scrapers') {
+    return {
+      redirect: {
+        destination: '/marketplace',
+        permanent: true,
+      },
+    }
+  }
 
   const { getDatabasesAsTools } = await import('../lib/marketplace-databases')
-  const { getEnrichedActorsAsTools } = await import('../lib/apify-actors-enriched')
   let dynamicDatabases = []
-  let apifyTools = []
   
   try {
     dynamicDatabases = await getDatabasesAsTools()
@@ -930,16 +701,6 @@ export async function getServerSideProps({ query }) {
       ...db,
       views: viewsMap[`${db.category}/${db.slug}`] || 0,
     }))
-
-    try {
-      apifyTools = await getEnrichedActorsAsTools()
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`✅ ${apifyTools.length} outils Apify chargés`)
-      }
-    } catch (error) {
-      console.error('❌ Erreur chargement outils Apify:', error.message)
-      apifyTools = []
-    }
   } catch (error) {
     console.error('❌ Erreur chargement bases de données:', error.message)
   }
@@ -972,9 +733,7 @@ export async function getServerSideProps({ query }) {
   return {
     props: {
       dynamicDatabases,
-      apifyTools,
       marketplaceReviews,
-      initialTab,
     }
   }
 }

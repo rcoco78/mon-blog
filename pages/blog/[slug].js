@@ -5,6 +5,7 @@ import ViewCounter from '../../components/ViewCounter'
 import Block from '../../components/Block'
 import MarkdownRenderer from '../../components/MarkdownRenderer'
 import ArticleCallCta from '../../components/ArticleCallCta'
+import ArticleNetworkHint from '../../components/ArticleNetworkHint'
 import NewsletterForm from '../../components/NewsletterForm'
 import ArticleNewsletterNudge from '../../components/ArticleNewsletterNudge'
 import RelatedPosts from '../../components/RelatedPosts'
@@ -395,6 +396,7 @@ export default function Post({ post, allPosts }) {
         <RelatedPosts currentPost={post} allPosts={allPosts} />
 
             <ArticleCallCta />
+            <ArticleNetworkHint />
             <NewsletterForm compact={false} source="article" />
         </div>
         <ArticleNewsletterNudge />
