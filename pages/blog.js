@@ -439,7 +439,7 @@ export default function Blog({ posts }) {
         <section className="mb-12 md:mb-16 pt-8 journal-rule text-center" aria-label="Continuer la lecture">
           <h2 className="font-semibold text-xl mb-4 tracking-tighter">Continuer le fil</h2>
           <p className="text-neutral-600 dark:text-neutral-400 mb-6 max-w-xl mx-auto">
-            Recevez les prochains textes, ou venez poursuivre la conversation sur LinkedIn.
+            Recevez les prochains textes, ou venez poursuivre la conversation sur les réseaux.
           </p>
           <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
             <Link
