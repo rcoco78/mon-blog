@@ -23,6 +23,10 @@ function preloadUrl(url) {
   img.src = url
 }
 
+function isImageReady(img) {
+  return Boolean(img && img.complete && img.naturalWidth > 0)
+}
+
 /** Secteurs alignés dahbiahmed (atan2). */
 function directionFromPointer(dx, dy, deadZone = 40) {
   if (Math.hypot(dx, dy) < deadZone) return 'center'
@@ -52,10 +56,10 @@ function usePrefersReducedMotion() {
 }
 
 /**
- * Look-at fluide (approche dahbi) :
- * - <img> natif + précharge (pas Next/Image → pas de cold-load /_next/image)
- * - swap immédiat de src dès que l'angle change
- * - cerclage décoratif optionnel (sans vidéo)
+ * Look-at sans flash blanc :
+ * - les 9 photos restent empilées (opacity), déjà décodées
+ * - on n’affiche la suivante que quand elle est ready
+ * - le fond du cercle = photo center (plus de bg blanc)
  */
 export default function LookAtAvatar({
   src,
@@ -69,6 +73,7 @@ export default function LookAtAvatar({
 }) {
   const wrapRef = useRef(null)
   const imgRef = useRef(null)
+  const layerRefs = useRef({})
   const directionRef = useRef('center')
   const pointerRef = useRef({ x: 0, y: 0, has: false })
   const rafRef = useRef(0)
@@ -86,9 +91,8 @@ export default function LookAtAvatar({
   const useSprites = available.length >= 3 && !reducedMotion
 
   const urlFor = (d) => `${lookBasePath}/${d}.${lookExt}`
-  const centerUrl = useSprites
-    ? urlFor(available.includes('center') ? 'center' : available[0])
-    : src
+  const centerKey = available.includes('center') ? 'center' : available[0]
+  const centerUrl = useSprites ? urlFor(centerKey) : src
 
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 })
 
@@ -101,7 +105,6 @@ export default function LookAtAvatar({
     return () => window.cancelAnimationFrame(id)
   }, [reducedMotion, showRing])
 
-  // Précharge dès le montage (Image + link preload)
   useEffect(() => {
     if (!useSprites) {
       preloadUrl(src)
@@ -124,6 +127,15 @@ export default function LookAtAvatar({
   useLayoutEffect(() => {
     if (reducedMotion) return undefined
 
+    const paintDirection = (resolved) => {
+      const layers = layerRefs.current
+      Object.entries(layers).forEach(([key, el]) => {
+        if (!el) return
+        el.style.opacity = key === resolved ? '1' : '0'
+      })
+      directionRef.current = resolved
+    }
+
     const setDirection = (next) => {
       if (!useSprites) return
       const list = availableRef.current
@@ -133,11 +145,24 @@ export default function LookAtAvatar({
           ? 'center'
           : list[0]
       if (!resolved || resolved === directionRef.current) return
-      const url = urlFor(resolved)
-      preloadUrl(url)
-      const img = imgRef.current
-      if (img) img.src = url
-      directionRef.current = resolved
+
+      const nextImg = layerRefs.current[resolved]
+      const show = () => paintDirection(resolved)
+
+      if (isImageReady(nextImg)) {
+        show()
+        return
+      }
+
+      // Garde l’image actuelle visible tant que la suivante n’est pas décodée
+      const reveal = () => {
+        if (isImageReady(nextImg)) show()
+      }
+      if (nextImg?.decode) {
+        nextImg.decode().then(show).catch(reveal)
+      } else if (nextImg) {
+        nextImg.addEventListener('load', reveal, { once: true })
+      }
     }
 
     const sample = () => {
@@ -215,7 +240,6 @@ export default function LookAtAvatar({
           willChange: 'transform',
         }
 
-  // Cerclage SVG (viewBox 100) — rayon 47 → circonférence ~295.3
   const ringC = 2 * Math.PI * 47
 
   return (
@@ -257,30 +281,55 @@ export default function LookAtAvatar({
         </svg>
       )}
 
-      {/* Force decode navigateur avant le 1er move */}
-      {useSprites && (
-        <div aria-hidden className="absolute w-0 h-0 overflow-hidden opacity-0 pointer-events-none">
-          {available.map((d) => (
-            <img key={d} src={urlFor(d)} alt="" width={1} height={1} />
-          ))}
-        </div>
-      )}
-
       <div
-        className={`relative rounded-full overflow-hidden ${showRing ? 'bg-white dark:bg-neutral-900 p-[2px]' : ''}`}
-        style={tiltStyle}
+        className="rounded-full overflow-hidden"
+        style={{
+          ...tiltStyle,
+          padding: showRing ? 2 : 0,
+          backgroundImage: `url(${centerUrl})`,
+          backgroundSize: 'cover',
+          backgroundPosition: objectPosition,
+        }}
       >
-        <img
-          ref={imgRef}
-          src={useSprites ? centerUrl : src}
-          alt={alt}
-          width={size * 2}
-          height={size * 2}
-          decoding="async"
-          fetchPriority="high"
-          draggable={false}
-          style={imgStyle}
-        />
+        <div className="relative overflow-hidden rounded-full" style={{ width: size, height: size }}>
+          {useSprites ? (
+            available.map((d) => (
+              <img
+                key={d}
+                ref={(el) => {
+                  if (el) layerRefs.current[d] = el
+                  else delete layerRefs.current[d]
+                }}
+                src={urlFor(d)}
+                alt={d === centerKey ? alt : ''}
+                aria-hidden={d === centerKey ? undefined : true}
+                width={size * 2}
+                height={size * 2}
+                decoding="async"
+                fetchPriority={d === centerKey ? 'high' : 'low'}
+                draggable={false}
+                style={{
+                  ...imgStyle,
+                  position: 'absolute',
+                  inset: 0,
+                  opacity: d === centerKey ? 1 : 0,
+                }}
+              />
+            ))
+          ) : (
+            <img
+              ref={imgRef}
+              src={src}
+              alt={alt}
+              width={size * 2}
+              height={size * 2}
+              decoding="async"
+              fetchPriority="high"
+              draggable={false}
+              style={imgStyle}
+            />
+          )}
+        </div>
       </div>
     </div>
   )
