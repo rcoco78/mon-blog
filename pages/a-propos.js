@@ -32,6 +32,84 @@ function statusLabel(status) {
   return 'Arrêté'
 }
 
+function NetworkLogo({ node }) {
+  if (!node?.icon) return null
+  return (
+    <span
+      className={`inline-flex w-6 h-6 shrink-0 items-center justify-center overflow-hidden ${
+        node.iconShape === 'round' ? '' : 'rounded-md'
+      } ${node.iconOnDark === 'plate' ? 'dark:bg-white dark:p-[3px]' : ''}`}
+    >
+      <img
+        src={node.icon}
+        alt=""
+        width={24}
+        height={24}
+        className={`w-full h-full ${
+          node.iconShape === 'round' ? 'rounded-full object-cover' : 'rounded-md object-contain'
+        }`}
+      />
+    </span>
+  )
+}
+
+function TimelineDot({ active }) {
+  if (active) {
+    return (
+      <div
+        className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-green-500 border-2 border-white dark:border-neutral-900 z-10"
+        title="Projet actif"
+      >
+        <span className="absolute -inset-0.5 inline-flex rounded-full bg-green-400 opacity-40 animate-ping"></span>
+      </div>
+    )
+  }
+  return (
+    <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
+  )
+}
+
+function TimelineItem({ dates, title, href, role, description, logo, active, children }) {
+  const heading = href ? (
+    <Link
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-1.5 hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors group/link"
+    >
+      {logo}
+      <span>{title}</span>
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 flex-shrink-0">
+        <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+      </svg>
+    </Link>
+  ) : (
+    <span className="flex items-center gap-1.5">
+      {logo}
+      <span>{title}</span>
+    </span>
+  )
+
+  return (
+    <div className="relative flex flex-col sm:flex-row sm:gap-4">
+      <TimelineDot active={active} />
+      <div className="w-full sm:w-40 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">
+        {dates}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-medium mb-1 flex items-center gap-2">{heading}</h3>
+        {role && (
+          <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">{role}</p>
+        )}
+        {description && (
+          <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">{description}</p>
+        )}
+        {children}
+      </div>
+    </div>
+  )
+}
+
 // Configuration des articles "Leçons apprises" pour les projets arrêtés
 // Mettre le slug de l'article quand il sera créé, ou null pour ne pas afficher le lien
 const lessonsArticles = {
@@ -176,7 +254,7 @@ export default function About() {
         name: siteConfig.author,
         description: siteConfig.seo.pages.aPropos.description,
         url: `${siteConfig.url}/a-propos`,
-        jobTitle: 'Freelance en Scraping et Automatisation',
+        jobTitle: 'Fondateur · Outreacher · Datareacher · Logement Atypique',
         knowsAbout: ['Web Scraping', 'Data Automation', 'Outbound Marketing', 'Python', 'JavaScript', 'API Development'],
         alumniOf: {
           '@type': 'EducationalOrganization',
@@ -186,6 +264,8 @@ export default function About() {
         sameAs: [
           siteConfig.social.linkedin,
           siteConfig.social.malt,
+          siteConfig.network.datareacher.href,
+          siteConfig.network.outreacher.href,
           'https://apify.com?fpr=0n7ukq',
           'https://github.com/rcoco78'
         ]
@@ -219,11 +299,14 @@ export default function About() {
       <section className="mb-16" aria-label="Présentation personnelle">
         <h1 className="font-semibold text-2xl mb-8 tracking-tighter">À propos</h1>
         
+        <p className="mb-3 text-neutral-800 dark:text-neutral-200 tracking-tight font-medium">
+          Fondateur · Outreacher · Datareacher · Logement Atypique.
+        </p>
         <p className="mb-3 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Je scrappe, j&apos;automatise, je livre de la data. Pour des dirigeants qui veulent des résultats — pas une stack à gérer.
+          Ici, c&apos;est le journal. Je scrappe, j&apos;automatise, je livre de la data. Pour des dirigeants qui veulent des résultats — pas une stack à gérer.
         </p>
         <p className="mb-8 text-sm text-neutral-500 dark:text-neutral-500 tracking-tight">
-          28 ans, Paris. Avant : growth chez Airbnb. Aujourd&apos;hui : freelance indépendant.
+          28 ans, Paris. Avant : growth chez Airbnb, Shine, papernest. Aujourd&apos;hui : trois casquettes fondateur, plus le freelance.
         </p>
 
         {/* Mini timeline métier */}
@@ -231,11 +314,10 @@ export default function About() {
           <h2 className="font-semibold text-sm mb-3 tracking-tight text-neutral-900 dark:text-neutral-100">Le fil</h2>
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
             {[
-              'Freelance',
-              'Outbound',
-              'Scraping & data',
-              'Apify',
+              'Outreacher',
+              'Datareacher',
               'Logement Atypique',
+              'Journal',
             ].join(' → ')}
           </p>
           <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-500">
@@ -406,92 +488,70 @@ export default function About() {
               <div className="absolute left-0 top-0 bottom-0 w-[1px]" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0, transparent 4px, rgb(212 212 212) 4px, rgb(212 212 212) 8px)' }}></div>
               <div className="absolute left-0 top-0 bottom-0 w-[1px] hidden dark:block" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0, transparent 4px, rgb(64 64 64) 4px, rgb(64 64 64) 8px)' }}></div>
               <div className="space-y-6">
-                <div className="relative flex flex-col sm:flex-row sm:gap-4">
-                  {/* Point sur la ligne - vert pour projet actif */}
-                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-green-500 border-2 border-white dark:border-neutral-900 z-10" title="Projet actif">
-                    <span className="absolute -inset-0.5 inline-flex rounded-full bg-green-400 opacity-40 animate-ping"></span>
-                  </div>
-                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2025–Présent</div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium mb-1 flex items-center gap-2">
-                      <Link 
-                        href="https://logement-atypique.fr"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors group/link"
-                      >
-                        <span>Logement Atypique</span>
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 flex-shrink-0">
-                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                        </svg>
-                      </Link>
-                    </h3>
-                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
-                      On met en avant +2000 logements atypiques — tiny houses, villas d'architecte, châteaux...
-                    </p>
-                  </div>
-                </div>
-                <div className="relative flex flex-col sm:flex-row sm:gap-4">
-                  {/* Point sur la ligne - vert pour projet actif */}
-                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-green-500 border-2 border-white dark:border-neutral-900 z-10" title="Projet actif">
-                    <span className="absolute -inset-0.5 inline-flex rounded-full bg-green-400 opacity-40 animate-ping"></span>
-                  </div>
-                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2023–Présent</div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium mb-1 flex items-center gap-2">
-                      <Link 
-                        href={siteConfig.social.malt}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors group/link"
-                      >
-                        <span>Freelance en scraping et automatisation</span>
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 flex-shrink-0">
-                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                        </svg>
-                      </Link>
-                    </h3>
-                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
-                      160+ missions Malt finalisées • +250 missions Fiverr finalisées • +300 clients accompagnés
-                    </p>
-                  </div>
-                </div>
-                <div className="relative flex flex-col sm:flex-row sm:gap-4">
-                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
-                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2022</div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium mb-1">Rare Item Club</h3>
-                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed mb-1">
-                      Achat-revente de sneakers "rares" via Vinted, Leboncoin, Ebay
-                    </p>
-                    {lessonsArticles.rareItemClub && (
-                      <Link 
-                        href={`/blog/${lessonsArticles.rareItemClub}`} 
-                        className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
-                      >
-                        Leçons apprises
-                      </Link>
-                    )}
-                  </div>
-                </div>
-                <div className="relative flex flex-col sm:flex-row sm:gap-4">
-                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
-                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2018-2019</div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium mb-1">InstaNinja</h3>
-                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed mb-1">
-                      Automatisation de compte Instagram — +400 clients total, 10K€ MRR
-                    </p>
-                    {lessonsArticles.instaninja && (
-                      <Link 
-                        href={`/blog/${lessonsArticles.instaninja}`} 
-                        className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
-                      >
-                        Leçons apprises
-                      </Link>
-                    )}
-                  </div>
-                </div>
+                <TimelineItem
+                  dates="mars 2024 – aujourd’hui"
+                  title="Outreacher"
+                  href={siteConfig.network.outreacher.href}
+                  role="Fondateur"
+                  description="Une campagne en 14 jours. On la monte ensemble. C’est toi qui envoies."
+                  logo={<NetworkLogo node={siteConfig.network.outreacher} />}
+                  active
+                />
+                <TimelineItem
+                  dates="sept. 2026 – aujourd’hui"
+                  title="Datareacher"
+                  href={siteConfig.network.datareacher.href}
+                  role="Fondateur"
+                  description="Tu as ta liste. Ce soir."
+                  logo={<NetworkLogo node={siteConfig.network.datareacher} />}
+                  active
+                />
+                <TimelineItem
+                  dates="sept. 2025 – aujourd’hui"
+                  title="Logement Atypique"
+                  href="https://logement-atypique.fr"
+                  role="Fondateur"
+                  description="On sublime les lieux atypiques. Photo, vidéo, visibilité. Avec Siméon."
+                  logo={<NetworkLogo node={siteConfig.network.logement} />}
+                  active
+                />
+                <TimelineItem
+                  dates="2023 – aujourd’hui"
+                  title="Freelance en scraping et automatisation"
+                  href={siteConfig.social.malt}
+                  description="160+ missions Malt finalisées • +250 missions Fiverr finalisées • +300 clients accompagnés"
+                  active
+                />
+                <TimelineItem
+                  dates="mars 2022 – août 2023"
+                  title="Rare Item Club"
+                  role="Fondateur"
+                  description="Achat-revente de sneakers « rares » via Vinted, Leboncoin, Ebay"
+                >
+                  {lessonsArticles.rareItemClub && (
+                    <Link
+                      href={`/blog/${lessonsArticles.rareItemClub}`}
+                      className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
+                    >
+                      Leçons apprises
+                    </Link>
+                  )}
+                </TimelineItem>
+                <TimelineItem
+                  dates="mai 2018 – août 2019"
+                  title="InstaNinja"
+                  role="Fondateur"
+                  description="Automatisation de compte Instagram — +400 clients total, 10K€ MRR"
+                >
+                  {lessonsArticles.instaninja && (
+                    <Link
+                      href={`/blog/${lessonsArticles.instaninja}`}
+                      className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
+                    >
+                      Leçons apprises
+                    </Link>
+                  )}
+                </TimelineItem>
               </div>
             </div>
           </div>
@@ -504,38 +564,30 @@ export default function About() {
               <div className="absolute left-0 top-0 bottom-0 w-[1px]" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0, transparent 4px, rgb(212 212 212) 4px, rgb(212 212 212) 8px)' }}></div>
               <div className="absolute left-0 top-0 bottom-0 w-[1px] hidden dark:block" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0, transparent 4px, rgb(64 64 64) 4px, rgb(64 64 64) 8px)' }}></div>
               <div className="space-y-6">
-                <div className="relative flex flex-col sm:flex-row sm:gap-4">
-                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
-                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2023</div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium mb-1">White Bird</h3>
-                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Growth, pilotage du marketing pour le développement de réseau de franchises</p>
-                  </div>
-                </div>
-                <div className="relative flex flex-col sm:flex-row sm:gap-4">
-                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
-                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2021</div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium mb-1">Shine</h3>
-                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Déploiement de dashboards et projets pour intégrer Legalplace au sein de Shine, permettant aux équipes Sales et Support d'avoir l'ensemble des données au bon endroit</p>
-                  </div>
-                </div>
-                <div className="relative flex flex-col sm:flex-row sm:gap-4">
-                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
-                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2020</div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium mb-1">Pappernest</h3>
-                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Growth Analyst — analyse et amélioration des publicités Facebook Ads</p>
-                  </div>
-                </div>
-                <div className="relative flex flex-col sm:flex-row sm:gap-4">
-                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
-                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2017</div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium mb-1">Airbnb</h3>
-                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">En charge du développement d'Airbnb Experiences pour la France et Middle East & Africa</p>
-                  </div>
-                </div>
+                <TimelineItem
+                  dates="2023"
+                  title="White Bird"
+                  role="Growth"
+                  description="Pilotage du marketing pour le développement de réseau de franchises"
+                />
+                <TimelineItem
+                  dates="févr. 2021 – févr. 2022"
+                  title="Shine"
+                  role="Growth"
+                  description="Déploiement de dashboards et projets pour intégrer Legalplace au sein de Shine, pour que les équipes Sales et Support aient l’ensemble des données au bon endroit"
+                />
+                <TimelineItem
+                  dates="juin 2020 – déc. 2020"
+                  title="papernest"
+                  role="Growth"
+                  description="Analyse et amélioration des publicités Facebook Ads"
+                />
+                <TimelineItem
+                  dates="janv. 2018 – juil. 2018"
+                  title="Airbnb"
+                  role="Growth"
+                  description="Développement d’Airbnb Experiences pour la France et Middle East & Africa"
+                />
               </div>
             </div>
           </div>
