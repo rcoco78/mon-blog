@@ -10,7 +10,7 @@ export async function getServerSideProps() {
   return {
     redirect: {
       destination: 'https://datareacher.fr',
-      permanent: true,
+      statusCode: 301,
     },
   }
 }

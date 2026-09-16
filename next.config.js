@@ -26,7 +26,7 @@ const nextConfig = {
       {
         source: '/marketplace/outils/:slug*',
         destination: 'https://datareacher.fr',
-        permanent: true,
+        statusCode: 301,
       },
     ]
   },
