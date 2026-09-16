@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { Inter } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import Analytics from '../components/GoogleAnalytics'
 import '../styles/globals.css'
@@ -7,6 +8,12 @@ import StructuredData from '../components/seo/StructuredData'
 import { siteConfig } from '../lib/config'
 import { initPostHog } from '../lib/posthog-client'
 
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
+
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
     initPostHog()
@@ -14,6 +21,7 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <ThemeProvider attribute="class" enableSystem={true} defaultTheme="system">
+      <div className={`${inter.variable} ${inter.className} font-sans`}>
       {/* SEOHead est fourni par chaque page — pas de défaut global (évite meta dupliquées) */}
       <StructuredData type="WebSite" />
       <StructuredData 
@@ -50,6 +58,7 @@ function MyApp({ Component, pageProps }) {
         <Component {...pageProps} />
       </Layout>
       <Analytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+      </div>
     </ThemeProvider>
   )
 }

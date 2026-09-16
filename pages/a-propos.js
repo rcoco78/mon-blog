@@ -1,12 +1,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import ContentListRow from '../components/ContentListRow'
-import { photos } from '../lib/photos'
 import { openCalendlyPopup } from '../lib/calendly'
 
 function trackProjectClick(project) {
@@ -118,18 +117,10 @@ const lessonsArticles = {
 }
 
 export default function About() {
-  const [photoIndex, setPhotoIndex] = useState(0)
   const [mounted, setMounted] = useState(false)
-  const [itemsPerView, setItemsPerView] = useState(3)
-  const [isMobile, setIsMobile] = useState(false)
-  const scrollContainerRef = useRef(null)
-  const [currentScrollIndex, setCurrentScrollIndex] = useState(0)
   const [showVideo, setShowVideo] = useState(false)
   const [videoSeen, setVideoSeen] = useState(false)
-  const [photosLoading, setPhotosLoading] = useState(true)
 
-  // URL de la vidéo Tella
-  const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
   const videoEmbedUrl = 'https://www.tella.tv/video/vid_cmjylsyom00bn04la9dfs342e/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0'
 
   // Vérifier si la vidéo a déjà été vue
@@ -156,89 +147,10 @@ export default function About() {
   
   useEffect(() => {
     setMounted(true)
-    
-    // Calculer itemsPerView selon la taille de l'écran
-    const updateItemsPerView = () => {
-      const mobile = window.innerWidth < 640
-      setIsMobile(mobile)
-      setItemsPerView(mobile ? 1.5 : 3)
-    }
-    
-    updateItemsPerView()
-    window.addEventListener('resize', updateItemsPerView)
-    
-    // Simuler un délai de chargement pour les photos/vidéos
-    const loadingTimer = setTimeout(() => {
-      setPhotosLoading(false)
-    }, 500) // Délai court pour un effet de chargement naturel
-    
-    return () => {
-      window.removeEventListener('resize', updateItemsPerView)
-      clearTimeout(loadingTimer)
-    }
   }, [])
   
   const openCalendly = () => openCalendlyPopup('about')
-  
-  // Récupérer les photos les plus récentes pour le teaser (plus que 4 pour le scroll)
-  const recentPhotos = photos
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, 8) // Plus de photos pour permettre le scroll
-  
-  // Auto-rotation désactivée - utilisation du scroll uniquement
 
-  // Gérer le scroll et mettre à jour les indicateurs
-  useEffect(() => {
-    if (!scrollContainerRef.current) return
-
-    const container = scrollContainerRef.current
-    const totalItems = recentPhotos.length + 1 // +1 pour la vidéo
-    
-    const handleScroll = () => {
-      const scrollLeft = container.scrollLeft
-      const containerWidth = container.clientWidth
-      
-      if (isMobile) {
-        // Sur mobile, chaque élément fait w-3/5 = 60% de la largeur du conteneur
-        const itemWidth = containerWidth * 0.6 // Approximation pour w-3/5
-        const gap = 12 // gap-3 = 12px
-        const itemWithGap = itemWidth + gap
-        
-        // Calculer l'index actuel basé sur la position du scroll
-        const index = Math.round(scrollLeft / itemWithGap)
-        const maxIndex = Math.ceil(totalItems / 1.5) - 1 // itemsPerView = 1.5 sur mobile
-        
-        setCurrentScrollIndex(Math.min(Math.max(0, index), maxIndex))
-      } else {
-        // Sur desktop, chaque élément fait 40% de la largeur visible
-        const itemWidth = containerWidth * 0.4
-        const gap = 12 // gap-3 = 12px
-        const itemWithGap = itemWidth + gap
-        
-        // Calculer l'index actuel basé sur la position du scroll
-        const index = Math.round(scrollLeft / itemWithGap)
-        const maxIndex = totalItems - 1
-        
-        setPhotoIndex(Math.min(Math.max(0, index), maxIndex))
-      }
-    }
-
-    // Appeler handleScroll immédiatement pour synchroniser l'état initial
-    handleScroll()
-    
-    container.addEventListener('scroll', handleScroll, { passive: true })
-    window.addEventListener('resize', handleScroll)
-    
-    return () => {
-      container.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('resize', handleScroll)
-    }
-  }, [isMobile, recentPhotos.length, itemsPerView])
-
-  // Calculer les valeurs pour le carousel desktop
-  const totalItems = recentPhotos.length + 1
-  const totalPages = Math.ceil(totalItems / itemsPerView)
-  
   const pageSEO = generatePageSEO({
     title: siteConfig.seo.pages.aPropos.title,
     description: siteConfig.seo.pages.aPropos.description,
@@ -349,7 +261,7 @@ export default function About() {
           
           <div className="pt-4 journal-rule">
             <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-              Suite : <Link href="/blog" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">articles</Link>, <Link href="/newsletter" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">newsletter</Link>, <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">marketplace</Link>, <Link href="/cas-usage" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">cas d&apos;usage</Link>, <Link href="/temoignages" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">témoignages</Link>, <Link href="/faq" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">FAQ</Link>.
+              Suite : <Link href="/blog" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">articles</Link>, <Link href="/newsletter" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">newsletter</Link>, <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">marketplace</Link>, <Link href="/cas-usage" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">cas d&apos;usage</Link>, <Link href="/temoignages" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">témoignages</Link>, <Link href="/faq" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">FAQ</Link>, <Link href="/photos" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">photos</Link>.
             </p>
             <p className="text-sm text-neutral-600 dark:text-neutral-400">
               Ce que j&apos;écoute en ce moment → <Link href="/spotify" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors inline-flex items-center gap-1.5 group/link">
@@ -359,119 +271,6 @@ export default function About() {
                 </svg>
               </Link>
             </p>
-          </div>
-        </div>
-        
-        {/* Section Photos et Vidéos */}
-        <div className="mb-8" aria-label="Photos et vidéos">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-            <div>
-              <h2 className="font-semibold text-xl mb-1 tracking-tighter">Photos et vidéos</h2>
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                Quelques moments capturés au fil du temps
-              </p>
-            </div>
-            <Link
-              href="/photos"
-              className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors self-start sm:self-auto flex items-center gap-1.5 group"
-              aria-label="Voir toutes les photos"
-            >
-              Voir toutes
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-              </svg>
-            </Link>
-          </div>
-          <div className="relative overflow-hidden">
-            {photosLoading ? (
-              // Skeleton pendant le chargement
-              <div 
-                className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-              >
-                {/* Skeleton : photos puis vidéo */}
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start bg-neutral-200 dark:bg-neutral-800 animate-pulse"
-                  />
-                ))}
-                <div className="relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start bg-neutral-200 dark:bg-neutral-800 animate-pulse" />
-              </div>
-            ) : (
-              <div 
-                ref={scrollContainerRef}
-                className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-              >
-                {/* Photos d'abord (les plus récentes), puis vidéo décembre 2025 */}
-                {recentPhotos.map((photo, index) => (
-                  <Link
-                    key={index}
-                    href="/photos"
-                    className="group relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start"
-                    aria-label={photo.alt || `Photo ${index + 1} - ${photo.location || 'Moment capturé'}`}
-                  >
-                    <Image
-                      src={photo.src}
-                      alt={photo.alt || `Photo ${photo.location ? `à ${photo.location}` : 'Moment capturé'}`}
-                      fill
-                      className="object-cover transition-transform group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  </Link>
-                ))}
-                {/* Vidéo YouTube en dernière position (décembre 2025) */}
-                <div className="relative flex-shrink-0 w-3/5 sm:w-[40%] aspect-[9/16] overflow-hidden rounded-lg snap-start">
-                  <iframe
-                    src="https://www.youtube.com/embed/53pisKcp9Vc?rel=0&modestbranding=1"
-                    title="Présentation de Corentin Robert - Freelance Scraping et Automatisation"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    className="absolute top-0 left-0 w-full h-full"
-                    loading="lazy"
-                  />
-                </div>
-              </div>
-            )}
-            
-            {/* Indicateurs de navigation */}
-            {(recentPhotos.length + 1) > (isMobile ? 1.5 : 1) && (
-              <div className="flex justify-center gap-2 mt-4">
-                {Array.from({ length: recentPhotos.length + 1 }).map((_, index) => {
-                  const isActive = isMobile ? currentScrollIndex === index : photoIndex === index
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        if (scrollContainerRef.current) {
-                          const container = scrollContainerRef.current
-                          const containerWidth = container.clientWidth
-                          
-                          if (isMobile) {
-                            const itemWidth = containerWidth * 0.6
-                            const gap = 12
-                            const scrollPosition = index * (itemWidth + gap)
-                            container.scrollTo({ left: scrollPosition, behavior: 'smooth' })
-                          } else {
-                            // Sur desktop, chaque élément fait 40% de la largeur visible
-                            const itemWidth = containerWidth * 0.4
-                            const gap = 12
-                            const scrollPosition = index * (itemWidth + gap)
-                            container.scrollTo({ left: scrollPosition, behavior: 'smooth' })
-                            setPhotoIndex(index)
-                          }
-                        }
-                      }}
-                      className={`h-1.5 rounded-full transition-all ${
-                        isActive
-                          ? 'w-6 bg-neutral-900 dark:bg-neutral-100'
-                          : 'w-1.5 bg-neutral-300 dark:bg-neutral-700'
-                      }`}
-                      aria-label={`Aller aux photos ${index + 1}`}
-                    />
-                  )
-                })}
-              </div>
-            )}
           </div>
         </div>
       </section>

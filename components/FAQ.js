@@ -14,23 +14,24 @@ export default function FAQ({ items = [], onItemOpen } = {}) {
   if (!items || items.length === 0) return null
 
   return (
-    <div className="space-y-3">
+    <div className="border-t border-neutral-300 dark:border-neutral-700" style={{ borderTopStyle: 'var(--line-style-chrome)' }}>
       {items.map((item, index) => (
         <div
           key={index}
-          className="border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden"
+          className="border-b border-neutral-300 dark:border-neutral-700"
+          style={{ borderBottomStyle: 'var(--line-style-chrome)' }}
         >
           <button
             onClick={() => toggleItem(index)}
-            className="w-full flex items-center justify-between p-4 text-left hover:bg-neutral-50 dark:hover:bg-neutral-900/30 transition-colors"
+            className="w-full flex items-center justify-between py-3 text-left hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
             aria-expanded={openIndex === index}
             aria-controls={`faq-answer-${index}`}
           >
-            <h3 className="font-medium text-neutral-900 dark:text-neutral-100 pr-4">
+            <h3 className="font-medium text-neutral-900 dark:text-neutral-100 pr-4 text-sm sm:text-base">
               {item.question}
             </h3>
             <svg
-              className={`flex-shrink-0 w-5 h-5 text-neutral-500 dark:text-neutral-400 transition-transform ${
+              className={`flex-shrink-0 w-4 h-4 text-neutral-500 dark:text-neutral-400 transition-transform ${
                 openIndex === index ? 'rotate-180' : ''
               }`}
               fill="none"
@@ -43,7 +44,7 @@ export default function FAQ({ items = [], onItemOpen } = {}) {
           {openIndex === index && (
             <div
               id={`faq-answer-${index}`}
-              className="px-4 pb-4 text-sm text-neutral-600 dark:text-neutral-400"
+              className="pb-3 text-sm text-neutral-600 dark:text-neutral-400"
             >
               {item.answer}
             </div>
@@ -53,4 +54,3 @@ export default function FAQ({ items = [], onItemOpen } = {}) {
     </div>
   )
 }
-
