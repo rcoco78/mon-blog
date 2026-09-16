@@ -155,7 +155,7 @@ export default function Layout({ children }) {
                     <FooterArrowLink href="/marketplace" active={router.pathname === '/marketplace' || router.pathname.startsWith('/marketplace/')}>marketplace</FooterArrowLink>
                     <FooterArrowLink href={siteConfig.network.datareacher.href} external>datareacher</FooterArrowLink>
                     <FooterArrowLink href={siteConfig.network.outreacher.href} external>outreacher</FooterArrowLink>
-                    <FooterArrowLink href={siteConfig.network.logement.href} external>LA, avec Siméon</FooterArrowLink>
+                    <FooterArrowLink href={siteConfig.network.logement.href} external>logement atypique</FooterArrowLink>
                   </ul>
                   <p className="mt-5 text-xs text-neutral-500 dark:text-neutral-500">
                     <Link href="/contact" className="hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors">contact</Link>
