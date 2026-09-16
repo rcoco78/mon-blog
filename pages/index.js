@@ -171,7 +171,7 @@ export default function Home({ homeData }) {
               )
               const icon = door.icon ? (
                 <span
-                  className={`inline-flex w-6 h-6 shrink-0 items-center justify-center ${
+                  className={`inline-flex w-6 h-6 shrink-0 items-center justify-center overflow-hidden ${
                     door.iconShape === 'round' ? '' : 'rounded-md'
                   } ${door.iconOnDark === 'plate' ? 'dark:bg-white dark:p-[3px]' : ''}`}
                 >
@@ -181,7 +181,9 @@ export default function Home({ homeData }) {
                     width={24}
                     height={24}
                     className={`w-full h-full ${
-                      door.iconShape === 'round' ? 'rounded-full object-cover' : 'object-contain'
+                      door.iconShape === 'round'
+                        ? 'rounded-full object-cover'
+                        : 'rounded-md object-contain'
                     }`}
                   />
                 </span>
