@@ -212,7 +212,7 @@ export default function About() {
         <h1 className="font-semibold text-2xl mb-8 tracking-tighter">À propos</h1>
         
         <p className="mb-3 text-neutral-800 dark:text-neutral-200 tracking-tight font-medium">
-          Je construis Datareacher, Outreacher et Logement Atypique avec Siméon.
+          Je construis Datareacher, Outreacher et Logement Atypique.
         </p>
         <p className="mb-3 text-neutral-600 dark:text-neutral-400 tracking-tight">
           Avant, il y a eu le growth chez Airbnb et Shine, puis InstaNinja, monté
@@ -250,7 +250,7 @@ export default function About() {
           <div>
             <h2 className="font-semibold text-sm mb-2 tracking-tight text-neutral-900 dark:text-neutral-100">Ce que je construis</h2>
             <p className="text-sm text-neutral-600 dark:text-neutral-400 tracking-tight">
-              Une marketplace de bases Google Sheets. Les scripts sont sur <Link href="https://datareacher.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Datareacher</strong></Link>. L&apos;outbound, sur <Link href="https://outreacher.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Outreacher</strong></Link>. En parallèle : <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> avec Siméon — on photographie et filme des logements d&apos;exception pour leur donner de la visibilité.
+              Une marketplace de bases Google Sheets. Les scripts sont sur <Link href="https://datareacher.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Datareacher</strong></Link>. L&apos;outbound, sur <Link href="https://outreacher.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Outreacher</strong></Link>. En parallèle : <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> — on photographie et filme des logements d&apos;exception pour leur donner de la visibilité.
             </p>
           </div>
         </div>
@@ -313,7 +313,7 @@ export default function About() {
                   title="Logement Atypique"
                   href="https://logement-atypique.fr"
                   role="Fondateur"
-                  description="On sublime les lieux atypiques. Photo, vidéo, visibilité. Avec Siméon."
+                  description="On sublime les lieux atypiques. Photo, vidéo, visibilité."
                   logo={<NetworkLogo node={siteConfig.network.logement} />}
                   active
                 />

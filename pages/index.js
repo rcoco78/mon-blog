@@ -106,8 +106,7 @@ export default function Home({ homeData }) {
             freelance : je note ici ce que le terrain m&apos;apprend.
           </p>
           <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Aujourd&apos;hui, je construis Datareacher, Outreacher et Logement Atypique
-            avec Siméon.
+            Aujourd&apos;hui, je construis Datareacher, Outreacher et Logement Atypique.
           </p>
 
           <div className="mb-10 journal-rule pt-5" aria-label="En ce moment">
