@@ -24,7 +24,7 @@ export default function Confidentialite() {
             <section>
               <h2 className="font-semibold text-lg mb-3 text-neutral-900 dark:text-white">Responsable du traitement</h2>
               <p>
-                Le site {siteConfig.url} est édité par Corentin Robert. Contact : contact@corentinrobert.fr
+                Le site {siteConfig.url} est édité par Corentin Robert. Contact : {siteConfig.email}
               </p>
             </section>
 
@@ -52,7 +52,7 @@ export default function Confidentialite() {
             <section>
               <h2 className="font-semibold text-lg mb-3 text-neutral-900 dark:text-white">Vos droits</h2>
               <p>
-                Conformément au RGPD, vous disposez d&apos;un droit d&apos;accès, de rectification, de suppression et de portabilité de vos données. Pour exercer ces droits, contactez contact@corentinrobert.fr. Vous pouvez également introduire une réclamation auprès de la CNIL.
+                Conformément au RGPD, vous disposez d&apos;un droit d&apos;accès, de rectification, de suppression et de portabilité de vos données. Pour exercer ces droits, contactez {siteConfig.email}. Vous pouvez également introduire une réclamation auprès de la CNIL.
               </p>
             </section>
 

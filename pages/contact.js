@@ -25,7 +25,7 @@ export default function Contact() {
           url: `${siteConfig.url}/contact`,
           name: siteConfig.seo.pages.contact.title,
           description: siteConfig.seo.pages.contact.description,
-          email: 'contact@corentinrobert.fr',
+          email: siteConfig.email,
           bookingUrl: 'https://calendly.com/corentinrobert/20min',
         }}
       />

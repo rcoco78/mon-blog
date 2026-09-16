@@ -171,7 +171,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           mainEntity: {
             '@type': 'ContactPoint',
             contactType: 'Customer Service',
-            email: data.email || 'contact@corentinrobert.fr',
+            email: data.email || siteConfig.email,
             url: data.bookingUrl || 'https://calendly.com/corentinrobert/20min',
             availableLanguage: ['French', 'English'],
             areaServed: 'FR'
@@ -197,7 +197,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           contactPoint: {
             '@type': 'ContactPoint',
             contactType: 'Customer Service',
-            email: data.email || 'contact@corentinrobert.fr',
+            email: data.email || siteConfig.email,
             availableLanguage: ['French', 'English']
           },
           sameAs: data.sameAs || [

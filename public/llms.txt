@@ -421,7 +421,7 @@ Agence d'outbound marketing — création de sales machines automatisées pour g
 - **Intégration** : Intégration avec outils de prospection (Lemlist)
 
 #### **Statut** : ✅ Actif
-- **Contact** : corentin@outreacher.fr
+- **Contact** : hello@corentinrobert.fr
 
 ### **Contributeurs Apify** 🤖
 
