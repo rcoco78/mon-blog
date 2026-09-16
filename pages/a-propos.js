@@ -178,7 +178,6 @@ export default function About() {
           siteConfig.social.malt,
           siteConfig.network.datareacher.href,
           siteConfig.network.outreacher.href,
-          siteConfig.network.outrank.href,
           'https://apify.com?fpr=0n7ukq',
           'https://github.com/rcoco78'
         ]
@@ -220,13 +219,6 @@ export default function About() {
           jusqu&apos;à environ 10K€ de MRR. Aujourd&apos;hui, les missions freelance en
           scraping et automatisation restent mon terrain quotidien.
         </p>
-        <p className="mb-3 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Je travaille aussi avec{' '}
-          <Link href={siteConfig.network.outrank.href} target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
-            Outrank
-          </Link>
-          {' '}sur le SEO et le contenu.
-        </p>
         <p className="mb-8 text-sm text-neutral-500 dark:text-neutral-500 tracking-tight">
           Ce journal relie ces expériences, les trois projets en cours et ce qui
           m&apos;occupe hors écran : handball, Hyrox et échecs.
@@ -258,7 +250,7 @@ export default function About() {
           <div>
             <h2 className="font-semibold text-sm mb-2 tracking-tight text-neutral-900 dark:text-neutral-100">Ce que je construis</h2>
             <p className="text-sm text-neutral-600 dark:text-neutral-400 tracking-tight">
-              Une marketplace de bases Google Sheets. Les scripts sont sur <Link href="https://datareacher.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Datareacher</strong></Link>. L&apos;outbound, sur <Link href="https://outreacher.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Outreacher</strong></Link>. En parallèle : <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> — on photographie et filme des logements d&apos;exception pour leur donner de la visibilité. Je collabore aussi avec <Link href={siteConfig.network.outrank.href} target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Outrank</strong></Link> sur le SEO et le contenu.
+              Une marketplace de bases Google Sheets. Les scripts sont sur <Link href="https://datareacher.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Datareacher</strong></Link>. L&apos;outbound, sur <Link href="https://outreacher.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Outreacher</strong></Link>. En parallèle : <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> — on photographie et filme des logements d&apos;exception pour leur donner de la visibilité.
             </p>
           </div>
         </div>
