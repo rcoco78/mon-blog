@@ -3,6 +3,7 @@ import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { siteConfig } from '../lib/config'
+import SocialLinks from './SocialLinks'
 
 const ArrowIcon = () => (
   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -157,11 +158,14 @@ export default function Layout({ children }) {
                     <FooterArrowLink href={siteConfig.network.outreacher.href} external>outreacher</FooterArrowLink>
                     <FooterArrowLink href={siteConfig.network.logement.href} external>logement atypique</FooterArrowLink>
                   </ul>
-                  <p className="mt-5 text-xs text-neutral-500 dark:text-neutral-500">
-                    <Link href="/contact" className="hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors">contact</Link>
-                    {' · '}
-                    <Link href="/confidentialite" className="hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors">confidentialité</Link>
-                  </p>
+                  <div className="mt-5 flex items-center justify-between gap-4">
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                      <Link href="/contact" className="hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors">contact</Link>
+                      {' · '}
+                      <Link href="/confidentialite" className="hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors">confidentialité</Link>
+                    </p>
+                    <SocialLinks />
+                  </div>
                 </footer>
       </div>
     </div>

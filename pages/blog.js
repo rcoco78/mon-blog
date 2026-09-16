@@ -3,94 +3,20 @@ import { useRouter } from 'next/router'
 import { getAllPosts } from '../lib/notion'
 import { list } from '@vercel/blob'
 import ViewCounter from '../components/ViewCounter'
-import Tag from '../components/Tag'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import SearchBar from '../components/SearchBar'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import FAQ from '../components/FAQ'
+import SocialLinks from '../components/SocialLinks'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
-
-function TagFilter({ tags, selectedTag, onTagSelect }) {
-  const [showMore, setShowMore] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-
-  // Filtrer les tags en fonction de la recherche
-  const filteredTags = tags.filter(tag => 
-    tag.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
-  // Afficher les 5 premiers tags par défaut
-  const visibleTags = showMore ? filteredTags : filteredTags.slice(0, 5)
-  const hasMoreTags = filteredTags.length > 5
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
-        <Tag
-          name="Tous"
-          isActive={!selectedTag}
-          onClick={() => onTagSelect(null)}
-        />
-        {visibleTags.map(tag => (
-          <Tag
-            key={tag}
-            name={tag}
-            isActive={selectedTag === tag}
-            onClick={() => onTagSelect(tag)}
-          />
-        ))}
-        {hasMoreTags && !showMore && (
-          <button
-            onClick={() => setShowMore(true)}
-            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors
-              bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200 
-              hover:bg-neutral-200 dark:hover:bg-neutral-700"
-          >
-            Plus
-          </button>
-        )}
-      </div>
-      
-      {showMore && (
-        <div className="space-y-2">
-          <input
-            type="text"
-            placeholder="Rechercher un tag..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-3 py-1 text-sm rounded-md border border-neutral-200 
-              dark:border-neutral-800 bg-white dark:bg-neutral-900"
-          />
-          <div className="flex flex-wrap gap-2">
-            {filteredTags.map(tag => (
-              <Tag
-                key={tag}
-                name={tag}
-                isActive={selectedTag === tag}
-                onClick={() => onTagSelect(tag)}
-              />
-            ))}
-          </div>
-          <button
-            onClick={() => setShowMore(false)}
-            className="text-xs text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
-          >
-            Voir moins
-          </button>
-        </div>
-      )}
-    </div>
-  )
-}
 
 export default function Blog({ posts }) {
   const router = useRouter()
   const initialSearch = typeof router.query?.search === 'string' ? router.query.search.trim() : ''
   const [selectedTag, setSelectedTag] = useState(null)
   const [searchText, setSearchText] = useState(initialSearch)
-  const [allTags, setAllTags] = useState([])
   const [filteredPosts, setFilteredPosts] = useState(posts)
   const [topPosts, setTopPosts] = useState([])
   const [topPostsLoading, setTopPostsLoading] = useState(true)
@@ -100,6 +26,19 @@ export default function Blog({ posts }) {
   const [blogStatsLoading, setBlogStatsLoading] = useState(true)
   const [displayedCount, setDisplayedCount] = useState(12)
   const POSTS_PER_PAGE = 12
+  const tagOptions = useMemo(() => {
+    const counts = new Map()
+    posts.forEach((post) => {
+      new Set(post.tags || []).forEach((tag) => {
+        if (tag) counts.set(tag, (counts.get(tag) || 0) + 1)
+      })
+    })
+
+    return [...counts.entries()].map(([tag, count]) => ({
+      label: `${tag} (${count})`,
+      value: tag,
+    }))
+  }, [posts])
 
   // Sync searchText with URL ?search= (pour SearchAction schema)
   useEffect(() => {
@@ -110,9 +49,6 @@ export default function Blog({ posts }) {
   }, [router.query.search])
 
   useEffect(() => {
-    // Extraire tous les tags uniques
-    const tags = [...new Set(posts.flatMap(post => post.tags))]
-    setAllTags(tags)
     // Petit délai pour afficher le skeleton
     const timer = setTimeout(() => {
       if (posts.length > 0) {
@@ -396,9 +332,10 @@ export default function Blog({ posts }) {
           </div>
           <div className="mb-6 space-y-4">
             <SearchBar 
-              tags={allTags}
+              tags={tagOptions}
               selectedTag={selectedTag}
               onTagSelect={setSelectedTag}
+              allLabel={`Tous (${posts.length})`}
             />
           </div>
           {postsLoading ? (
@@ -504,21 +441,14 @@ export default function Blog({ posts }) {
           <p className="text-neutral-600 dark:text-neutral-400 mb-6 max-w-xl mx-auto">
             Recevez les prochains textes, ou venez poursuivre la conversation sur LinkedIn.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
             <Link
               href="/newsletter"
               className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
             >
               Lire la suite par email
             </Link>
-            <Link 
-              href={siteConfig.social.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block px-6 py-3 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-            >
-              Suivre sur LinkedIn
-            </Link>
+            <SocialLinks />
           </div>
         </section>
 
