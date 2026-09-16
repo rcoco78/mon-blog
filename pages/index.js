@@ -170,15 +170,21 @@ export default function Home({ homeData }) {
                 <span className="text-neutral-900 dark:text-neutral-100 font-medium">{door.title}</span>
               )
               const icon = door.icon ? (
-                <img
-                  src={door.icon}
-                  alt=""
-                  width={24}
-                  height={24}
-                  className={`w-6 h-6 shrink-0 ${
-                    door.iconShape === 'round' ? 'rounded-full object-cover' : 'rounded-md object-contain'
-                  }`}
-                />
+                <span
+                  className={`inline-flex w-6 h-6 shrink-0 items-center justify-center ${
+                    door.iconShape === 'round' ? '' : 'rounded-md'
+                  } ${door.iconOnDark === 'plate' ? 'dark:bg-white dark:p-[3px]' : ''}`}
+                >
+                  <img
+                    src={door.icon}
+                    alt=""
+                    width={24}
+                    height={24}
+                    className={`w-full h-full ${
+                      door.iconShape === 'round' ? 'rounded-full object-cover' : 'object-contain'
+                    }`}
+                  />
+                </span>
               ) : null
               return (
                 <li key={door.id} className="flex items-center gap-3">
