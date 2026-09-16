@@ -28,7 +28,7 @@ function MyApp({ Component, pageProps }) {
         type="Organization" 
         data={{
           description: siteConfig.seo.defaultDescription,
-          email: 'contact@corentinrobert.fr',
+          email: siteConfig.email,
           sameAs: [
             siteConfig.social.linkedin,
             siteConfig.social.malt,
