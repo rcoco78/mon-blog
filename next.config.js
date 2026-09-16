@@ -23,6 +23,11 @@ const nextConfig = {
         destination: '/objectifs',
         permanent: true, // 308 redirect pour préserver le SEO
       },
+      {
+        source: '/marketplace/outils/:slug*',
+        destination: 'https://datareacher.fr',
+        permanent: true,
+      },
     ]
   },
   async rewrites() {

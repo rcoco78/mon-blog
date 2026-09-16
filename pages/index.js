@@ -1,212 +1,93 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { getAllPosts } from '../lib/notion'
 import { fetchHomeData } from '../lib/home-data'
-import { useState, useEffect } from 'react'
 import { siteConfig } from '../lib/config'
-import { sectorToSlug } from '../lib/case-studies-helpers'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import LookAtAvatar from '../components/LookAtAvatar'
 import { generatePageSEO } from '../lib/seo'
-import ProjectClickCounter from '../components/ProjectClickCounter'
-import DatabaseListRow from '../components/marketplace/DatabaseListRow'
-import ContentListRow, { ContentListRowSkeleton } from '../components/ContentListRow'
-import TestimonialsCarousel from '../components/TestimonialsCarousel'
+import ContentListRow from '../components/ContentListRow'
 import { getProjectsCountPhrase } from '../lib/project-count'
-import { fetchBlobJson, withTimeout } from '../lib/blob-cache'
 import { captureDataError } from '../lib/sentry'
 import { openCalendlyPopup } from '../lib/calendly'
-import { captureCta, trackFaqOpened } from '../lib/posthog-client'
+import { captureCta } from '../lib/posthog-client'
 import { FLOW } from '../lib/posthog-events'
-import FAQ from '../components/FAQ'
 
-const HOME_FAQ = [
-  {
-    question: 'Quel est le délai de livraison réel ?',
-    answer:
-      'Moins d’une semaine pour 90 % des projets. Scraping simple : 2-3 jours. Multi-sites / anti-bot ou automatisation : 5-7 jours.',
-  },
-  {
-    question: 'Combien coûte un projet de scraping ou d’automatisation ?',
-    answer:
-      'Ordres de grandeur : 500-1 500 € (simple), 1 500-5 000 € (complexe), 2 000-8 000 € (outil + intégration). Prix et délai sur un appel de 20 min.',
-  },
-  {
-    question: 'Est-ce légal de scraper des sites web ?',
-    answer:
-      'Oui dans la plupart des cas, en respectant robots.txt, CGU, RGPD si données personnelles, et sans surcharger les serveurs. On cadrera ça ensemble.',
-  },
+const DOORS = [
+  siteConfig.network.datareacher,
+  siteConfig.network.outreacher,
+  siteConfig.network.blog,
+  siteConfig.network.logement,
 ]
 
-// Fonction helper pour obtenir le logo d'une entreprise
-const getCompanyLogo = (companyName) => {
-  if (!companyName) return null
-  const nameLower = companyName.toLowerCase()
-  
-  // Mapping des entreprises aux logos disponibles
-  const logoMap = {
-    'ngi': '/images/logos/ngi.png',
-    'inovesta': '/images/logos/vibe-2025-07-01.webp', // À ajuster si tu as le logo Inovesta
-    'kent': '/images/logos/lloyd & davis.png', // À ajuster si tu as le logo Kent
-    'assursafe': '/images/logos/assursafe.jpeg',
-  }
-  
-  // Chercher une correspondance partielle
-  for (const [key, logo] of Object.entries(logoMap)) {
-    if (nameLower.includes(key)) {
-      return logo
-    }
-  }
-  
-  return null
-}
-
-export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 0, homeData }) {
-  const [topPosts] = useState(homeData?.topPosts ?? [])
-  const [latestPost] = useState(homeData?.latestPost ?? null)
-  const [loading] = useState(false)
-  const [metrics] = useState(homeData?.metrics ?? siteConfig.metrics)
-  const [topCaseStudies] = useState(homeData?.topCaseStudies ?? [])
-  const [topCaseStudiesLoading] = useState(false)
-  const [projectClicks, setProjectClicks] = useState({})
+export default function Home({ homeData }) {
+  const latestPosts = homeData?.latestPosts ?? homeData?.topPosts ?? []
+  const latestPost = homeData?.latestPost ?? null
+  const metrics = homeData?.metrics ?? siteConfig.metrics
   const projectsPhrase = getProjectsCountPhrase(metrics)
-  const homeMetrics = (metrics || [])
-    .filter((m) => m.source !== 'Logement Atypique')
-    .map((m) => ({
-      ...m,
-      source: m.source ? String(m.source).replace(/\s*[—–]\s*/g, ', ') : m.source,
-    }))
-  const metricsGridClass =
-    homeMetrics.length === 3 ? 'grid grid-cols-2 md:grid-cols-3 gap-4 mb-3' : 'grid grid-cols-2 md:grid-cols-4 gap-4 mb-3'
   const openCalendly = () => openCalendlyPopup('home')
 
-  // Un seul fetch pour tous les compteurs de clics projets
-  useEffect(() => {
-    const partnerIds = ['contributeurs-apify', 'lemlist', 'zapmail']
-    const ids = siteConfig.projects
-      .filter((p) => p.status === 'active' && !partnerIds.includes(p.id) && p.id)
-      .map((p) => p.id)
-    if (ids.length === 0) return
-
-    fetch(`/api/projects/clicks?projectIds=${ids.join(',')}`)
-      .then((res) => res.json())
-      .then((data) => setProjectClicks(data || {}))
-      .catch(() => setProjectClicks({}))
-  }, [])
-
   const pageSEO = generatePageSEO({
-    title: 'Freelance scraping, automatisation et journal de bord',
-    description: `Corentin Robert, freelance scraping, automatisation et data. ${projectsPhrase} livrés via Malt et Fiverr. Journal public de ce que je construis, marketplace de bases et scrapers.`,
+    title: 'Journal — data, outbound, ce que je construis',
+    description: `Corentin Robert. Journal public. ${projectsPhrase} livrés via Malt et Fiverr. Datareacher, Outreacher, Logement Atypique.`,
     path: '/',
-    keywords: ['Corentin Robert', 'scraping freelance', 'automatisation', 'consultant scraping', 'web scraping', 'data automation', 'freelance scraping France', 'freelance scraping Paris', 'consultant scraping TPE-PME', 'scraping immobilier', 'automatisation processus business']
+    keywords: [
+      'Corentin Robert',
+      'journal scraping',
+      'automatisation',
+      'Datareacher',
+      'Outreacher',
+      'freelance scraping',
+    ],
   })
 
   return (
     <>
       <SEOHead {...pageSEO} />
-      
-      <StructuredData 
-        type="Organization" 
-        data={{
-          description: `Expert freelance en scraping et automatisation. ${projectsPhrase} livrés via Malt et Fiverr, livraison en 7 jours.`,
-          email: 'contact@corentinrobert.fr',
-          sameAs: [
-            siteConfig.social.linkedin,
-            siteConfig.social.malt,
-            siteConfig.social.fiverr,
-            siteConfig.social.github,
-            'https://apify.com?fpr=0n7ukq'
-          ]
-        }} 
-      />
-      
-      <StructuredData 
-        type="Person" 
+
+      <StructuredData
+        type="Person"
         data={{
           name: 'Corentin Robert',
-          alternateName: 'Corentin Robert',
-          jobTitle: 'Expert Freelance en Scraping et Automatisation',
-          description: `Corentin Robert, expert freelance en scraping et automatisation. ${projectsPhrase} livrés. Spécialisé scraping immobilier et santé pour TPE-PME.`,
-          knowsAbout: ['Web Scraping', 'Data Automation', 'Outbound Marketing', 'Growth Hacking', 'Freelance', 'Scraping Immobilier', 'Scraping Santé'],
+          jobTitle: 'Freelance scraping, data et outbound',
+          description: `Corentin Robert. Journal public. ${projectsPhrase} livrés. Datareacher, Outreacher, Logement Atypique.`,
+          knowsAbout: ['Web Scraping', 'Data', 'Outbound', 'Automatisation'],
           sameAs: [
             siteConfig.social.linkedin,
             siteConfig.social.malt,
             siteConfig.social.fiverr,
             siteConfig.social.github,
-            'https://apify.com?fpr=0n7ukq'
-          ]
-        }} 
+            siteConfig.network.datareacher.href,
+            siteConfig.network.outreacher.href,
+          ],
+        }}
       />
-      
-      <StructuredData 
-        type="FAQPage" 
+
+      <StructuredData
+        type="SiteNavigation"
         data={{
-          questions: [
-            {
-              question: "Qu'est-ce que le scraping et comment ça peut aider mon business ?",
-              answer: "Le scraping (ou web scraping) est une technique qui permet d'extraire automatiquement des données depuis des sites web. Concrètement, cela vous permet de : collecter des données concurrentielles (prix, produits, avis), générer des leads qualifiés (contacts, profils LinkedIn), automatiser votre veille marché, enrichir vos bases de données existantes."
-            },
-            {
-              question: "Quel est le délai de livraison réel ?",
-              answer: "Livraison en moins d'une semaine pour 90% des projets. Concrètement : un scraping simple (1 site, données structurées) : 2-3 jours, un scraping complexe (multi-sites, anti-bot) : 5-7 jours, une automatisation complète : 5-7 jours."
-            },
-            {
-              question: "Combien coûte un projet de scraping ou d'automatisation ?",
-              answer: "Les prix varient selon la complexité : un scraping simple (1 site, données structurées) : 500-1500€, un scraping complexe (multi-sites, données dynamiques, anti-bot) : 1500-5000€, une automatisation complète (outil sur-mesure + intégration) : 2000-8000€. La plupart des projets se livrent en moins d'une semaine."
-            },
-            {
-              question: "Pourquoi choisir Corentin Robert plutôt qu'une agence ou un dev interne ?",
-              answer: `3 avantages clés : 1) Rapidité : livraison en moins d'une semaine vs 1-2 mois pour une agence, 2) Coûts maîtrisés : pas de frais de structure, tarifs transparents, 3) Expertise ciblée : ${projectsPhrase} en scraping/automatisation vs un dev interne qui doit tout apprendre.`
-            },
-            {
-              question: "Est-ce légal de scraper des sites web ?",
-              answer: "Oui, le scraping est légal dans la plupart des cas, à condition de respecter : 1) Les robots.txt et conditions d'utilisation du site, 2) Le RGPD si vous collectez des données personnelles, 3) Les bonnes pratiques (ne pas surcharger les serveurs, respecter les limites de taux)."
-            }
-          ]
-        }} 
+          items: [
+            { name: 'Journal', url: `${siteConfig.url}/blog` },
+            { name: 'À propos', url: `${siteConfig.url}/a-propos` },
+            { name: 'Objectifs', url: `${siteConfig.url}/objectifs` },
+            { name: 'Marketplace', url: `${siteConfig.url}/marketplace` },
+          ],
+        }}
       />
-      
-      <StructuredData type="SiteNavigation" />
-      
-      <StructuredData 
-        type="WebPage" 
+
+      <StructuredData
+        type="WebPage"
         data={{
           url: siteConfig.url,
-          name: 'Corentin Robert, freelance scraping et automatisation',
-          title: 'Freelance scraping, automatisation et journal de bord',
-          description: `Corentin Robert, freelance scraping, automatisation et data. ${projectsPhrase} livrés, livraison en 7 jours.`,
+          name: 'Corentin Robert',
+          title: 'Journal — data, outbound, ce que je construis',
+          description: `Journal public de Corentin Robert. ${projectsPhrase} livrés.`,
           image: siteConfig.ogImage,
-          about: {
-            '@type': 'Thing',
-            name: 'Scraping et Automatisation'
-          }
-        }} 
+        }}
       />
-      
-      <StructuredData 
-        type="Service" 
-        data={{
-          name: 'Scraping et Automatisation',
-          serviceType: 'Web Scraping, Data Automation, Outbound Marketing',
-          description: `Expert freelance en scraping web et automatisation. Création d'outils sur-mesure pour extraire, structurer et exploiter vos données. ${projectsPhrase} livrés via Malt et Fiverr.`,
-          url: siteConfig.url,
-          offers: {
-            '@type': 'Offer',
-            availability: 'https://schema.org/InStock',
-            priceCurrency: 'EUR',
-            description: 'Services de scraping et automatisation sur-mesure',
-            priceValidUntil: (() => {
-              const date = new Date();
-              date.setFullYear(date.getFullYear() + 1);
-              return date.toISOString().split('T')[0];
-            })()
-          }
-        }} 
-      />
+
       <main className="flex-auto min-w-0 mt-6 flex flex-col mb-0">
-      <section aria-label="Présentation">
-        <div>
+        <section aria-label="Présentation">
           <LookAtAvatar
             src={siteConfig.profileImage}
             alt="Photo de profil de Corentin Robert"
@@ -219,591 +100,186 @@ export default function Home({ dynamicDatabases = [], marketplaceReviewsCount = 
           />
 
           <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Corentin Robert</h1>
-        </div>
-        <p className="mb-3 text-neutral-800 dark:text-neutral-200 tracking-tight font-medium">
-          Scraping, automatisation et data pour générer du business.
-        </p>
-        <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Freelance, {projectsPhrase} Malt et Fiverr. Journal public de ce que je livre et construis.
-        </p>
-
-        {/* CTA principaux — appel en primaire, journal en lien */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-3">
-          <button
-            type="button"
-            onClick={openCalendly}
-            className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-neutral-900 dark:bg-neutral-100 text-neutral-100 dark:text-neutral-900 text-sm font-medium hover:opacity-90 transition-opacity"
-          >
-            Réserver un appel
-          </button>
-          <Link
-            href="/marketplace?tab=tools"
-            onClick={() => captureCta({ flow: FLOW.marketplace, source: 'home', cta: 'scrapers' })}
-            className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-800 dark:text-neutral-200 hover:border-neutral-400 dark:hover:border-neutral-500 transition-colors"
-          >
-            Scrapers free tier
-          </Link>
-        </div>
-        <p className="mb-8 text-sm text-neutral-500 dark:text-neutral-500 tracking-tight">
-          Journal public →{' '}
-          <Link
-            href="/objectifs"
-            onClick={() => captureCta({ flow: FLOW.journal, source: 'home', cta: 'objectifs' })}
-            className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors"
-          >
-            Progression 2026
-          </Link>
-        </p>
-
-        {/* En ce moment — rythme journal (levels/leerob) */}
-        <div className="mb-8 border-t border-neutral-200 dark:border-neutral-800 pt-5" aria-label="En ce moment">
-          <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-3">
-            En ce moment
+          <p className="mb-3 text-neutral-800 dark:text-neutral-200 tracking-tight font-medium">
+            {siteConfig.homepage.positioning}
           </p>
-          <ul className="space-y-2.5 text-sm text-neutral-600 dark:text-neutral-400">
-            {latestPost?.slug && (
-              <li className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className="text-neutral-500 dark:text-neutral-500 shrink-0">Article</span>
-                <Link
-                  href={`/blog/${latestPost.slug}`}
-                  className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-                >
-                  {latestPost.title}
-                </Link>
-              </li>
-            )}
-            <li className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-              <span className="text-neutral-500 dark:text-neutral-500 shrink-0">Objectifs</span>
-              <Link
-                href="/objectifs"
-                onClick={() => captureCta({ flow: FLOW.journal, source: 'home_now', cta: 'objectifs' })}
-                className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-              >
-                Progression 2026 en public
-              </Link>
-            </li>
-            <li className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-              <span className="text-neutral-500 dark:text-neutral-500 shrink-0">YouTube</span>
-              <a
-                href={siteConfig.social.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => captureCta({ flow: FLOW.journal, source: 'home_now', cta: 'youtube' })}
-                className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-              >
-                Challenge en cours, 1 vidéo / jour
-              </a>
-            </li>
-          </ul>
-        </div>
-        
-        {/* Métriques de confiance — cartes (pas de <a> imbriqués) */}
-        <div className="mb-6 md:mb-8">
-          <div className={`${metricsGridClass}`} aria-label="Métriques de confiance">
-            {homeMetrics.map((metric, index) => {
-              const maltHref = metric.href || siteConfig.social.malt
-              const externalIcon =
-                metric.label === 'projets réalisés' ? (
-                  <a
-                    href={maltHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center hover:opacity-70 transition-opacity text-neutral-400 dark:text-neutral-500"
-                    aria-label="Profil Malt"
-                  >
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                      <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                    </svg>
-                  </a>
-                ) : metric.label === 'abonnés' && metric.source === 'Logement Atypique' ? (
-                  <a
-                    href="https://www.instagram.com/logement.atypique"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center hover:opacity-70 transition-opacity text-neutral-400 dark:text-neutral-500"
-                    aria-label="Instagram Logement Atypique"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" className="bi bi-instagram" viewBox="0 0 16 16" aria-hidden="true">
-                      <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334" />
-                    </svg>
-                  </a>
-                ) : metric.label === 'utilisateurs actifs' || metric.label?.includes('utilisateurs') ? (
-                  <a
-                    href="https://apify.com?fpr=0n7ukq"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center hover:opacity-70 transition-opacity text-neutral-400 dark:text-neutral-500"
-                    aria-label="Voir mes scrapers sur Apify"
-                  >
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                      <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                    </svg>
-                  </a>
-                ) : null
-
-              return (
-                <div
-                  key={metric.label || index}
-                  className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800"
-                >
-                  <div className="text-2xl font-semibold mb-1 text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
-                    <span>{metric.value}</span>
-                    {externalIcon}
-                  </div>
-                  <div className="text-sm text-neutral-600 dark:text-neutral-400">{metric.label}</div>
-                  <div className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
-                    {metric.label === 'projets réalisés' && metric.breakdown ? (
-                      <span className="whitespace-nowrap">
-                        Malt {metric.breakdown.malt} · Fiverr {metric.breakdown.fiverr}
-                      </span>
-                    ) : (
-                      metric.source
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-          <p className="text-sm text-neutral-500 dark:text-neutral-500">
-            Chiffres suivis en public →{' '}
-            <Link
-              href="/objectifs"
+          <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
+            Freelance scraping et automatisation. Une mission, si besoin —{' '}
+            <button
+              type="button"
+              onClick={openCalendly}
               className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors"
             >
-              Objectifs 2026
-            </Link>
+              réserver un appel
+            </button>
+            .
           </p>
-        </div>
-      </section>
 
-      {/* Séparateur visuel — zone Présentation */}
-      <hr className="my-6 border-t border-neutral-200 dark:border-neutral-800" role="presentation" />
-
-      {/* Carrousel de témoignages */}
-      <TestimonialsCarousel />
-
-      <section className="mt-10" aria-label="Questions fréquentes">
-        <h2 className="font-semibold text-xl mb-2 tracking-tighter">Questions fréquentes</h2>
-        <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Prix, délais, légalité. Le reste est dans la{' '}
-          <Link href="/faq" className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100">
-            FAQ
-          </Link>
-          .
-        </p>
-        <FAQ
-          items={HOME_FAQ}
-          onItemOpen={(item) => trackFaqOpened({ question: item.question, source: 'home' })}
-        />
-      </section>
-
-      {/* Challenge YouTube — repliable (le visiteur choisit) */}
-      <details className="home-fold mt-10 mb-2 border-t border-neutral-200 dark:border-neutral-800 pt-5">
-        <summary className="cursor-pointer flex items-center justify-between gap-3 py-1">
-          <div className="min-w-0">
-            <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-1">
-              YouTube · {siteConfig.youtubeChallenge.startLabel}
+          <div className="mb-10 journal-rule pt-5" aria-label="En ce moment">
+            <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-3">
+              En ce moment
             </p>
-            <h2 className="font-semibold text-xl tracking-tighter text-neutral-900 dark:text-neutral-100">
-              {siteConfig.youtubeChallenge.title}
-            </h2>
+            <ul className="space-y-2.5 text-sm text-neutral-600 dark:text-neutral-400">
+              {latestPost?.slug && (
+                <li className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                  <span className="text-neutral-500 dark:text-neutral-500 shrink-0">Article</span>
+                  <Link
+                    href={`/blog/${latestPost.slug}`}
+                    className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                  >
+                    {latestPost.title}
+                  </Link>
+                </li>
+              )}
+              <li className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className="text-neutral-500 dark:text-neutral-500 shrink-0">Objectifs</span>
+                <Link
+                  href="/objectifs"
+                  onClick={() => captureCta({ flow: FLOW.journal, source: 'home_now', cta: 'objectifs' })}
+                  className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                >
+                  Progression 2026 en public
+                </Link>
+              </li>
+              <li className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className="text-neutral-500 dark:text-neutral-500 shrink-0">YouTube</span>
+                <a
+                  href={siteConfig.social.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => captureCta({ flow: FLOW.journal, source: 'home_now', cta: 'youtube' })}
+                  className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                >
+                  Challenge en cours, 1 vidéo / jour
+                </a>
+              </li>
+            </ul>
           </div>
-          <svg className="fold-chevron w-4 h-4 flex-shrink-0 text-neutral-400 dark:text-neutral-500" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-            <path d="M4.646 6.646a.5.5 0 0 1 .708 0L8 9.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708" />
-          </svg>
-        </summary>
-        <a
-          href={siteConfig.social.youtube}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => captureCta({ flow: FLOW.journal, source: 'home_youtube', cta: 'youtube' })}
-          className="group mt-4 block p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                {siteConfig.youtubeChallenge.description}
-              </p>
-              <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-neutral-100 inline-flex items-center gap-1.5">
-                {siteConfig.youtubeChallenge.cta}
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                </svg>
-              </p>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16" className="flex-shrink-0 text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-700 dark:group-hover:text-neutral-300 transition-colors" aria-hidden="true">
-              <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.10.20.0.2.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z" />
-            </svg>
-          </div>
-        </a>
-      </details>
+        </section>
 
-      {/* Séparateur visuel — zone Projets / Contenu */}
-      <hr className="my-12 border-t border-neutral-200 dark:border-neutral-800" role="presentation" />
-
-      <section className="mt-12" aria-label="Ce que je construis">
-        <h2 className="font-semibold text-xl mb-2 tracking-tighter text-neutral-900 dark:text-neutral-100">
-          Ce que je construis
-        </h2>
-        <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Freelance, Outreacher, Logement Atypique.
-        </p>
-        <div className="flex flex-col space-y-4">
-          {siteConfig.projects.filter(project => {
-            const partnerIds = ['contributeurs-apify', 'lemlist', 'zapmail']
-            return project.status === 'active' && !partnerIds.includes(project.id)
-          }).sort((a, b) => {
-            const af = a.featured ? 0 : 1
-            const bf = b.featured ? 0 : 1
-            return af - bf
-          }).map((project) => {
-            const isActive = project.status === 'active'
-            const Component = project.link ? 'a' : 'div'
-
-            const handleClick = () => {
-              if (!project.link || !project.id) return
-              const timestamp = Date.now()
-              const data = JSON.stringify({ projectId: project.id, timestamp })
-              if (navigator.sendBeacon) {
-                const blob = new Blob([data], { type: 'application/json' })
-                navigator.sendBeacon(`/api/projects/click?t=${timestamp}`, blob)
-              } else {
-                fetch(`/api/projects/click?t=${timestamp}`, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Cache-Control': 'no-cache',
-                  },
-                  body: data,
-                  keepalive: true,
-                }).catch((err) => console.error('Error tracking click:', err))
-              }
-            }
-
-            const props = project.link
-              ? {
-                  href: project.link,
-                  target: '_blank',
-                  rel: 'noopener noreferrer',
-                  onClick: handleClick,
-                  className:
-                    'relative flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group',
-                }
-              : {
-                  className:
-                    'flex flex-col p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50',
-                }
-
-            return (
-              <Component key={project.id || project.title} {...props}>
-                <div className="flex items-start gap-3 flex-1 min-w-0 mb-3">
-                  {project.image ? (
-                    <div className="flex-shrink-0 w-6 h-6">
-                      <Image
-                        src={project.image}
-                        alt={project.imageAlt || `${project.title} - ${project.description}`}
-                        width={24}
-                        height={24}
-                        sizes="24px"
-                        loading="lazy"
-                        className={`w-6 h-6 rounded-lg object-cover border border-neutral-200 dark:border-neutral-800 ${!isActive ? 'opacity-50 grayscale' : ''}`}
-                      />
-                    </div>
-                  ) : project.icon ? (
-                    project.icon.startsWith('/') ? (
-                      <div className="flex-shrink-0 w-6 h-6">
-                        <Image
-                          src={project.icon}
-                          alt={project.iconAlt || `${project.title} - ${project.description}`}
-                          width={24}
-                          height={24}
-                          sizes="24px"
-                          loading="lazy"
-                          className={`w-6 h-6 rounded-lg object-contain ${!isActive ? 'opacity-50 grayscale' : ''}`}
-                        />
-                      </div>
-                    ) : (
-                      <div className={`flex-shrink-0 w-6 h-6 flex items-center justify-center text-xl leading-none ${!isActive ? 'opacity-50' : ''}`}>
-                        {project.icon}
-                      </div>
-                    )
-                  ) : null}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start sm:items-center gap-2 mb-1 flex-wrap sm:flex-nowrap">
-                      <h3 className={`font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 flex-1 min-w-0 sm:flex-initial ${!isActive ? 'text-neutral-500 dark:text-neutral-400' : ''}`}>
-                        {project.title}
-                      </h3>
-                      {project.status === 'active' && (
-                        <span className="relative flex h-2 w-2 flex-shrink-0 mt-1 sm:mt-0" title="Projet actif">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                        </span>
-                      )}
-                    </div>
-                    <p className={`text-sm ${isActive ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-500 dark:text-neutral-400'} line-clamp-2`}>
-                      {project.description}
-                    </p>
-                  </div>
-                </div>
-
-                {project.link && (
-                  <div className="pt-3 border-t border-dashed border-neutral-200 dark:border-neutral-800">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0 w-6 h-6"></div>
-                      <div className="flex-1 min-w-0 flex items-center gap-2">
-                        {project.id ? (
-                          <ProjectClickCounter projectId={project.id} clicks={projectClicks[project.id]} />
-                        ) : (
-                          <span></span>
-                        )}
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-neutral-400 dark:text-neutral-500 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-shrink-0">
-                          <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </Component>
-            )
-          })}
-        </div>
-        <div className="mt-4 text-center">
-          <Link
-            href="/a-propos"
-            className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
-          >
-            Voir tous les projets (y compris arrêtés)
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-            </svg>
-          </Link>
-        </div>
-      </section>
-
-      {/* Section Marketplace */}
-      <section className="mt-12" aria-label="Marketplace">
-        <h2 className="font-semibold text-xl mb-2 tracking-tighter">
-          Marketplace
-          {marketplaceReviewsCount > 0 && (
-            <span className="ml-2 text-base font-normal text-neutral-500 dark:text-neutral-400">
-              · {marketplaceReviewsCount} avis client{marketplaceReviewsCount > 1 ? 's' : ''}
-            </span>
-          )}
-        </h2>
-        <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Bases Google Sheets à acheter, les mêmes que je livre à mes clients. Aussi :{' '}
-          <Link href="/marketplace?tab=tools" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-            scrapers Apify en free tier
-          </Link>
-          .
-        </p>
-        <div className="flex flex-col space-y-4">
-          {(() => {
-            const topDatabases = (dynamicDatabases || []).slice(0, 3)
-            return topDatabases.map((tool) => (
-            <DatabaseListRow key={tool.slug || tool.name} tool={tool} variant="bubble" />
-            ))
-          })()}
-        </div>
-        <div className="mt-6 text-center">
-          <Link
-            href="/marketplace"
-            className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
-          >
-            Découvrir la marketplace
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-            </svg>
-          </Link>
-        </div>
-      </section>
-
-      
-      {/* Section Articles business */}
-      <section className="mt-12" aria-label="Articles métier">
-        <h2 className="font-semibold text-xl mb-2 tracking-tighter">Articles métier</h2>
-        <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Scraping, automatisation, freelance et acquisition. Le journal de ce qui construit ma légitimité.
-        </p>
-        <div className="flex flex-col space-y-4">
-          {loading ? (
-            Array.from({ length: 3 }).map((_, i) => <ContentListRowSkeleton key={i} variant="bubble" />)
-          ) : topPosts.length > 0 ? (
-            topPosts.map((post) => {
-              const d = new Date(post.date)
-              const dateLabel = Number.isNaN(d.getTime())
-                ? null
-                : d.toLocaleDateString('fr-FR', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                  })
-              const views = post.views ?? 0
-              return (
-                <ContentListRow
-                  key={post.slug}
-                  href={`/blog/${post.slug}`}
-                  title={post.title}
-                  meta={dateLabel}
-                  description={post.metaDescription || null}
-                  trailing={`${views.toLocaleString('fr-FR')} vue${views === 1 ? '' : 's'}`}
-                  variant="bubble"
-                />
+        <section aria-label="Quatre portes">
+          <h2 className="font-semibold text-xl mb-2 tracking-tighter">Ce que je construis</h2>
+          <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
+            Quatre projets. Une fonction chacun.
+          </p>
+          <ul className="space-y-3 text-sm">
+            {DOORS.map((door) => {
+              const className =
+                'underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors'
+              const title = (
+                <span className="text-neutral-900 dark:text-neutral-100 font-medium">{door.title}</span>
               )
-            })
-          ) : (
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 py-4">
-              Aucun article disponible pour le moment.
-            </p>
-          )}
-        </div>
-        <div className="mt-6 text-center">
-          <Link
-            href="/blog"
-            className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
-          >
-            Voir tous les articles
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-            </svg>
-          </Link>
-        </div>
-      </section>
+              const icon = door.icon ? (
+                <span
+                  className={`inline-flex w-6 h-6 shrink-0 items-center justify-center overflow-hidden ${
+                    door.iconShape === 'round' ? '' : 'rounded-md'
+                  } ${door.iconOnDark === 'plate' ? 'dark:bg-white dark:p-[3px]' : ''}`}
+                >
+                  <img
+                    src={door.icon}
+                    alt=""
+                    width={24}
+                    height={24}
+                    className={`w-full h-full ${
+                      door.iconShape === 'round'
+                        ? 'rounded-full object-cover'
+                        : 'rounded-md object-contain'
+                    }`}
+                  />
+                </span>
+              ) : null
+              return (
+                <li key={door.id} className="flex items-center gap-3">
+                  {icon}
+                  <div className="min-w-0 flex flex-col sm:flex-row sm:flex-wrap sm:items-baseline gap-x-2 gap-y-0.5">
+                    {door.external ? (
+                      <a
+                        href={door.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() =>
+                          captureCta({ flow: FLOW.journal, source: 'home_doors', cta: door.id })
+                        }
+                        className={className}
+                      >
+                        {title}
+                      </a>
+                    ) : (
+                      <Link href="/blog" className={className}>
+                        {title}
+                      </Link>
+                    )}
+                    <span className="text-neutral-600 dark:text-neutral-400">{door.description}</span>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </section>
 
-      {/* Cas d'usage premium sélectionnés manuellement */}
-      <section className="mt-12 mb-8" aria-label="Cas d'usage scraping">
-        <h2 className="font-semibold text-xl mb-2 tracking-tighter">Cas d&apos;usage scraping</h2>
-        <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Exemples concrets dans l’immobilier, la prospection LinkedIn et l’e-commerce.
-        </p>
-        <div className="flex flex-col space-y-4">
-          {topCaseStudiesLoading ? (
-            Array.from({ length: 3 }).map((_, i) => <ContentListRowSkeleton key={i} variant="bubble" />)
-          ) : topCaseStudies.length > 0 ? (
-            topCaseStudies.map((cs) => (
-              <ContentListRow
-                key={cs.slug}
-                href={`/cas-usage/${sectorToSlug(cs.sector || '')}/${cs.slug}`}
-                title={cs.title}
-                meta={cs.sector || null}
-                description={cs.description || null}
-                variant="bubble"
-              />
-            ))
-          ) : null}
-        </div>
-        <div className="mt-6 text-center">
-          <Link
-            href="/cas-usage"
-            className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
-          >
-            Voir tous les cas d&apos;usage
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-            </svg>
-          </Link>
-        </div>
-      </section>
-    </main>
+        <section className="mt-12 mb-8" aria-label="Derniers textes">
+          <h2 className="font-semibold text-xl mb-2 tracking-tighter">Derniers textes</h2>
+          <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
+            Le journal, dans l’ordre.
+          </p>
+          <div className="flex flex-col space-y-4">
+            {latestPosts.length > 0 ? (
+              latestPosts.map((post) => {
+                const d = new Date(post.date)
+                const dateLabel = Number.isNaN(d.getTime())
+                  ? null
+                  : d.toLocaleDateString('fr-FR', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })
+                return (
+                  <ContentListRow
+                    key={post.slug}
+                    href={`/blog/${post.slug}`}
+                    title={post.title}
+                    meta={dateLabel}
+                    description={post.metaDescription || null}
+                    variant="list"
+                  />
+                )
+              })
+            ) : (
+              <p className="text-sm text-neutral-600 dark:text-neutral-400 py-4">
+                Aucun texte pour le moment.
+              </p>
+            )}
+          </div>
+          <div className="mt-6">
+            <Link
+              href="/blog"
+              className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
+            >
+              Tous les textes
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
+              </svg>
+            </Link>
+          </div>
+        </section>
+      </main>
     </>
   )
 }
 
-async function getMarketplaceViewEvents() {
-  try {
-    const data = await withTimeout(fetchBlobJson('marketplace-views-events.json'), 8000, null)
-    return Array.isArray(data) ? data : []
-  } catch (e) {
-    captureDataError(e, { source: 'blob', tags: { area: 'marketplace-views' } })
-    return []
-  }
-}
-
-function lightDatabase(db) {
-  return {
-    name: db.name || null,
-    slug: db.slug || null,
-    category: db.category || null,
-    link: db.link || null,
-    description: db.description || null,
-    benefit: db.benefit || null,
-    shortDescription: db.shortDescription || null,
-    price: db.price ?? null,
-    annualPrice: db.annualPrice ?? null,
-    isPaid: db.isPaid ?? true,
-    rowCount: db.rowCount ?? null,
-    lastEnriched: db.lastEnriched || null,
-    date: db.date || null,
-    views: db.views || 0,
-  }
-}
-
 export async function getStaticProps() {
-  const started = Date.now()
-
-  const postsPromise = getAllPosts().catch((err) => {
+  const posts = await getAllPosts().catch((err) => {
     captureDataError(err, { source: 'notion', tags: { area: 'home-posts' } })
     return []
   })
 
-  const marketplacePromise = Promise.all([
-    import('../lib/marketplace-databases')
-      .then((m) => m.getDatabasesAsTools())
-      .catch((err) => {
-        captureDataError(err, { source: 'blob', tags: { area: 'marketplace-dbs' } })
-        return []
-      }),
-    import('../lib/marketplace-reviews')
-      .then((m) => m.getMarketplaceReviews())
-      .catch((err) => {
-        captureDataError(err, { source: 'blob', tags: { area: 'marketplace-reviews' } })
-        return []
-      }),
-    getMarketplaceViewEvents(),
-  ])
-
-  const posts = await postsPromise
-  const [homeData, [dynamicDatabasesRaw, reviews, events]] = await Promise.all([
-    fetchHomeData(posts).catch((err) => {
-      captureDataError(err, { source: 'blob', tags: { area: 'home-data' } })
-      return null
-    }),
-    marketplacePromise,
-  ])
-
-  let dynamicDatabases = dynamicDatabasesRaw || []
-  try {
-    const viewsMap = {}
-    events.forEach((e) => {
-      if (e.slug && e.category) {
-        const k = `${e.category}/${e.slug}`
-        viewsMap[k] = (viewsMap[k] || 0) + 1
-      }
-    })
-    dynamicDatabases = dynamicDatabases
-      .map((db) => ({ ...db, views: viewsMap[`${db.category}/${db.slug}`] || 0 }))
-      .sort((a, b) => (b.views || 0) - (a.views || 0))
-      .slice(0, 3)
-      .map(lightDatabase)
-  } catch (err) {
-    dynamicDatabases = dynamicDatabases
-      .sort((a, b) => new Date(b.lastEnriched || b.date || 0) - new Date(a.lastEnriched || a.date || 0))
-      .slice(0, 3)
-      .map(lightDatabase)
-  }
-
-  const marketplaceReviewsCount = Array.isArray(reviews) ? reviews.length : 0
-
-  if (process.env.NODE_ENV !== 'production') {
-    console.log(`[home] getStaticProps ${Date.now() - started}ms`)
-  }
+  const homeData = await fetchHomeData(posts).catch((err) => {
+    captureDataError(err, { source: 'blob', tags: { area: 'home-data' } })
+    return null
+  })
 
   return {
-    props: {
-      dynamicDatabases,
-      marketplaceReviewsCount,
-      homeData,
-    },
+    props: { homeData },
     revalidate: 60,
   }
-} 
+}

@@ -98,7 +98,7 @@ export default function Layout({ children }) {
               }`} 
               href="/blog"
             >
-              blog
+              journal
             </Link>
             <Link 
               className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
@@ -108,31 +108,24 @@ export default function Layout({ children }) {
             >
               à propos
             </Link>
-            <Link 
-              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
-                router.pathname === '/marketplace' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
-              }`} 
-              href="/marketplace"
+            <a
+              className="transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md text-neutral-600 dark:text-neutral-400"
+              href={siteConfig.network.datareacher.href}
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              marketplace
-            </Link>
-            <Link 
-              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
-                router.pathname === '/objectifs' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
-              }`} 
-              href="/objectifs"
+              datareacher
+            </a>
+            <a
+              className="transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md text-neutral-600 dark:text-neutral-400"
+              href={siteConfig.network.outreacher.href}
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              objectifs
-            </Link>
+              outreacher
+            </a>
           </div>
           <div className="flex justify-end items-center gap-0.5 max-[480px]:hidden">
-            <button
-              onClick={() => openCalendlyPopup('nav')}
-              type="button"
-              className="transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-2 pr-2 sm:pr-3 rounded-md text-neutral-600 dark:text-neutral-400"
-            >
-              appel
-            </button>
             <button
               aria-label="Toggle Dark Mode"
               type="button"
@@ -157,7 +150,7 @@ export default function Layout({ children }) {
           {children}
         </div>
 
-                <footer className="mt-8 mb-16 px-2 md:px-0">
+                <footer className="journal-rule mt-8 mb-16 pt-8 px-2 md:px-0">
                   {/* Boutons mobile pour dark mode et appel (affichés uniquement sur mobile) */}
                   <div className="flex items-center justify-center gap-4 mb-6 sm:hidden">
                     <button
@@ -186,6 +179,11 @@ export default function Layout({ children }) {
                     </button>
                   </div>
                   <ul className="font-sm mt-8 flex flex-row flex-wrap gap-4 text-neutral-600 dark:text-neutral-300">
+                    <FooterArrowLink href={siteConfig.network.datareacher.href} external>datareacher</FooterArrowLink>
+                    <FooterArrowLink href={siteConfig.network.outreacher.href} external>outreacher</FooterArrowLink>
+                    <FooterArrowLink href={siteConfig.network.logement.href} external>logement atypique</FooterArrowLink>
+                    <FooterArrowLink href="/objectifs" active={router.pathname === '/objectifs'}>objectifs</FooterArrowLink>
+                    <FooterArrowLink href="/marketplace" active={router.pathname === '/marketplace' || router.pathname.startsWith('/marketplace/')}>marketplace</FooterArrowLink>
                     <FooterArrowLink href="/contact" active={router.pathname === '/contact'}>contact</FooterArrowLink>
                     <FooterArrowLink href="/confidentialite" active={router.pathname === '/confidentialite'}>confidentialité</FooterArrowLink>
                     <FooterArrowLink href="/cas-usage" active={router.pathname === '/cas-usage' || router.pathname.startsWith('/cas-usage/')}>cas d&apos;usage</FooterArrowLink>

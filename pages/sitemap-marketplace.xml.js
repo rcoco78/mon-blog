@@ -1,6 +1,5 @@
 import { tools } from '../lib/tools'
 import { getDatabasesAsTools } from '../lib/marketplace-databases'
-import { getEnrichedActorsAsTools } from '../lib/apify-actors-enriched'
 
 const SitemapMarketplace = () => {}
 
@@ -15,19 +14,12 @@ export const getServerSideProps = async ({ res }) => {
     console.error('Erreur lors du chargement des bases de données pour le sitemap:', error)
   }
 
-  let apifyTools = []
-  try {
-    apifyTools = await getEnrichedActorsAsTools()
-  } catch (error) {
-    console.error('Erreur lors du chargement des outils Apify pour le sitemap:', error)
-  }
-
-  const allTools = [...(dynamicDatabases || []), ...(apifyTools || []), ...tools]
+  const allTools = [...(dynamicDatabases || []), ...tools]
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   ${allTools
-    .filter((tool) => tool && tool.link) // Filtrer les outils sans lien
+    .filter((tool) => tool && tool.link && !String(tool.link).includes('/marketplace/outils/'))
     .map((tool) => {
       return `
   <url>
@@ -51,4 +43,3 @@ export const getServerSideProps = async ({ res }) => {
 }
 
 export default SitemapMarketplace
-

@@ -7,7 +7,7 @@
 import Link from 'next/link'
 
 const variants = {
-  list: 'group flex items-start justify-between gap-4 py-4 border-b border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors',
+  list: 'group flex items-start justify-between gap-4 py-4 border-b border-dashed border-neutral-300 dark:border-neutral-700 hover:border-neutral-500 dark:hover:border-neutral-500 transition-colors',
   bubble:
     'group flex items-start justify-between gap-4 p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors',
 }
@@ -96,7 +96,7 @@ export function ContentListRowSkeleton({ variant = 'list' }) {
   }
 
   return (
-    <div className="py-4 border-b border-neutral-200 dark:border-neutral-800 animate-pulse">
+    <div className="py-4 border-b border-dashed border-neutral-300 dark:border-neutral-700 animate-pulse">
       <div className="h-5 w-2/3 bg-neutral-200 dark:bg-neutral-800 rounded mb-2" />
       <div className="h-3 w-1/3 bg-neutral-200 dark:bg-neutral-800 rounded mb-2" />
       <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded" />

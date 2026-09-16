@@ -5,6 +5,7 @@
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-rgb: 255, 255, 255;
+  --line-style-chrome: dashed;
 }
 
 .dark {
@@ -20,6 +21,12 @@ body {
 }
 
 @layer components {
+  /* Trait journal : dashed comme le chrome SaaS, sans tokens paper/ink */
+  .journal-rule {
+    @apply border-0 border-t border-neutral-300 dark:border-neutral-700;
+    border-top-style: var(--line-style-chrome);
+  }
+
   .nav-link {
     @apply transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 m-1;
   }
