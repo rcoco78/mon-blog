@@ -159,16 +159,6 @@
       "permanent": true
     },
     {
-      "source": "/marketplace/outils/%5Bslug%5D",
-      "destination": "https://datareacher.fr",
-      "permanent": true
-    },
-    {
-      "source": "/marketplace/outils/:path*",
-      "destination": "https://datareacher.fr",
-      "permanent": true
-    },
-    {
       "source": "/marketplace/category",
       "destination": "/marketplace",
       "permanent": true

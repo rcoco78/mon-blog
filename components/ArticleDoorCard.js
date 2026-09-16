@@ -3,19 +3,19 @@ import { getArticleDoor } from '../lib/article-door'
 
 const COPY = {
   datareacher: {
-    kicker: 'Pour aller plus loin',
-    line: 'Listes, scripts, data — tu as ta liste ce soir.',
-    cta: 'Ouvrir Datareacher',
+    kicker: 'Dans le même fil — données',
+    line: 'Je rassemble sur Datareacher les scripts et les listes liés à ces sujets.',
+    cta: 'Voir les ressources sur Datareacher',
   },
   outreacher: {
-    kicker: 'Pour aller plus loin',
-    line: 'Outbound : une campagne en 14 jours, tu appuies sur envoi.',
-    cta: 'Ouvrir Outreacher',
+    kicker: 'Dans le même fil — outbound',
+    line: 'Outreacher prolonge ces notes avec mes ressources consacrées aux campagnes.',
+    cta: 'Voir les ressources sur Outreacher',
   },
 }
 
 /**
- * Encart de fin d’article : une porte unique (lien souligné, noir / blanc).
+ * Note de fin d’article : une ressource contextuelle selon le sujet.
  */
 export default function ArticleDoorCard({ post }) {
   const door = getArticleDoor(post, siteConfig.network)

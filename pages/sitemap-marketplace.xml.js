@@ -1,4 +1,3 @@
-import { tools } from '../lib/tools'
 import { getDatabasesAsTools } from '../lib/marketplace-databases'
 
 const SitemapMarketplace = () => {}
@@ -14,12 +13,10 @@ export const getServerSideProps = async ({ res }) => {
     console.error('Erreur lors du chargement des bases de données pour le sitemap:', error)
   }
 
-  const allTools = [...(dynamicDatabases || []), ...tools]
-
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  ${allTools
-    .filter((tool) => tool && tool.link && !String(tool.link).includes('/marketplace/outils/'))
+  ${(dynamicDatabases || [])
+    .filter((tool) => tool && tool.link)
     .map((tool) => {
       return `
   <url>

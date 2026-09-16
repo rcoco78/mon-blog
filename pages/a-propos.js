@@ -212,13 +212,16 @@ export default function About() {
         <h1 className="font-semibold text-2xl mb-8 tracking-tighter">À propos</h1>
         
         <p className="mb-3 text-neutral-800 dark:text-neutral-200 tracking-tight font-medium">
-          Fondateur · Outreacher · Datareacher · Logement Atypique.
+          Je construis Datareacher, Outreacher et Logement Atypique avec Siméon.
         </p>
         <p className="mb-3 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Ici, c&apos;est le journal. Je scrappe, j&apos;automatise, je livre de la data. Pour des dirigeants qui veulent des résultats — pas une stack à gérer.
+          Avant, il y a eu le growth chez Airbnb et Shine, puis InstaNinja, monté
+          jusqu&apos;à environ 10K€ de MRR. Aujourd&apos;hui, les missions freelance en
+          scraping et automatisation restent mon terrain quotidien.
         </p>
         <p className="mb-8 text-sm text-neutral-500 dark:text-neutral-500 tracking-tight">
-          28 ans, Paris. Avant : growth chez Airbnb, Shine, papernest. Aujourd&apos;hui : trois casquettes fondateur, plus le freelance.
+          Ce journal relie ces expériences, les trois projets en cours et ce qui
+          m&apos;occupe hors écran : handball, Hyrox et échecs.
         </p>
 
         {/* Mini timeline métier */}

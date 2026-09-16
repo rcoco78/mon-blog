@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { getAllPosts } from '../lib/notion'
 import { list } from '@vercel/blob'
@@ -12,7 +11,6 @@ import StructuredData from '../components/seo/StructuredData'
 import FAQ from '../components/FAQ'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
-import { openCalendlyPopup } from '../lib/calendly'
 
 function TagFilter({ tags, selectedTag, onTagSelect }) {
   const [showMore, setShowMore] = useState(false)
@@ -100,36 +98,8 @@ export default function Blog({ posts }) {
   const [allViews, setAllViews] = useState({})
   const [blogStats, setBlogStats] = useState(null)
   const [blogStatsLoading, setBlogStatsLoading] = useState(true)
-  const [showVideo, setShowVideo] = useState(false)
-  const [videoSeen, setVideoSeen] = useState(false)
   const [displayedCount, setDisplayedCount] = useState(12)
   const POSTS_PER_PAGE = 12
-
-  // URL de la vidéo Tella
-  const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
-  const videoEmbedUrl = 'https://www.tella.tv/video/vid_cmjylsyom00bn04la9dfs342e/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0'
-
-  // Vérifier si la vidéo a déjà été vue
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const seen = localStorage.getItem('profileVideoSeen') === 'true'
-      setVideoSeen(seen)
-    }
-  }, [])
-
-  // Ouvrir la popup vidéo
-  const handleVideoClick = () => {
-    setShowVideo(true)
-  }
-
-  // Marquer la vidéo comme vue quand on ferme la popup (après avoir regardé)
-  const handleCloseVideo = () => {
-    setShowVideo(false)
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('profileVideoSeen', 'true')
-      setVideoSeen(true)
-    }
-  }
 
   // Sync searchText with URL ?search= (pour SearchAction schema)
   useEffect(() => {
@@ -256,9 +226,6 @@ export default function Blog({ posts }) {
     router.replace(url, undefined, { shallow: true })
   }
 
-  const openCalendly = () => openCalendlyPopup('blog')
-
-
   const pageSEO = generatePageSEO({
     title: siteConfig.seo.pages.blog.title,
     description: siteConfig.seo.pages.blog.description,
@@ -266,39 +233,22 @@ export default function Blog({ posts }) {
     keywords: siteConfig.seo.pages.blog.keywords
   })
 
-  // Structured Data pour FAQ
   const faqData = {
     questions: [
       {
         '@type': 'Question',
-        name: 'Qu\'est-ce que le scraping et comment ça peut aider mon business ?',
+        name: 'Que trouve-t-on dans ce journal ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Le scraping (ou web scraping) est une technique qui permet d\'extraire automatiquement des données depuis des sites web. Concrètement, cela vous permet de : collecter des données concurrentielles (prix, produits, avis), générer des leads qualifiés (contacts, profils LinkedIn), automatiser votre veille marché, enrichir vos bases de données existantes. Par exemple, un agent immobilier peut extraire tous les biens disponibles dans une zone, un e-commerçant peut suivre les prix de ses concurrents, un growth marketeux peut construire des listes de prospects ciblés. L\'objectif : transformer des tâches manuelles chronophages en processus automatisés qui tournent 24/7.'
+          text: 'Des notes de terrain sur le scraping, l’automatisation, l’outbound, les missions freelance et les projets que je construis.'
         }
       },
       {
         '@type': 'Question',
-        name: 'Quel est le ROI réel de l\'automatisation pour mon entreprise ?',
+        name: 'Par où commencer ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'L\'automatisation génère du ROI de plusieurs façons : 1) Gain de temps : libérer 10-20h/semaine de tâches répétitives pour vous concentrer sur la stratégie, 2) Réduction d\'erreurs : éliminer les erreurs humaines dans la saisie ou la collecte de données, 3) Scalabilité : traiter 100x plus de données sans augmenter les coûts, 4) Décisions rapides : avoir des données à jour en temps réel pour prendre des décisions éclairées. Exemple concret : un scraper qui collecte les prix concurrents quotidiennement vous fait gagner 5h/semaine et vous permet d\'ajuster vos prix en temps réel. Sur un an, c\'est 260h économisées + meilleure compétitivité.'
-        }
-      },
-      {
-        '@type': 'Question',
-        name: 'Pourquoi choisir un freelance plutôt qu\'une agence ou un dev interne ?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: '3 avantages clés : 1) Rapidité : livraison en moins d\'une semaine vs 1-2 mois pour une agence, 2) Coûts maîtrisés : pas de frais de structure, tarifs transparents, pas de coûts récurrents si vous n\'avez pas besoin de maintenance, 3) Expertise ciblée : 183+ projets Malt en scraping/automatisation vs un dev interne qui doit tout apprendre. Un freelance spécialisé apporte aussi flexibilité : vous payez uniquement pour ce dont vous avez besoin, sans engagement long terme. Parfait pour tester une idée rapidement ou traiter un besoin ponctuel.'
-        }
-      },
-      {
-        '@type': 'Question',
-        name: 'Est-ce légal de scraper des sites web ?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Oui, le scraping est légal dans la plupart des cas, à condition de respecter : 1) Les robots.txt et conditions d\'utilisation du site, 2) Le RGPD si vous collectez des données personnelles, 3) Les bonnes pratiques (ne pas surcharger les serveurs, respecter les limites de taux). Je m\'assure toujours que vos projets respectent la légalité. Pour les données publiques (prix, produits, annonces), c\'est généralement autorisé. Pour les données personnelles (emails, profils privés), il faut un consentement ou une base légale. On en discute ensemble pour garantir la conformité de votre projet.'
+          text: 'Les articles les plus lus donnent un premier aperçu. La recherche et les tags permettent ensuite de suivre un sujet précis.'
         }
       }
     ]
@@ -307,7 +257,7 @@ export default function Blog({ posts }) {
   // Structured Data pour Blog
   const blogStructuredData = {
     name: 'Blog - Corentin Robert',
-    description: 'Articles, réflexions et partages sur l\'entrepreneuriat, le scraping, l\'automatisation, le voyage et bien plus.',
+    description: 'Notes de terrain sur la data, l’outbound, le freelance et les projets en cours.',
     url: `${siteConfig.url}/blog`,
     blogPost: posts.slice(0, 10).map(post => ({
       '@type': 'BlogPosting',
@@ -322,37 +272,15 @@ export default function Blog({ posts }) {
       <SEOHead {...pageSEO} />
       <StructuredData type="Blog" data={blogStructuredData} />
       <StructuredData type="FAQPage" data={faqData} />
-      
-      {/* Review Schema 5* par défaut */}
-      <StructuredData
-        type="Review"
-        data={{
-          itemReviewed: {
-            '@type': 'CreativeWork',
-            name: 'Blog - Corentin Robert',
-            url: `${siteConfig.url}/blog`
-          },
-          reviewRating: {
-            '@type': 'Rating',
-            ratingValue: '5',
-            bestRating: '5',
-            worstRating: '1'
-          },
-          author: {
-            '@type': 'Person',
-            name: 'Lecteur satisfait'
-          },
-          reviewBody: 'Blog expert sur le scraping, l\'automatisation et l\'entrepreneuriat. Articles pratiques, cas d\'usage concrets et retours d\'expérience pour automatiser vos processus business.',
-          datePublished: new Date().toISOString().split('T')[0]
-        }}
-      />
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
         <section className="mb-6">
           <h1 className="font-semibold text-2xl mb-4 tracking-tighter">
             Blog
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400 mb-0 tracking-tight">
-            Réflexions sur le <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong>, l'<strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> et l'<strong className="text-neutral-900 dark:text-neutral-100">entrepreneuriat</strong>. Cas d'usage business, retours d'expérience et partage de bonnes pratiques pour automatiser vos processus.
+            Notes de terrain sur le scraping, l&apos;automatisation, l&apos;outbound et
+            la vie de freelance. J&apos;y documente aussi Datareacher, Outreacher et
+            Logement Atypique au fil de leur construction.
           </p>
         </section>
 
@@ -556,140 +484,40 @@ export default function Blog({ posts }) {
         </section>
 
         <section className="mb-16">
-          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Questions fréquentes</h2>
+          <h2 className="font-semibold text-xl mb-6 tracking-tighter">À propos du journal</h2>
           <FAQ
             items={[
               {
-                question: "Qu'est-ce que le scraping et comment ça peut aider mon business ?",
-                answer: "Le scraping (ou web scraping) est une technique qui permet d'extraire automatiquement des données depuis des sites web. Concrètement, cela vous permet de : collecter des données concurrentielles (prix, produits, avis), générer des leads qualifiés (contacts, profils LinkedIn), automatiser votre veille marché, enrichir vos bases de données existantes. Par exemple, un agent immobilier peut extraire tous les biens disponibles dans une zone, un e-commerçant peut suivre les prix de ses concurrents, un growth marketeux peut construire des listes de prospects ciblés. L'objectif : transformer des tâches manuelles chronophages en processus automatisés qui tournent 24/7."
+                question: "Que trouve-t-on dans ce journal ?",
+                answer: "Des notes de terrain sur le scraping, l’automatisation, l’outbound, les missions freelance et les projets que je construis."
               },
               {
-                question: "Quel est le ROI réel de l'automatisation pour mon entreprise ?",
-                answer: "L'automatisation génère du ROI de plusieurs façons : 1) Gain de temps : libérer 10-20h/semaine de tâches répétitives pour vous concentrer sur la stratégie, 2) Réduction d'erreurs : éliminer les erreurs humaines dans la saisie ou la collecte de données, 3) Scalabilité : traiter 100x plus de données sans augmenter les coûts, 4) Décisions rapides : avoir des données à jour en temps réel pour prendre des décisions éclairées. Exemple concret : un scraper qui collecte les prix concurrents quotidiennement vous fait gagner 5h/semaine et vous permet d'ajuster vos prix en temps réel. Sur un an, c'est 260h économisées + meilleure compétitivité."
-              },
-              {
-                question: "Pourquoi choisir un freelance plutôt qu'une agence ou un dev interne ?",
-                answer: "3 avantages clés : 1) Rapidité : livraison en moins d'une semaine vs 1-2 mois pour une agence, 2) Coûts maîtrisés : pas de frais de structure, tarifs transparents, pas de coûts récurrents si vous n'avez pas besoin de maintenance, 3) Expertise ciblée : 183+ projets Malt en scraping/automatisation vs un dev interne qui doit tout apprendre. Un freelance spécialisé apporte aussi flexibilité : vous payez uniquement pour ce dont vous avez besoin, sans engagement long terme. Parfait pour tester une idée rapidement ou traiter un besoin ponctuel."
-              },
-              {
-                question: "Pourquoi ce blog ?",
-                answer: "Ce blog est né d'une volonté de partager mes réflexions sur le scraping, l'automatisation et l'entrepreneuriat. Pas seulement des tutoriels techniques, mais aussi des cas d'usage business, des réflexions sur le métier de freelance, et des retours d'expérience sur mes projets. Vous y trouverez des articles variés : scraping, automatisation, entrepreneuriat, voyage, et bien d'autres sujets qui me passionnent. L'objectif : créer du lien, partager mes apprentissages, et révéler ma personnalité au-delà du simple prestataire."
+                question: "Par où commencer ?",
+                answer: "Les articles les plus lus donnent un premier aperçu. La recherche et les tags permettent ensuite de suivre un sujet précis."
               }
             ]}
           />
         </section>
 
-        <section className="mb-12 md:mb-16 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-center" aria-label="Contact">
-          <div className="flex flex-col items-center mb-6">
-            <div 
-              className="relative inline-block mb-4 group cursor-pointer p-[2px] rounded-full"
-              onClick={handleVideoClick}
-            >
-              <svg 
-                className="absolute inset-0"
-                style={{ 
-                  width: 'calc(100% + 4px)', 
-                  height: 'calc(100% + 4px)',
-                  margin: '-2px',
-                  transform: 'rotate(-90deg)'
-                }}
-                viewBox="0 0 70 70"
-              >
-                <defs>
-                  <linearGradient id="instagram-gradient-blog" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#f09433" />
-                    <stop offset="25%" stopColor="#e6683c" />
-                    <stop offset="50%" stopColor="#dc2743" />
-                    <stop offset="75%" stopColor="#cc2366" />
-                    <stop offset="100%" stopColor="#bc1888" />
-                  </linearGradient>
-                </defs>
-                <circle
-                  cx="35"
-                  cy="35"
-                  r="33"
-                  fill="none"
-                  stroke={videoSeen ? "#a3a3a3" : "url(#instagram-gradient-blog)"}
-                  strokeWidth="2"
-                  strokeDasharray="207.35"
-                  strokeDashoffset={videoSeen ? "0" : "207.35"}
-                  className={videoSeen ? "" : "animate-draw-circle"}
-                  style={{
-                    transformOrigin: '35px 35px',
-                    transition: videoSeen ? 'stroke 0.5s ease-out' : 'none'
-                  }}
-                />
-              </svg>
-              <div className="rounded-full bg-white dark:bg-neutral-900 p-[2px]">
-                <Image
-                  src={siteConfig.profileImage}
-                  alt="Photo de profil de Corentin Robert"
-                  width={64}
-                  height={64}
-                  className="w-16 h-16 rounded-full object-cover transition-all group-hover:opacity-90"
-                  style={{ objectPosition: 'center 30%' }}
-                  priority
-                />
-              </div>
-              {/* Overlay grisé avec icône play au hover */}
-              <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/70 dark:bg-neutral-900/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-play text-white" viewBox="0 0 16 16">
-                  <path d="M10.804 8 5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z"/>
-                </svg>
-              </div>
-            </div>
-            
-            {/* Popup vidéo */}
-            {showVideo && videoEmbedUrl && (
-              <div 
-                className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-4 bg-neutral-900/80 dark:bg-neutral-900/80 backdrop-blur-sm"
-                onClick={handleCloseVideo}
-              >
-                <div 
-                  className="relative w-full max-w-[280px] md:max-w-sm rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xl"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    onClick={handleCloseVideo}
-                    className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-neutral-900/90 dark:bg-neutral-100/90 text-white dark:text-neutral-900 hover:bg-neutral-900 dark:hover:bg-neutral-100 transition-colors"
-                    aria-label="Fermer la vidéo"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
-                    </svg>
-                  </button>
-                  <div style={{ position: 'relative', paddingBottom: '177.78%', height: 0 }}>
-                    <iframe
-                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
-                      src={videoEmbedUrl}
-                      allowFullScreen
-                      allowTransparency
-                      title="Présentation de Corentin Robert"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            <h2 className="font-semibold text-xl mb-4 tracking-tighter">Une question après lecture ?</h2>
-          </div>
+        <section className="mb-12 md:mb-16 pt-8 journal-rule text-center" aria-label="Continuer la lecture">
+          <h2 className="font-semibold text-xl mb-4 tracking-tighter">Continuer le fil</h2>
           <p className="text-neutral-600 dark:text-neutral-400 mb-6 max-w-xl mx-auto">
-            Discutons de votre projet de scraping ou d'automatisation.
+            Recevez les prochains textes, ou venez poursuivre la conversation sur LinkedIn.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-            <button
-              onClick={openCalendly}
+            <Link
+              href="/newsletter"
               className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
             >
-              Discutons-en
-            </button>
+              Lire la suite par email
+            </Link>
             <Link 
               href={siteConfig.social.linkedin}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block px-6 py-3 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
             >
-              Me contacter sur LinkedIn
+              Suivre sur LinkedIn
             </Link>
           </div>
         </section>

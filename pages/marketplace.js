@@ -9,7 +9,6 @@ import FAQ from '../components/FAQ'
 import DatabaseListRow from '../components/marketplace/DatabaseListRow'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
-import { tools } from '../lib/tools'
 import { averageStarRating } from '../lib/rating'
 import { openCalendlyPopup } from '../lib/calendly'
 
@@ -61,8 +60,8 @@ export default function Marketplace({
     { value: '200+', label: '200€+', min: 201, max: Infinity }
   ]
 
-  // Fusionner les outils statiques et les bases de données dynamiques
-  const allTools = [...(dynamicDatabases || []), ...tools]
+  // Cette page ne liste que les bases Google Sheets. Les scripts sont sur Datareacher.
+  const allTools = dynamicDatabases || []
   
   // Extraire les catégories uniques dynamiquement depuis les bases de données uniquement
   const categories = Array.from(
@@ -196,7 +195,7 @@ export default function Marketplace({
         name: 'Puis-je avoir une base de données sur-mesure adaptée à mon secteur ?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Absolument ! Si vous avez besoin d\'une base de données spécifique pour votre secteur d\'activité, je peux la créer sur-mesure. Le processus : 1) On discute de votre besoin (appel de 20 min gratuit), 2) Je vous propose une solution avec devis et délais, 3) Collecte et structuration des données selon vos critères, 4) Livraison dans le format de votre choix (Google Sheets, CSV, Excel, API). Tarifs : à partir de 2000€ selon la complexité et le volume. Contactez-moi pour discuter de votre projet.'
+          text: 'Oui. Une base spécifique peut être cadrée puis livrée en Google Sheets, CSV ou Excel selon les données et le format attendus.'
         }
       }
     ]
@@ -218,8 +217,8 @@ export default function Marketplace({
   // Note moyenne réelle (1 décimale) — Number() pour éviter la concat string ("5"+"5"=55)
   const avgRating =
     marketplaceReviews.length > 0
-      ? String(averageStarRating(marketplaceReviews.map((r) => r.rating)) ?? 5)
-      : '5'
+      ? String(averageStarRating(marketplaceReviews.map((r) => r.rating)))
+      : null
   const displayStars = (n) => {
     const filled = Math.min(5, Math.max(0, Math.round(n)))
     return '★'.repeat(filled) + '☆'.repeat(5 - filled)
@@ -229,7 +228,6 @@ export default function Marketplace({
     <>
       <SEOHead {...pageSEO} />
       
-      {/* Product Schema avec aggregateRating — pour afficher ⭐ 5/5 dans Google */}
       <StructuredData
         type="Product"
         data={{
@@ -244,20 +242,27 @@ export default function Marketplace({
             availability: 'https://schema.org/InStock',
             priceValidUntil: getPriceValidUntil()
           },
-          aggregateRating: {
-            '@type': 'AggregateRating',
-            ratingValue: avgRating,
-            reviewCount: String(Math.max(1, marketplaceReviews.length)),
-            bestRating: '5',
-            worstRating: '1'
-          },
-          review: {
-            '@type': 'Review',
-            author: { '@type': 'Person', name: siteConfig.author, url: siteConfig.url },
-            reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5', worstRating: '1' },
-            reviewBody: 'Marketplace de bases de données pour la prospection et l\'analyse business. Bases de données vérifiées, structurées et régulièrement mises à jour, prêtes à l\'emploi pour enrichir vos CRM et optimiser vos campagnes de prospection.',
-            datePublished: '2024-01-01'
-          }
+          ...(marketplaceReviews.length > 0 && {
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: avgRating,
+              reviewCount: String(marketplaceReviews.length),
+              bestRating: '5',
+              worstRating: '1'
+            },
+            review: marketplaceReviews.map((review) => ({
+              '@type': 'Review',
+              author: { '@type': 'Person', name: review.authorName },
+              reviewRating: {
+                '@type': 'Rating',
+                ratingValue: String(review.rating),
+                bestRating: '5',
+                worstRating: '1'
+              },
+              reviewBody: review.reviewBody,
+              ...(review.createdAt && { datePublished: review.createdAt })
+            }))
+          })
         }}
       />
       <StructuredData type="ItemList" data={toolsStructuredData} />
@@ -406,7 +411,7 @@ export default function Marketplace({
             <h2 className="font-semibold text-xl mb-6 tracking-tighter">
               Avis clients
               <span className="ml-2 text-base font-normal text-neutral-500 dark:text-neutral-400">
-                ({marketplaceReviews.length} avis vérifié{marketplaceReviews.length > 1 ? 's' : ''})
+                ({marketplaceReviews.length})
               </span>
             </h2>
             <div className="divide-y divide-neutral-200 dark:divide-neutral-800 border-t border-neutral-200 dark:border-neutral-800">
@@ -486,11 +491,7 @@ export default function Marketplace({
               },
               {
                 question: "Puis-je avoir une base de données sur-mesure adaptée à mon secteur ?",
-                answer: "Absolument ! Si vous avez besoin d'une base de données spécifique pour votre secteur d'activité, je peux la créer sur-mesure. Le processus : 1) On discute de votre besoin (appel de 20 min gratuit), 2) Je vous propose une solution avec devis et délais, 3) Collecte et structuration des données selon vos critères, 4) Livraison dans le format de votre choix (Google Sheets, CSV, Excel, API). Tarifs : à partir de 2000€ selon la complexité et le volume. Contactez-moi pour discuter de votre projet."
-              },
-              {
-                question: "Puis-je intégrer les bases de données avec mes outils existants (CRM, Excel, etc.) ?",
-                answer: "Oui, toutes les bases de données sont livrées dans des formats standards (Google Sheets, CSV, Excel) que vous pouvez importer directement dans n'importe quel CRM (HubSpot, Salesforce, Pipedrive), Excel, Google Sheets, ou base de données. Pour des intégrations automatiques (API, webhooks, Zapier), je peux développer une solution sur-mesure qui synchronise automatiquement les données avec vos outils. Exemple : une base de données qui s'alimente automatiquement dans votre CRM toutes les semaines. On discute de votre stack technique et je propose la meilleure solution d'intégration."
+                answer: "Oui. Une base spécifique peut être cadrée puis livrée en Google Sheets, CSV ou Excel selon les données et le format attendus."
               }
             ]}
           />
@@ -710,7 +711,20 @@ export async function getServerSideProps({ query }) {
     const { getMarketplaceReviews } = await import('../lib/marketplace-reviews')
     const { categoryToSlug } = await import('../lib/marketplace-helpers')
     const raw = await getMarketplaceReviews()
-    marketplaceReviews = raw.map(({ id, authorName, companyName, reviewBody, productName, productSlug, linkedinUrl, createdAt, rating }) => {
+    marketplaceReviews = raw
+      .filter((review) => {
+        const author = `${review.authorName || ''} ${review.companyName || ''}`.trim()
+        const linkedIn = review.linkedinUrl || ''
+        return (
+          author &&
+          review.reviewBody?.trim() &&
+          review.productSlug &&
+          /linkedin\.com\/(in|company)\//i.test(linkedIn) &&
+          !/corentin\s+robert/i.test(author) &&
+          !/linkedin\.com\/in\/(robertcorentin|cycling-corsica)/i.test(linkedIn)
+        )
+      })
+      .map(({ id, authorName, companyName, reviewBody, productName, productSlug, linkedinUrl, createdAt, rating }) => {
       const tool = dynamicDatabases?.find((t) => t.slug === productSlug)
       const productLink = tool ? `/marketplace/${categoryToSlug(tool.category)}/${productSlug}` : null
       const r = parseInt(rating, 10)
@@ -725,7 +739,7 @@ export async function getServerSideProps({ query }) {
         createdAt,
         rating: (r >= 1 && r <= 5) ? r : 5
       }
-    })
+      })
   } catch (err) {
     console.warn('Erreur chargement avis marketplace:', err?.message)
   }

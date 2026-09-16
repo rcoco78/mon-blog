@@ -9,7 +9,6 @@ import { generatePageSEO } from '../lib/seo'
 import ContentListRow from '../components/ContentListRow'
 import { getProjectsCountPhrase } from '../lib/project-count'
 import { captureDataError } from '../lib/sentry'
-import { openCalendlyPopup } from '../lib/calendly'
 import { captureCta } from '../lib/posthog-client'
 import { FLOW } from '../lib/posthog-events'
 
@@ -25,7 +24,6 @@ export default function Home({ homeData }) {
   const latestPost = homeData?.latestPost ?? null
   const metrics = homeData?.metrics ?? siteConfig.metrics
   const projectsPhrase = getProjectsCountPhrase(metrics)
-  const openCalendly = () => openCalendlyPopup('home')
 
   const pageSEO = generatePageSEO({
     title: 'Journal — data, outbound, ce que je construis',
@@ -103,16 +101,13 @@ export default function Home({ homeData }) {
           <p className="mb-3 text-neutral-800 dark:text-neutral-200 tracking-tight font-medium">
             {siteConfig.homepage.positioning}
           </p>
+          <p className="mb-3 text-neutral-600 dark:text-neutral-400 tracking-tight">
+            D&apos;Airbnb et Shine à InstaNinja (environ 10K€ de MRR), puis aux missions
+            freelance : je note ici ce que le terrain m&apos;apprend.
+          </p>
           <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Freelance scraping et automatisation. Une mission, si besoin —{' '}
-            <button
-              type="button"
-              onClick={openCalendly}
-              className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors"
-            >
-              réserver un appel
-            </button>
-            .
+            Aujourd&apos;hui, je construis Datareacher, Outreacher et Logement Atypique
+            avec Siméon.
           </p>
 
           <div className="mb-10 journal-rule pt-5" aria-label="En ce moment">
@@ -148,7 +143,7 @@ export default function Home({ homeData }) {
         <section aria-label="Quatre portes">
           <h2 className="font-semibold text-xl mb-2 tracking-tighter">Ce que je construis</h2>
           <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Quatre projets. Une fonction chacun.
+            Trois projets en cours, et ce journal pour garder une trace.
           </p>
           <ul className="space-y-3 text-sm">
             {DOORS.map((door) => {

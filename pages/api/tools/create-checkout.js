@@ -127,33 +127,6 @@ export default async function handler(req, res) {
     }
   }
 
-  // Si toujours pas trouvé, chercher dans les outils Apify
-  if (!tool) {
-    try {
-      const { getAllEnrichedActors } = await import('../../../lib/apify-actors-enriched')
-      const { apifyActorToTool } = await import('../../../lib/apify-actors')
-      const actors = await getAllEnrichedActors()
-      const actor = actors.find(a => (a.slug || a.name) === toolId)
-      
-      if (actor) {
-        const toolFormatted = apifyActorToTool(actor)
-        tool = {
-          name: toolFormatted.name,
-          price: 5, // Prix fixe de 5€ pour l'accès aux résultats complets
-          description: toolFormatted.description,
-          image: undefined,
-          features: [
-            'Accès à tous les résultats',
-            'Export des données',
-            'Support prioritaire'
-          ]
-        }
-      }
-    } catch (error) {
-      console.error('Erreur chargement outil Apify:', error)
-    }
-  }
-  
   if (!tool) {
     return res.status(404).json({ error: 'Tool not found' })
   }
@@ -287,21 +260,13 @@ export default async function handler(req, res) {
       locale: 'fr',
       // Créer un Customer pour sauvegarder les infos (adresse, TVA, nom entreprise)
       customer_creation: 'always',
-      // URLs de retour : outil Apify (marketplace/outils) vs base de données (marketplace ou /outils)
+      // URLs de retour : bases marketplace ou outils locaux hors marketplace
       success_url: (() => {
-        const isApifyTool = !toolPrices[toolId] && (toolId.includes('-scraper') || toolId.includes('airbnb') || toolId.includes('immobilier'))
-        if (isApifyTool) {
-          return `${req.headers.origin}/marketplace/outils/${toolId}?payment=success&session_id={CHECKOUT_SESSION_ID}&type=${isSubscription ? 'subscription' : 'one-time'}`
-        }
         const isMarketplaceTool = toolPrices[toolId] === undefined
         const basePath = isMarketplaceTool ? '/marketplace' : '/outils'
         return `${req.headers.origin}${basePath}/${toolId}?payment=success&session_id={CHECKOUT_SESSION_ID}&type=${isSubscription ? 'subscription' : 'one-time'}`
       })(),
       cancel_url: (() => {
-        const isApifyTool = !toolPrices[toolId] && (toolId.includes('-scraper') || toolId.includes('airbnb') || toolId.includes('immobilier'))
-        if (isApifyTool) {
-          return `${req.headers.origin}/marketplace/outils/${toolId}?payment=cancel`
-        }
         const isMarketplaceTool = toolPrices[toolId] === undefined
         const basePath = isMarketplaceTool ? '/marketplace' : '/outils'
         return `${req.headers.origin}${basePath}/${toolId}?payment=cancelled`

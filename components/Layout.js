@@ -1,9 +1,8 @@
 import Link from 'next/link'
 import { useTheme } from 'next-themes'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { siteConfig } from '../lib/config'
-import { openCalendlyPopup } from '../lib/calendly'
 
 const ArrowIcon = () => (
   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -11,27 +10,18 @@ const ArrowIcon = () => (
   </svg>
 )
 
-function FooterArrowLink({ href, children, active, external, isPlaying, title, onHover }) {
+function FooterArrowLink({ href, children, active, external, title }) {
   const linkClass = `flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100 ${active ? 'text-neutral-900 dark:text-neutral-100 font-medium' : ''}`
-  const hoverProps = onHover ? { onMouseEnter: onHover, onFocus: onHover } : {}
   const content = (
     <>
       <ArrowIcon />
-      <p className="ml-2 h-7">
-        {children}
-        {isPlaying && (
-          <span className="relative inline-flex h-2 w-2 ml-2 align-middle">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-          </span>
-        )}
-      </p>
+      <p className="ml-2 h-7">{children}</p>
     </>
   )
   if (external) {
     return (
       <li>
-        <a className={linkClass} href={href} target="_blank" rel="noopener noreferrer" title={title} {...hoverProps}>
+        <a className={linkClass} href={href} target="_blank" rel="noopener noreferrer" title={title}>
           {content}
         </a>
       </li>
@@ -39,7 +29,7 @@ function FooterArrowLink({ href, children, active, external, isPlaying, title, o
   }
   return (
     <li>
-      <Link className={linkClass} href={href} title={title} {...hoverProps}>
+      <Link className={linkClass} href={href} title={title}>
         {content}
       </Link>
     </li>
@@ -49,22 +39,11 @@ function FooterArrowLink({ href, children, active, external, isPlaying, title, o
 export default function Layout({ children }) {
   const { theme, resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const spotifyFetchedRef = useRef(false)
   const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
   }, [])
-
-  const handleSpotifyHover = () => {
-    if (spotifyFetchedRef.current) return
-    spotifyFetchedRef.current = true
-    fetch('/api/spotify/data')
-      .then((res) => res.json())
-      .then((data) => setIsPlaying(!!data?.currentlyPlaying))
-      .catch(() => setIsPlaying(false))
-  }
 
   const toggleTheme = () => {
     if (!mounted) return
@@ -151,15 +130,7 @@ export default function Layout({ children }) {
         </div>
 
                 <footer className="journal-rule mt-8 mb-16 pt-8 px-2 md:px-0">
-                  {/* Boutons mobile pour dark mode et appel (affichés uniquement sur mobile) */}
-                  <div className="flex items-center justify-center gap-4 mb-6 sm:hidden">
-                    <button
-                      onClick={() => openCalendlyPopup('footer_mobile')}
-                      type="button"
-                      className="flex items-center justify-center transition-all py-2 px-4 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 text-sm"
-                    >
-                      appel
-                    </button>
+                  <div className="flex items-center justify-center mb-6 sm:hidden">
                     <button
                       aria-label="Toggle Dark Mode"
                       type="button"
@@ -179,19 +150,18 @@ export default function Layout({ children }) {
                     </button>
                   </div>
                   <ul className="font-sm mt-8 flex flex-row flex-wrap gap-4 text-neutral-600 dark:text-neutral-300">
-                    <FooterArrowLink href={siteConfig.network.datareacher.href} external>datareacher</FooterArrowLink>
-                    <FooterArrowLink href={siteConfig.network.outreacher.href} external>outreacher</FooterArrowLink>
-                    <FooterArrowLink href={siteConfig.network.logement.href} external>logement atypique</FooterArrowLink>
+                    <FooterArrowLink href="/blog" active={router.pathname.startsWith('/blog')}>journal</FooterArrowLink>
                     <FooterArrowLink href="/objectifs" active={router.pathname === '/objectifs'}>objectifs</FooterArrowLink>
                     <FooterArrowLink href="/marketplace" active={router.pathname === '/marketplace' || router.pathname.startsWith('/marketplace/')}>marketplace</FooterArrowLink>
-                    <FooterArrowLink href="/contact" active={router.pathname === '/contact'}>contact</FooterArrowLink>
-                    <FooterArrowLink href="/confidentialite" active={router.pathname === '/confidentialite'}>confidentialité</FooterArrowLink>
-                    <FooterArrowLink href="/cas-usage" active={router.pathname === '/cas-usage' || router.pathname.startsWith('/cas-usage/')}>cas d&apos;usage</FooterArrowLink>
-                    <FooterArrowLink href="/newsletter" active={router.pathname === '/newsletter'}>newsletter</FooterArrowLink>
-                    <FooterArrowLink href={siteConfig.social.youtube} external active={false}>youtube</FooterArrowLink>
-                    <FooterArrowLink href="https://www.linkedin.com/in/robertcorentin/" external active={false}>linkedin</FooterArrowLink>
-                    <FooterArrowLink href="/spotify" active={router.pathname === '/spotify'} isPlaying={isPlaying} onHover={handleSpotifyHover}>spotify</FooterArrowLink>
+                    <FooterArrowLink href={siteConfig.network.datareacher.href} external>datareacher</FooterArrowLink>
+                    <FooterArrowLink href={siteConfig.network.outreacher.href} external>outreacher</FooterArrowLink>
+                    <FooterArrowLink href={siteConfig.network.logement.href} external>LA, avec Siméon</FooterArrowLink>
                   </ul>
+                  <p className="mt-5 text-xs text-neutral-500 dark:text-neutral-500">
+                    <Link href="/contact" className="hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors">contact</Link>
+                    {' · '}
+                    <Link href="/confidentialite" className="hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors">confidentialité</Link>
+                  </p>
                 </footer>
       </div>
     </div>
