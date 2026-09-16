@@ -156,7 +156,6 @@ export default function Layout({ children }) {
                     <FooterArrowLink href={siteConfig.network.datareacher.href} external>datareacher</FooterArrowLink>
                     <FooterArrowLink href={siteConfig.network.outreacher.href} external>outreacher</FooterArrowLink>
                     <FooterArrowLink href={siteConfig.network.logement.href} external>logement atypique</FooterArrowLink>
-                    <FooterArrowLink href={siteConfig.network.outrank.href} external>outrank</FooterArrowLink>
                   </ul>
                   <p className="mt-5 text-xs text-neutral-500 dark:text-neutral-500">
                     <Link href="/contact" className="hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors">contact</Link>
