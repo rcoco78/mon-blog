@@ -141,18 +141,6 @@ export default function Home({ homeData }) {
                   Progression 2026 en public
                 </Link>
               </li>
-              <li className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className="text-neutral-500 dark:text-neutral-500 shrink-0">YouTube</span>
-                <a
-                  href={siteConfig.social.youtube}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => captureCta({ flow: FLOW.journal, source: 'home_now', cta: 'youtube' })}
-                  className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-                >
-                  Challenge en cours, 1 vidéo / jour
-                </a>
-              </li>
             </ul>
           </div>
         </section>
