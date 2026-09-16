@@ -310,7 +310,7 @@ export default function About() {
         </p>
 
         {/* Mini timeline métier */}
-        <div className="mb-8 border-t border-neutral-200 dark:border-neutral-800 pt-6">
+        <div className="mb-8 journal-rule pt-6">
           <h2 className="font-semibold text-sm mb-3 tracking-tight text-neutral-900 dark:text-neutral-100">Le fil</h2>
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
             {[
@@ -347,7 +347,7 @@ export default function About() {
             </p>
           </div>
           
-          <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800">
+          <div className="pt-4 journal-rule">
             <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
               Suite : <Link href="/blog" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">articles</Link>, <Link href="/newsletter" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">newsletter</Link>, <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">marketplace</Link>, <Link href="/cas-usage" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">cas d&apos;usage</Link>, <Link href="/temoignages" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">témoignages</Link>, <Link href="/faq" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">FAQ</Link>.
             </p>

@@ -115,7 +115,7 @@ export default function Home({ homeData }) {
             .
           </p>
 
-          <div className="mb-10 border-t border-neutral-200 dark:border-neutral-800 pt-5" aria-label="En ce moment">
+          <div className="mb-10 journal-rule pt-5" aria-label="En ce moment">
             <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-3">
               En ce moment
             </p>

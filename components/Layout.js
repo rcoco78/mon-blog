@@ -150,7 +150,7 @@ export default function Layout({ children }) {
           {children}
         </div>
 
-                <footer className="mt-8 mb-16 px-2 md:px-0">
+                <footer className="journal-rule mt-8 mb-16 pt-8 px-2 md:px-0">
                   {/* Boutons mobile pour dark mode et appel (affichés uniquement sur mobile) */}
                   <div className="flex items-center justify-center gap-4 mb-6 sm:hidden">
                     <button
