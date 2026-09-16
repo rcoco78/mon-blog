@@ -678,7 +678,7 @@ export async function getServerSideProps({ query }) {
   if (tabParam === 'tools' || tabParam === 'scrapers') {
     return {
       redirect: {
-        destination: siteConfig.network.datareacher.href,
+        destination: '/marketplace',
         permanent: true,
       },
     }

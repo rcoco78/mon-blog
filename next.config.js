@@ -28,18 +28,6 @@ const nextConfig = {
         destination: 'https://datareacher.fr',
         permanent: true,
       },
-      {
-        source: '/marketplace',
-        has: [{ type: 'query', key: 'tab', value: 'tools' }],
-        destination: 'https://datareacher.fr',
-        permanent: true,
-      },
-      {
-        source: '/marketplace',
-        has: [{ type: 'query', key: 'tab', value: 'scrapers' }],
-        destination: 'https://datareacher.fr',
-        permanent: true,
-      },
     ]
   },
   async rewrites() {
