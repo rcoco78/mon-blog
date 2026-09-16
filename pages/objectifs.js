@@ -1194,7 +1194,7 @@ export default function DonneesPubliques() {
         ) : displayHistory.length === 0 ? (
           <p className="text-neutral-600 dark:text-neutral-400">Aucune donnée disponible pour le moment.</p>
         ) : (
-          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 overflow-x-auto">
+          <div className="journal-rule pt-5 overflow-x-auto">
             <div className="sr-only">
               <p>
                 Graphique en barres représentant l&apos;évolution de {title.toLowerCase()}. Derniers{' '}
@@ -1535,7 +1535,7 @@ export default function DonneesPubliques() {
 
               return (
                 <>
-                  <div className="mb-6 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
+                  <div className="mb-6 journal-rule pt-5">
                     <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2">Objectif 2026 — CA cumulé</p>
                     <p className="text-4xl font-semibold text-neutral-900 dark:text-neutral-100 mb-2 tracking-tight">
                       {totalCA > 0 ? `${formatNumber(Math.round(totalCA))} €` : '—'}
@@ -1559,20 +1559,20 @@ export default function DonneesPubliques() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                    <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 mb-6">
+                    <div className="py-4 journal-rule">
                       <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Freelance</p>
                       <p className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
                         {caFreelance > 0 ? `${formatNumber(Math.round(caFreelance))} €` : '—'}
                       </p>
                     </div>
-                    <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                    <div className="py-4 journal-rule">
                       <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Affiliation</p>
                       <p className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
                         {caAffiliation > 0 ? `${formatNumber(Math.round(caAffiliation))} €` : '—'}
                       </p>
                     </div>
-                    <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                    <div className="py-4 journal-rule">
                       <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Logement Atypique</p>
                       <p className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
                         {caLogementAtypique > 0 ? `${formatNumber(Math.round(caLogementAtypique))} €` : '—'}
@@ -1616,20 +1616,20 @@ export default function DonneesPubliques() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 mb-8">
+              <div className="py-4 journal-rule">
                 <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">Total objectifs</p>
                 <p className="text-2xl font-semibold">{totalKeyResults}</p>
               </div>
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+              <div className="py-4 journal-rule">
                 <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">Complétés</p>
                 <p className="text-2xl font-semibold text-green-700 dark:text-green-400">{completedKeyResults}</p>
               </div>
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+              <div className="py-4 journal-rule">
                 <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">En cours</p>
                 <p className="text-2xl font-semibold text-blue-700 dark:text-blue-400">{inProgressKeyResults}</p>
               </div>
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+              <div className="py-4 journal-rule">
                 <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">Progression globale</p>
                 <p className="text-2xl font-semibold">{overallProgress}%</p>
               </div>
@@ -1645,7 +1645,7 @@ export default function DonneesPubliques() {
               </div>
               <div className="w-full h-3 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-blue-600 to-green-600 dark:from-blue-500 dark:to-green-500 transition-all duration-500"
+                className="h-full bg-neutral-900 dark:bg-neutral-100 transition-all duration-500"
                   style={{ width: `${overallProgress}%` }}
                 ></div>
               </div>
@@ -1896,7 +1896,7 @@ export default function DonneesPubliques() {
                   
                   {/* Encart service - Flux de données clients */}
                   {translatedCategory === 'Relation client' && (
-                    <div className="mb-4 p-4 rounded-lg border-dashed border border-neutral-300 dark:border-neutral-600 hover:border-neutral-400 dark:hover:border-neutral-500 transition-colors group min-h-[96px]">
+                    <div className="mb-4 py-4 journal-rule group min-h-[96px]">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 mb-1">
@@ -1952,7 +1952,7 @@ export default function DonneesPubliques() {
                         return (
                       <div
                         key={kr.id}
-                        className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]"
+                        className="py-4 journal-rule group min-h-[96px]"
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                           <div className="flex-1 min-w-0">
@@ -2703,7 +2703,7 @@ export default function DonneesPubliques() {
         </section>
 
         {/* CTA secondaire */}
-        <section className="mb-16 pt-8 border-t border-neutral-200 dark:border-neutral-800" aria-label="Contact">
+        <section className="mb-16 pt-8 journal-rule" aria-label="Contact">
           <div>
             <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-3">
               Un projet de scraping ou d&apos;automatisation ?{' '}
