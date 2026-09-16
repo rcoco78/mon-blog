@@ -17,6 +17,7 @@ const DOORS = [
   siteConfig.network.outreacher,
   siteConfig.network.blog,
   siteConfig.network.logement,
+  siteConfig.network.outrank,
 ]
 
 export default function Home({ homeData }) {
@@ -106,7 +107,8 @@ export default function Home({ homeData }) {
             freelance : je note ici ce que le terrain m&apos;apprend.
           </p>
           <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Aujourd&apos;hui, je construis Datareacher, Outreacher et Logement Atypique.
+            Aujourd&apos;hui, je construis Datareacher, Outreacher et Logement Atypique,
+            et je travaille aussi avec Outrank.
           </p>
 
           <div className="mb-10 journal-rule pt-5" aria-label="En ce moment">
@@ -139,10 +141,10 @@ export default function Home({ homeData }) {
           </div>
         </section>
 
-        <section aria-label="Quatre portes">
-          <h2 className="font-semibold text-xl mb-2 tracking-tighter">Ce que je construis</h2>
+        <section aria-label="Les portes du réseau">
+          <h2 className="font-semibold text-xl mb-2 tracking-tighter">Ce que je construis et accompagne</h2>
           <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Trois projets en cours, et ce journal pour garder une trace.
+            Trois projets en cours, une collaboration et ce journal pour garder une trace.
           </p>
           <ul className="space-y-3 text-sm">
             {DOORS.map((door) => {
