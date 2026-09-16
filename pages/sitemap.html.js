@@ -11,70 +11,69 @@ export default function Sitemap({ posts }) {
         <meta name="robots" content="noindex, follow" />
       </Head>
 
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold mb-8">Plan du site</h1>
+      <main className="flex-auto min-w-0 mt-6 flex flex-col">
+        <header className="mb-10">
+          <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Plan du site</h1>
+          <p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
+            Les pages du journal, les projets et les textes publiés.
+          </p>
+        </header>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Pages principales</h2>
-          <ul className="space-y-2">
-            <li>
-              <Link href="/" className="text-blue-600 hover:text-blue-800">
-                Accueil
-              </Link>
-            </li>
-            <li>
-              <Link href="/blog" className="text-blue-600 hover:text-blue-800">
-                Blog
-              </Link>
-            </li>
-            <li>
-              <Link href="/marketplace" className="text-blue-600 hover:text-blue-800">
-                Outils gratuits
-              </Link>
-            </li>
-            <li>
-              <Link href="/temoignages" className="text-blue-600 hover:text-blue-800">
-                Témoignages
-              </Link>
-            </li>
+          <h2 className="font-semibold text-xl mb-5 tracking-tighter">Pages principales</h2>
+          <ul className="journal-rule">
+            {[
+              ['Accueil', '/'],
+              ['Journal', '/blog'],
+              ['Objectifs 2026', '/objectifs'],
+              ['Marketplace', '/marketplace'],
+              ['À propos', '/a-propos'],
+              ['Contact', '/contact'],
+              ['Confidentialité', '/confidentialite'],
+            ].map(([label, href]) => (
+              <li key={href} className="py-3 journal-rule">
+                <Link href={href} className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:text-neutral-900 dark:hover:text-neutral-100">
+                  {label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </section>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Articles du blog</h2>
-          <div className="grid gap-4">
+          <h2 className="font-semibold text-xl mb-5 tracking-tighter">Articles du journal</h2>
+          <div className="journal-rule">
             {posts.map((post) => (
-              <div key={post.id} className="border-b pb-4">
+              <article key={post.id} className="py-3 journal-rule">
                 <Link 
                   href={`/blog/${post.slug}`}
-                  className="text-blue-600 hover:text-blue-800 font-medium"
+                  className="font-medium hover:text-neutral-600 dark:hover:text-neutral-300"
                 >
                   {post.title}
                 </Link>
-                <p className="text-gray-600 text-sm mt-1">
+                <p className="text-neutral-500 dark:text-neutral-500 text-sm mt-1 tabular-nums">
                   {new Date(post.date).toLocaleDateString('fr-FR', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
                   })}
                 </p>
-              </div>
+              </article>
             ))}
           </div>
         </section>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Outils gratuits</h2>
-          <ul className="space-y-2">
-            <li>
-              <Link href="/outils/generateur-templates-emails" className="text-blue-600 hover:text-blue-800">
-                Générateur de Templates d'Emails
+          <h2 className="font-semibold text-xl mb-5 tracking-tighter">Outils</h2>
+          <ul className="journal-rule">
+            <li className="py-3 journal-rule">
+              <Link href="/outils/email-generator" className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:text-neutral-900 dark:hover:text-neutral-100">
+                Générateur de modèles d&apos;emails
               </Link>
             </li>
-            {/* Ajoutez d'autres outils ici */}
           </ul>
         </section>
-      </div>
+      </main>
     </>
   )
 }

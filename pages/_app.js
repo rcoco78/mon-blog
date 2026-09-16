@@ -34,6 +34,7 @@ function MyApp({ Component, pageProps }) {
             siteConfig.social.malt,
             siteConfig.social.fiverr,
             siteConfig.social.github,
+            siteConfig.network.outrank.href,
             'https://apify.com?fpr=0n7ukq'
           ]
         }} 
@@ -50,6 +51,7 @@ function MyApp({ Component, pageProps }) {
             siteConfig.social.malt,
             siteConfig.social.fiverr,
             siteConfig.social.github,
+            siteConfig.network.outrank.href,
             'https://apify.com?fpr=0n7ukq'
           ]
         }} 
