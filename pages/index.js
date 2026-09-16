@@ -160,36 +160,49 @@ export default function Home({ homeData }) {
         <section aria-label="Quatre portes">
           <h2 className="font-semibold text-xl mb-2 tracking-tighter">Ce que je construis</h2>
           <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Quatre portes. Une fonction chacune.
+            Quatre projets. Une fonction chacun.
           </p>
-          <ul className="space-y-2.5 text-sm">
+          <ul className="space-y-3 text-sm">
             {DOORS.map((door) => {
               const className =
                 'underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors'
               const title = (
-                <span className="text-neutral-900 dark:text-neutral-100">{door.title}</span>
+                <span className="text-neutral-900 dark:text-neutral-100 font-medium">{door.title}</span>
               )
+              const icon = door.icon ? (
+                <img
+                  src={door.icon}
+                  alt=""
+                  width={24}
+                  height={24}
+                  className={`w-6 h-6 shrink-0 ${
+                    door.iconShape === 'round' ? 'rounded-full object-cover' : 'rounded-md object-contain'
+                  }`}
+                />
+              ) : null
               return (
-                <li key={door.id} className="flex flex-col sm:flex-row sm:flex-wrap sm:items-baseline gap-x-2 gap-y-0.5">
-                  <span className="text-neutral-500 dark:text-neutral-500 shrink-0 w-20">{door.role}</span>
-                  {door.external ? (
-                    <a
-                      href={door.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() =>
-                        captureCta({ flow: FLOW.journal, source: 'home_doors', cta: door.id })
-                      }
-                      className={className}
-                    >
-                      {title}
-                    </a>
-                  ) : (
-                    <Link href="/blog" className={className}>
-                      {title}
-                    </Link>
-                  )}
-                  <span className="text-neutral-600 dark:text-neutral-400">{door.description}</span>
+                <li key={door.id} className="flex items-center gap-3">
+                  {icon}
+                  <div className="min-w-0 flex flex-col sm:flex-row sm:flex-wrap sm:items-baseline gap-x-2 gap-y-0.5">
+                    {door.external ? (
+                      <a
+                        href={door.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() =>
+                          captureCta({ flow: FLOW.journal, source: 'home_doors', cta: door.id })
+                        }
+                        className={className}
+                      >
+                        {title}
+                      </a>
+                    ) : (
+                      <Link href="/blog" className={className}>
+                        {title}
+                      </Link>
+                    )}
+                    <span className="text-neutral-600 dark:text-neutral-400">{door.description}</span>
+                  </div>
                 </li>
               )
             })}
