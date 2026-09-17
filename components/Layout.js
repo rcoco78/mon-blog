@@ -158,13 +158,13 @@ export default function Layout({ children }) {
                     <FooterArrowLink href={siteConfig.network.outreacher.href} external>outreacher</FooterArrowLink>
                     <FooterArrowLink href={siteConfig.network.logement.href} external>logement atypique</FooterArrowLink>
                   </ul>
-                  <div className="mt-5 flex items-center justify-between gap-4">
+                  <div className="mt-5">
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">
                       <Link href="/contact" className="hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors">contact</Link>
                       {' · '}
                       <Link href="/confidentialite" className="hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors">confidentialité</Link>
                     </p>
-                    <SocialLinks />
+                    <SocialLinks className="-ml-3 mt-1" />
                   </div>
                 </footer>
       </div>
