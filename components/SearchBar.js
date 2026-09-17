@@ -47,23 +47,21 @@ export default function SearchBar({
 
   if (variant === 'journal') {
     return (
-      <nav aria-label="Filtrer les articles par catégorie">
-        <ul className="flex flex-wrap items-baseline justify-center gap-x-2.5 gap-y-2 text-sm">
-          {options.map(({ label, value }, index) => {
+      <nav className="relative min-w-0 overflow-hidden" aria-label="Filtrer les articles par catégorie">
+        <ul
+          ref={scrollRef}
+          className="flex flex-nowrap items-baseline gap-5 overflow-x-auto pb-1.5 text-sm scrollbar-hide snap-x snap-proximity"
+        >
+          {options.map(({ label, value }) => {
             const isSelected = selectedTag === value
 
             return (
-              <li key={value ?? label} className="flex items-baseline gap-x-2.5">
-                {index > 0 && (
-                  <span className="text-neutral-300 dark:text-neutral-700" aria-hidden>
-                    ·
-                  </span>
-                )}
+              <li key={value ?? label} className="flex-shrink-0 snap-start">
                 <button
                   type="button"
                   onClick={() => onTagSelect(value)}
                   aria-pressed={isSelected}
-                  className={`border-0 border-b pb-0.5 whitespace-nowrap transition-colors ${
+                  className={`border-0 border-b px-0.5 py-1 whitespace-nowrap transition-colors ${
                     isSelected
                       ? 'border-neutral-700 dark:border-neutral-300 text-neutral-900 dark:text-neutral-100 font-medium'
                       : 'border-transparent text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100'
@@ -76,6 +74,24 @@ export default function SearchBar({
             )
           })}
         </ul>
+        {canScrollRight && (
+          <>
+            <div
+              className="absolute right-0 top-0 bottom-1.5 w-12 pointer-events-none hidden dark:block"
+              aria-hidden
+              style={{
+                background: 'linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.92), rgb(0,0,0))'
+              }}
+            />
+            <div
+              className="absolute right-0 top-0 bottom-1.5 w-12 pointer-events-none dark:hidden"
+              aria-hidden
+              style={{
+                background: 'linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.92), rgb(255 255 255))'
+              }}
+            />
+          </>
+        )}
       </nav>
     )
   }
