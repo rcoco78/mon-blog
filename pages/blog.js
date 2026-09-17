@@ -336,6 +336,7 @@ export default function Blog({ posts }) {
               selectedTag={selectedTag}
               onTagSelect={setSelectedTag}
               allLabel={`Tous (${posts.length})`}
+              variant="journal"
             />
           </div>
           {postsLoading ? (
