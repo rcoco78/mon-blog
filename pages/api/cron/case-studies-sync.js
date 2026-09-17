@@ -1,27 +1,9 @@
-// Cron job pour synchroniser les case studies vers Blob Storage
-// Inclut les données de base ET les données personnalisées
-// IMPORTANT : fusionne avec les cas générés par generate-new-case-studies (ne les écrase pas)
+// Cron job pour synchroniser les cas d'usage édités dans le dépôt vers Blob Storage.
+// Le Blob est remplacé par cette source maîtrisée afin de ne pas conserver d'anciennes
+// pages créées automatiquement.
 
-import { list } from '@vercel/blob'
 import { putCaseStudiesSplit } from '../../../lib/case-studies-blob-write'
 import { caseStudies } from '../../../lib/case-studies'
-
-const BLOB_FILENAME = 'case-studies.json'
-
-async function loadExistingBlob() {
-  try {
-    const blobs = await list({ prefix: BLOB_FILENAME })
-    const blob = blobs.blobs.find((b) => b.pathname === BLOB_FILENAME)
-    if (!blob) return null
-    const res = await fetch(blob.url, { cache: 'no-store' })
-    if (!res.ok) return null
-    const data = await res.json()
-    return data?.caseStudies && Array.isArray(data.caseStudies) ? data : null
-  } catch (e) {
-    console.warn('[case-studies-sync] Erreur chargement blob existant:', e.message)
-    return null
-  }
-}
 
 async function fetchAndSaveCaseStudies() {
   // Charger les données personnalisées
@@ -35,8 +17,6 @@ async function fetchAndSaveCaseStudies() {
   } catch (error) {
     console.warn('[case-studies-sync] Erreur lors du chargement des données personnalisées:', error.message)
   }
-
-  const baseSlugs = new Set(caseStudies.map((cs) => cs.slug))
 
   // Fusionner les données de base avec les données personnalisées
   let personalizedInData = 0
@@ -61,25 +41,12 @@ async function fetchAndSaveCaseStudies() {
     return baseData
   })
 
-  // Charger le blob actuel et garder les cas générés par generate-new-case-studies
-  const existingBlob = await loadExistingBlob()
-  let generatedCases = []
-  if (existingBlob?.caseStudies) {
-    generatedCases = existingBlob.caseStudies.filter((cs) => cs?.slug && !baseSlugs.has(cs.slug))
-    if (generatedCases.length > 0) {
-      console.log(`[case-studies-sync] Conservation de ${generatedCases.length} cas générés dynamiquement`)
-    }
-  }
+  await putCaseStudiesSplit(caseStudiesFromFile, { skipFull: false })
 
-  const caseStudiesData = [...caseStudiesFromFile, ...generatedCases]
-
-  await putCaseStudiesSplit(caseStudiesData, { skipFull: false })
-
-  console.log(`[case-studies-sync] Case studies sauvegardés. Base : ${caseStudiesFromFile.length}, Générés : ${generatedCases.length}, Total : ${caseStudiesData.length}, Personnalisés : ${personalizedInData}`)
+  console.log(`[case-studies-sync] Cas d'usage sauvegardés. Total : ${caseStudiesFromFile.length}, Personnalisés : ${personalizedInData}`)
   return { 
-    count: caseStudiesData.length,
+    count: caseStudiesFromFile.length,
     baseCount: caseStudiesFromFile.length,
-    generatedCount: generatedCases.length,
     personalizedCount: personalizedInData,
     personalizedAvailable: personalizedCount
   }
