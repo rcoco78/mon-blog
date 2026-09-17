@@ -2,7 +2,7 @@
  * Cron Tella → Marketplace : synchronise les vidéos d'une playlist Tella
  * avec les bases de données marketplace.
  *
- * Stratégie : GPT-4o mini (comme generate-new-case-studies pour les use cases)
+ * Stratégie : matching sémantique avec GPT-4o mini.
  * Score sémantique fiable car une vidéo est créée à chaque publication de base.
  * Fallback : scoring textuel si OPENAI_API_KEY absent.
  * Stocke le mapping dans Blob : marketplace-database-videos.json
@@ -69,9 +69,7 @@ function scoreMatch(db, video) {
   return Math.round(Math.min(100, wordScore + reverseScore + distinctiveBonus))
 }
 
-/**
- * Matching via GPT-4o mini (comme generate-new-case-studies pour les use cases)
- */
+/** Matching sémantique via GPT-4o mini. */
 async function buildMappingWithGPT(databases, videos) {
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey || databases.length === 0 || videos.length === 0) {
