@@ -21,74 +21,74 @@
     "updatedAt": "2026-02-24T19:16:58.896Z"
   },
   "base-donnees-conseillers-immobiliers-safti-france": {
-    "productId": "prod_U2W9rhNlgY26Dz",
-    "priceId": "price_1T4R6xAs0abEh83CVeR7gMKn",
+    "productId": "prod_UzEW4hRt0M8icu",
+    "priceId": "price_1TzG30As0abEh83CiOsFrdKS",
     "name": "Base de données - Safti France",
     "price": 99,
-    "updatedAt": "2026-02-24T19:17:35.360Z"
+    "updatedAt": "2026-09-29T13:17:59.882Z"
   },
   "base-donnees-agents-immobiliers-iad-france": {
-    "productId": "prod_U2W9EFLZAAo6kt",
-    "priceId": "price_1T4R6yAs0abEh83CJn40tdcu",
+    "productId": "prod_UzEWeIvdhp9m1w",
+    "priceId": "price_1TzG31As0abEh83C5uHoVYBy",
     "name": "Base de données - IAD France",
     "price": 249,
-    "updatedAt": "2026-02-24T19:17:36.296Z"
+    "updatedAt": "2026-09-29T13:18:00.431Z"
   },
   "base-donnees-produits-ichard-fr-ecommerce": {
-    "productId": "prod_U2W9WVEGCl8Q1b",
-    "priceId": "price_1T4R6zAs0abEh83CS4RrQi6Q",
+    "productId": "prod_UzEWTPNRlPEBSN",
+    "priceId": "price_1UL0uzAs0abEh83CvfaEky6O",
     "name": "Base de données - Ichard.fr",
     "price": 99,
-    "updatedAt": "2026-02-24T19:17:37.286Z"
+    "updatedAt": "2026-09-29T13:18:01.715Z"
   },
   "base-donnees-agences-gestion-patrimoine-france": {
-    "productId": "prod_U2W9XiXKWk44Yn",
-    "priceId": "price_1T4R70As0abEh83ChoymdPi6",
+    "productId": "prod_UzEWZFtFHN6EX6",
+    "priceId": "price_1UL0v0As0abEh83CPPVxkqBB",
     "name": "Base de données - CGP France",
     "price": 149,
-    "updatedAt": "2026-02-24T19:17:38.240Z"
+    "updatedAt": "2026-09-29T13:18:03.046Z"
   },
   "base-donnees-artisans-batiment-capeb-france": {
-    "productId": "prod_U2W9MzRVvIHVDN",
-    "priceId": "price_1T4R71As0abEh83CFQHm7dhN",
+    "productId": "prod_UzEWkbCYfpMQze",
+    "priceId": "price_1UL0v2As0abEh83CjasGTNit",
     "name": "Base de données - Capeb",
     "price": 149,
-    "updatedAt": "2026-02-24T19:17:39.237Z"
+    "updatedAt": "2026-09-29T13:18:04.364Z"
   },
   "base-donnees-contacts-hse-qhse-france": {
-    "productId": "prod_U2W98ISJnW4kqN",
-    "priceId": "price_1T4R72As0abEh83CaTZl1qi4",
+    "productId": "prod_UzEWItxPcWsn6e",
+    "priceId": "price_1UL0v3As0abEh83CgjV2qhMA",
     "name": "Base de données - Responsables/Directeurs 'HSE' ou 'QHSE'",
     "price": 149,
-    "updatedAt": "2026-02-24T19:17:40.204Z"
+    "updatedAt": "2026-09-29T13:18:05.680Z"
   },
   "base-donnees-masseurs-kinesitherapeutes-france": {
-    "productId": "prod_U2W9YySJKRgzAR",
-    "priceId": "price_1T4R73As0abEh83Ce2Liuat1",
+    "productId": "prod_UzEWtYxs7ZotI7",
+    "priceId": "price_1UL0v4As0abEh83C69am1BvU",
     "name": "Base de données - Kiné via Doctolib",
     "price": 199,
-    "updatedAt": "2026-02-24T19:17:41.362Z"
+    "updatedAt": "2026-09-29T13:18:06.966Z"
   },
   "base-donnees-entreprises-services-numeriques-numeum": {
-    "productId": "prod_U2W9upWbhTRsAu",
-    "priceId": "price_1T4R74As0abEh83CV2Z2uv6u",
+    "productId": "prod_UzEWMZjA3ahmLY",
+    "priceId": "price_1UL0v6As0abEh83CjCYbIlMK",
     "name": "Base de données - Numeum",
     "price": 149,
-    "updatedAt": "2026-02-24T19:17:42.501Z"
+    "updatedAt": "2026-09-29T13:18:08.300Z"
   },
   "base-donnees-creches-micro-creches-france": {
-    "productId": "prod_U2W9LpRwqSf9yS",
-    "priceId": "price_1T4R75As0abEh83CvJzj6b1Q",
+    "productId": "prod_UzEW6xQtf7pcLG",
+    "priceId": "price_1UL0v7As0abEh83CGHfI6ETL",
     "name": "Base de données - Crèches & Micro crèches",
     "price": 199,
-    "updatedAt": "2026-02-24T19:17:43.574Z"
+    "updatedAt": "2026-09-29T13:18:09.595Z"
   },
   "base-donnees-logements-airbnb-annecy-france": {
-    "productId": "prod_U2W9xRdKqwcsRI",
-    "priceId": "price_1T4R76As0abEh83CEQ7cm4Nf",
+    "productId": "prod_UzEWfdPGJ3kKtS",
+    "priceId": "price_1UL0v8As0abEh83CUU0p91w1",
     "name": "Base de données - Airbnb (annecy-menthon-veyrier-talloires)",
     "price": 149,
-    "updatedAt": "2026-02-24T19:17:44.557Z"
+    "updatedAt": "2026-09-29T13:18:10.936Z"
   },
   "base-donnees-experts-comptables-france-b2b": {
     "productId": "prod_U2W9nzWUN48Fqd",
@@ -98,32 +98,32 @@
     "updatedAt": "2026-02-24T19:17:45.594Z"
   },
   "base-donnees-agences-immobilieres-france": {
-    "productId": "prod_U2W9WEDHLCWoDc",
-    "priceId": "price_1T4R78As0abEh83CzKYXEfD0",
-    "name": "Base de données - Agences immobilières France - Base de données complète",
-    "price": 149,
-    "updatedAt": "2026-02-24T19:17:46.686Z"
+    "productId": "prod_UzEWARir5lzUXS",
+    "priceId": "price_1UL0vcAs0abEh83COt8iFVID",
+    "name": "Base de données - Agences immobilières France",
+    "price": 79,
+    "updatedAt": "2026-09-29T13:18:40.822Z"
   },
   "restaurants-tripadvisor-uk-base-donnees": {
-    "productId": "prod_U2W9MpWfRoOID9",
-    "priceId": "price_1T4R79As0abEh83CK5z2Le7i",
+    "productId": "prod_UzbkdtHTj1zlcG",
+    "priceId": "price_1UL0vCAs0abEh83ClTALt3bO",
     "name": "Base de données - Restaurants TripAdvisor UK - 19,289 évaluations",
     "price": 199,
-    "updatedAt": "2026-02-24T19:17:47.720Z"
+    "updatedAt": "2026-09-29T13:18:14.834Z"
   },
   "base-donnees-avocats-specialises-bourg-en-bresse-france": {
-    "productId": "prod_U2W9B2032divdU",
-    "priceId": "price_1T4R7AAs0abEh83C2T4FD5Rg",
+    "productId": "prod_Uzbkdf0kuwNELx",
+    "priceId": "price_1UL0vDAs0abEh83CXPdWyagn",
     "name": "Base de données - Avocats spécialisés Droit des sociétés Bourg En Bresse",
     "price": 199,
-    "updatedAt": "2026-02-24T19:17:48.754Z"
+    "updatedAt": "2026-09-29T13:18:16.136Z"
   },
   "base-donnees-contacts-administrateurs-judiciaires-france": {
-    "productId": "prod_U2W9QNsQOkFuBI",
-    "priceId": "price_1T4R7BAs0abEh83CJIWvIlto",
+    "productId": "prod_UzbkwMuEHKOuHJ",
+    "priceId": "price_1UL0vFAs0abEh83CwEHvfcJQ",
     "name": "Base de données - Contacts Administrateurs Judiciaires France",
     "price": 99,
-    "updatedAt": "2026-02-24T19:17:49.796Z"
+    "updatedAt": "2026-09-29T13:18:17.493Z"
   },
   "agences-immobilieres-syndics-france-base-donnees": {
     "productId": "prod_U2W9yLkqwNYrvl",
@@ -133,60 +133,60 @@
     "updatedAt": "2026-02-24T19:17:50.793Z"
   },
   "contacts-b2b-exposants-millesime-bio-europe": {
-    "productId": "prod_U2W9yigQrtM54R",
-    "priceId": "price_1T4R7DAs0abEh83Ck1oy9HWb",
+    "productId": "prod_V0jQgVHM6ZiNmI",
+    "priceId": "price_1UL0vHAs0abEh83CSu3APcXD",
     "name": "Base de données - Contacts B2B Millésime Bio Exposants Européens",
     "price": 149,
-    "updatedAt": "2026-02-24T19:17:51.840Z"
+    "updatedAt": "2026-09-29T13:18:19.383Z"
   },
   "contacts-acheteurs-importateurs-vin-wine-paris-base-donnees": {
-    "productId": "prod_U2W953GXCelIjm",
-    "priceId": "price_1T4R7EAs0abEh83CrSPXPiCs",
+    "productId": "prod_V0jQrWX6CDLV4d",
+    "priceId": "price_1UL0vIAs0abEh83CbNLYd8eO",
     "name": "Base de données - Contacts acheteurs et importateurs vin Wine Paris 2025",
     "price": 199,
-    "updatedAt": "2026-02-24T19:17:52.868Z"
+    "updatedAt": "2026-09-29T13:18:20.674Z"
   },
   "produits-ecommerce-staycation-prix-experiences": {
-    "productId": "prod_U2W9l3AEKlc35L",
-    "priceId": "price_1T4R7FAs0abEh83CMZOarvMs",
+    "productId": "prod_V0jQqOZRMkY6xR",
+    "priceId": "price_1UL0vJAs0abEh83CfYkqjg1B",
     "name": "Base de données - Produits e-commerce Staycation avec prix et expériences",
     "price": 149,
-    "updatedAt": "2026-02-24T19:17:53.896Z"
+    "updatedAt": "2026-09-29T13:18:21.960Z"
   },
   "contacts-agences-immobilieres-notaires-france-base-donnees": {
-    "productId": "prod_U2W9LBvDo4vy9n",
-    "priceId": "price_1T4R7GAs0abEh83CWt3kVuQb",
+    "productId": "prod_V0jQHwJwfcvge3",
+    "priceId": "price_1UL0vLAs0abEh83CD93hZdvv",
     "name": "Base de données - Contacts d'agences immobilières et notaires en France",
     "price": 249,
-    "updatedAt": "2026-02-24T19:17:54.930Z"
+    "updatedAt": "2026-09-29T13:18:23.242Z"
   },
   "agences-immobilieres-notaires-france-base-donnees": {
-    "productId": "prod_U2W9eo1WdeTxgl",
-    "priceId": "price_1T4R7HAs0abEh83CJNPrAsWT",
+    "productId": "prod_V0jQEk24FdPfPm",
+    "priceId": "price_1UL0vMAs0abEh83Cz0KopIsv",
     "name": "Base de données - Agences immobilières et notaires en France",
     "price": 149,
-    "updatedAt": "2026-02-24T19:17:55.951Z"
+    "updatedAt": "2026-09-29T13:18:24.598Z"
   },
   "contacts-b2b-davos-ai-house-base-donnees": {
-    "productId": "prod_U2W9qPdZFSTBdn",
-    "priceId": "price_1T4R7IAs0abEh83C13Kc2Zr8",
+    "productId": "prod_V0jQhyGXLHppUv",
+    "priceId": "price_1UL0vNAs0abEh83Cs3US0LYG",
     "name": "Base de données - Contacts B2B Davos AI House 2023",
     "price": 149,
-    "updatedAt": "2026-02-24T19:17:57.060Z"
+    "updatedAt": "2026-09-29T13:18:25.892Z"
   },
   "investisseurs-capital-risque-suisse": {
-    "productId": "prod_U2W9qrfrbbVlDR",
-    "priceId": "price_1T4R7KAs0abEh83CUHFL3m8g",
+    "productId": "prod_V0jQrjiOYuWUJM",
+    "priceId": "price_1UL0vPAs0abEh83CSCeXcz62",
     "name": "Base de données - Investisseurs en capital-risque Suisse",
     "price": 149,
-    "updatedAt": "2026-02-24T19:17:58.161Z"
+    "updatedAt": "2026-09-29T13:18:27.205Z"
   },
   "base-donnees-sites-ecommerce-antiques-collectibles": {
-    "productId": "prod_U2W9NfVbPFKTDw",
-    "priceId": "price_1T4R7LAs0abEh83CA5FeCvYr",
+    "productId": "prod_V0jQzvMgczwiwI",
+    "priceId": "price_1UL0vQAs0abEh83C5vCpjWex",
     "name": "Base de données - Sites e-commerce Antiques Collectibles",
     "price": 149,
-    "updatedAt": "2026-02-24T19:17:59.320Z"
+    "updatedAt": "2026-09-29T13:18:28.464Z"
   },
   "contacts-rendez-vous-paris-09-base-donnees": {
     "productId": "prod_U2W9iKFHl4xdGL",
@@ -196,32 +196,32 @@
     "updatedAt": "2026-02-24T19:18:00.414Z"
   },
   "hotels-ajaccio-corse-base-donnees": {
-    "productId": "prod_U2W9LH8gmgJ003",
-    "priceId": "price_1T4R7NAs0abEh83Ctg85BhnQ",
+    "productId": "prod_V16eJSnQyVxzSN",
+    "priceId": "price_1UL0vTAs0abEh83C2LJo2TsQ",
     "name": "Base de données - Hôtels en Corse Ajaccio",
     "price": 79,
-    "updatedAt": "2026-02-24T19:18:01.524Z"
+    "updatedAt": "2026-09-29T13:18:31.613Z"
   },
   "agents-immobiliers-france-base-donnees": {
-    "productId": "prod_U2W9mqv83HXH1o",
-    "priceId": "price_1T4R7OAs0abEh83CWgjsynbL",
+    "productId": "prod_V16eRbJwMklIIB",
+    "priceId": "price_1UL0vUAs0abEh83CQ6X9Rxme",
     "name": "Base de données - Agents immobiliers France",
     "price": 199,
-    "updatedAt": "2026-02-24T19:18:02.622Z"
+    "updatedAt": "2026-09-29T13:18:32.922Z"
   },
   "contacts-professionnels-learning-hr-france": {
-    "productId": "prod_U2W9k2KMIH54rd",
-    "priceId": "price_1T4R7PAs0abEh83CP5pvXE5R",
+    "productId": "prod_V16eq1widEi2Ix",
+    "priceId": "price_1UL0vWAs0abEh83CYlHdnhqG",
     "name": "Base de données - Contacts professionnels Learning HR France",
     "price": 199,
-    "updatedAt": "2026-02-24T19:18:03.681Z"
+    "updatedAt": "2026-09-29T13:18:34.240Z"
   },
   "base-donnees-ecommerce-produits-france": {
-    "productId": "prod_U2W9Vhd80zkIL6",
-    "priceId": "price_1T4R7QAs0abEh83C5pOq2ljE",
+    "productId": "prod_V16eZ1jYf8f6qc",
+    "priceId": "price_1UL0vXAs0abEh83CvOKxnsc1",
     "name": "Base de données - E-commerce produits spécialisés France",
     "price": 99,
-    "updatedAt": "2026-02-24T19:18:04.883Z"
+    "updatedAt": "2026-09-29T13:18:35.566Z"
   },
   "conseillers-immobiliers-iad-france-base-donnees": {
     "productId": "prod_U2W9PK29D8FoFZ",
@@ -231,11 +231,11 @@
     "updatedAt": "2026-02-24T19:18:06.097Z"
   },
   "contacts-b2b-risk-management-france": {
-    "productId": "prod_U2W91hJqPKm9Gl",
-    "priceId": "price_1T4R7TAs0abEh83CbQ5R3ZsA",
+    "productId": "prod_V16eHjW5QtFr0S",
+    "priceId": "price_1UL0vZAs0abEh83CE4SEGGgc",
     "name": "Base de données - Contacts B2B Risk Management France",
     "price": 99,
-    "updatedAt": "2026-02-24T19:18:07.218Z"
+    "updatedAt": "2026-09-29T13:18:38.158Z"
   },
   "ecoles-internationales-base-donnees": {
     "productId": "prod_U2W9amxKlxslnG",
@@ -252,11 +252,11 @@
     "updatedAt": "2026-02-24T19:18:09.487Z"
   },
   "mandataires-immobilier-france-base-donnees": {
-    "productId": "prod_U2W9Szt7tpk8S8",
-    "priceId": "price_1T4R7WAs0abEh83CWDKn8jTo",
+    "productId": "prod_V16f9pcMpOCooE",
+    "priceId": "price_1UL0vdAs0abEh83C4uxFXVbK",
     "name": "Base de données - Mandataires immobiliers France",
     "price": 149,
-    "updatedAt": "2026-02-24T19:18:10.583Z"
+    "updatedAt": "2026-09-29T13:18:42.113Z"
   },
   "missions-freelance-richards-automobiles": {
     "productId": "prod_U2W9Mv4OXVl2nB",
@@ -266,11 +266,11 @@
     "updatedAt": "2026-02-24T19:18:11.668Z"
   },
   "contacts-professionnels-geneve-base-donnees": {
-    "productId": "prod_U2W9RqhmtrhEY8",
-    "priceId": "price_1T4R7YAs0abEh83CCMdSVXAA",
+    "productId": "prod_V16fjSlTjqwGKU",
+    "priceId": "price_1UL0vgAs0abEh83CbhtoWfHW",
     "name": "Base de données - Contacts professionnels Genève",
     "price": 149,
-    "updatedAt": "2026-02-24T19:18:12.718Z"
+    "updatedAt": "2026-09-29T13:18:44.876Z"
   },
   "appartements-airbnb-paris": {
     "productId": "prod_U2W9Vcd0JowOkm",
@@ -280,31 +280,164 @@
     "updatedAt": "2026-02-24T19:18:13.747Z"
   },
   "contacts-cgp-france-base-donnees": {
-    "productId": "prod_U2W91r4GY6ahu8",
-    "priceId": "price_1T4R7aAs0abEh83C5p1Yy59e",
+    "productId": "prod_V2ymtSbUSs03K8",
+    "priceId": "price_1UL0vjAs0abEh83CuzbjfBJB",
     "name": "Base de données - Contacts CGP France",
     "price": 99,
-    "updatedAt": "2026-02-24T19:18:14.783Z"
+    "updatedAt": "2026-09-29T13:18:47.794Z"
   },
   "contacts-visiteurs-prowein-2023-base-donnees": {
-    "productId": "prod_U2W90jhCJ2V7Vj",
-    "priceId": "price_1T4R7bAs0abEh83CI5iafUvB",
+    "productId": "prod_V2ymlFgKdVEwnT",
+    "priceId": "price_1UL0vlAs0abEh83CFftSPql2",
     "name": "Base de données - Contacts visiteurs ProWein 2023",
     "price": 199,
-    "updatedAt": "2026-02-24T19:18:15.887Z"
+    "updatedAt": "2026-09-29T13:18:49.256Z"
   },
   "vins-france-2024-base-donnees": {
-    "productId": "prod_U2W9J6CXJCb17f",
-    "priceId": "price_1T4R7cAs0abEh83CV5LtBHlv",
+    "productId": "prod_V2ymQ7RSF4YSZD",
+    "priceId": "price_1UL0vmAs0abEh83CkEhfH4Bd",
     "name": "Base de données vins France 2024",
     "price": 79,
-    "updatedAt": "2026-02-24T19:18:16.955Z"
+    "updatedAt": "2026-09-29T13:18:50.556Z"
   },
   "clubs-randonnee-france-base-donnees": {
-    "productId": "prod_U2W9nCt3WkPrTk",
-    "priceId": "price_1T4R7dAs0abEh83CpxrurdEw",
+    "productId": "prod_V2ym69yPqpd5mb",
+    "priceId": "price_1UL0vnAs0abEh83CkCpsHtuG",
     "name": "Base de données - Clubs de randonnée France",
     "price": 99,
-    "updatedAt": "2026-02-24T19:18:17.962Z"
+    "updatedAt": "2026-09-29T13:18:51.901Z"
+  },
+  "agences-immobilieres-france-base-donnees": {
+    "productId": "prod_UsUSEy6NfEw5vq",
+    "priceId": "price_1UL0vzAs0abEh83CN4P4VDJL",
+    "name": "Base de données - Agences immobilières France",
+    "price": 99,
+    "updatedAt": "2026-09-29T13:19:03.388Z"
+  },
+  "contacts-b2b-paris-beaute-bien-etre-base-donnees": {
+    "productId": "prod_VLi3LB5NkC8JD7",
+    "priceId": "price_1UL0vRAs0abEh83CVi2R4omF",
+    "name": "Base de données - Contacts B2B Paris 09",
+    "price": 99,
+    "updatedAt": "2026-09-29T13:18:29.905Z"
+  },
+  "conseillers-immobiliers-france-base-donnees": {
+    "productId": "prod_VEalByj5dJAqAO",
+    "priceId": "price_1UL0vYAs0abEh83C37VLDdci",
+    "name": "Base de données - Conseillers immobiliers France",
+    "price": 199,
+    "updatedAt": "2026-09-29T13:18:36.857Z"
+  },
+  "contacts-ecoles-internationales-etats-unis-base-donnees": {
+    "productId": "prod_V9Lcutt72QKPO5",
+    "priceId": "price_1UL0vbAs0abEh83CiFRFj4y7",
+    "name": "Base de données - Contacts écoles internationales États-Unis",
+    "price": 99,
+    "updatedAt": "2026-09-29T13:18:39.489Z"
+  },
+  "missions-b2b-prospection-base-donnees": {
+    "productId": "prod_V5E8QZW8KPsNfI",
+    "priceId": "price_1UL0vfAs0abEh83C0qLMVGGS",
+    "name": "Base de données - Missions B2B et Prospection",
+    "price": 79,
+    "updatedAt": "2026-09-29T13:18:43.493Z"
+  },
+  "courchevel-airbnb-professionnal-host-scraping-apify-conseil-": {
+    "productId": "prod_UyrIjYk0Gz0c6l",
+    "priceId": "price_1UL0viAs0abEh83CIVKrSBr7",
+    "name": "Base de données - courchevel Airbnb Professionnal Host Scraping - Apify",
+    "price": 99,
+    "updatedAt": "2026-09-29T13:18:46.187Z"
+  },
+  "contacts-courtiers-independants-france-base-donnees": {
+    "productId": "prod_V5E8OuZqZVGJlA",
+    "priceId": "price_1UL0vpAs0abEh83CwpWpdNbc",
+    "name": "Base de données - Contacts courtiers indépendants France",
+    "price": 149,
+    "updatedAt": "2026-09-29T13:18:53.249Z"
+  },
+  "conseillers-gestion-patrimoine-france-base-donnees": {
+    "productId": "prod_V76GX0WZPbBtJ5",
+    "priceId": "price_1UL0vqAs0abEh83CR3iMr7HV",
+    "name": "Base de données - Conseillers en gestion de patrimoine France",
+    "price": 149,
+    "updatedAt": "2026-09-29T13:18:54.567Z"
+  },
+  "contacts-professionnels-start-summit-2026-base-donnees": {
+    "productId": "prod_UuMbXrZRjKis93",
+    "priceId": "price_1UL0vsAs0abEh83CfhgrpDu0",
+    "name": "Base de données - Contacts professionnels Start Summit 2026",
+    "price": 99,
+    "updatedAt": "2026-09-29T13:18:56.277Z"
+  },
+  "contacts-agences-immobilieres-france": {
+    "productId": "prod_UqF757pQKD8scH",
+    "priceId": "price_1UL0vtAs0abEh83CdowGjgX6",
+    "name": "Base de données - Contacts agences immobilières France",
+    "price": 79,
+    "updatedAt": "2026-09-29T13:18:57.645Z"
+  },
+  "base-donnees-contacts-agents-immobiliers-france": {
+    "productId": "prod_UqcK4XoGHdZI2c",
+    "priceId": "price_1UL0vuAs0abEh83C64prhmDu",
+    "name": "Base de données - Contacts agents immobiliers France",
+    "price": 79,
+    "updatedAt": "2026-09-29T13:18:58.932Z"
+  },
+  "bases-donnees-agences-immobilieres-france": {
+    "productId": "prod_UsUSffNDUy3XgN",
+    "priceId": "price_1UL0vwAs0abEh83C1gyt6gfN",
+    "name": "Base de données - Agences immobilières France",
+    "price": 99,
+    "updatedAt": "2026-09-29T13:19:00.481Z"
+  },
+  "contacts-mandataires-immobiliers-france": {
+    "productId": "prod_UqcKt5eoYjGLei",
+    "priceId": "price_1UL0vxAs0abEh83CQeVyltSw",
+    "name": "Base de données - Contacts mandataires immobiliers France",
+    "price": 149,
+    "updatedAt": "2026-09-29T13:19:02.047Z"
+  },
+  "contacts-conseillers-financiers-france": {
+    "productId": "prod_UuMbfbBFuFDycw",
+    "priceId": "price_1UL0w0As0abEh83C3KMQtG86",
+    "name": "Base de données - Contacts Conseillers Financiers France",
+    "price": 149,
+    "updatedAt": "2026-09-29T13:19:04.720Z"
+  },
+  "contacts-b2b-changenow-2026-base-donnees": {
+    "productId": "prod_V5E8p4KcV8jeqN",
+    "priceId": "price_1UL0w1As0abEh83CQCQWkgRx",
+    "name": "Base de données - Contacts B2B ChangeNOW 2026",
+    "price": 199,
+    "updatedAt": "2026-09-29T13:19:06.048Z"
+  },
+  "produits-cogex-conseil-gestion-patrimoine-base-donnees": {
+    "productId": "prod_V6Lq8foepSfgpL",
+    "priceId": "price_1UL0w3As0abEh83CpEQckr9h",
+    "name": "Base de données - Produits Cogex",
+    "price": 99,
+    "updatedAt": "2026-09-29T13:19:07.389Z"
+  },
+  "architectes-interieur-paris-base-donnees": {
+    "productId": "prod_UvUGSZPbBFbJwC",
+    "priceId": "price_1UL0w4As0abEh83CXarMN6am",
+    "name": "Base de données - Architectes d'intérieur Paris",
+    "price": 149,
+    "updatedAt": "2026-09-29T13:19:08.709Z"
+  },
+  "clubs-sportifs-italie-base-donnees": {
+    "productId": "prod_VJ5TQBaLbNom74",
+    "priceId": "price_1UL0w6As0abEh83CnYpdmmBo",
+    "name": "Base de données - Clubs sportifs Italie",
+    "price": 199,
+    "updatedAt": "2026-09-29T13:19:10.264Z"
+  },
+  "base-donnees-agences-comptables-experts-france": {
+    "productId": "prod_V76GK0kZWPs9xE",
+    "priceId": "price_1UL0w7As0abEh83COlxFYdUL",
+    "name": "Base de données - Agences comptables et experts France",
+    "price": 199,
+    "updatedAt": "2026-09-29T13:19:11.765Z"
   }
 }

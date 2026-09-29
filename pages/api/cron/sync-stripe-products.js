@@ -88,12 +88,23 @@ export default async function handler(req, res) {
 
         if (product) {
           const prices = await stripe.prices.list({ product: product.id, active: true })
-          let price = prices.data.find((p) => p.unit_amount === amountCents && !p.recurring)
+          let price = prices.data.find(
+            (p) => p.unit_amount === amountCents && !p.recurring && p.tax_behavior === 'exclusive'
+          )
           if (price) {
             priceId = price.id
           } else {
-            price = prices.data[0]
-            if (price) priceId = price.id
+            for (const old of prices.data) {
+              if (!old.recurring) await stripe.prices.update(old.id, { active: false })
+            }
+            price = await stripe.prices.create({
+              product: product.id,
+              currency: 'eur',
+              unit_amount: amountCents,
+              tax_behavior: 'exclusive',
+              metadata: { slug },
+            })
+            priceId = price.id
           }
         } else {
           product = await stripe.products.create({
@@ -105,7 +116,7 @@ export default async function handler(req, res) {
             product: product.id,
             currency: 'eur',
             unit_amount: amountCents,
-            tax_behavior: 'inclusive',
+            tax_behavior: 'exclusive',
             metadata: { slug },
           })
           priceId = price.id

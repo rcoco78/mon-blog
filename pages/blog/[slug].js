@@ -6,7 +6,7 @@ import Block from '../../components/Block'
 import MarkdownRenderer from '../../components/MarkdownRenderer'
 import ArticleDoorCard from '../../components/ArticleDoorCard'
 import NewsletterForm from '../../components/NewsletterForm'
-import ArticleNewsletterNudge from '../../components/ArticleNewsletterNudge'
+import Link from 'next/link'
 import RelatedPosts from '../../components/RelatedPosts'
 import SeriesBanner from '../../components/SeriesBanner'
 import TableOfContents from '../../components/TableOfContents'
@@ -173,7 +173,7 @@ export default function Post({ post, allPosts }) {
     {
       '@type': 'ListItem',
       position: 2,
-      name: 'Blog',
+      name: 'Journal',
       item: `${siteConfig.url}/blog`
     },
     {
@@ -214,7 +214,7 @@ export default function Post({ post, allPosts }) {
           wordCount: wordCount,
           timeRequired: `PT${readingTime}M`,
           keywords: post.tags?.join(', ') || 'scraping, automatisation, entrepreneuriat',
-          articleSection: post.tags?.[0] || 'Blog',
+          articleSection: post.tags?.[0] || 'Journal',
           speakable: {
             cssSelector: ['h1', 'h2']
           }
@@ -238,7 +238,7 @@ export default function Post({ post, allPosts }) {
                 {
                   '@type': 'ListItem',
                   position: 2,
-                  name: 'Blog',
+                  name: 'Journal',
                   item: `${siteConfig.url}/blog`
                 },
                 {
@@ -250,6 +250,11 @@ export default function Post({ post, allPosts }) {
               ]
             }}
           />
+          <p className="mb-3 text-sm">
+            <Link href="/blog" className="underline underline-offset-2 text-neutral-600 dark:text-neutral-400">
+              Journal
+            </Link>
+          </p>
           <h1 className="font-semibold text-3xl sm:text-4xl tracking-tighter text-neutral-900 dark:text-neutral-100 mb-5 leading-tight">
             {post.title}
           </h1>
@@ -279,13 +284,14 @@ export default function Post({ post, allPosts }) {
                 )}
                 {post.tags && post.tags.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                    {post.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-1.5 py-0.5 rounded text-xs bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400"
+                    {post.tags.map((tag) => (
+                      <Link
+                        key={tag}
+                        href={`/blog?tag=${encodeURIComponent(/^freelanc/i.test(tag) ? 'Freelance' : tag)}`}
+                        className="text-xs underline underline-offset-2 text-neutral-600 dark:text-neutral-400"
                       >
-                        {tag}
-                      </span>
+                        {/^freelanc/i.test(tag) ? 'Freelance' : tag}
+                      </Link>
                     ))}
                   </div>
                 )}
@@ -323,13 +329,14 @@ export default function Post({ post, allPosts }) {
                 {post.tags && post.tags.length > 0 && (
                   <>
                     <span className="text-neutral-400 shrink-0">•</span>
-                    {post.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-1.5 py-0.5 rounded text-xs leading-none transition-colors bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 whitespace-nowrap"
+                    {post.tags.map((tag) => (
+                      <Link
+                        key={tag}
+                        href={`/blog?tag=${encodeURIComponent(/^freelanc/i.test(tag) ? 'Freelance' : tag)}`}
+                        className="text-xs underline underline-offset-2 text-neutral-600 dark:text-neutral-400 whitespace-nowrap"
                       >
-                        {tag}
-                      </span>
+                        {/^freelanc/i.test(tag) ? 'Freelance' : tag}
+                      </Link>
                     ))}
                   </>
                 )}
@@ -401,7 +408,6 @@ export default function Post({ post, allPosts }) {
             />
             <NewsletterForm compact={false} source="article" />
         </div>
-        <ArticleNewsletterNudge />
       </article>
     </>
   )

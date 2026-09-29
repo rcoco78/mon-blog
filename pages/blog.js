@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { getAllPosts } from '../lib/notion'
 import { list } from '@vercel/blob'
-import ViewCounter from '../components/ViewCounter'
 import { useState, useEffect } from 'react'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
@@ -19,6 +18,13 @@ export default function Blog({ posts }) {
   const router = useRouter()
   const initialSearch = typeof router.query?.search === 'string' ? router.query.search.trim() : ''
   const [selectedTag, setSelectedTag] = useState(null)
+
+  const selectTag = (tag) => {
+    const query = { ...router.query }
+    delete query.tag
+    if (tag) query.tag = tag
+    router.push({ pathname: '/blog', query }, undefined, { shallow: true })
+  }
   const [searchText, setSearchText] = useState(initialSearch)
   const [allTags, setAllTags] = useState([])
   const [filteredPosts, setFilteredPosts] = useState(posts)
@@ -37,6 +43,12 @@ export default function Blog({ posts }) {
       setSearchText(querySearch.trim())
     }
   }, [router.query.search])
+
+  useEffect(() => {
+    if (!router.isReady) return
+    const raw = typeof router.query.tag === 'string' ? router.query.tag : ''
+    setSelectedTag(raw ? canonicalTag(raw) : null)
+  }, [router.isReady, router.query.tag])
 
   useEffect(() => {
     // Extraire tous les tags uniques
@@ -250,7 +262,7 @@ export default function Blog({ posts }) {
             <div className="flex flex-nowrap gap-x-4 overflow-x-auto pb-1 text-sm scrollbar-hide">
               <button
                 type="button"
-                onClick={() => setSelectedTag(null)}
+                onClick={() => selectTag(null)}
                 className={`shrink-0 whitespace-nowrap pb-1 border-b border-dashed ${
                   selectedTag === null
                     ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100'
@@ -263,7 +275,7 @@ export default function Blog({ posts }) {
                 <button
                   key={tag}
                   type="button"
-                  onClick={() => setSelectedTag(tag)}
+                  onClick={() => selectTag(tag)}
                   className={`shrink-0 whitespace-nowrap pb-1 border-b border-dashed ${
                     selectedTag === tag
                       ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100'
@@ -299,7 +311,9 @@ export default function Blog({ posts }) {
                             <span className="truncate">{post.title}</span>
                           </p>
                         <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
-                          <ViewCounter slug={post.slug} />
+                          <span className="text-sm text-neutral-500 whitespace-nowrap">
+                            {(allViews[post.slug] ?? post.views ?? 0).toLocaleString('fr-FR')} vues
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -326,7 +340,7 @@ export default function Blog({ posts }) {
                     Aucun article ne correspond à ce tag.
                     <br />
                     <button
-                      onClick={() => setSelectedTag(null)}
+                      onClick={() => selectTag(null)}
                       className="mt-4 text-sm underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
                     >
                       Réinitialiser le filtre

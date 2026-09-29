@@ -7,6 +7,7 @@ import { siteConfig } from '../../lib/config'
 // Utiliser Blob Storage comme source principale avec fallback vers fichier local
 import { getCaseStudiesFromBlob } from '../../lib/case-studies-blob'
 import { sectorToSlug } from '../../lib/case-studies-helpers'
+import { isCaseStudyIndexable } from '../../lib/case-studies-quality'
 import { list } from '@vercel/blob'
 
 // Plus besoin de cette constante, on charge depuis Blob Storage dans getStaticProps
@@ -413,8 +414,10 @@ export async function getStaticProps() {
     }
   })
 
+  const indexableCaseStudies = caseStudies.filter((cs) => isCaseStudyIndexable(cs))
+
   // Ajouter les vues aux case studies et trier par popularité
-  const caseStudiesWithViews = caseStudies.map(cs => ({
+  const caseStudiesWithViews = indexableCaseStudies.map(cs => ({
     ...cs,
     views: allViewsMap[cs.slug] || 0
   }))
@@ -441,7 +444,7 @@ export async function getStaticProps() {
   // Pré-calculer les secteurs avec leurs comptes (triés par ordre décroissant)
   // Utilise caseStudies déjà chargé (évite N+1 fetches Blob)
   const sectorCounts = {}
-  for (const cs of caseStudies) {
+  for (const cs of indexableCaseStudies) {
     if (cs.sector) {
       sectorCounts[cs.sector] = (sectorCounts[cs.sector] || 0) + 1
     }
@@ -461,7 +464,7 @@ export async function getStaticProps() {
 
   // Cas d'usage générés aujourd'hui (triés du plus récent au plus ancien, max 10)
   const today = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
-  const todaysCaseStudies = caseStudies
+  const todaysCaseStudies = indexableCaseStudies
     .filter(cs => cs.createdAt && cs.createdAt.startsWith(today))
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 10)
@@ -479,7 +482,7 @@ export async function getStaticProps() {
       sectorsWithCounts: filteredSectors,
       viewsMap,
       todaysCaseStudies,
-      totalCount: caseStudies.length,
+      totalCount: indexableCaseStudies.length,
     },
     revalidate: 60, // ISR : revalider toutes les 60s (perf + nouveaux cas visibles sous 1 min)
   }

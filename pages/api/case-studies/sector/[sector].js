@@ -2,6 +2,7 @@
 import { getCaseStudiesBySector } from '../../../../lib/case-studies-blob'
 import { getCaseStudiesBySector as getCaseStudiesBySectorLocal } from '../../../../lib/case-studies'
 import { slugToSector } from '../../../../lib/case-studies-helpers'
+import { isCaseStudyIndexable } from '../../../../lib/case-studies-quality'
 
 const MAX_DESCRIPTION_LENGTH = 150
 const MAX_EXAMPLES = 3
@@ -43,6 +44,8 @@ export default async function handler(req, res) {
     } catch (error) {
       sectorCaseStudies = getCaseStudiesBySectorLocal(sector)
     }
+
+    sectorCaseStudies = (sectorCaseStudies || []).filter((cs) => isCaseStudyIndexable(cs))
 
     // Filtrage par recherche si fourni
     let filtered = sectorCaseStudies

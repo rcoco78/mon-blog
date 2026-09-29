@@ -572,73 +572,6 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
               returnFees: 'https://schema.org/FreeReturn'
             }
           },
-          aggregateRating: {
-            '@type': 'AggregateRating',
-            ratingValue: '5',
-            reviewCount: '1',
-            bestRating: '5',
-            worstRating: '1'
-          },
-          review: {
-            '@type': 'Review',
-            author: {
-              '@type': 'Person',
-              name: 'Client satisfait',
-              url: siteConfig.url
-            },
-            reviewRating: {
-              '@type': 'Rating',
-              ratingValue: '5',
-              bestRating: '5',
-              worstRating: '1'
-            },
-            reviewBody: `Service professionnel de scraping pour ${caseStudy.sector.toLowerCase()}. Extraction de données rapide et fiable avec livraison dans les délais convenus.`,
-            datePublished: today
-          }
-        }}
-      />
-
-      {/* Review Schema avec avis réels */}
-      <StructuredData
-        type="Review"
-        data={{
-          itemReviewed: {
-            '@type': 'Product',
-            name: caseStudy.title,
-            url: pageUrl,
-            description: `Service de scraping et automatisation pour ${caseStudy.sector.toLowerCase()}`,
-            image: getCaseStudyImage(caseStudy, personalizedData) || siteConfig.ogImage,
-            brand: {
-              '@type': 'Brand',
-              name: siteConfig.author,
-              url: siteConfig.url
-            },
-            offers: {
-              '@type': 'Offer',
-              price: '500',
-              priceCurrency: 'EUR',
-              availability: 'https://schema.org/InStock',
-              priceValidUntil: getPriceValidUntil(),
-              priceSpecification: {
-                '@type': 'UnitPriceSpecification',
-                price: '500',
-                priceCurrency: 'EUR',
-                valueAddedTaxIncluded: true
-              }
-            }
-          },
-          reviewRating: {
-            '@type': 'Rating',
-            ratingValue: '5',
-            bestRating: '5',
-            worstRating: '1'
-          },
-          author: {
-            '@type': 'Person',
-            name: 'Client satisfait'
-          },
-          reviewBody: `Service professionnel de scraping pour ${caseStudy.sector.toLowerCase()}. Extraction de données rapide et fiable avec livraison dans les délais convenus.`,
-          datePublished: today
         }}
       />
 
@@ -1736,13 +1669,13 @@ export async function getStaticProps({ params }) {
           enriched.push(link)
         }
       }
-      relatedCaseStudies = enriched
+      relatedCaseStudies = enriched.filter((cs) => isCaseStudyIndexable(cs))
     } else {
-      relatedCaseStudies = await getRelatedCaseStudies(params.slug, 4)
+      relatedCaseStudies = (await getRelatedCaseStudies(params.slug, 8)).filter((cs) => isCaseStudyIndexable(cs)).slice(0, 4)
     }
   } catch (error) {
     console.warn('⚠️ Erreur lors de la récupération des cas similaires, fallback:', error.message)
-    relatedCaseStudies = getRelatedCaseStudiesLocal(params.slug, 4)
+    relatedCaseStudies = getRelatedCaseStudiesLocal(params.slug, 8).filter((cs) => isCaseStudyIndexable(cs)).slice(0, 4)
   }
 
   // Calculer les vues et déterminer si populaire (top 3)
@@ -1817,6 +1750,22 @@ export async function getStaticProps({ params }) {
   // On charge les articles de manière asynchrone côté client pour ne pas bloquer le rendu initial
   // Cela améliore significativement le temps de chargement de la page
   let relatedPosts = []
+  try {
+    const { fetchBlobJson } = await import('../../../lib/blob-cache')
+    const data = await fetchBlobJson('blog-posts.json')
+    const posts = Array.isArray(data?.posts) ? data.posts : []
+    const sector = String(caseStudy.sector || '').toLowerCase()
+    relatedPosts = posts
+      .filter((post) =>
+        (post.tags || []).some((tag) => {
+          const t = String(tag).toLowerCase()
+          return t && (sector.includes(t) || t.includes(sector))
+        })
+      )
+      .slice(0, 2)
+  } catch (error) {
+    console.warn('Articles liés au cas d’usage:', error.message)
+  }
 
   // Trouver des outils/databases pertinents par secteur ou keywords
   let relatedTools = []

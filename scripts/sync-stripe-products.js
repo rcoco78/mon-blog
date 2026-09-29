@@ -88,7 +88,9 @@ async function findPriceForAmount(stripe, productId, amountCents) {
     product: productId,
     active: true,
   })
-  return prices.data.find((p) => p.unit_amount === amountCents && !p.recurring)
+  return prices.data.find(
+    (p) => p.unit_amount === amountCents && !p.recurring && p.tax_behavior === 'exclusive'
+  )
 }
 
 async function run() {
@@ -137,22 +139,22 @@ async function run() {
         if (price) {
           priceId = price.id
           log(`    ✓ Réutilisé : ${priceId}`, 'green')
-        } else if (forceRecreate) {
+        } else {
+          const active = await stripe.prices.list({ product: product.id, active: true })
+          for (const old of active.data) {
+            if (!old.recurring) {
+              await stripe.prices.update(old.id, { active: false })
+            }
+          }
           const newPrice = await stripe.prices.create({
             product: product.id,
             currency: 'eur',
             unit_amount: amountCents,
-            tax_behavior: 'inclusive',
+            tax_behavior: 'exclusive',
             metadata: { slug },
           })
           priceId = newPrice.id
-          log(`    ✓ Nouveau prix (montant changé) : ${priceId}`, 'green')
-        } else {
-          price = (await stripe.prices.list({ product: product.id, active: true })).data[0]
-          priceId = price?.id
-          if (priceId) {
-            log(`    ⚠ Réutilise prix existant (${priceId}) - montant différent, utilisez --force pour recréer`, 'yellow')
-          }
+          log(`    ✓ Prix HT exclusif : ${priceId}`, 'green')
         }
       } else {
         product = await stripe.products.create({
@@ -164,7 +166,7 @@ async function run() {
           product: product.id,
           currency: 'eur',
           unit_amount: amountCents,
-          tax_behavior: 'inclusive',
+          tax_behavior: 'exclusive',
           metadata: { slug },
         })
         priceId = price.id
@@ -193,7 +195,7 @@ async function run() {
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       try {
         const { put } = require('@vercel/blob')
-        await put('stripe-price-ids.json', json, { access: 'public' })
+        await put('stripe-price-ids.json', json, { access: 'public', allowOverwrite: true })
         log(`✓ Mapping aussi sauvegardé dans Vercel Blob`, 'green')
       } catch (e) {
         log(`⚠ Blob non mis à jour : ${e.message}`, 'yellow')

@@ -8,6 +8,7 @@ import { siteConfig } from '../../../lib/config'
 import { getCaseStudiesFromBlob, getCaseStudiesBySector } from '../../../lib/case-studies-blob'
 import { getCaseStudiesBySector as getCaseStudiesBySectorLocal } from '../../../lib/case-studies'
 import { slugToSector, sectorToSlug } from '../../../lib/case-studies-helpers'
+import { isCaseStudyIndexable } from '../../../lib/case-studies-quality'
 import CaseStudyViewCounter from '../../../components/CaseStudyViewCounter'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
@@ -519,6 +520,8 @@ export async function getStaticProps({ params }) {
     // Fallback vers fichier local
     sectorCaseStudies = getCaseStudiesBySectorLocal(sector)
   }
+
+  sectorCaseStudies = (sectorCaseStudies || []).filter((cs) => isCaseStudyIndexable(cs))
 
   // Vérification de sécurité
   if (!sectorCaseStudies || !Array.isArray(sectorCaseStudies) || sectorCaseStudies.length === 0) {

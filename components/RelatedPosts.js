@@ -1,6 +1,10 @@
 import Link from 'next/link'
-import Tag from './Tag'
 import { getPrimarySeries, getSeriesPosts } from '../lib/blog-series'
+
+function canonicalTag(tag = '') {
+  if (/^freelanc/i.test(tag)) return 'Freelance'
+  return tag
+}
 
 function byTagScore(currentPost, allPosts, excludeSlugs = new Set()) {
   const currentTags = currentPost.tags || []
@@ -86,7 +90,13 @@ export default function RelatedPosts({ currentPost, allPosts }) {
               </h3>
               <div className="flex items-center ml-1.5 flex-shrink-0">
                 {(post.tags || []).slice(0, 1).map((tag) => (
-                  <Tag key={tag} name={tag} isActive={false} onClick={() => {}} />
+                  <Link
+                    key={tag}
+                    href={`/blog?tag=${encodeURIComponent(canonicalTag(tag))}`}
+                    className="text-xs text-neutral-500 underline underline-offset-2"
+                  >
+                    {canonicalTag(tag)}
+                  </Link>
                 ))}
               </div>
             </div>

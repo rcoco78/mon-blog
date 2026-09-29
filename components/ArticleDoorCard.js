@@ -1,11 +1,12 @@
+import Link from 'next/link'
 import { siteConfig } from '../lib/config'
-import { getArticleDoor } from '../lib/article-door'
+import { getArticleDoor, pickArticleDoor } from '../lib/article-door'
 
 const COPY = {
-  datareacher: {
+  marketplace: {
     kicker: 'Dans le même fil — données',
-    line: 'Je rassemble sur Datareacher les scripts et les listes liés à ces sujets.',
-    cta: 'Voir les ressources sur Datareacher',
+    line: 'Les bases que je vends sont sur la marketplace : tu choisis, tu paies, tu copies le Sheet.',
+    cta: 'Voir les bases',
   },
   outreacher: {
     kicker: 'Dans le même fil — outbound',
@@ -18,8 +19,12 @@ const COPY = {
  * Note de fin d’article : une ressource contextuelle selon le sujet.
  */
 export default function ArticleDoorCard({ post }) {
-  const door = getArticleDoor(post, siteConfig.network)
-  const copy = COPY[door.id] || COPY.datareacher
+  const doorId = pickArticleDoor(post) === 'outreacher' ? 'outreacher' : 'marketplace'
+  const door = doorId === 'outreacher' ? getArticleDoor(post, siteConfig.network) : null
+  const copy = COPY[doorId]
+
+  const linkClass =
+    'underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 text-neutral-900 dark:text-neutral-100 font-medium transition-colors'
 
   return (
     <aside
@@ -30,7 +35,7 @@ export default function ArticleDoorCard({ post }) {
         {copy.kicker}
       </p>
       <div className="flex items-start gap-3">
-        {door.icon ? (
+        {door?.icon ? (
           <span
             className={`mt-0.5 inline-flex w-6 h-6 shrink-0 items-center justify-center overflow-hidden ${
               door.iconShape === 'round' ? '' : 'rounded-md'
@@ -48,14 +53,15 @@ export default function ArticleDoorCard({ post }) {
           </span>
         ) : null}
         <div className="min-w-0">
-          <a
-            href={door.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 text-neutral-900 dark:text-neutral-100 font-medium transition-colors"
-          >
-            {copy.cta}
-          </a>
+          {doorId === 'marketplace' ? (
+            <Link href="/marketplace" className={linkClass}>
+              {copy.cta}
+            </Link>
+          ) : (
+            <a href={door.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
+              {copy.cta}
+            </a>
+          )}
           <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400 tracking-tight">
             {copy.line}
           </p>

@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from 'react'
+import { headingId } from '../lib/heading-id'
 
 function normalizeMarkdown(markdown) {
   if (!markdown) return null
@@ -67,12 +68,7 @@ export default function TableOfContents({ markdown }) {
       text = text.replace(/\*\*(.*?)\*\*/g, '$1')
       text = text.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
 
-      const id = text
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim()
+      const id = headingId(text)
 
       items.push({ id, text, level })
     }

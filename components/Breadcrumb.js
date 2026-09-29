@@ -53,7 +53,7 @@ export default function Breadcrumb({ title, slug, items }) {
     {
       '@type': 'ListItem',
       position: 2,
-      name: 'Blog',
+      name: 'Journal',
       item: `${siteConfig.url}/blog`
     },
     {

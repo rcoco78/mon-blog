@@ -169,11 +169,6 @@ export default function EmailGenerator() {
     url: `${siteConfig.url}/outils/email-generator`,
     screenshot: toolData.videoThumbnail || `${siteConfig.url}/images/og-default.jpg`,
     featureList: toolData.formats || [],
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '5',
-      ratingCount: '150'
-    }
   }
 
   const relatedToolsList = tools.filter(tool => 
@@ -186,31 +181,6 @@ export default function EmailGenerator() {
         {...pageSEO} 
         ogType="product"
         ogImage={toolData.videoThumbnail || undefined}
-      />
-      
-      {/* Review Schema 5* par défaut */}
-      <StructuredData
-        type="Review"
-        data={{
-          itemReviewed: {
-            '@type': 'SoftwareApplication',
-            name: toolData.name,
-            url: `${siteConfig.url}/outils/email-generator`
-          },
-          reviewRating: {
-            '@type': 'Rating',
-            ratingValue: '5',
-            bestRating: '5',
-            worstRating: '1'
-          },
-          author: {
-            '@type': 'Person',
-            name: siteConfig.author,
-            url: siteConfig.url
-          },
-          reviewBody: toolData.description,
-          datePublished: new Date().toISOString().split('T')[0]
-        }}
       />
       
       <StructuredData type="SoftwareApplication" data={toolStructuredData} />

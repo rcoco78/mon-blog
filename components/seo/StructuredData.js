@@ -110,7 +110,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         const navItems = data.items || [
           { name: 'À propos', url: `${siteConfig.url}/a-propos` },
           { name: 'Marketplace', url: `${siteConfig.url}/marketplace` },
-          { name: 'Blog', url: `${siteConfig.url}/blog` }
+          { name: 'Journal', url: `${siteConfig.url}/blog` }
         ];
         return {
           '@context': 'https://schema.org',
@@ -245,7 +245,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           isAccessibleForFree: true,
           isPartOf: {
             '@type': 'Blog',
-            name: 'Blog - Corentin Robert',
+            name: 'Journal',
             url: `${siteConfig.url}/blog`
           }
         }
@@ -463,7 +463,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
         return {
           '@context': 'https://schema.org',
           '@type': 'Blog',
-          name: data.name || 'Blog Scraping et Automatisation - Corentin Robert',
+          name: data.name || 'Journal',
           description: data.description || 'Articles sur le scraping, l\'automatisation et l\'entrepreneuriat. Cas d\'usage concrets, ROI mesurable, réflexions sur le business.',
           url: data.url || `${siteConfig.url}/blog`,
           author: {
@@ -495,11 +495,7 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
             availability: data.availability || 'https://schema.org/InStock',
             url: data.downloadUrl || data.url
           }),
-          aggregateRating: data.aggregateRating || {
-            '@type': 'AggregateRating',
-            ratingValue: '4.8',
-            ratingCount: '150'
-          },
+          ...(data.aggregateRating ? { aggregateRating: data.aggregateRating } : {}),
           description: data.description,
           url: data.url,
           screenshot: data.screenshot,
@@ -700,51 +696,8 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
               itemReviewed.offers = enrichOffer(itemReviewed.offers);
             }
             
-            // Ajouter aggregateRating si manquant (recommandé pour les extraits de produits)
-            if (!itemReviewed.aggregateRating) {
-              // Si on a une review, créer aggregateRating à partir de la review
-              if (itemReviewed.review) {
-                const reviewRating = itemReviewed.review.reviewRating || itemReviewed.review.ratingValue;
-                const ratingValue = clampRatingValue(reviewRating?.ratingValue || reviewRating || '5');
-                itemReviewed.aggregateRating = {
-                  '@type': 'AggregateRating',
-                  ratingValue: ratingValue,
-                  reviewCount: '1',
-                  bestRating: '5',
-                  worstRating: '1'
-                };
-              } else {
-                // Sinon, créer un aggregateRating par défaut
-                itemReviewed.aggregateRating = {
-                  '@type': 'AggregateRating',
-                  ratingValue: '5',
-                  reviewCount: '1',
-                  bestRating: '5',
-                  worstRating: '1'
-                };
-              }
-            } else {
+            if (itemReviewed.aggregateRating) {
               itemReviewed.aggregateRating = normalizeAggregateRating(itemReviewed.aggregateRating);
-            }
-            
-            // Ajouter review si manquant (recommandé pour les extraits de produits)
-            if (!itemReviewed.review) {
-              itemReviewed.review = {
-                '@type': 'Review',
-                author: {
-                  '@type': 'Person',
-                  name: siteConfig.author,
-                  url: siteConfig.url
-                },
-                reviewRating: {
-                  '@type': 'Rating',
-                  ratingValue: clampRatingValue(itemReviewed.aggregateRating?.ratingValue || '5'),
-                  bestRating: '5',
-                  worstRating: '1'
-                },
-                reviewBody: itemReviewed.description || `Service professionnel de ${itemReviewed.name || 'scraping et automatisation'}.`,
-                datePublished: new Date().toISOString().split('T')[0]
-              };
             }
           }
           review.itemReviewed = itemReviewed;
@@ -758,29 +711,6 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
               '@type': 'Brand',
               name: siteConfig.author,
               url: siteConfig.url
-            },
-            aggregateRating: {
-              '@type': 'AggregateRating',
-              ratingValue: '5',
-              reviewCount: '1',
-              bestRating: '5',
-              worstRating: '1'
-            },
-            review: {
-              '@type': 'Review',
-              author: {
-                '@type': 'Person',
-                name: siteConfig.author,
-                url: siteConfig.url
-              },
-              reviewRating: {
-                '@type': 'Rating',
-                ratingValue: '5',
-                bestRating: '5',
-                worstRating: '1'
-              },
-              reviewBody: data.description || `Service professionnel de ${data.serviceName}.`,
-              datePublished: new Date().toISOString().split('T')[0]
             },
             offers: enrichOffer({
               '@type': 'Offer',
@@ -899,49 +829,11 @@ export default function StructuredData({ type = 'WebSite', data = {} }) {
           review: data.review || (data.reviews && data.reviews.length > 0 ? data.reviews : undefined)
         };
         
-        // Si pas d'aggregateRating mais qu'on a une review, créer aggregateRating à partir de la review
-        if (!product.aggregateRating && product.review) {
-          const reviewRating = product.review.reviewRating || product.review.ratingValue;
-          const ratingValue = clampRatingValue(reviewRating?.ratingValue || reviewRating || '5');
-          product.aggregateRating = {
-            '@type': 'AggregateRating',
-            ratingValue: ratingValue,
-            reviewCount: '1',
-            bestRating: '5',
-            worstRating: '1'
-          };
-        } else if (!product.aggregateRating && !product.review) {
-          // Si ni aggregateRating ni review, créer un aggregateRating par défaut
-          product.aggregateRating = {
-            '@type': 'AggregateRating',
-            ratingValue: '5',
-            reviewCount: '1',
-            bestRating: '5',
-            worstRating: '1'
-          };
-        } else if (product.aggregateRating) {
+        if (product.aggregateRating) {
           product.aggregateRating = normalizeAggregateRating(product.aggregateRating);
         }
-        
-        // Si pas de review fournie, créer une review par défaut (recommandé pour les extraits de produits)
-        if (!product.review) {
-          product.review = {
-            '@type': 'Review',
-            author: {
-              '@type': 'Person',
-              name: siteConfig.author,
-              url: siteConfig.url
-            },
-            reviewRating: {
-              '@type': 'Rating',
-              ratingValue: clampRatingValue(product.aggregateRating?.ratingValue || '5'),
-              bestRating: '5',
-              worstRating: '1'
-            },
-            reviewBody: data.description || `Service professionnel de ${data.name || 'scraping et automatisation'}.`,
-            datePublished: new Date().toISOString().split('T')[0]
-          };
-        } else if (product.review?.reviewRating) {
+
+        if (product.review?.reviewRating) {
           product.review = {
             ...product.review,
             reviewRating: {

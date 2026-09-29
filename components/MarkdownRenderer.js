@@ -3,6 +3,7 @@ import remarkGfm from 'remark-gfm'
 import Image from 'next/image'
 import ImageWithZoom from './ImageWithZoom'
 import SocialEmbed, { isInstagramUrl } from './SocialEmbed'
+import { headingId } from '../lib/heading-id'
 
 function BlogFigure({ src, alt, caption, local = false }) {
   const image = local ? (
@@ -114,27 +115,15 @@ export default function MarkdownRenderer({ children }) {
             )
           },
           h1: ({ node, children, ...props }) => {
-            const id = children
-              ?.toString()
-              .toLowerCase()
-              .replace(/[^a-z0-9\s-]/g, '')
-              .replace(/\s+/g, '-')
-              .replace(/-+/g, '-')
-              .trim()
+            const id = headingId(children?.toString())
             return (
-              <h1 id={id} className="text-2xl font-semibold tracking-tighter mb-4 mt-10 scroll-mt-24" {...props}>
+              <h2 id={id} className="text-xl font-semibold tracking-tighter mb-4 mt-10 scroll-mt-24" {...props}>
                 {children}
-              </h1>
+              </h2>
             )
           },
           h2: ({ node, children, ...props }) => {
-            const id = children
-              ?.toString()
-              .toLowerCase()
-              .replace(/[^a-z0-9\s-]/g, '')
-              .replace(/\s+/g, '-')
-              .replace(/-+/g, '-')
-              .trim()
+            const id = headingId(children?.toString())
             return (
               <h2 id={id} className="text-xl font-semibold tracking-tighter mb-4 mt-10 scroll-mt-24" {...props}>
                 {children}
@@ -142,13 +131,7 @@ export default function MarkdownRenderer({ children }) {
             )
           },
           h3: ({ node, children, ...props }) => {
-            const id = children
-              ?.toString()
-              .toLowerCase()
-              .replace(/[^a-z0-9\s-]/g, '')
-              .replace(/\s+/g, '-')
-              .replace(/-+/g, '-')
-              .trim()
+            const id = headingId(children?.toString())
             return (
               <h3 id={id} className="text-lg font-semibold tracking-tight mb-3 mt-8 scroll-mt-24" {...props}>
                 {children}
