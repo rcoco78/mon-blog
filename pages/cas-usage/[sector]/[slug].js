@@ -10,6 +10,7 @@ import { siteConfig } from '../../../lib/config'
 import { slugToSector, sectorToSlug } from '../../../lib/case-studies-helpers'
 import { isCaseStudyIndexable } from '../../../lib/case-studies-quality'
 import { getCaseStudyRedirect } from '../../../lib/case-studies-gsc-policy'
+import { applyCaseStudyContentOverride } from '../../../lib/case-studies-content-overrides'
 // Imports dynamiques pour réduire le temps de compilation initial
 import { tools } from '../../../lib/tools'
 // import { getAllPosts } from '../../../lib/notion' // Non utilisé - chargement côté client si nécessaire
@@ -766,6 +767,16 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
           <p className="text-lg text-neutral-600 dark:text-neutral-400 mb-8 tracking-tight leading-relaxed">
             {caseStudy.description}
           </p>
+          {personalizedData?.relatedInternal?.href && (
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-6">
+              <Link
+                href={personalizedData.relatedInternal.href}
+                className="underline hover:text-neutral-900 dark:hover:text-neutral-100"
+              >
+                {personalizedData.relatedInternal.label || personalizedData.relatedInternal.href}
+              </Link>
+            </p>
+          )}
 
           {/* Accroche conversion - Pain point */}
           {caseStudy.painPoint && (
@@ -1748,6 +1759,12 @@ export async function getStaticProps({ params }) {
   } catch (error) {
     console.warn('⚠️ Erreur lors de la récupération des données personnalisées:', error.message)
   }
+
+  // Contenu factuel pour les fiches qui rankent (overrides locaux, pas d’invention de chiffres)
+  ;({ caseStudy, personalizedData } = applyCaseStudyContentOverride(
+    caseStudy,
+    personalizedData,
+  ))
 
   // Récupérer les cas d'usage similaires
   // Priorité : relatedLinks pré-calculés par le générateur (maillage interne automatique)

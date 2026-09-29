@@ -1,217 +1,12 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import FAQ from '../components/FAQ'
 import { openCalendlyPopup } from '../lib/calendly'
 
-function findAbonnesKeyResult(keyResults) {
-  return keyResults.find((kr) => {
-    const nameLower = (kr.name || '').toLowerCase()
-    const categoryLower = (kr.category || '').toLowerCase()
-    return (
-      (nameLower.includes('abonnés') || nameLower.includes('abonne')) &&
-      (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial'))
-    )
-  })
-}
-
-/** Nombre de jours calendaires entre deux chaînes de date (ISO ou locale). */
-function calendarDaysBetween(dateStrA, dateStrB) {
-  const a = new Date(dateStrA)
-  const b = new Date(dateStrB)
-  if (isNaN(a.getTime()) || isNaN(b.getTime())) return 0
-  const startA = new Date(a.getFullYear(), a.getMonth(), a.getDate()).getTime()
-  const startB = new Date(b.getFullYear(), b.getMonth(), b.getDate()).getTime()
-  return Math.round((startB - startA) / 86400000)
-}
-
-function toLocalYMD(dateInput) {
-  const x = dateInput instanceof Date ? dateInput : new Date(dateInput)
-  if (isNaN(x.getTime())) return null
-  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`
-}
-
-function addLocalDaysYMD(ymd, deltaDays) {
-  if (!ymd || typeof deltaDays !== 'number') return null
-  const [y, m, d] = ymd.split('-').map(Number)
-  if (!y || !m || !d) return null
-  const dt = new Date(y, m - 1, d + deltaDays)
-  if (isNaN(dt.getTime())) return null
-  return toLocalYMD(dt)
-}
-
-/** Au plus un point par jour calendaire : comble les trous entre deux mesures avec la valeur du point précédent (pas d’interpolation). */
-function densifyHistoryWithForwardFill(history, maxFillBetween = 400) {
-  if (!Array.isArray(history) || history.length === 0) return []
-  const sorted = [...history]
-    .filter((h) => h && h.date != null && h.date !== '')
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-  if (sorted.length === 0) return []
-
-  const out = []
-  for (let i = 0; i < sorted.length; i++) {
-    const cur = sorted[i]
-    out.push(cur)
-    if (i === sorted.length - 1) break
-    const next = sorted[i + 1]
-    const gap = calendarDaysBetween(cur.date, next.date)
-    if (gap <= 1) continue
-
-    const curYmd = toLocalYMD(cur.date)
-    const nextYmd = toLocalYMD(next.date)
-    if (!curYmd || !nextYmd) continue
-
-    const baseVal = Number(cur.valeur)
-    const v = Number.isFinite(baseVal) ? baseVal : 0
-    const maxSteps = Math.min(gap - 1, maxFillBetween)
-    for (let s = 1; s <= maxSteps; s++) {
-      const fillYmd = addLocalDaysYMD(curYmd, s)
-      if (!fillYmd || fillYmd >= nextYmd) break
-      out.push({
-        id: `daily-fill-${fillYmd}-${String(cur.id || i).slice(0, 12)}`,
-        date: fillYmd,
-        valeur: v,
-        syntheticDailyFill: true
-      })
-    }
-  }
-  return out
-}
-
-/**
- * Valeur de référence pour l’année : idéalement le 1er janvier à 0h (local),
- * sinon première mesure de l’année, sinon dernière avant le 1er janv.
- */
-function getYearStartValueFromHistory(history, year) {
-  const empty = { valeur: null, date: null, label: null }
-  if (!Array.isArray(history) || history.length === 0) return empty
-
-  const sorted = [...history]
-    .filter((h) => h && h.date != null && h.date !== '')
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-
-  if (sorted.length === 0) return empty
-
-  const sameCalendarDay = (dateStr, y, monthIndex, day) => {
-    const x = new Date(dateStr)
-    if (isNaN(x.getTime())) return false
-    return x.getFullYear() === y && x.getMonth() === monthIndex && x.getDate() === day
-  }
-
-  const jan1Start = new Date(year, 0, 1).getTime()
-
-  const exact = sorted.find((h) => sameCalendarDay(h.date, year, 0, 1))
-  if (exact) {
-    const v = Number(exact.valeur)
-    return { valeur: Number.isFinite(v) ? v : null, date: exact.date, label: 'exact' }
-  }
-
-  const firstInYear = sorted.find((h) => {
-    const t = new Date(h.date).getTime()
-    return !isNaN(t) && t >= jan1Start
-  })
-  if (firstInYear) {
-    const v = Number(firstInYear.valeur)
-    return { valeur: Number.isFinite(v) ? v : null, date: firstInYear.date, label: 'first_in_year' }
-  }
-
-  const lastBefore = [...sorted].reverse().find((h) => {
-    const t = new Date(h.date).getTime()
-    return !isNaN(t) && t < jan1Start
-  })
-  if (lastBefore) {
-    const v = Number(lastBefore.valeur)
-    return { valeur: Number.isFinite(v) ? v : null, date: lastBefore.date, label: 'last_before_year' }
-  }
-
-  return empty
-}
-
-/** L’historique remonté n’est pas toujours à jour ; on aligne sur le Current result du KR affiché sur les cartes. */
-function mergeHistoryWithCurrentKR(history, currentResult, syncPrefix = 'kr-sync') {
-  const cur = Number(currentResult)
-  if (!Number.isFinite(cur) || cur < 0) {
-    return Array.isArray(history) ? history : []
-  }
-  const rounded = Math.round(cur)
-  const h = Array.isArray(history) ? [...history] : []
-  const now = new Date()
-  const todayYMD = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-
-  if (h.length === 0) {
-    return [{ id: `${syncPrefix}-init`, date: todayYMD, valeur: rounded, syntheticFromKeyResult: true }]
-  }
-
-  const last = h[h.length - 1]
-  const lastNum = Number(last?.valeur)
-  let lastYMD = null
-  if (last?.date) {
-    const d = new Date(last.date)
-    if (!isNaN(d.getTime())) {
-      lastYMD = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-    }
-  }
-
-  if (lastYMD === todayYMD) {
-    if (Number.isFinite(lastNum) && lastNum !== rounded) {
-      h[h.length - 1] = { ...last, valeur: rounded }
-    }
-    return h
-  }
-
-  if (Number.isFinite(lastNum) && lastNum === rounded) {
-    return h
-  }
-
-  h.push({
-    id: `${syncPrefix}-${todayYMD}`,
-    date: todayYMD,
-    valeur: rounded,
-    syntheticFromKeyResult: true
-  })
-  return h
-}
-
-function findApifyUsersTotalKeyResult(keyResults) {
-  let kr = keyResults.find((k) => {
-    const nameLower = (k.name || '').toLowerCase()
-    const categoryLower = (k.category || '').toLowerCase()
-    return (
-      (nameLower.includes('utilisateurs total') || nameLower.includes('total users') || nameLower.includes('total utilisateurs')) &&
-      (nameLower.includes('apify') || categoryLower.includes('apify') || categoryLower.includes('scraping')) &&
-      !nameLower.includes('mensuel') &&
-      !nameLower.includes('monthly')
-    )
-  })
-  if (!kr) {
-    const matchingKRs = keyResults.filter((k) => {
-      const nameLower = (k.name || '').toLowerCase()
-      const categoryLower = (k.category || '').toLowerCase()
-      return (
-        (nameLower.includes('utilisateur') || nameLower.includes('user')) &&
-        (nameLower.includes('apify') || categoryLower.includes('apify') || categoryLower.includes('scraping')) &&
-        !nameLower.includes('mensuel') &&
-        !nameLower.includes('monthly')
-      )
-    })
-    if (matchingKRs.length > 0) {
-      // Préférer le KR avec le plus grand currentResult (pas la cible)
-      kr = matchingKRs.reduce((max, k) =>
-        (k.currentResult || 0) > (max.currentResult || 0) ? k : max
-      )
-    }
-  }
-  return kr
-}
-
-/**
- * Objectif considéré comme terminé : statut dans la base (souvent « Complete », pas « completed »)
- * ou cible numérique atteinte / dépassée.
- */
 function isKeyResultCompleted(kr) {
   const t = Number(kr?.targetResult)
   const c = Number(kr?.currentResult)
@@ -265,31 +60,13 @@ export default function DonneesPubliques() {
 
   const [keyResults, setKeyResults] = useState([])
   const [loading, setLoading] = useState(true)
-  const [meetingsHistory, setMeetingsHistory] = useState([])
-  const [meetingsLoading, setMeetingsLoading] = useState(true)
-  const [abonnesHistory, setAbonnesHistory] = useState([])
-  const [abonnesLoading, setAbonnesLoading] = useState(true)
-  const [apifyUsersHistory, setApifyUsersHistory] = useState([])
-  const [apifyUsersLoading, setApifyUsersLoading] = useState(true)
   const [chessStats, setChessStats] = useState(null)
   const [chessLoading, setChessLoading] = useState(true)
   const [chessHistory, setChessHistory] = useState([])
   const [chessHistoryLoading, setChessHistoryLoading] = useState(true)
-  const [selectedCategory, setSelectedCategory] = useState(null) // Filtre par catégorie
-  const [selectedPeriod, setSelectedPeriod] = useState(7) // Période d'évolution : 3, 7 ou 30 jours
-  const [keyResultsHistory, setKeyResultsHistory] = useState({}) // Historique par Key Result ID
-  const [historyLoading, setHistoryLoading] = useState(true) // État de chargement de l'historique
-  const [chartMaxPoints, setChartMaxPoints] = useState(30) // Nombre de points affichés selon la largeur (14 / 21 / 30)
-
-  const abonnesHistorySynced = useMemo(() => {
-    const kr = findAbonnesKeyResult(keyResults)
-    return mergeHistoryWithCurrentKR(abonnesHistory, kr?.currentResult, 'kr-abonnes')
-  }, [abonnesHistory, keyResults])
-
-  const apifyUsersHistorySynced = useMemo(() => {
-    const kr = findApifyUsersTotalKeyResult(keyResults)
-    return mergeHistoryWithCurrentKR(apifyUsersHistory, kr?.currentResult, 'kr-apify-users')
-  }, [apifyUsersHistory, keyResults])
+  const [selectedPeriod] = useState(7)
+  const [keyResultsHistory, setKeyResultsHistory] = useState({})
+  const [historyLoading, setHistoryLoading] = useState(true)
 
   useEffect(() => {
     const fetchKeyResults = async () => {
@@ -315,88 +92,9 @@ export default function DonneesPubliques() {
     fetchKeyResults()
   }, [])
 
-  // Adapter le nombre de points du graphique à la largeur d'écran (éviter le scroll horizontal)
-  useEffect(() => {
-    const updateChartMaxPoints = () => {
-      const w = typeof window !== 'undefined' ? window.innerWidth : 1024
-      setChartMaxPoints(w < 640 ? 14 : w < 1024 ? 21 : 30)
-    }
-    updateChartMaxPoints()
-    window.addEventListener('resize', updateChartMaxPoints)
-    return () => window.removeEventListener('resize', updateChartMaxPoints)
-  }, [])
 
-  useEffect(() => {
-    const fetchMeetingsHistory = async () => {
-      try {
-        setMeetingsLoading(true)
-        const response = await fetch('/api/meetings-history')
-        if (response.ok) {
-          const data = await response.json()
-          setMeetingsHistory(Array.isArray(data) ? data : [])
-        } else {
-          // Même en cas d'erreur HTTP, on peut avoir reçu un tableau vide
-          const data = await response.json().catch(() => [])
-          setMeetingsHistory(Array.isArray(data) ? data : [])
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération de l\'historique des meetings:', error)
-        setMeetingsHistory([])
-      } finally {
-        setMeetingsLoading(false)
-      }
-    }
 
-    fetchMeetingsHistory()
-  }, [])
 
-  useEffect(() => {
-    const fetchAbonnesHistory = async () => {
-      try {
-        setAbonnesLoading(true)
-        const response = await fetch('/api/abonnes-history')
-        if (response.ok) {
-          const data = await response.json()
-          setAbonnesHistory(Array.isArray(data) ? data : [])
-        } else {
-          // Même en cas d'erreur HTTP, on peut avoir reçu un tableau vide
-          const data = await response.json().catch(() => [])
-          setAbonnesHistory(Array.isArray(data) ? data : [])
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération de l\'historique des abonnés:', error)
-        setAbonnesHistory([])
-      } finally {
-        setAbonnesLoading(false)
-      }
-    }
-
-    fetchAbonnesHistory()
-  }, [])
-
-  useEffect(() => {
-    const fetchApifyUsersHistory = async () => {
-      try {
-        setApifyUsersLoading(true)
-        const response = await fetch('/api/apify-users-history')
-        if (response.ok) {
-          const data = await response.json()
-          setApifyUsersHistory(Array.isArray(data) ? data : [])
-        } else {
-          // Même en cas d'erreur HTTP, on peut avoir reçu un tableau vide
-          const data = await response.json().catch(() => [])
-          setApifyUsersHistory(Array.isArray(data) ? data : [])
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération de l\'historique des utilisateurs Apify:', error)
-        setApifyUsersHistory([])
-      } finally {
-        setApifyUsersLoading(false)
-      }
-    }
-
-    fetchApifyUsersHistory()
-  }, [])
 
   useEffect(() => {
     const fetchChessStats = async () => {
@@ -560,11 +258,6 @@ export default function DonneesPubliques() {
     return acc
   }, {})
 
-  // Filtrer par catégorie sélectionnée
-  const filteredGroupedByCategory = selectedCategory 
-    ? Object.fromEntries(Object.entries(groupedByCategory).filter(([cat]) => cat === selectedCategory))
-    : groupedByCategory
-
   // Objectif Chess.com virtuel (si pas déjà présent dans Notion)
   const chessVirtualKRsCount = (() => {
     if (!chessStats || chessLoading) return 0
@@ -600,13 +293,6 @@ export default function DonneesPubliques() {
       ? (chessStats.rapid.current / 1000) * 100
       : 0
   const totalKeyResults = businessKeyResults.length + chessVirtualKRsCount
-  const completedKeyResults = businessKeyResults.filter(isKeyResultCompleted).length
-  const inProgressKeyResults =
-    businessKeyResults.filter((kr) => {
-      if (isKeyResultCompleted(kr)) return false
-      if (isKeyResultNotStarted(kr)) return false
-      return true
-    }).length + chessVirtualKRsCount
   const overallProgress =
     totalKeyResults > 0
       ? Math.round(
@@ -615,20 +301,6 @@ export default function DonneesPubliques() {
         )
       : 0
 
-  // Fonction pour obtenir la couleur du statut
-  const getStatusColor = (status) => {
-    const statusLower = status?.toLowerCase() || ''
-    if (statusLower === 'done' || statusLower === 'complete' || statusLower === 'completed') {
-      return 'bg-green-500 text-white'
-    }
-    if (statusLower === 'in progress' || statusLower === 'in_progress') {
-      return 'bg-blue-500 text-white'
-    }
-    if (statusLower === 'not started') {
-      return 'bg-neutral-300 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300'
-    }
-    return 'bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
-  }
 
   // Fonction pour formater les nombres
   const formatNumber = (num) => {
@@ -1004,455 +676,6 @@ export default function DonneesPubliques() {
     return improved
   }
 
-  // Composant Skeleton avec effet shimmer
-  const SkeletonCard = ({ className = '' }) => {
-    return (
-      <div className={`p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 relative overflow-hidden ${className}`}>
-        {/* Effet shimmer */}
-        <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent"></div>
-        <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4 mb-2"></div>
-        <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-full mb-2"></div>
-        <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-2/3"></div>
-      </div>
-    )
-  }
-
-  const SkeletonMetric = ({ className = '' }) => {
-    return (
-      <div className={`p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 relative overflow-hidden ${className}`}>
-        <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent"></div>
-        <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4 mb-2"></div>
-        <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2"></div>
-      </div>
-    )
-  }
-
-  // Composant mini-graphique pour les cartes individuelles
-  // Hauteurs en px (pas en %) : les % sur flex items ne reflètent pas toujours les vraies proportions.
-  // Même logique d’échelle « amplifiée » que GrowthChart quand la variation est faible vs le niveau (ex. abonnés +12 sur ~430).
-  const MiniGrowthChart = ({ history, height = 40, color = 'blue', maxBars = 18 }) => {
-    if (!history || history.length === 0) return null
-
-    const dense = densifyHistoryWithForwardFill(history)
-    const slice = dense.slice(-Math.max(1, maxBars))
-    const narrowBars = slice.length > 8
-    const barMaxClass = narrowBars
-      ? 'max-w-[6px] sm:max-w-[7px] md:max-w-[8px]'
-      : 'max-w-[12px]'
-    const values = slice.map((h) => {
-      const n = Number(h.valeur)
-      return Number.isFinite(n) ? n : 0
-    })
-    if (values.length === 0) return null
-
-    const minValue = Math.min(...values)
-    const maxValue = Math.max(...values)
-    const range = maxValue - minValue
-
-    let scaleMin
-    let scaleMax
-    if (range === 0) {
-      scaleMin = Math.max(0, minValue - 1)
-      scaleMax = minValue + 1
-    } else {
-      const useAmplifiedScale = range < maxValue * 0.15
-      scaleMax = useAmplifiedScale ? maxValue + range * 0.03 : maxValue + range * 0.05
-      scaleMin = useAmplifiedScale ? Math.max(0, minValue - range * 0.02) : Math.max(0, minValue - range * 0.02)
-    }
-    const scaleRange = Math.max(scaleMax - scaleMin, 1e-9)
-
-    const colorClasses = {
-      blue: 'bg-blue-500 dark:bg-blue-400',
-      green: 'bg-green-500 dark:bg-green-400',
-      purple: 'bg-purple-500 dark:bg-purple-400'
-    }
-    const colorClass = colorClasses[color] || colorClasses.blue
-
-    const columns = []
-    slice.forEach((item, index) => {
-      const v = Number(item.valeur)
-      const safeV = Number.isFinite(v) ? v : 0
-      const t = (safeV - scaleMin) / scaleRange
-      const barPx = Math.max(3, Math.round(t * height))
-
-      let dateDisplay = item.date
-      try {
-        const date = new Date(item.date)
-        if (!isNaN(date.getTime())) {
-          dateDisplay = date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
-        }
-      } catch (e) {
-        // Garder la date originale si le parsing échoue
-      }
-
-      const synthetic = Boolean(item.syntheticFromKeyResult)
-      const dailyFill = Boolean(item.syntheticDailyFill)
-
-      columns.push(
-        <div
-          key={item.id || index}
-          className="flex-1 min-w-0 flex flex-col justify-end relative group/bar"
-        >
-          <div
-            className={`w-full ${barMaxClass} mx-auto ${colorClass} rounded-t transition-all relative ${
-              dailyFill ? 'opacity-45 border border-dashed border-neutral-400/40 dark:border-neutral-500/35' : 'opacity-70'
-            } hover:opacity-100 ${
-              synthetic
-                ? 'ring-2 ring-amber-500/60 dark:ring-amber-400/50 ring-offset-1 ring-offset-white dark:ring-offset-neutral-950'
-                : ''
-            }`}
-            style={{ height: `${barPx}px` }}
-            title={
-              synthetic
-                ? 'Total actuel du Key Result — compléter l’historique pour les jours manquants.'
-                : dailyFill
-                  ? 'Aucune mesure ce jour dans l’historique — valeur reportée (grille journalière).'
-                  : undefined
-            }
-          >
-            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs rounded opacity-0 group-hover/bar:opacity-100 transition-opacity pointer-events-none z-10 max-w-[min(16rem,calc(100vw-2rem))]">
-              <div className="font-medium whitespace-nowrap">{formatNumber(safeV)}</div>
-              <div className="text-[10px] opacity-80 whitespace-nowrap">{dateDisplay}</div>
-              {synthetic && (
-                <div className="text-[10px] opacity-90 mt-1 pt-1 border-t border-white/20 dark:border-neutral-800 whitespace-normal leading-snug">
-                  Synchro Key Result : pas de point d’historique pour chaque jour jusqu’à cette date.
-                </div>
-              )}
-              <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-                <div className="w-2 h-2 bg-neutral-900 dark:bg-neutral-100 rotate-45" />
-              </div>
-            </div>
-          </div>
-        </div>
-      )
-    })
-
-    return (
-      <div
-        className={`flex items-stretch justify-between mt-2 relative ${narrowBars ? 'gap-px' : 'gap-0.5'}`}
-        style={{ height: `${height}px` }}
-      >
-        {columns}
-      </div>
-    )
-  }
-
-  // Indices des barres pour lesquelles afficher date et valeur (max 8, répartis pour lisibilité)
-  const getChartLabelIndices = (n, maxLabels = 8) => {
-    if (n <= maxLabels) return new Set(Array.from({ length: n }, (_, i) => i))
-    const indices = new Set([0, n - 1])
-    for (let i = 1; i < maxLabels - 1; i++) {
-      indices.add(Math.round((i / (maxLabels - 1)) * (n - 1)))
-    }
-    return indices
-  }
-
-  // Composant réutilisable pour les graphiques de croissance
-  const GrowthChart = ({ title, description, history, loading, colorFrom = 'blue', colorTo = 'blue', insight, targetValue }) => {
-    // Une barre par jour : combler les trous de l’historique par report de la dernière valeur (pas d’interpolation).
-    const densifiedHistory =
-      history && history.length > 0 ? densifyHistoryWithForwardFill(history) : []
-    const displayHistory =
-      densifiedHistory.length > 0 ? densifiedHistory.slice(-chartMaxPoints) : []
-
-    // Couleurs pastel/claires comme dans MiniGrowthChart
-    const colorClasses = {
-      blue: 'bg-blue-400 dark:bg-blue-500 hover:bg-blue-500 dark:hover:bg-blue-400',
-      green: 'bg-green-400 dark:bg-green-500 hover:bg-green-500 dark:hover:bg-green-400',
-      purple: 'bg-purple-400 dark:bg-purple-500 hover:bg-purple-500 dark:hover:bg-purple-400'
-    }
-    const colorClass = colorClasses[colorFrom] || colorClasses.blue
-
-    // Calculer l'insight sur la plage affichée
-    let calculatedInsight = insight
-    if (!calculatedInsight && displayHistory.length > 1) {
-      const referenceYear = new Date().getFullYear()
-      const ys = getYearStartValueFromHistory(history, referenceYear)
-      const firstValue = Number.isFinite(Number(ys.valeur))
-        ? Number(ys.valeur)
-        : Number(displayHistory[0].valeur)
-      const lastValue = Number(displayHistory[displayHistory.length - 1].valeur)
-      const growth = firstValue > 0 ? ((lastValue / firstValue - 1) * 100).toFixed(1) : 0
-      const trend = lastValue >= firstValue ? 'croissance' : 'baisse'
-      calculatedInsight = `Tendance ${trend} de ${Math.abs(growth)}% depuis le 1er janvier ${referenceYear} (dernière valeur affichée vs référence année).`
-    }
-
-    return (
-      <section className="mb-16" aria-label={title}>
-        <h2 className="font-semibold text-xl mb-6 tracking-tighter">{title}</h2>
-        <p className="mb-6 text-neutral-600 dark:text-neutral-400">
-          {description}
-        </p>
-        
-        {loading ? (
-          <div className="h-64 bg-neutral-100 dark:bg-neutral-900 rounded-lg relative overflow-hidden flex items-end justify-around p-4">
-            <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent"></div>
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="w-8 bg-neutral-300 dark:bg-neutral-700 rounded-t" style={{ height: `${Math.random() * 60 + 20}%` }}></div>
-            ))}
-          </div>
-        ) : displayHistory.length === 0 ? (
-          <p className="text-neutral-600 dark:text-neutral-400">Aucune donnée disponible pour le moment.</p>
-        ) : (
-          <div className="p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 overflow-x-auto">
-            <div className="sr-only">
-              <p>
-                Graphique en barres représentant l&apos;évolution de {title.toLowerCase()}. Derniers{' '}
-                {displayHistory.length} jours (grille journalière ; jours sans mesure dans l’historique = dernière valeur connue),
-                chronologiquement de gauche à droite.
-              </p>
-            </div>
-            {densifiedHistory.length > chartMaxPoints && (
-              <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-3">
-                Derniers {chartMaxPoints} jours affichés — une colonne par jour ; les trous dans l’historique sont comblés par
-                la dernière valeur mesurée.
-              </p>
-            )}
-            {(() => {
-              const numericValues = displayHistory.map((h) => {
-                const n = Number(h.valeur)
-                return Number.isFinite(n) ? n : 0
-              })
-              const minValue = Math.min(...numericValues)
-              const maxValue = Math.max(...numericValues)
-              const range = maxValue - minValue
-              // Ne pas étendre l’axe Y jusqu’à l’objectif annuel : à ~400 / objectif 1200 les barres deviennent illisibles.
-              // L’objectif 2026 reste affiché dans le récap sous le graphique (targetValue).
-              const useAmplifiedScale = range > 0 && range < maxValue * 0.15
-              const scaleMax =
-                range > 0
-                  ? useAmplifiedScale
-                    ? maxValue + range * 0.03
-                    : maxValue + range * 0.05
-                  : maxValue + Math.max(maxValue * 0.05, 1)
-              const scaleMin =
-                range > 0
-                  ? useAmplifiedScale
-                    ? Math.max(0, minValue - range * 0.02)
-                    : Math.max(0, minValue - range * 0.02)
-                  : Math.max(0, minValue - Math.max(minValue * 0.02, 1))
-              const scaleRange = Math.max(scaleMax - scaleMin, 1e-9)
-              const labelIndices = getChartLabelIndices(displayHistory.length, displayHistory.length > 12 ? 6 : 8)
-              const yTicks = [scaleMin, scaleMin + scaleRange * 0.25, scaleMin + scaleRange * 0.5, scaleMin + scaleRange * 0.75, scaleMax].map(v => Math.round(v))
-              const uniqueYTicks = [...new Set(yTicks)].sort((a, b) => a - b)
-              const yTicksTopToBottom = [...uniqueYTicks].reverse()
-              return (
-                <div className="flex gap-3 min-w-0">
-                  {/* Axe Y : valeurs */}
-                  <div className="flex flex-col justify-between text-right shrink-0 py-0.5" style={{ minHeight: '240px' }} aria-hidden="true">
-                    <span className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Valeur</span>
-                    <div className="flex-1 flex flex-col justify-between mt-1">
-                      {yTicksTopToBottom.map((tick, i) => (
-                        <span key={i} className="text-xs text-neutral-700 dark:text-neutral-300 tabular-nums">{formatNumber(tick)}</span>
-                      ))}
-                    </div>
-                  </div>
-                  {/* Zone graphique : barres flexibles pour tenir dans l'écran sans scroll */}
-                  <div className="flex-1 min-w-0 relative">
-                    {/* Grille horizontale alignée sur l'axe Y */}
-                    {yTicksTopToBottom.length > 1 && (
-                      <div className="absolute left-0 right-0 bottom-12 h-[240px] pointer-events-none z-0" aria-hidden="true">
-                        {yTicksTopToBottom.map((_, i) => (
-                          <div
-                            key={i}
-                            className="absolute left-0 right-0 border-t border-neutral-200 dark:border-neutral-700/80"
-                            style={{ bottom: `${(i / (yTicksTopToBottom.length - 1)) * 100}%` }}
-                          />
-                        ))}
-                      </div>
-                    )}
-                    <div className="flex items-end justify-between gap-0.5 md:gap-1 h-80 md:h-72 relative overflow-y-visible z-10" role="img" aria-label={`Graphique de ${title.toLowerCase()}`}>
-                      {displayHistory.map((item, index) => {
-                              const val = Number(item.valeur)
-                              const safeVal = Number.isFinite(val) ? val : 0
-                              const height = scaleRange > 0 ? ((safeVal - scaleMin) / scaleRange) * 100 : 0
-                              const showLabel = labelIndices.has(index)
-                              const isFirstBars = index < 3
-                              const isLastBars = index >= displayHistory.length - 3
-                              // Format court pour l’axe : JJ/MM (ex. 23/01)
-                              const formatDateForAxis = (dateStr) => {
-                                try {
-                                  const date = new Date(dateStr)
-                                  if (!isNaN(date.getTime())) return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`
-                                } catch (e) {}
-                                return dateStr
-                              }
-                              const formatDateForTooltip = (dateStr) => {
-                                try {
-                                  const date = new Date(dateStr)
-                                  if (!isNaN(date.getTime())) return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`
-                                } catch (e) {}
-                                return dateStr
-                              }
-                              return (
-                                <div key={item.id || `${item.date}-${index}`} className="flex flex-col items-center flex-1 min-w-0 relative overflow-visible group/bar z-0 hover:z-[100]" style={{ height: '100%', minWidth: 4 }}>
-                                  <div className="relative w-full flex items-end justify-center flex-1" style={{ minHeight: '240px', maxHeight: '240px' }}>
-                                    <div 
-                                      className={`w-full max-w-[24px] min-w-[3px] ${colorClass} rounded-t transition-all duration-500 relative shadow-sm hover:shadow-md hover:opacity-90 ${
-                                        item.syntheticDailyFill ? 'opacity-55 border border-dashed border-neutral-400/50 dark:border-neutral-500/40' : ''
-                                      } ${
-                                        item.syntheticFromKeyResult
-                                          ? 'ring-2 ring-amber-500/55 dark:ring-amber-400/45 ring-offset-1 ring-offset-neutral-50 dark:ring-offset-neutral-900'
-                                          : ''
-                                      }`}
-                                      style={{ height: `${height}%`, minHeight: height > 0 ? '8px' : '0' }}
-                                      title={
-                                        item.syntheticFromKeyResult
-                                          ? `${formatDateForTooltip(item.date)}: ${formatNumber(safeVal)} — total actuel du Key Result (synchro)`
-                                          : item.syntheticDailyFill
-                                            ? `${formatDateForTooltip(item.date)}: ${formatNumber(safeVal)} — pas de mesure ce jour dans l’historique (valeur reportée)`
-                                            : `${formatDateForTooltip(item.date)}: ${formatNumber(safeVal)}`
-                                      }
-                                    >
-                                      {/* Tooltip : au-dessus par défaut, à droite au début, à gauche à la fin pour rester visible */}
-                                      <div 
-                                        className={`absolute opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-xl rounded-lg border border-neutral-200 dark:border-neutral-700 z-[100] px-3 py-2 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 text-xs
-                                          ${isFirstBars ? 'left-full ml-2 bottom-1/2 translate-y-1/2' : ''}
-                                          ${isLastBars && !isFirstBars ? 'right-full mr-2 bottom-1/2 translate-y-1/2' : ''}
-                                          ${!isFirstBars && !isLastBars ? 'bottom-full left-1/2 -translate-x-1/2 mb-2' : ''}
-                                        `}
-                                      >
-                                        <div className="font-medium">{formatDateForTooltip(item.date)}</div>
-                                        <div className="font-semibold mt-0.5">{formatNumber(safeVal)}</div>
-                                        {/* Petite flèche vers la barre */}
-                                        {!isFirstBars && !isLastBars && (
-                                          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-neutral-900 dark:border-t-neutral-100" />
-                                        )}
-                                        {isFirstBars && (
-                                          <div className="absolute right-full top-1/2 -translate-y-1/2 -mr-px border-4 border-transparent border-r-neutral-900 dark:border-r-neutral-100" />
-                                        )}
-                                        {isLastBars && !isFirstBars && (
-                                          <div className="absolute left-full top-1/2 -translate-y-1/2 -ml-px border-4 border-transparent border-l-neutral-900 dark:border-l-neutral-100" />
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="text-xs text-neutral-700 dark:text-neutral-300 mt-2 w-full px-0.5 text-center shrink-0 overflow-visible" style={{ minHeight: '2.5rem' }}>
-                                    {showLabel ? (
-                                      <>
-                                        <div className="font-semibold tabular-nums">{formatNumber(safeVal)}</div>
-                                        <div className="hidden sm:block text-[11px] mt-0.5 leading-tight tabular-nums font-medium text-neutral-600 dark:text-neutral-400" title={formatDateForTooltip(item.date)}>{formatDateForAxis(item.date)}</div>
-                                      </>
-                                    ) : (
-                                      <div className="h-5" aria-hidden="true" />
-                                    )}
-                                  </div>
-                                </div>
-                              )
-                            })}
-                    </div>
-                    <div className="mt-1 text-[10px] text-neutral-600 dark:text-neutral-400 text-center font-medium uppercase tracking-wider">Date (période)</div>
-                  </div>
-                </div>
-              )
-            })()}
-
-            {displayHistory.some((h) => h.syntheticDailyFill || h.syntheticFromKeyResult) && (
-              <p className="text-[11px] text-neutral-400 dark:text-neutral-500 mt-3 leading-relaxed">
-                Barres pâles = jours sans mesure (dernière valeur connue reportée). Contour ambré = valeur actuelle de l&apos;objectif, plus récente que l&apos;historique.
-              </p>
-            )}
-
-            {/* Résumé tendance : référence = 1er janvier de l’année courante (tout l’historique), pas seulement la fenêtre du graphique */}
-            {displayHistory.length > 1 && (() => {
-              const referenceYear = new Date().getFullYear()
-              const yearStart = getYearStartValueFromHistory(history, referenceYear)
-              const startV = Number(yearStart.valeur)
-              const startOk = Number.isFinite(startV)
-              const lastV = Number(displayHistory[displayHistory.length - 1].valeur) || 0
-              const fmtRefDate = (d) => {
-                try {
-                  const x = new Date(d)
-                  return isNaN(x.getTime())
-                    ? ''
-                    : x.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
-                } catch {
-                  return ''
-                }
-              }
-              const delta = startOk ? lastV - startV : null
-              const pct =
-                startOk && startV > 0 ? (((lastV / startV - 1) * 100).toFixed(1)) : null
-
-              return (
-                <div className="mt-6 pt-6 border-t border-neutral-200 dark:border-neutral-800">
-                  <div className="flex items-start justify-between text-sm gap-3">
-                    <span className="text-neutral-600 dark:text-neutral-400">
-                      Valeur au 1er janvier {referenceYear}
-                    </span>
-                    <span className="font-semibold tabular-nums text-right shrink-0">
-                      {startOk ? formatNumber(startV) : '—'}
-                    </span>
-                  </div>
-                  {yearStart.label === 'first_in_year' && yearStart.date && (
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1.5 leading-snug">
-                      Aucune ligne exactement le 1er janv. : première mesure de {referenceYear} le{' '}
-                      <span className="tabular-nums font-medium">{fmtRefDate(yearStart.date)}</span>.
-                    </p>
-                  )}
-                  {yearStart.label === 'last_before_year' && yearStart.date && (
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1.5 leading-snug">
-                      Aucune mesure en {referenceYear} avant la fenêtre affichée : valeur retenue = dernière avant le 1er janv. (
-                      <span className="tabular-nums font-medium">{fmtRefDate(yearStart.date)}</span>).
-                    </p>
-                  )}
-                  <div className="flex items-center justify-between text-sm mt-3">
-                    <span className="text-neutral-600 dark:text-neutral-400">Dernière valeur</span>
-                    <span className="font-semibold tabular-nums">{formatNumber(lastV)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm mt-2">
-                    <span className="text-neutral-600 dark:text-neutral-400">
-                      Croissance depuis le 1er janv. {referenceYear}
-                    </span>
-                    <span
-                      className={`font-semibold tabular-nums ${
-                        !startOk
-                          ? ''
-                          : lastV >= startV
-                            ? 'text-green-700 dark:text-green-400'
-                            : 'text-orange-700 dark:text-orange-400'
-                      }`}
-                    >
-                      {!startOk || delta === null
-                        ? '—'
-                        : (
-                            <>
-                              {lastV >= startV ? '+' : ''}
-                              {formatNumber(delta)}
-                              {pct !== null && (
-                                <>
-                                  {' '}
-                                  ({pct}%)
-                                </>
-                              )}
-                            </>
-                          )}
-                    </span>
-                  </div>
-                  {targetValue && (
-                    <div className="flex items-center justify-between text-sm mt-2">
-                      <span className="text-neutral-600 dark:text-neutral-400">Objectif 2026</span>
-                      <span className="font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
-                        {formatNumber(targetValue)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )
-            })()}
-          </div>
-        )}
-        {calculatedInsight && !loading && displayHistory.length > 0 && (
-          <div className="mt-4 p-4 bg-neutral-50 dark:bg-neutral-900/50 rounded-lg border border-neutral-200 dark:border-neutral-800">
-            <p className="text-sm text-neutral-700 dark:text-neutral-300">
-              <strong className="text-neutral-900 dark:text-neutral-100">Insight :</strong> {calculatedInsight}
-            </p>
-          </div>
-        )}
-      </section>
-    )
-  }
-
   return (
     <>
       <SEOHead {...pageSEO} />
@@ -1485,16 +708,16 @@ export default function DonneesPubliques() {
         <section className="mb-8">
           <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Objectifs 2026</h1>
           <p className="text-neutral-600 dark:text-neutral-400 mb-2 tracking-tight">
-            Journal public de ma progression métier — scraping, automatisation, data et CA cumulé, suivi en build in public.
+            Journal public de ma progression métier : scraping, automatisation, data et CA cumulé.
           </p>
-          <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-8 tracking-tight">
+          <p className="text-sm text-neutral-500 dark:text-neutral-500 tracking-tight">
             Inclut aussi Logement Atypique (mise en avant de logements d’exception, photo & vidéo, avec mon frère), en annexe du cœur de métier freelance.
           </p>
         </section>
 
-        {/* Hero CA cumulé */}
+        {/* CA cumulé */}
         {!loading && (
-          <section className="mb-12" aria-label="CA cumulé objectif 2026">
+          <section className="mb-12 pb-8 border-b border-neutral-200 dark:border-neutral-800" aria-label="CA cumulé objectif 2026">
             {(() => {
               const caFreelanceKRs = keyResults.filter(kr => {
                 const categoryLower = (kr.category || '').toLowerCase()
@@ -1535,159 +758,62 @@ export default function DonneesPubliques() {
 
               return (
                 <>
-                  <div className="mb-6 p-6 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50">
-                    <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2">Objectif 2026 — CA cumulé</p>
-                    <p className="text-4xl font-semibold text-neutral-900 dark:text-neutral-100 mb-2 tracking-tight">
-                      {totalCA > 0 ? `${formatNumber(Math.round(totalCA))} €` : '—'}
-                    </p>
-                    <p className="text-sm text-neutral-500 dark:text-neutral-500">
-                      Freelance + affiliation + projets, suivi en build in public
-                    </p>
-                    {overallProgress > 0 && (
-                      <div className="mt-4">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs text-neutral-600 dark:text-neutral-400">Progression globale</span>
-                          <span className="text-xs text-neutral-600 dark:text-neutral-400">{overallProgress}%</span>
-                        </div>
-                        <div className="w-full h-2 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-neutral-900 dark:bg-neutral-100 transition-all duration-500"
-                            style={{ width: `${Math.min(100, overallProgress)}%` }}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                    <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                      <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Freelance</p>
-                      <p className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-1">CA cumulé 2026</p>
+                  <p className="text-4xl font-semibold text-neutral-900 dark:text-neutral-100 mb-4 tracking-tighter tabular-nums">
+                    {totalCA > 0 ? `${formatNumber(Math.round(totalCA))} €` : '—'}
+                  </p>
+                  <div className="space-y-1 text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+                    <p>
+                      Freelance{' '}
+                      <span className="text-neutral-900 dark:text-neutral-100 tabular-nums">
                         {caFreelance > 0 ? `${formatNumber(Math.round(caFreelance))} €` : '—'}
-                      </p>
-                    </div>
-                    <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                      <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Affiliation</p>
-                      <p className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+                      </span>
+                    </p>
+                    <p>
+                      Affiliation{' '}
+                      <span className="text-neutral-900 dark:text-neutral-100 tabular-nums">
                         {caAffiliation > 0 ? `${formatNumber(Math.round(caAffiliation))} €` : '—'}
-                      </p>
-                    </div>
-                    <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                      <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">Logement Atypique</p>
-                      <p className="text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+                      </span>
+                    </p>
+                    <p>
+                      Logement Atypique{' '}
+                      <span className="text-neutral-900 dark:text-neutral-100 tabular-nums">
                         {caLogementAtypique > 0 ? `${formatNumber(Math.round(caLogementAtypique))} €` : '—'}
-                      </p>
-                    </div>
+                      </span>
+                    </p>
                   </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">5/5</p>
-                      <p className="text-xs text-neutral-600 dark:text-neutral-400">Note moyenne Malt & Fiverr</p>
+                  {overallProgress > 0 && (
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-neutral-500 dark:text-neutral-500">Progression</span>
+                        <span className="text-xs text-neutral-500 dark:text-neutral-500 tabular-nums">{overallProgress}%</span>
+                      </div>
+                      <div className="w-full h-1 bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+                        <div
+                          className="h-full bg-neutral-900 dark:bg-neutral-100 transition-all duration-500"
+                          style={{ width: `${Math.min(100, overallProgress)}%` }}
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">&lt; 7 jours</p>
-                      <p className="text-xs text-neutral-600 dark:text-neutral-400">Délai moyen de livraison</p>
-                    </div>
-                    <div>
-                      <p className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">20–30</p>
-                      <p className="text-xs text-neutral-600 dark:text-neutral-400">Projets livrés / mois</p>
-                    </div>
-                  </div>
+                  )}
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500">
+                    Note Malt &amp; Fiverr 5/5 · délai moyen &lt; 7 jours · 20–30 projets / mois
+                  </p>
                 </>
               )
             })()}
           </section>
         )}
 
+        <section className="mb-16" aria-label="Objectifs par catégorie">
+          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Liste des objectifs</h2>
 
-        <section className="mb-16" aria-label="Détail des objectifs par catégorie">
-          {/* Vue détaillée des Key Results */}
-          <div className="mb-8">
-          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Objectifs 2026 — Détail</h2>
-          
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 animate-pulse">
-                  <div className="h-4 bg-neutral-200 dark:bg-neutral-700 rounded w-3/4 mb-2"></div>
-                  <div className="h-8 bg-neutral-200 dark:bg-neutral-700 rounded w-1/2"></div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">Total objectifs</p>
-                <p className="text-2xl font-semibold">{totalKeyResults}</p>
-              </div>
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">Complétés</p>
-                <p className="text-2xl font-semibold text-green-700 dark:text-green-400">{completedKeyResults}</p>
-              </div>
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">En cours</p>
-                <p className="text-2xl font-semibold text-blue-700 dark:text-blue-400">{inProgressKeyResults}</p>
-              </div>
-              <div className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-1">Progression globale</p>
-                <p className="text-2xl font-semibold">{overallProgress}%</p>
-              </div>
-            </div>
-          )}
-
-          {/* Barre de progression globale */}
-          {!loading && (
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Progression globale des objectifs</span>
-                <span className="text-sm text-neutral-600 dark:text-neutral-400">{overallProgress}%</span>
-              </div>
-              <div className="w-full h-3 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-blue-600 to-green-600 dark:from-blue-500 dark:to-green-500 transition-all duration-500"
-                  style={{ width: `${overallProgress}%` }}
-                ></div>
-              </div>
-              
-              {/* Sélecteur de période d'évolution - déplacé ici */}
-              <div className="mt-6">
-                <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                  Période d'évolution
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {[3, 7, 30].map((period) => (
-                    <button
-                      key={period}
-                      onClick={() => setSelectedPeriod(period)}
-                      className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
-                        selectedPeriod === period
-                          ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
-                          : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
-                      }`}
-                    >
-                      {period} jours
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-          </div>
-
-          {/* Détail par catégorie */}
-          {loading ? (
-            <div className="space-y-8">
-              {[...Array(3)].map((_, i) => (
-                <div key={i}>
-                  <div className="h-6 bg-neutral-200 dark:bg-neutral-700 rounded w-1/3 mb-4 relative overflow-hidden">
-                    <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent"></div>
-                  </div>
-                  <div className="space-y-4">
-                    {[...Array(3)].map((_, j) => (
-                      <SkeletonCard key={j} />
-                    ))}
-                  </div>
+            <div className="border-t border-neutral-200 dark:border-neutral-800">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="py-4 border-b border-neutral-200 dark:border-neutral-800 animate-pulse">
+                  <div className="h-4 bg-neutral-200 dark:bg-neutral-700 w-2/3 mb-2"></div>
+                  <div className="h-3 bg-neutral-200 dark:bg-neutral-700 w-1/3"></div>
                 </div>
               ))}
             </div>
@@ -1822,8 +948,8 @@ export default function DonneesPubliques() {
                 const sortedResults = sortKeyResults(resultsToDisplay, category)
                 
                 return (
-                <div key={category}>
-                  <h3 className="font-semibold text-lg mb-4 tracking-tighter flex items-center gap-2 group">
+                <div key={category} className="mb-10">
+                  <h3 className="font-semibold text-lg mb-3 tracking-tighter flex items-center gap-2 group">
                     {isApifyCategory ? (
                       <Link 
                         href="https://apify.com?fpr=0n7ukq" 
@@ -1894,36 +1020,29 @@ export default function DonneesPubliques() {
                     </span>
                   </h3>
                   
-                  {/* Encart service - Flux de données clients */}
                   {translatedCategory === 'Relation client' && (
-                    <div className="mb-4 p-4 rounded-lg border-dashed border border-neutral-300 dark:border-neutral-600 hover:border-neutral-400 dark:hover:border-neutral-500 transition-colors group min-h-[96px]">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 mb-1">
+                    <div className="py-4 border-t border-b border-neutral-200 dark:border-neutral-800 mb-1">
+                      <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="font-medium text-neutral-900 dark:text-neutral-100 tracking-tight">
                             Achat flux de données clients
-                          </h2>
-                          <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-2">
-                            Accès en temps réel aux nouveaux rendez-vous. Notifications sur Slack, Discord, Telegram ou webhook.
                           </p>
-                          <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                            10 000 € HT / an
+                          <p className="text-sm text-neutral-500 dark:text-neutral-500 mt-1">
+                            Accès en temps réel aux nouveaux rendez-vous · 10 000 € HT / an
                           </p>
                         </div>
                         <button
                           onClick={openCalendly}
-                          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors flex-shrink-0 self-start sm:self-auto"
+                          className="text-sm underline hover:text-neutral-900 dark:hover:text-neutral-100 text-neutral-600 dark:text-neutral-400 flex-shrink-0 self-start"
                           aria-label="Réserver un créneau Calendly"
                         >
                           Réserver un créneau
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-                          </svg>
                         </button>
                       </div>
                     </div>
                   )}
                   
-                  <div className="space-y-3">
+                  <div className="border-t border-neutral-200 dark:border-neutral-800">
                     {sortedResults
                       .filter((kr) => {
                         const title = improveTitle(kr.name, kr.category)
@@ -1952,12 +1071,12 @@ export default function DonneesPubliques() {
                         return (
                       <div
                         key={kr.id}
-                        className="p-4 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors group min-h-[96px]"
+                        className="py-4 border-b border-neutral-200 dark:border-neutral-800 group"
                       >
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-start sm:items-center gap-2 mb-1 flex-wrap sm:flex-nowrap">
-                              <h2 className="font-semibold text-lg tracking-tighter group-hover:text-neutral-800 dark:group-hover:text-neutral-200 flex-1 min-w-0 sm:flex-initial">
+                            <div className="flex items-start sm:items-baseline gap-2 flex-wrap">
+                              <h3 className="font-medium text-base tracking-tight text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors flex-1 min-w-0 sm:flex-initial">
                                 {(() => {
                                   const title = improveTitle(kr.name, kr.category)
                                   const nameLower = (kr.name || '').toLowerCase()
@@ -2037,34 +1156,11 @@ export default function DonneesPubliques() {
                                   
                                   return <span className="break-words">{title}</span>
                                 })()}
-                              </h2>
-                              {isKeyResultCompleted(kr) && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 bg-green-600 dark:bg-green-500 text-white">
-                                  Terminé
-                                </span>
-                              )}
-                              {!isKeyResultCompleted(kr) && !isKeyResultNotStarted(kr) && (
-                                <>
-                                  {kr.progress > 100 ? (
-                                    <span className="relative flex h-2 w-2 flex-shrink-0 mt-1 sm:mt-0" title="Objectif dépassé">
-                                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                                      <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-600 dark:bg-orange-500"></span>
-                                    </span>
-                                  ) : (
-                                    <span className="relative flex h-2 w-2 flex-shrink-0 mt-1 sm:mt-0" title="En cours">
-                                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                                      <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600 dark:bg-blue-500"></span>
-                                    </span>
-                                  )}
-                                </>
-                              )}
+                              </h3>
                             </div>
-                            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-0">
-                              <span className="flex items-center gap-1">
-                                <span className={`text-sm font-medium ${
-                                  kr.progress > 100 ? 'text-orange-700 dark:text-orange-400' : 'text-neutral-900 dark:text-neutral-100'
-                                }`}>
-                                  {(() => {
+                            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
+                              <span className="tabular-nums text-neutral-900 dark:text-neutral-100">
+                                {(() => {
                                     // Pour les objectifs d'échecs, utiliser les données Chess.com
                                     const nameLower = (kr.name || '').toLowerCase()
                                     const categoryLower = (kr.category || '').toLowerCase()
@@ -2111,66 +1207,43 @@ export default function DonneesPubliques() {
                                     }
                                     return formatNumber(kr.currentResult)
                                   })()}
-                                </span>
-                                {/* Indicateur d'évolution - avec fond coloré pour plus de visibilité */}
+                              </span>
+                              <span> / </span>
+                              <span className="tabular-nums">
                                 {(() => {
-                                  // Afficher un skeleton pendant le chargement de l'historique
-                                  if (historyLoading) {
-                                    return (
-                                      <span className="inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 relative overflow-hidden">
-                                        <span className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 dark:via-white/5 to-transparent"></span>
-                                        <span className="w-8 h-3"></span>
-                                      </span>
-                                    )
-                                  }
-                                  
-                                  const evolution = calculateEvolution(kr)
-                                  if (evolution) {
-                                    return (
-                                      <span className={`inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded ${
-                                        evolution.isPositive 
-                                          ? 'text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20' 
-                                          : 'text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20'
-                                      }`}>
-                                        {evolution.isPositive ? (
-                                          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-                                            <path d="M6 2L2 6H5V10H7V6H10L6 2Z" fill="currentColor" />
-                                          </svg>
-                                        ) : (
-                                          <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-                                            <path d="M6 10L10 6H7V2H5V6H2L6 10Z" fill="currentColor" />
-                                          </svg>
-                                        )}
-                                        <span>{evolution.isPositive ? '+' : ''}{evolution.percentage}%</span>
-                                      </span>
-                                    )
-                                  }
-                                  // Debug: vérifier pourquoi l'évolution n'est pas calculée
-                                  const nameLower = (kr.name || '').toLowerCase()
-                                  const title = improveTitle(kr.name, kr.category)
-                                  const isMaltKR = nameLower.includes('mission malt') || title.includes('Projets réalisés sur Malt')
-                                  const isChessKR = (nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess')) && 
-                                                   (title.includes('Classement échecs') || title.includes('échecs chess.com'))
-                                  if (isMaltKR || isChessKR) {
-                                    const history = isChessKR && chessHistory.length > 0 
-                                      ? chessHistory 
-                                      : keyResultsHistory[kr.id] || []
-                                    if (history.length === 0) {
-                                      // Log silencieux pour debug (peut être retiré en production)
-                                      // console.log(`⚠️ Pas d'historique pour ${kr.name} (${kr.id})`)
-                                    }
-                                  }
-                                  return null
-                                })()}
-                                <span className="text-sm text-neutral-500 dark:text-neutral-400">/</span>
-                                <span className="text-sm">{(() => {
                                   // Convertir les targetResult des revenus d'affiliation de USD en EUR
                                   if (isAffiliationRevenue(kr)) {
                                     return formatNumber(Math.round(usdToEur(kr.targetResult || 0)))
                                   }
                                   return formatNumber(kr.targetResult)
-                                })()}</span>
-                                {(() => {
+                                })()}
+                              </span>
+                              <span> · </span>
+                              <span>
+                                {isKeyResultCompleted(kr)
+                                  ? 'Terminé'
+                                  : isKeyResultNotStarted(kr)
+                                    ? 'Non démarré'
+                                    : kr.progress > 100
+                                      ? 'Dépassé'
+                                      : 'En cours'}
+                              </span>
+                              {(() => {
+                                  const evolution = !historyLoading ? calculateEvolution(kr) : null
+                                  if (evolution) {
+                                    return (
+                                      <span className={`ml-1 tabular-nums ${
+                                        evolution.isPositive
+                                          ? 'text-green-700 dark:text-green-400'
+                                          : 'text-red-700 dark:text-red-400'
+                                      }`}>
+                                        {evolution.isPositive ? '+' : ''}{evolution.percentage}%
+                                      </span>
+                                    )
+                                  }
+                                  return null
+                                })()}
+                              {(() => {
                                   // Calculer le remaining et progress avec la valeur réelle pour "Revenus d'affiliation"
                                   const nameLower = (kr.name || '').toLowerCase()
                                   const categoryLower = (kr.category || '').toLowerCase()
@@ -2205,24 +1278,23 @@ export default function DonneesPubliques() {
                                   
                                   if (actualProgress <= 100 && actualRemaining >= 0) {
                                     return (
-                                      <span className="ml-4 text-sm text-neutral-500 dark:text-neutral-500">
-                                        Reste: {formatNumber(actualRemaining)}
-                              </span>
+                                      <span className="tabular-nums">
+                                        {' · '}reste {formatNumber(actualRemaining)}
+                                      </span>
                                     )
                                   }
                                   if (actualProgress > 100) {
                                     return (
-                                      <span className="ml-4 text-sm text-orange-700 dark:text-orange-400 font-medium">
-                                        Dépassé de {Math.abs(actualRemaining).toFixed(1)}
-                                </span>
+                                      <span className="tabular-nums text-orange-700 dark:text-orange-400">
+                                        {' · '}+{Math.abs(actualRemaining).toFixed(1)}
+                                      </span>
                                     )
                                   }
                                   return null
                                 })()}
-                                </span>
                             </p>
                             </div>
-                            <div className="flex items-center gap-3 flex-shrink-0">
+                            <div className="flex-shrink-0 text-sm tabular-nums text-neutral-500 dark:text-neutral-500 sm:text-right">
                             {(() => {
                               // Calculer le progress avec la valeur réelle pour "Revenus d'affiliation" et échecs
                               const nameLower = (kr.name || '').toLowerCase()
@@ -2278,149 +1350,29 @@ export default function DonneesPubliques() {
                               }
                               
                               return (
-                                <>
-                            <div className="w-20 h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full transition-all duration-500 ${
-                                        actualProgress > 100 
-                                    ? 'bg-orange-600 dark:bg-orange-500' 
-                                          : actualProgress >= 100 
-                                      ? 'bg-green-600 dark:bg-green-500' 
-                                            : actualProgress >= 50 
-                                        ? 'bg-blue-600 dark:bg-blue-500' 
-                                        : 'bg-neutral-500 dark:bg-neutral-500'
-                                }`}
-                                      style={{ width: `${Math.min(100, actualProgress)}%` }}
-                              ></div>
-                            </div>
-                            <span className={`text-sm tabular-nums text-right w-12 font-medium ${
-                                    actualProgress > 100 ? 'text-orange-700 dark:text-orange-400' : ''
-                            }`}>
-                                    {actualProgress > 100 ? 'Dépassé' : `${actualProgress.toFixed(1)}%`}
-                            </span>
-                                </>
+                                <span className={actualProgress > 100 ? 'text-orange-700 dark:text-orange-400' : 'text-neutral-900 dark:text-neutral-100'}>
+                                  {actualProgress > 100 ? 'Dépassé' : `${actualProgress.toFixed(0)}%`}
+                                </span>
                               )
                             })()}
                           </div>
                         </div>
                         
-                        {/* Mini-graphique de croissance pour plusieurs Key Results */}
-                        {(() => {
-                          const nameLower = (kr.name || '').toLowerCase()
-                          const title = improveTitle(kr.name, kr.category)
-                          const categoryLower = (kr.category || '').toLowerCase()
-                          
-                          // Détecter les différents types de Key Results
-                          const isMaltKR = nameLower.includes('mission malt') || title.includes('Projets réalisés sur Malt')
-                          const isChessKR = (nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess')) && 
-                                           (title.includes('Classement échecs') || title.includes('échecs chess.com'))
-                          const isMeetingsKR = title.includes('Rendez-vous et appels clients') || 
-                                               (categoryLower.includes('relation client') && (nameLower.includes('rendez-vous') || nameLower.includes('meeting')))
-                          const isInstagramKR = (nameLower.includes('abonnés') || nameLower.includes('abonne')) && 
-                                               (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial'))
-                          // Détecter uniquement "Utilisateurs total Apify", pas les mensuels
-                          const isApifyKR = (nameLower.includes('utilisateurs total') || nameLower.includes('total users') || nameLower.includes('total utilisateurs')) && 
-                                           (nameLower.includes('apify') || categoryLower.includes('apify') || categoryLower.includes('scraping')) &&
-                                           !nameLower.includes('mensuel') && !nameLower.includes('monthly')
-                          
-                          // Récupérer l'historique pour ce Key Result
-                          let history = []
-                          let color = 'blue'
-                          
-                          if (isMaltKR) {
-                            history = mergeHistoryWithCurrentKR(
-                              keyResultsHistory[kr.id] || [],
-                              kr.currentResult,
-                              'kr-malt'
-                            )
-                            color = 'blue'
-                          } else if (isChessKR) {
-                            // Pour Chess, utiliser l'historique Chess.com si disponible
-                            history = chessHistory.length > 0 ? chessHistory : (keyResultsHistory[kr.id] || [])
-                            color = 'green'
-                          } else if (isMeetingsKR) {
-                            history = meetingsHistory
-                            color = 'blue'
-                          } else if (isInstagramKR) {
-                            history = abonnesHistorySynced
-                            color = 'green'
-                          } else if (isApifyKR) {
-                            history = apifyUsersHistorySynced
-                            color = 'purple'
-                          }
-                          
-                          if ((isMaltKR || isChessKR || isMeetingsKR || isInstagramKR || isApifyKR) && history.length > 0) {
-                            return (
-                              <div className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-800">
-                                <MiniGrowthChart
-                                  history={history}
-                                  height={36}
-                                  color={color}
-                                  maxBars={18}
-                                />
-                              </div>
-                            )
-                          }
-                          return null
-                        })()}
-                        
                         {/* Sous-éléments pour "Rendez-vous obtenu via Calendly" */}
                         {isCalendlyMain && subItems.length > 0 && (
-                          <div className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-700 space-y-2">
+                          <div className="mt-3 ml-0 sm:ml-3 space-y-2 border-l border-neutral-200 dark:border-neutral-800 pl-3">
                             {subItems.map((subKr) => (
-                              <div
-                                key={subKr.id}
-                                className="pl-4 py-2 rounded border-l-2 border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-900/30"
-                              >
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                                  <div className="flex-1 min-w-0">
-                                    <h3 className="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                                      {improveTitle(subKr.name, subKr.category)}
-                                    </h3>
-                                    <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                                      <span className="font-medium text-neutral-900 dark:text-neutral-100">
-                                        {formatNumber(subKr.currentResult || 0)}
-                                      </span>
-                                      <span className="text-neutral-500 dark:text-neutral-500"> / </span>
-                                      <span>{formatNumber(subKr.targetResult || 0)}</span>
-                                      {(() => {
-                                        const remaining = (subKr.targetResult || 0) - (subKr.currentResult || 0)
-                                        const progress = subKr.targetResult > 0 ? (subKr.currentResult / subKr.targetResult) * 100 : 0
-                                        if (progress <= 100 && remaining >= 0) {
-                                          return (
-                                            <span className="ml-3 text-xs text-neutral-500 dark:text-neutral-500">
-                                              Reste: {formatNumber(remaining)}
-                                            </span>
-                                          )
-                                        }
-                                        return null
-                                      })()}
-                                    </p>
-                                  </div>
-                                  <div className="flex items-center gap-2 flex-shrink-0">
-                                    <div className="w-16 h-1 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
-                                      <div 
-                                        className={`h-full transition-all duration-500 ${
-                                          subKr.progress > 100 
-                                            ? 'bg-orange-600 dark:bg-orange-500' 
-                                            : subKr.progress >= 100 
-                                              ? 'bg-green-600 dark:bg-green-500' 
-                                              : subKr.progress >= 50 
-                                                ? 'bg-blue-600 dark:bg-blue-500' 
-                                                : 'bg-neutral-500 dark:bg-neutral-500'
-                                        }`}
-                                        style={{ width: `${Math.min(100, subKr.progress || 0)}%` }}
-                                      ></div>
-                                    </div>
-                                    <span className={`text-xs tabular-nums w-10 text-right font-medium ${
-                                      subKr.progress > 100 ? 'text-orange-700 dark:text-orange-400' : ''
-                                    }`}>
-                                      {subKr.progress > 100 ? 'Dépassé' : `${(subKr.progress || 0).toFixed(1)}%`}
-                                    </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                              <div key={subKr.id} className="py-1">
+                                <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                  {improveTitle(subKr.name, subKr.category)}
+                                </p>
+                                <p className="text-xs text-neutral-500 dark:text-neutral-500 tabular-nums">
+                                  {formatNumber(subKr.currentResult || 0)} / {formatNumber(subKr.targetResult || 0)}
+                                  {' · '}
+                                  {(subKr.progress || 0) > 100 ? 'Dépassé' : `${(subKr.progress || 0).toFixed(0)}%`}
+                                </p>
+                              </div>
+                            ))}
                           </div>
                         )}
                       </div>
@@ -2433,108 +1385,6 @@ export default function DonneesPubliques() {
             </div>
           )}
         </section>
-
-        {/* Graphiques de croissance */}
-        <GrowthChart
-          title="Évolution des rendez-vous clients"
-          description="Suivi de la croissance du nombre de rendez-vous et appels clients dans le temps. Cette métrique reflète l'activité commerciale et la relation client."
-          history={meetingsHistory}
-          loading={meetingsLoading}
-          colorFrom="blue"
-          targetValue={(() => {
-            // Trouver l'objectif pour les rendez-vous clients
-            // Chercher tous les Key Results qui correspondent aux rendez-vous avec des critères élargis
-            const matchingKRs = keyResults.filter(kr => {
-              const nameLower = (kr.name || '').toLowerCase()
-              const categoryLower = (kr.category || '').toLowerCase()
-              const target = kr.targetResult || 0
-              
-              // Critères élargis pour capturer tous les Key Results liés aux rendez-vous
-              // On accepte si le nom OU la catégorie correspond (plus permissif)
-              const matchesName = nameLower.includes('rendez-vous') || 
-                                  nameLower.includes('meeting') || 
-                                  nameLower.includes('calendly') ||
-                                  nameLower.includes('appel') ||
-                                  nameLower.includes('call')
-              const matchesCategory = categoryLower.includes('meeting') || 
-                                      categoryLower.includes('relation') || 
-                                      categoryLower.includes('client') ||
-                                      categoryLower.includes('appel')
-              
-              // Prioriser aussi les Key Results avec un targetResult proche de 550 (objectif principal)
-              const isMainObjective = target >= 500 && target <= 600
-              
-              return (matchesName || matchesCategory) && target > 0
-            })
-            
-            if (matchingKRs.length > 0) {
-              // Toujours prendre celui avec le plus grand targetResult
-              // Cela garantit qu'on prend l'objectif principal (550) plutôt qu'un sous-objectif (360, 60, 30)
-              const meetingsKR = matchingKRs.reduce((max, kr) => {
-                const maxTarget = max.targetResult || 0
-                const krTarget = kr.targetResult || 0
-                return krTarget > maxTarget ? kr : max
-              })
-              return meetingsKR?.targetResult || null
-            }
-            
-            // Fallback : chercher spécifiquement un Key Result avec targetResult = 550
-            // (au cas où il ne correspondrait pas aux critères de nom/catégorie)
-            const kr550 = keyResults.find(kr => kr.targetResult === 550)
-            if (kr550) {
-              return 550
-            }
-            
-            return null
-          })()}
-          insight={meetingsHistory.length > 1 ? `Tendance ${meetingsHistory[meetingsHistory.length - 1].valeur >= meetingsHistory[0].valeur ? 'positive' : 'négative'} observée sur la période.` : null}
-        />
-
-        <GrowthChart
-          title="Évolution des abonnés Logement Atypique"
-          description="Croissance de la communauté Instagram de Logement Atypique — plateforme de mise en avant de logements d’exception (photo & vidéo)."
-          history={abonnesHistorySynced}
-          loading={abonnesLoading}
-          colorFrom="green"
-          targetValue={(() => {
-            const abonnesKR = findAbonnesKeyResult(keyResults)
-            return abonnesKR?.targetResult || null
-          })()}
-          insight={abonnesHistorySynced.length > 1 ? `Croissance de la communauté avec ${abonnesHistorySynced[abonnesHistorySynced.length - 1].valeur - abonnesHistorySynced[0].valeur >= 0 ? '+' : ''}${abonnesHistorySynced[abonnesHistorySynced.length - 1].valeur - abonnesHistorySynced[0].valeur} abonnés sur la période.` : null}
-        />
-
-        <GrowthChart
-          title="Évolution des utilisateurs Apify"
-          description="Nombre d'utilisateurs actifs de mes scrapers publics sur Apify. Cette métrique reflète l'adoption et l'utilité de mes outils open source."
-          history={apifyUsersHistorySynced}
-          loading={apifyUsersLoading}
-          colorFrom="purple"
-          targetValue={(() => {
-            const apifyKR = findApifyUsersTotalKeyResult(keyResults)
-            return apifyKR?.targetResult || null
-          })()}
-          insight={apifyUsersHistorySynced.length > 1 ? `Adoption croissante de mes scrapers avec ${(Number(apifyUsersHistorySynced[apifyUsersHistorySynced.length - 1].valeur) || 0) - (Number(apifyUsersHistorySynced[0].valeur) || 0) >= 0 ? '+' : ''}${formatNumber((Number(apifyUsersHistorySynced[apifyUsersHistorySynced.length - 1].valeur) || 0) - (Number(apifyUsersHistorySynced[0].valeur) || 0))} nouveaux utilisateurs.` : null}
-        />
-
-        <GrowthChart
-          title="Évolution du classement échecs chess.com"
-          description="Progression de mon classement Rapid sur Chess.com. Cette métrique reflète mon engagement dans l'amélioration personnelle et la pratique régulière des échecs."
-          history={chessHistory}
-          loading={chessHistoryLoading}
-          colorFrom="blue"
-          targetValue={(() => {
-            // Trouver l'objectif pour le classement échecs Rapid
-            const chessKR = keyResults.find(kr => {
-              const nameLower = (kr.name || '').toLowerCase()
-              const categoryLower = (kr.category || '').toLowerCase()
-              return (nameLower.includes('elo') || nameLower.includes('rapid') || nameLower.includes('échecs') || nameLower.includes('chess')) &&
-                     (categoryLower.includes('personnel') || categoryLower.includes('santé') || categoryLower.includes('loisir') || categoryLower.includes('bien-être'))
-            })
-            return chessKR?.targetResult || 1000 // Fallback à 1000 si pas trouvé
-          })()}
-          insight={chessHistory.length > 1 ? `Progression du classement avec ${chessHistory[chessHistory.length - 1].valeur - chessHistory[0].valeur >= 0 ? '+' : ''}${chessHistory[chessHistory.length - 1].valeur - chessHistory[0].valeur} points sur la période.` : null}
-        />
-
 
         {/* FAQ */}
         <section className="mb-16">

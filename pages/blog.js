@@ -1,90 +1,17 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { getAllPosts } from '../lib/notion'
 import { list } from '@vercel/blob'
 import ViewCounter from '../components/ViewCounter'
-import Tag from '../components/Tag'
-import { useState, useEffect, useRef } from 'react'
-import SearchBar from '../components/SearchBar'
+import { useState, useEffect } from 'react'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
-import FAQ from '../components/FAQ'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
-import { openCalendlyPopup } from '../lib/calendly'
 
-function TagFilter({ tags, selectedTag, onTagSelect }) {
-  const [showMore, setShowMore] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-
-  // Filtrer les tags en fonction de la recherche
-  const filteredTags = tags.filter(tag => 
-    tag.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
-  // Afficher les 5 premiers tags par défaut
-  const visibleTags = showMore ? filteredTags : filteredTags.slice(0, 5)
-  const hasMoreTags = filteredTags.length > 5
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
-        <Tag
-          name="Tous"
-          isActive={!selectedTag}
-          onClick={() => onTagSelect(null)}
-        />
-        {visibleTags.map(tag => (
-          <Tag
-            key={tag}
-            name={tag}
-            isActive={selectedTag === tag}
-            onClick={() => onTagSelect(tag)}
-          />
-        ))}
-        {hasMoreTags && !showMore && (
-          <button
-            onClick={() => setShowMore(true)}
-            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors
-              bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200 
-              hover:bg-neutral-200 dark:hover:bg-neutral-700"
-          >
-            Plus
-          </button>
-        )}
-      </div>
-      
-      {showMore && (
-        <div className="space-y-2">
-          <input
-            type="text"
-            placeholder="Rechercher un tag..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-3 py-1 text-sm rounded-md border border-neutral-200 
-              dark:border-neutral-800 bg-white dark:bg-neutral-900"
-          />
-          <div className="flex flex-wrap gap-2">
-            {filteredTags.map(tag => (
-              <Tag
-                key={tag}
-                name={tag}
-                isActive={selectedTag === tag}
-                onClick={() => onTagSelect(tag)}
-              />
-            ))}
-          </div>
-          <button
-            onClick={() => setShowMore(false)}
-            className="text-xs text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
-          >
-            Voir moins
-          </button>
-        </div>
-      )}
-    </div>
-  )
+function canonicalTag(tag = '') {
+  if (/^freelanc/i.test(tag)) return 'Freelance'
+  return tag
 }
 
 export default function Blog({ posts }) {
@@ -95,41 +22,12 @@ export default function Blog({ posts }) {
   const [allTags, setAllTags] = useState([])
   const [filteredPosts, setFilteredPosts] = useState(posts)
   const [topPosts, setTopPosts] = useState([])
-  const [topPostsLoading, setTopPostsLoading] = useState(true)
   const [postsLoading, setPostsLoading] = useState(true)
   const [allViews, setAllViews] = useState({})
   const [blogStats, setBlogStats] = useState(null)
   const [blogStatsLoading, setBlogStatsLoading] = useState(true)
-  const [showVideo, setShowVideo] = useState(false)
-  const [videoSeen, setVideoSeen] = useState(false)
-  const [displayedCount, setDisplayedCount] = useState(12)
-  const POSTS_PER_PAGE = 12
-
-  // URL de la vidéo Tella
-  const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
-  const videoEmbedUrl = 'https://www.tella.tv/video/vid_cmjylsyom00bn04la9dfs342e/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0'
-
-  // Vérifier si la vidéo a déjà été vue
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const seen = localStorage.getItem('profileVideoSeen') === 'true'
-      setVideoSeen(seen)
-    }
-  }, [])
-
-  // Ouvrir la popup vidéo
-  const handleVideoClick = () => {
-    setShowVideo(true)
-  }
-
-  // Marquer la vidéo comme vue quand on ferme la popup (après avoir regardé)
-  const handleCloseVideo = () => {
-    setShowVideo(false)
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('profileVideoSeen', 'true')
-      setVideoSeen(true)
-    }
-  }
+  const INITIAL_VISIBLE_POSTS = 40
+  const [displayedCount, setDisplayedCount] = useState(INITIAL_VISIBLE_POSTS)
 
   // Sync searchText with URL ?search= (pour SearchAction schema)
   useEffect(() => {
@@ -141,7 +39,7 @@ export default function Blog({ posts }) {
 
   useEffect(() => {
     // Extraire tous les tags uniques
-    const tags = [...new Set(posts.flatMap(post => post.tags))]
+    const tags = [...new Set(posts.flatMap((post) => (post.tags || []).map(canonicalTag)))]
     setAllTags(tags)
     // Petit délai pour afficher le skeleton
     const timer = setTimeout(() => {
@@ -157,7 +55,6 @@ export default function Blog({ posts }) {
     const fetchTopPosts = async () => {
       if (!posts || posts.length === 0) {
         setTopPosts([])
-        setTopPostsLoading(false)
         return
       }
 
@@ -184,11 +81,9 @@ export default function Blog({ posts }) {
           .slice(0, 3)
         
         setTopPosts(sortedPosts)
-        setTopPostsLoading(false)
       } catch (error) {
         console.error('Erreur lors de la récupération des vues:', error)
         setTopPosts([])
-        setTopPostsLoading(false)
       }
     }
 
@@ -223,7 +118,7 @@ export default function Blog({ posts }) {
     let filtered = posts
 
     if (selectedTag) {
-      filtered = filtered.filter(post => post.tags.includes(selectedTag))
+      filtered = filtered.filter((post) => (post.tags || []).some((tag) => canonicalTag(tag) === selectedTag))
     }
 
     if (searchText.trim()) {
@@ -246,18 +141,10 @@ export default function Blog({ posts }) {
   }, [selectedTag, searchText, posts, allViews])
 
   useEffect(() => {
-    setDisplayedCount(POSTS_PER_PAGE)
+    setDisplayedCount(INITIAL_VISIBLE_POSTS)
   }, [selectedTag, searchText])
 
   // Mettre à jour l'URL quand searchText change (pour SearchAction + partage)
-  const handleSearchChange = (value) => {
-    setSearchText(value)
-    const url = value.trim() ? `/blog?search=${encodeURIComponent(value.trim())}` : '/blog'
-    router.replace(url, undefined, { shallow: true })
-  }
-
-  const openCalendly = () => openCalendlyPopup('blog')
-
 
   const pageSEO = generatePageSEO({
     title: siteConfig.seo.pages.blog.title,
@@ -266,47 +153,9 @@ export default function Blog({ posts }) {
     keywords: siteConfig.seo.pages.blog.keywords
   })
 
-  // Structured Data pour FAQ
-  const faqData = {
-    questions: [
-      {
-        '@type': 'Question',
-        name: 'Qu\'est-ce que le scraping et comment ça peut aider mon business ?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Le scraping (ou web scraping) est une technique qui permet d\'extraire automatiquement des données depuis des sites web. Concrètement, cela vous permet de : collecter des données concurrentielles (prix, produits, avis), générer des leads qualifiés (contacts, profils LinkedIn), automatiser votre veille marché, enrichir vos bases de données existantes. Par exemple, un agent immobilier peut extraire tous les biens disponibles dans une zone, un e-commerçant peut suivre les prix de ses concurrents, un growth marketeux peut construire des listes de prospects ciblés. L\'objectif : transformer des tâches manuelles chronophages en processus automatisés qui tournent 24/7.'
-        }
-      },
-      {
-        '@type': 'Question',
-        name: 'Quel est le ROI réel de l\'automatisation pour mon entreprise ?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'L\'automatisation génère du ROI de plusieurs façons : 1) Gain de temps : libérer 10-20h/semaine de tâches répétitives pour vous concentrer sur la stratégie, 2) Réduction d\'erreurs : éliminer les erreurs humaines dans la saisie ou la collecte de données, 3) Scalabilité : traiter 100x plus de données sans augmenter les coûts, 4) Décisions rapides : avoir des données à jour en temps réel pour prendre des décisions éclairées. Exemple concret : un scraper qui collecte les prix concurrents quotidiennement vous fait gagner 5h/semaine et vous permet d\'ajuster vos prix en temps réel. Sur un an, c\'est 260h économisées + meilleure compétitivité.'
-        }
-      },
-      {
-        '@type': 'Question',
-        name: 'Pourquoi choisir un freelance plutôt qu\'une agence ou un dev interne ?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: '3 avantages clés : 1) Rapidité : livraison en moins d\'une semaine vs 1-2 mois pour une agence, 2) Coûts maîtrisés : pas de frais de structure, tarifs transparents, pas de coûts récurrents si vous n\'avez pas besoin de maintenance, 3) Expertise ciblée : 183+ projets Malt en scraping/automatisation vs un dev interne qui doit tout apprendre. Un freelance spécialisé apporte aussi flexibilité : vous payez uniquement pour ce dont vous avez besoin, sans engagement long terme. Parfait pour tester une idée rapidement ou traiter un besoin ponctuel.'
-        }
-      },
-      {
-        '@type': 'Question',
-        name: 'Est-ce légal de scraper des sites web ?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Oui, le scraping est légal dans la plupart des cas, à condition de respecter : 1) Les robots.txt et conditions d\'utilisation du site, 2) Le RGPD si vous collectez des données personnelles, 3) Les bonnes pratiques (ne pas surcharger les serveurs, respecter les limites de taux). Je m\'assure toujours que vos projets respectent la légalité. Pour les données publiques (prix, produits, annonces), c\'est généralement autorisé. Pour les données personnelles (emails, profils privés), il faut un consentement ou une base légale. On en discute ensemble pour garantir la conformité de votre projet.'
-        }
-      }
-    ]
-  }
-
   // Structured Data pour Blog
   const blogStructuredData = {
-    name: 'Blog - Corentin Robert',
+    name: 'Journal',
     description: 'Articles, réflexions et partages sur l\'entrepreneuriat, le scraping, l\'automatisation, le voyage et bien plus.',
     url: `${siteConfig.url}/blog`,
     blogPost: posts.slice(0, 10).map(post => ({
@@ -317,107 +166,45 @@ export default function Blog({ posts }) {
     }))
   }
 
+  const topSlugs = topPosts.map((post) => post.slug)
+  const listedPosts = !selectedTag && !searchText.trim() && topSlugs.length
+    ? [...filteredPosts].sort((a, b) => {
+        const ia = topSlugs.indexOf(a.slug)
+        const ib = topSlugs.indexOf(b.slug)
+        if (ia === -1 && ib === -1) return 0
+        if (ia === -1) return 1
+        if (ib === -1) return -1
+        return ia - ib
+      })
+    : filteredPosts
+
+  const tagCounts = posts.reduce((counts, post) => {
+    const seen = new Set()
+    for (const tag of post.tags || []) {
+      const name = canonicalTag(tag)
+      if (seen.has(name)) continue
+      seen.add(name)
+      counts[name] = (counts[name] || 0) + 1
+    }
+    return counts
+  }, {})
+
   return (
     <>
       <SEOHead {...pageSEO} />
       <StructuredData type="Blog" data={blogStructuredData} />
-      <StructuredData type="FAQPage" data={faqData} />
-      
-      {/* Review Schema 5* par défaut */}
-      <StructuredData
-        type="Review"
-        data={{
-          itemReviewed: {
-            '@type': 'CreativeWork',
-            name: 'Blog - Corentin Robert',
-            url: `${siteConfig.url}/blog`
-          },
-          reviewRating: {
-            '@type': 'Rating',
-            ratingValue: '5',
-            bestRating: '5',
-            worstRating: '1'
-          },
-          author: {
-            '@type': 'Person',
-            name: 'Lecteur satisfait'
-          },
-          reviewBody: 'Blog expert sur le scraping, l\'automatisation et l\'entrepreneuriat. Articles pratiques, cas d\'usage concrets et retours d\'expérience pour automatiser vos processus business.',
-          datePublished: new Date().toISOString().split('T')[0]
-        }}
-      />
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
-        <section className="mb-6">
-          <h1 className="font-semibold text-2xl mb-4 tracking-tighter">
-            Blog
-          </h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-0 tracking-tight">
-            Réflexions sur le <strong className="text-neutral-900 dark:text-neutral-100">scraping</strong>, l'<strong className="text-neutral-900 dark:text-neutral-100">automatisation</strong> et l'<strong className="text-neutral-900 dark:text-neutral-100">entrepreneuriat</strong>. Cas d'usage business, retours d'expérience et partage de bonnes pratiques pour automatiser vos processus.
+        <section className="mb-8">
+          <h1 className="font-semibold text-2xl mb-3 tracking-tighter">Journal</h1>
+          <p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
+            Notes de terrain sur la data, l’outbound et le freelance.
           </p>
         </section>
-
-        {topPostsLoading ? (
-          <section className="mb-16">
-            <h2 className="font-semibold text-xl mb-6 tracking-tighter">Articles les plus lus</h2>
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 animate-pulse">
-                  <div className="flex flex-col md:flex-row md:items-center w-full">
-                    <div className="flex-shrink-0">
-                      <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
-                    </div>
-                    <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 mx-2 flex-shrink-0"></span>
-                    <div className="flex-grow md:max-w-[60%] w-full md:ml-0">
-                      <div className="h-5 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
-                    </div>
-                    <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
-                      <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : topPosts.length > 0 && (
-          <section className="mb-16">
-            <h2 className="font-semibold text-xl mb-6 tracking-tighter">Articles les plus lus</h2>
-            <div className="space-y-4">
-              {topPosts.map((post) => {
-                return (
-                  <Link key={post.id} href={`/blog/${post.slug}`} className="post-link group">
-                    <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 transition-all group-hover:translate-x-1">
-                      <div className="flex flex-col md:flex-row md:items-center w-full">
-                        <div className="flex-shrink-0">
-                          <p className="post-date text-sm whitespace-nowrap">{(() => {
-                            const date = new Date(post.date)
-                            const day = String(date.getDate()).padStart(2, '0')
-                            const month = String(date.getMonth() + 1).padStart(2, '0')
-                            const year = date.getFullYear()
-                            return `${day}-${month}-${year}`
-                          })()}</p>
-                        </div>
-                        <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 mx-2 flex-shrink-0"></span>
-                        <p className="post-title flex-grow w-full md:ml-0 flex items-center gap-2 min-w-0">
-                          <span className="truncate">{post.title}</span>
-                        </p>
-                        <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
-                          <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">
-                            {post.views} vues
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          </section>
-        )}
 
         <section className="mb-16">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <h2 className="font-semibold text-xl tracking-tighter">Tous les articles</h2>
+              <h2 className="font-semibold text-xl tracking-tighter">Articles</h2>
               <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
                 <span className="whitespace-nowrap">{filteredPosts.length} {filteredPosts.length === 1 ? 'article' : 'articles'}</span>
                 <span className="w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 flex-shrink-0 hidden sm:inline" aria-hidden></span>
@@ -466,12 +253,34 @@ export default function Blog({ posts }) {
               </span>
             )}
           </div>
-          <div className="mb-6 space-y-4">
-            <SearchBar 
-              tags={allTags}
-              selectedTag={selectedTag}
-              onTagSelect={setSelectedTag}
-            />
+          <div className="mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex flex-nowrap gap-x-4 overflow-x-auto pb-1 text-sm scrollbar-hide">
+              <button
+                type="button"
+                onClick={() => setSelectedTag(null)}
+                className={`shrink-0 whitespace-nowrap pb-1 border-b border-dashed ${
+                  selectedTag === null
+                    ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                }`}
+              >
+                Tous ({posts.length})
+              </button>
+              {allTags.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => setSelectedTag(tag)}
+                  className={`shrink-0 whitespace-nowrap pb-1 border-b border-dashed ${
+                    selectedTag === tag
+                      ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100'
+                      : 'border-transparent text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                  }`}
+                >
+                  {tag} ({tagCounts[tag] || 0})
+                </button>
+              ))}
+            </div>
           </div>
           {postsLoading ? (
             <div className="space-y-4">
@@ -495,7 +304,7 @@ export default function Blog({ posts }) {
           ) : filteredPosts && filteredPosts.length > 0 ? (
             <>
               <div className="space-y-4">
-                {filteredPosts.slice(0, displayedCount).map((post) => {
+                {listedPosts.slice(0, displayedCount).map((post) => {
                   return (
                     <Link key={post.id} href={`/blog/${post.slug}`} className="post-link group">
                       <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 transition-all group-hover:translate-x-1">
@@ -522,11 +331,11 @@ export default function Blog({ posts }) {
                   )
                 })}
               </div>
-              {displayedCount < filteredPosts.length && (
+              {filteredPosts.length > INITIAL_VISIBLE_POSTS && displayedCount < filteredPosts.length && (
                 <div className="mt-8 text-center">
                   <button
-                    onClick={() => setDisplayedCount(prev => Math.min(prev + POSTS_PER_PAGE, filteredPosts.length))}
-                    className="px-6 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900/50 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
+                    onClick={() => setDisplayedCount(prev => Math.min(prev + INITIAL_VISIBLE_POSTS, filteredPosts.length))}
+                    className="text-sm text-neutral-600 dark:text-neutral-400 underline underline-offset-4 hover:text-neutral-900 dark:hover:text-neutral-100"
                   >
                     Voir plus d&apos;articles ({filteredPosts.length - displayedCount} restant{filteredPosts.length - displayedCount > 1 ? 's' : ''})
                   </button>
@@ -555,163 +364,6 @@ export default function Blog({ posts }) {
           )}
         </section>
 
-        <section className="mb-16">
-          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Questions fréquentes</h2>
-          <FAQ
-            items={[
-              {
-                question: "Qu'est-ce que le scraping et comment ça peut aider mon business ?",
-                answer: "Le scraping (ou web scraping) est une technique qui permet d'extraire automatiquement des données depuis des sites web. Concrètement, cela vous permet de : collecter des données concurrentielles (prix, produits, avis), générer des leads qualifiés (contacts, profils LinkedIn), automatiser votre veille marché, enrichir vos bases de données existantes. Par exemple, un agent immobilier peut extraire tous les biens disponibles dans une zone, un e-commerçant peut suivre les prix de ses concurrents, un growth marketeux peut construire des listes de prospects ciblés. L'objectif : transformer des tâches manuelles chronophages en processus automatisés qui tournent 24/7."
-              },
-              {
-                question: "Quel est le ROI réel de l'automatisation pour mon entreprise ?",
-                answer: "L'automatisation génère du ROI de plusieurs façons : 1) Gain de temps : libérer 10-20h/semaine de tâches répétitives pour vous concentrer sur la stratégie, 2) Réduction d'erreurs : éliminer les erreurs humaines dans la saisie ou la collecte de données, 3) Scalabilité : traiter 100x plus de données sans augmenter les coûts, 4) Décisions rapides : avoir des données à jour en temps réel pour prendre des décisions éclairées. Exemple concret : un scraper qui collecte les prix concurrents quotidiennement vous fait gagner 5h/semaine et vous permet d'ajuster vos prix en temps réel. Sur un an, c'est 260h économisées + meilleure compétitivité."
-              },
-              {
-                question: "Pourquoi choisir un freelance plutôt qu'une agence ou un dev interne ?",
-                answer: "3 avantages clés : 1) Rapidité : livraison en moins d'une semaine vs 1-2 mois pour une agence, 2) Coûts maîtrisés : pas de frais de structure, tarifs transparents, pas de coûts récurrents si vous n'avez pas besoin de maintenance, 3) Expertise ciblée : 183+ projets Malt en scraping/automatisation vs un dev interne qui doit tout apprendre. Un freelance spécialisé apporte aussi flexibilité : vous payez uniquement pour ce dont vous avez besoin, sans engagement long terme. Parfait pour tester une idée rapidement ou traiter un besoin ponctuel."
-              },
-              {
-                question: "Pourquoi ce blog ?",
-                answer: "Ce blog est né d'une volonté de partager mes réflexions sur le scraping, l'automatisation et l'entrepreneuriat. Pas seulement des tutoriels techniques, mais aussi des cas d'usage business, des réflexions sur le métier de freelance, et des retours d'expérience sur mes projets. Vous y trouverez des articles variés : scraping, automatisation, entrepreneuriat, voyage, et bien d'autres sujets qui me passionnent. L'objectif : créer du lien, partager mes apprentissages, et révéler ma personnalité au-delà du simple prestataire."
-              }
-            ]}
-          />
-        </section>
-
-        <section className="mb-12 md:mb-16 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-center" aria-label="Contact">
-          <div className="flex flex-col items-center mb-6">
-            <div 
-              className="relative inline-block mb-4 group cursor-pointer p-[2px] rounded-full"
-              onClick={handleVideoClick}
-            >
-              <svg 
-                className="absolute inset-0"
-                style={{ 
-                  width: 'calc(100% + 4px)', 
-                  height: 'calc(100% + 4px)',
-                  margin: '-2px',
-                  transform: 'rotate(-90deg)'
-                }}
-                viewBox="0 0 70 70"
-              >
-                <defs>
-                  <linearGradient id="instagram-gradient-blog" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#f09433" />
-                    <stop offset="25%" stopColor="#e6683c" />
-                    <stop offset="50%" stopColor="#dc2743" />
-                    <stop offset="75%" stopColor="#cc2366" />
-                    <stop offset="100%" stopColor="#bc1888" />
-                  </linearGradient>
-                </defs>
-                <circle
-                  cx="35"
-                  cy="35"
-                  r="33"
-                  fill="none"
-                  stroke={videoSeen ? "#a3a3a3" : "url(#instagram-gradient-blog)"}
-                  strokeWidth="2"
-                  strokeDasharray="207.35"
-                  strokeDashoffset={videoSeen ? "0" : "207.35"}
-                  className={videoSeen ? "" : "animate-draw-circle"}
-                  style={{
-                    transformOrigin: '35px 35px',
-                    transition: videoSeen ? 'stroke 0.5s ease-out' : 'none'
-                  }}
-                />
-              </svg>
-              <div className="rounded-full bg-white dark:bg-neutral-900 p-[2px]">
-                <Image
-                  src={siteConfig.profileImage}
-                  alt="Photo de profil de Corentin Robert"
-                  width={64}
-                  height={64}
-                  className="w-16 h-16 rounded-full object-cover transition-all group-hover:opacity-90"
-                  style={{ objectPosition: 'center 30%' }}
-                  priority
-                />
-              </div>
-              {/* Overlay grisé avec icône play au hover */}
-              <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/70 dark:bg-neutral-900/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-play text-white" viewBox="0 0 16 16">
-                  <path d="M10.804 8 5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z"/>
-                </svg>
-              </div>
-            </div>
-            
-            {/* Popup vidéo */}
-            {showVideo && videoEmbedUrl && (
-              <div 
-                className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-4 bg-neutral-900/80 dark:bg-neutral-900/80 backdrop-blur-sm"
-                onClick={handleCloseVideo}
-              >
-                <div 
-                  className="relative w-full max-w-[280px] md:max-w-sm rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xl"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    onClick={handleCloseVideo}
-                    className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-neutral-900/90 dark:bg-neutral-100/90 text-white dark:text-neutral-900 hover:bg-neutral-900 dark:hover:bg-neutral-100 transition-colors"
-                    aria-label="Fermer la vidéo"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
-                    </svg>
-                  </button>
-                  <div style={{ position: 'relative', paddingBottom: '177.78%', height: 0 }}>
-                    <iframe
-                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
-                      src={videoEmbedUrl}
-                      allowFullScreen
-                      allowTransparency
-                      title="Présentation de Corentin Robert"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            <h2 className="font-semibold text-xl mb-4 tracking-tighter">Une question après lecture ?</h2>
-          </div>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-6 max-w-xl mx-auto">
-            Discutons de votre projet de scraping ou d'automatisation.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-            <button
-              onClick={openCalendly}
-              className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
-            >
-              Discutons-en
-            </button>
-            <Link 
-              href={siteConfig.social.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block px-6 py-3 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-            >
-              Me contacter sur LinkedIn
-            </Link>
-          </div>
-        </section>
-
-        <section className="mb-16">
-          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Pour aller plus loin</h2>
-          <div className="space-y-2 text-neutral-600 dark:text-neutral-400">
-            <p>
-              <Link href="/cas-usage" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Cas d&apos;usage
-              </Link>
-              {' • '}
-              <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Marketplace
-              </Link>
-              {' • '}
-              <Link href="/newsletter" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Newsletter
-              </Link>
-            </p>
-        </div>
-      </section>
     </main>
     </>
   )

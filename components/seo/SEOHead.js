@@ -55,9 +55,9 @@ export default function SEOHead({
       {/* Canonical URL */}
       <link rel="canonical" href={canonicalUrl} />
       
-      {/* Robots */}
+      {/* Robots — noindex garde follow pour ne pas bloquer le crawl des liens internes */}
       {noindex ? (
-        <meta name="robots" content="noindex, nofollow" />
+        <meta name="robots" content="noindex, follow" />
       ) : (
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
       )}

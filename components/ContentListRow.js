@@ -43,7 +43,7 @@ export default function ContentListRow({
       </div>
       {trailing != null && trailing !== '' && (
         <div className="flex-shrink-0 text-right pt-0.5">
-          <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100 tabular-nums whitespace-nowrap">
+          <span className="inline-block text-sm font-medium text-neutral-900 dark:text-neutral-100 tabular-nums whitespace-nowrap text-right">
             {trailing}
           </span>
         </div>

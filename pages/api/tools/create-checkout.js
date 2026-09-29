@@ -243,7 +243,7 @@ export default async function handler(req, res) {
             },
             ...(isSubscription ? { recurring: { interval: 'year', interval_count: 1 } } : {}),
             unit_amount: isSubscription ? price * 100 : mainAmount,
-            tax_behavior: 'inclusive',
+            tax_behavior: 'exclusive',
           },
           quantity: 1,
         },
@@ -259,7 +259,7 @@ export default async function handler(req, res) {
                 description: addon.description || '',
               },
               unit_amount: addonAmount,
-              tax_behavior: 'inclusive',
+              tax_behavior: 'exclusive',
             },
             quantity: 1,
           })
@@ -269,8 +269,7 @@ export default async function handler(req, res) {
     }
 
     // Créer une session Stripe Checkout avec options
-    // Prix TTC (tax_behavior: inclusive) : en France le prix affiché est toujours TTC pour le B2C
-    // Stripe Tax calcule automatiquement la TVA selon l'adresse du client
+    // Prix catalogue HT (tax_behavior: exclusive). Stripe Tax ajoute la TVA (France 20 %).
     const sessionConfig = {
       payment_method_types: ['card'],
       line_items: lineItems,

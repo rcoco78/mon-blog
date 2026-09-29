@@ -9,14 +9,14 @@ import SEOHead from '../../../components/seo/SEOHead'
 import StructuredData from '../../../components/seo/StructuredData'
 import FAQ from '../../../components/FAQ'
 import Toast, { useToast } from '../../../components/Toast'
-import DownloadCounter from '../../../components/DownloadCounter'
 import MarketplaceViewCounter from '../../../components/MarketplaceViewCounter'
+import { isIadOrSafti, PACK_IAD_SAFTI, shouldNoindexDatabase } from '../../../lib/marketplace-catalog'
+import { formatEuros, marketplaceScopeText, marketplaceSeoTitle, priceHT, priceTTC } from '../../../lib/marketplace-display'
 import DatabasePurchasePanel from '../../../components/marketplace/DatabasePurchasePanel'
 import { generatePageSEO } from '../../../lib/seo'
 import { siteConfig } from '../../../lib/config'
 import { categoryToSlug } from '../../../lib/marketplace-helpers'
 import { shortMarketplaceTitle } from '../../../lib/marketplace-display'
-import { averageStarRating } from '../../../lib/rating'
 import { getPosthogIdentityHeaders, captureCta } from '../../../lib/posthog-client'
 import { FLOW } from '../../../lib/posthog-events'
 
@@ -46,8 +46,8 @@ export default function MarketplaceDatabase({
   database,
   relatedDatabases,
   addonDatabases = [],
-  pageTestimonials = [],
   notFound,
+  noindex = false,
 }) {
   const [isLoading, setIsLoading] = useState(false)
   const [loadingStep, setLoadingStep] = useState('')
@@ -224,12 +224,10 @@ export default function MarketplaceDatabase({
     fullDescription: database.description,
     category: database.category,
     price: database.price,
-    priceHT: Math.round((database.price / 1.2) * 100) / 100,
-    priceLabel: `${Number(database.price).toLocaleString('fr-FR')} €`,
-    priceLabelHT: `${(Math.round((database.price / 1.2) * 100) / 100).toLocaleString('fr-FR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })} € HT`,
+    priceHT: priceHT(database.price),
+    priceTTC: priceTTC(database.price),
+    priceLabel: `${formatEuros(priceTTC(database.price))} €`,
+    priceLabelHT: `${formatEuros(priceHT(database.price))} € HT`,
     formats: ['Google Sheets'],
     lastUpdate: new Date(database.lastEnriched).toLocaleDateString('fr-FR', {
       day: '2-digit',
@@ -262,19 +260,6 @@ export default function MarketplaceDatabase({
     e.preventDefault()
 
     if (!(toolData.isPaid && toolData.unlockType === 'payment')) return
-
-    if (subscriptionType === 'api') {
-      captureCta({
-        flow: FLOW.marketplace,
-        source: 'database',
-        cta: 'apify_api',
-        tool_id: database.slug,
-      })
-      setIsLoading(true)
-      setLoadingStep('Redirection vers Apify...')
-      window.location.href = 'https://apify.com?fpr=0n7ukq'
-      return
-    }
 
     captureCta({
       flow: FLOW.marketplace,
@@ -326,14 +311,21 @@ export default function MarketplaceDatabase({
   const totalWithDiscount = Math.round(totalBeforeDiscount * (1 - bundleDiscount) * 100) / 100
   const totalPriceLabel =
     bundleDiscount > 0
-      ? `${totalWithDiscount} € TTC (${Math.round(bundleDiscount * 100)}% de remise bundle)`
+      ? `${formatEuros(priceTTC(totalWithDiscount))} €`
       : toolData.priceLabel
 
   const categorySlug = categoryToSlug(database.category)
-  const seoTitle = database.metaTitle || `${toolData.name} - Base de Données | ${database.price}€`
-  const seoDescription =
-    database.metaDescription ||
-    `${toolData.fullDescription} ${database.rowCount.toLocaleString('fr-FR')} entrées, format Google Sheets.`
+  const volumeLabel = `${database.rowCount.toLocaleString('fr-FR')} entrées`
+  const seoTitle = marketplaceSeoTitle(database.name, database.rowCount, database.headers, database.slug)
+  const scopeText = marketplaceScopeText({
+    name: database.name,
+    slug: database.slug,
+    rowCount: database.rowCount,
+    headers: database.headers,
+    date: toolData.lastUpdate,
+    category: database.category,
+  })
+  const seoDescription = scopeText.length > 160 ? `${scopeText.slice(0, 157).trim()}…` : scopeText
   const pageSEO = generatePageSEO({
     title: seoTitle,
     description: seoDescription,
@@ -341,29 +333,21 @@ export default function MarketplaceDatabase({
     keywords: database.enrichedData?.keywords || [database.name, 'base de données', 'prospection'],
   })
 
-  const faqItems =
-    database.enrichedData?.faq && database.enrichedData.faq.length > 0
-      ? database.enrichedData.faq
-      : [
-          {
-            question: 'Quelles données sont incluses ?',
-            answer: `La base contient ${database.rowCount.toLocaleString('fr-FR')} entrées et ${database.headers.length} champs. Colonnes principales : ${database.headers.slice(0, 5).join(', ')}${database.headers.length > 5 ? '…' : ''}.`,
-          },
-          {
-            question: 'Comment recevoir la base après paiement ?',
-            answer:
-              'Après le paiement Stripe, un bouton « Copier sur Google Sheets » apparaît sur cette page. Un clic crée une copie dans votre Drive. Vous pouvez ensuite exporter en CSV ou Excel.',
-          },
-          {
-            question: 'Quelle est la différence entre Google Sheets et l’API Apify ?',
-            answer:
-              'Google Sheets = achat unique, snapshot à la date indiquée, accès immédiat. API Apify = accès récurrent avec mises à jour automatiques, idéal si vous avez besoin de données fraîches en continu.',
-          },
-          {
-            question: 'Les données sont-elles à jour ?',
-            answer: `La date de dernière mise à jour affichée est le ${toolData.lastUpdate}. L’achat unique livre le snapshot de cette date.`,
-          },
-        ]
+  const faqItems = [
+    {
+      question: 'Qu’est-ce qu’il y a dedans ?',
+      answer: `${volumeLabel}, ${database.headers.length} champs. Colonnes : ${database.headers.slice(0, 6).join(', ')}${database.headers.length > 6 ? '…' : ''}.`,
+    },
+    {
+      question: 'De quand date le fichier ?',
+      answer: `Le snapshot date du ${toolData.lastUpdate}. L’achat livre ce fichier, pas une mise à jour automatique.`,
+    },
+    {
+      question: 'Comment le Sheet arrive ?',
+      answer:
+        'Après le paiement Stripe, un bouton sur cette page copie la base dans votre Google Drive. Vous pouvez ensuite exporter en CSV ou Excel.',
+    },
+  ]
 
   const purchasePanelProps = {
     database,
@@ -381,15 +365,9 @@ export default function MarketplaceDatabase({
     onUnlock: handleUnlock,
     totalPriceLabel,
     priceLabel: toolData.priceLabel,
-    priceLabelHT: toolData.priceLabelHT,
+    priceLabelHT: `${formatEuros(totalWithDiscount)} € HT`,
+    pack: isIadOrSafti(database.slug) ? PACK_IAD_SAFTI : null,
   }
-
-  const avgTestimonialRating = (() => {
-    // Number() obligatoire : ratingValue est souvent la string "5"
-    // (0 + "5" + "5" + "5" → "0555" → 185.0 hors plage Google)
-    const avg = averageStarRating(pageTestimonials.map((t) => t.ratingValue))
-    return avg != null ? String(avg) : null
-  })()
 
   const embedVideoUrl = (() => {
     const videoUrl = database.enrichedData?.videoUrl
@@ -430,7 +408,7 @@ export default function MarketplaceDatabase({
 
   return (
     <>
-      <SEOHead {...pageSEO} ogType="product" />
+      <SEOHead {...pageSEO} ogType="product" noindex={noindex} />
 
       <StructuredData
         type="Product"
@@ -446,28 +424,17 @@ export default function MarketplaceDatabase({
           },
           offers: {
             '@type': 'Offer',
-            price: database.price.toString(),
+            price: priceTTC(database.price).toString(),
             priceCurrency: 'EUR',
             availability: 'https://schema.org/InStock',
             priceValidUntil: getPriceValidUntil(),
             priceSpecification: {
               '@type': 'UnitPriceSpecification',
-              price: database.price.toString(),
+              price: priceTTC(database.price).toString(),
               priceCurrency: 'EUR',
               valueAddedTaxIncluded: true,
             },
           },
-          ...(avgTestimonialRating
-            ? {
-                aggregateRating: {
-                  '@type': 'AggregateRating',
-                  ratingValue: avgTestimonialRating,
-                  reviewCount: String(pageTestimonials.length),
-                  bestRating: '5',
-                  worstRating: '1',
-                },
-              }
-            : {}),
         }}
       />
 
@@ -480,7 +447,6 @@ export default function MarketplaceDatabase({
           datePublished: database.date,
           dateModified: database.lastEnriched,
           keywords: database.enrichedData?.keywords || [],
-          license: 'https://creativecommons.org/licenses/by/4.0/',
         }}
       />
 
@@ -558,7 +524,7 @@ export default function MarketplaceDatabase({
 
         <header className="mb-8">
           <h1 className="font-semibold text-2xl md:text-3xl tracking-tighter text-neutral-900 dark:text-neutral-100 mb-3">
-            {toolData.displayName}
+            {toolData.displayName}, {volumeLabel}
           </h1>
           <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-4">
             {[
@@ -569,7 +535,7 @@ export default function MarketplaceDatabase({
             ].join(' · ')}
           </p>
           <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed mb-4">
-            {toolData.description}
+            {scopeText}
           </p>
           {topContactSignals.length > 0 && (
             <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
@@ -591,7 +557,6 @@ export default function MarketplaceDatabase({
               category={database.category}
               increment={true}
             />
-            <DownloadCounter toolId={database.slug} />
           </div>
         </header>
 
@@ -602,8 +567,9 @@ export default function MarketplaceDatabase({
             </section>
           )}
 
-            {embedVideoUrl && (
-              <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
+            <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
+              <h2 className="font-semibold text-xl tracking-tighter mb-3">Vidéo</h2>
+              {embedVideoUrl ? (
                 <div className="relative w-full aspect-video overflow-hidden bg-neutral-100 dark:bg-neutral-900">
                   <iframe
                     className="absolute top-0 left-0 w-full h-full border-0"
@@ -612,8 +578,26 @@ export default function MarketplaceDatabase({
                     title={`Présentation ${toolData.displayName}`}
                   />
                 </div>
-              </section>
-            )}
+              ) : (
+                <div className="relative aspect-video w-full overflow-hidden border border-neutral-200 dark:border-neutral-800">
+                  <img
+                    src={siteConfig.profileImage}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 h-full w-full scale-110 object-cover object-[center_28%] blur-md"
+                  />
+                  <div
+                    className="absolute inset-0 bg-white/55 dark:bg-neutral-950/60"
+                    aria-hidden="true"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <p className="text-sm text-neutral-800 dark:text-neutral-200">
+                      Vidéo en cours de création
+                    </p>
+                  </div>
+                </div>
+              )}
+            </section>
 
             <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
               <div className="flex items-baseline justify-between gap-4 mb-2">
@@ -702,98 +686,16 @@ export default function MarketplaceDatabase({
               </ul>
             </section>
 
-            {(toolData.problem?.length > 0 || toolData.solution?.length > 0) && (
-              <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8 space-y-8">
-                {toolData.problem?.length > 0 && (
-                  <div>
-                    <h2 className="font-semibold text-xl tracking-tighter mb-3">Sans cette base</h2>
-                    <ul className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
-                      {toolData.problem.map((item, index) => (
-                        <li key={index}>— {item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {toolData.solution?.length > 0 && (
-                  <div>
-                    <h2 className="font-semibold text-xl tracking-tighter mb-3">Avec cette base</h2>
-                    <ul className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
-                      {toolData.solution.map((item, index) => (
-                        <li key={index}>→ {item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </section>
-            )}
-
-            {toolData.useCases?.length > 0 && (
-              <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-                <h2 className="font-semibold text-xl tracking-tighter mb-3">Cas d&apos;usage</h2>
-                <ul className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
-                  {toolData.useCases.slice(0, 4).map((useCase) => (
-                    <li key={useCase}>→ {useCase}</li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            {pageTestimonials.length > 0 && (
-              <section className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-                <div className="flex items-baseline justify-between gap-3 mb-4">
-                  <h2 className="font-semibold text-xl tracking-tighter">Clients</h2>
-                  <Link
-                    href="/temoignages"
-                    className="text-sm text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-                  >
-                    Tous →
-                  </Link>
-                </div>
-                <div className="space-y-6">
-                  {pageTestimonials.map((testimonial, index) => (
-                    <blockquote
-                      key={index}
-                      className="border-l border-neutral-200 dark:border-neutral-800 pl-4"
-                    >
-                      <p className="text-neutral-800 dark:text-neutral-200">
-                        « {testimonial.reviewBody} »
-                      </p>
-                      <footer className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
-                        {testimonial.authorName}
-                        {testimonial.authorJob ? ` — ${testimonial.authorJob}` : ''}
-                        {testimonial.source ? ` · ${testimonial.source}` : ''}
-                      </footer>
-                      <StructuredData
-                        type="Review"
-                        data={{
-                          author: {
-                            '@type': 'Person',
-                            name: testimonial.authorName,
-                          },
-                          datePublished: testimonial.datePublished,
-                          reviewBody: testimonial.reviewBody,
-                          ratingValue: testimonial.ratingValue,
-                          itemReviewed: {
-                            '@type': 'Product',
-                            name: toolData.name,
-                            url: `${siteConfig.url}/marketplace/${categorySlug}/${database.slug}`,
-                          },
-                        }}
-                      />
-                    </blockquote>
-                  ))}
-                </div>
-              </section>
-            )}
-
             {!paymentVerified && toolData.isPaid && (
               <div className="border-t border-neutral-200 dark:border-neutral-800 pt-8">
-                <a
-                  href="#acheter"
-                  className="inline-flex text-sm font-medium underline underline-offset-4 hover:no-underline"
+                <button
+                  type="button"
+                  onClick={handleUnlock}
+                  disabled={isLoading}
+                  className="flex w-full items-center justify-center px-5 py-3.5 text-sm font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50"
                 >
-                  Acheter — {toolData.priceLabel} →
-                </a>
+                  {isLoading ? loadingStep || 'Redirection…' : 'Acheter et recevoir le Sheet'}
+                </button>
               </div>
             )}
 
@@ -867,11 +769,11 @@ export async function getServerSideProps({ params }) {
     database.category = normalizedDbCategory
   }
 
-  const relatedDatabases = await getRelatedDatabases(params.slug, 3)
+  const relatedDatabases = await getRelatedDatabases(params.slug, 2)
   const addonDatabases = await getAddonDatabases(params.slug)
-
-  const { getRelevantTestimonials } = await import('../../../lib/testimonials')
-  const pageTestimonials = getRelevantTestimonials(normalizedDbCategory, 3)
+  const { getDatabasesAsTools } = await import('../../../lib/marketplace-databases')
+  const siblings = await getDatabasesAsTools()
+  const noindex = shouldNoindexDatabase(database, siblings)
 
   const { getVideoUrlForDatabase } = await import('../../../lib/marketplace-videos')
   const videoUrlFromTella = await getVideoUrlForDatabase(params.slug)
@@ -892,7 +794,7 @@ export async function getServerSideProps({ params }) {
       database: stripDeliverySecrets(database),
       relatedDatabases: relatedDatabases.map(stripDeliverySecrets),
       addonDatabases: addonDatabases.map(stripDeliverySecrets),
-      pageTestimonials,
+      noindex,
     },
   }
 }

@@ -72,8 +72,6 @@ export default function DatabasePurchasePanel({
   paymentVerified,
   purchasedToolIds = [],
   deliveryUrls = {},
-  subscriptionType,
-  setSubscriptionType,
   selectedAddons,
   setSelectedAddons,
   isLoading,
@@ -82,6 +80,7 @@ export default function DatabasePurchasePanel({
   totalPriceLabel,
   priceLabel,
   priceLabelHT,
+  pack,
 }) {
   if (paymentVerified) {
     return (
@@ -95,48 +94,25 @@ export default function DatabasePurchasePanel({
     )
   }
 
-  const displayPrice = (totalPriceLabel || priceLabel || '').replace(/\s*TTC.*$/, '').trim()
-  const isApi = subscriptionType === 'api'
+  const displayPrice = totalPriceLabel || priceLabel
 
   return (
     <div className="space-y-5" id="acheter">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+      <div>
         <p className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 tabular-nums">
-          {isApi ? 'Sur devis' : displayPrice || priceLabel}
+          {displayPrice}
         </p>
-        <p className="text-sm text-neutral-500 dark:text-neutral-500">
-          {isApi ? 'accès récurrent Apify' : 'paiement unique · livré tout de suite'}
+        {priceLabelHT && (
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500 tabular-nums">
+            {priceLabelHT}
+          </p>
+        )}
+        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
+          paiement unique · livré tout de suite
         </p>
       </div>
 
-      <div className="flex gap-5 text-sm border-b border-neutral-200 dark:border-neutral-800">
-        <button
-          type="button"
-          onClick={() => setSubscriptionType('one-time')}
-          disabled={isLoading}
-          className={`pb-2 border-b-2 -mb-px transition-colors ${
-            !isApi
-              ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-neutral-100 font-medium'
-              : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'
-          } disabled:opacity-50`}
-        >
-          Google Sheets
-        </button>
-        <button
-          type="button"
-          onClick={() => setSubscriptionType('api')}
-          disabled={isLoading}
-          className={`pb-2 border-b-2 -mb-px transition-colors ${
-            isApi
-              ? 'border-neutral-900 dark:border-white text-neutral-900 dark:text-neutral-100 font-medium'
-              : 'border-transparent text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200'
-          } disabled:opacity-50`}
-        >
-          API Apify
-        </button>
-      </div>
-
-      {!isApi && addonDatabases.length > 0 && (
+      {addonDatabases.length > 0 && (
         <div className="space-y-2">
           <p className="text-xs text-neutral-500 dark:text-neutral-500">
             Bundle : 2 bases −10 %, 3+ bases −15 %
@@ -160,8 +136,8 @@ export default function DatabasePurchasePanel({
                   <span className="flex-1 text-neutral-700 dark:text-neutral-300 min-w-0">
                     {addon.name}
                   </span>
-                  <span className="tabular-nums text-neutral-900 dark:text-neutral-100 whitespace-nowrap">
-                    +{addon.price}€
+                  <span className="tabular-nums text-neutral-900 dark:text-neutral-100 whitespace-nowrap text-right">
+                    +{addon.price} € HT
                   </span>
                 </label>
               </li>
@@ -176,34 +152,32 @@ export default function DatabasePurchasePanel({
         disabled={isLoading}
         className="flex w-full items-center justify-center px-5 py-3.5 text-sm font-medium bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isLoading
-          ? loadingStep || 'Redirection…'
-          : isApi
-            ? 'Demander l’accès API'
-            : `Acheter et recevoir le Sheets`}
+        {isLoading ? loadingStep || 'Redirection…' : 'Acheter et recevoir le Sheet'}
       </button>
 
+      {pack?.href && (
+        <p className="text-sm">
+          <a
+            href={pack.href}
+            className="underline underline-offset-4 hover:no-underline text-neutral-900 dark:text-neutral-100"
+          >
+            {pack.label}
+          </a>
+        </p>
+      )}
+
       <div className="text-sm text-neutral-600 dark:text-neutral-400 space-y-1.5 leading-relaxed">
-        {isApi ? (
-          <p>Accès récurrent via Apify, données mises à jour automatiquement.</p>
-        ) : (
-          <>
-            <p>
-              Après paiement : lien pour copier la base dans votre Drive. Snapshot à la date
-              indiquée — export CSV / Excel depuis Sheets.
-            </p>
-            <p className="text-xs text-neutral-500 dark:text-neutral-500">
-              {priceLabel}
-              {priceLabelHT ? ` · ${priceLabelHT}` : ''}
-              {' · '}pas d’abonnement
-            </p>
-            {selectedAddons.length > 0 && (
-              <p className="text-xs">
-                Code promo au checkout :{' '}
-                <span className="font-medium text-neutral-900 dark:text-neutral-100">PROMO10</span>
-              </p>
-            )}
-          </>
+        <p>
+          Après paiement, un lien copie la base dans votre Drive. Vous exportez ensuite en CSV ou Excel depuis Sheets.
+        </p>
+        <p className="text-xs text-neutral-500 dark:text-neutral-500">
+          pas d’abonnement
+        </p>
+        {selectedAddons.length > 0 && (
+          <p className="text-xs">
+            Code promo au checkout :{' '}
+            <span className="font-medium text-neutral-900 dark:text-neutral-100">PROMO10</span>
+          </p>
         )}
       </div>
     </div>

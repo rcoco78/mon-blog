@@ -4,9 +4,11 @@
 
 import ContentListRow from '../ContentListRow'
 import {
-  shortMarketplaceTitle,
+  marketplaceHomeTitle,
   marketplaceBenefit,
-  marketplacePriceLabel,
+  formatEuros,
+  priceHT,
+  priceTTC,
 } from '../../lib/marketplace-display'
 import { categoryToSlug } from '../../lib/marketplace-helpers'
 
@@ -18,9 +20,19 @@ export default function DatabaseListRow({ tool, showCategory = true, rank = null
     (tool.slug && tool.category
       ? `/marketplace/${categoryToSlug(tool.category)}/${tool.slug}`
       : '#')
-  const title = shortMarketplaceTitle(tool.name)
+  const title = marketplaceHomeTitle(tool)
   const benefit = marketplaceBenefit(tool)
-  const price = marketplacePriceLabel(tool)
+  const price =
+    tool.isPaid && (tool.annualPrice || tool.price)
+      ? (
+          <span className="inline-flex flex-col items-end leading-tight">
+            <span>{formatEuros(priceTTC(tool.annualPrice || tool.price))} €</span>
+            <span className="text-xs font-normal text-neutral-500">
+              {formatEuros(priceHT(tool.annualPrice || tool.price))} € HT
+            </span>
+          </span>
+        )
+      : 'Gratuit'
   const rows =
     tool.rowCount > 0 ? `${Number(tool.rowCount).toLocaleString('fr-FR')} entrées` : null
 
