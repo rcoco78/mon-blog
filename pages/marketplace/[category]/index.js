@@ -33,8 +33,8 @@ const INITIAL_BATCH = 60
 const ITEMS_PER_PAGE = 20
 const SORT_OPTIONS = [
   { value: 'date', label: 'Plus récents' },
-  { value: 'price_desc', label: 'Prix décroissant' },
-  { value: 'views', label: 'Plus consultés' },
+  { value: 'price_desc', label: 'Prix' },
+  { value: 'views', label: 'Vues' },
 ]
 
 export default function CategoryMarketplace({ category, categoryDatabases, totalCount = 0, topDatabases: initialTopDatabases = [] }) {
@@ -192,22 +192,30 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
           )}
         </section>
 
-        <section className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-          <span className="text-neutral-500">Trier</span>
-          {SORT_OPTIONS.map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setSortBy(value)}
-              className={
-                sortBy === value
-                  ? 'text-neutral-900 dark:text-neutral-100 border-b border-dashed border-neutral-900 dark:border-neutral-100'
-                  : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100'
-              }
-            >
-              {label}
-            </button>
-          ))}
+        <section
+          className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm"
+          role="group"
+          aria-label="Trier"
+        >
+          <span className="text-neutral-500 dark:text-neutral-500">Trier</span>
+          {SORT_OPTIONS.map(({ value, label }) => {
+            const active = sortBy === value
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setSortBy(value)}
+                aria-pressed={active}
+                className={`shrink-0 whitespace-nowrap pb-1 border-b border-dashed ${
+                  active
+                    ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                }`}
+              >
+                {label}
+              </button>
+            )
+          })}
         </section>
 
         {/* Liste des bases de données */}

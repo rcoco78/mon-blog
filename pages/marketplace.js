@@ -3,14 +3,21 @@ import { useState, useEffect } from 'react'
 import LookAtAvatar from '../components/LookAtAvatar'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
-import SortDropdown from '../components/SortDropdown'
 import { pickFeaturedDatabases } from '../lib/marketplace-catalog'
+import { toEmbedVideoUrl } from '../lib/marketplace-videos'
 import FAQ from '../components/FAQ'
 import DatabaseListRow from '../components/marketplace/DatabaseListRow'
+import MarketplaceStoryBand from '../components/marketplace/MarketplaceStoryBand'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { averageStarRating } from '../lib/rating'
 import { openCalendlyPopup } from '../lib/calendly'
+
+const SORT_OPTIONS = [
+  { value: 'date', label: 'Plus récents' },
+  { value: 'price_desc', label: 'Prix' },
+  { value: 'views', label: 'Vues' },
+]
 
 export default function Marketplace({
   dynamicDatabases = [],
@@ -314,25 +321,45 @@ export default function Marketplace({
             </div>
           </div>
 
-          <SortDropdown
+          <div
             id="marketplace-sort"
-            label="Trier"
-            value={sortBy}
-            onChange={setSortBy}
-            options={[
-              { value: 'date', label: 'Plus récents' },
-              { value: 'price_desc', label: 'Prix décroissant' },
-              { value: 'views', label: 'Plus consultés' },
-            ]}
-          />
+            className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm"
+            role="group"
+            aria-label="Trier"
+          >
+            <span className="text-neutral-500 dark:text-neutral-500">Trier</span>
+            {SORT_OPTIONS.map(({ value, label }) => {
+              const active = sortBy === value
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setSortBy(value)}
+                  aria-pressed={active}
+                  className={`shrink-0 whitespace-nowrap pb-1 border-b border-dashed ${
+                    active
+                      ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100'
+                      : 'border-transparent text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                  }`}
+                >
+                  {label}
+                </button>
+              )
+            })}
+          </div>
         </section>
 
         {(() => {
           const showFeatured = !searchQuery.trim() && selectedCategory === null && selectedPricing === null
           const featured = showFeatured ? pickFeaturedDatabases(dynamicDatabases || []) : []
-          const featuredSlugs = new Set(featured.map((tool) => tool.slug))
+          const storyTools = featured.filter((tool) =>
+            Boolean(toEmbedVideoUrl(tool?.videoUrl || tool?.enrichedData?.videoUrl))
+          )
+          const storySlugs = new Set(storyTools.map((tool) => tool.slug))
+          const enCeMoment = featured.filter((tool) => !storySlugs.has(tool.slug))
+          const enCeMomentSlugs = new Set(enCeMoment.map((tool) => tool.slug))
           const rest = showFeatured
-            ? filteredTools.filter((tool) => !featuredSlugs.has(tool.slug))
+            ? filteredTools.filter((tool) => !enCeMomentSlugs.has(tool.slug))
             : filteredTools
           if (filteredTools.length === 0) {
             return (
@@ -358,11 +385,14 @@ export default function Marketplace({
           }
           return (
             <>
-              {featured.length > 0 && (
+              {storyTools.length > 0 && (
+                <MarketplaceStoryBand tools={storyTools} />
+              )}
+              {enCeMoment.length > 0 && (
                 <section className="mb-12">
                   <h2 className="font-semibold text-xl mb-4 tracking-tighter">En ce moment</h2>
                   <div className="flex flex-col">
-                    {featured.map((tool) => (
+                    {enCeMoment.map((tool) => (
                       <DatabaseListRow key={tool.slug || tool.name} tool={tool} />
                     ))}
                   </div>
@@ -598,11 +628,15 @@ export async function getServerSideProps({ query }) {
   }
 
   const { getDatabasesAsTools } = await import('../lib/marketplace-databases')
+  const { getMarketplaceVideoMapping } = await import('../lib/marketplace-videos')
   let dynamicDatabases = []
   
   try {
     dynamicDatabases = await getDatabasesAsTools()
-    const events = await getMarketplaceViewEvents()
+    const [events, videoMapping] = await Promise.all([
+      getMarketplaceViewEvents(),
+      getMarketplaceVideoMapping(),
+    ])
     const viewsMap = {}
     events.forEach((e) => {
       if (e.slug && e.category) {
@@ -613,6 +647,7 @@ export async function getServerSideProps({ query }) {
     dynamicDatabases = dynamicDatabases.map((db) => ({
       ...db,
       views: viewsMap[`${db.category}/${db.slug}`] || 0,
+      videoUrl: videoMapping[db.slug] || null,
     }))
   } catch (error) {
     console.error('❌ Erreur chargement bases de données:', error.message)
