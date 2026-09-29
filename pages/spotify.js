@@ -13,6 +13,20 @@ export default function Spotify() {
   const [timeRange, setTimeRange] = useState('short_term') // short_term, medium_term, long_term
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [errorReason, setErrorReason] = useState(null)
+  const [newRefreshToken, setNewRefreshToken] = useState(null)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const tokenFromCallback = params.get('refresh_token')
+    if (tokenFromCallback) {
+      setNewRefreshToken(tokenFromCallback)
+      // Retirer le secret de l'URL pour éviter qu'il reste dans l'historique
+      const cleanUrl = window.location.pathname
+      window.history.replaceState({}, '', cleanUrl)
+    }
+  }, [])
 
   useEffect(() => {
     const fetchSpotifyData = async () => {
@@ -25,7 +39,10 @@ export default function Spotify() {
 
         if (data.error) {
           setError(data.error)
+          setErrorReason(data.reason || null)
         } else {
+          setError(null)
+          setErrorReason(null)
           setCurrentlyPlaying(data.currentlyPlaying)
           setTopTracks(data.topTracks || [])
           setTopArtists(data.topArtists || [])
@@ -34,6 +51,7 @@ export default function Spotify() {
       } catch (err) {
         console.error('Error fetching Spotify data:', err)
         setError('Impossible de charger les données Spotify')
+        setErrorReason(null)
       } finally {
         setLoading(false)
       }
@@ -172,6 +190,20 @@ export default function Spotify() {
             Découvrez ce que j'écoute en ce moment et mes musiques préférées.
           </p>
 
+          {newRefreshToken && (
+            <div className="mb-8 p-6 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
+              <p className="font-medium text-amber-900 dark:text-amber-100 mb-2">
+                Nouveau refresh token Spotify généré
+              </p>
+              <p className="text-sm text-amber-800 dark:text-amber-200 mb-3">
+                Copiez-le, ajoutez-le comme <code className="text-xs">SPOTIFY_REFRESH_TOKEN</code> en Production sur Vercel, puis redéployez. Ne le partagez pas.
+              </p>
+              <pre className="text-xs break-all whitespace-pre-wrap p-3 rounded bg-white/70 dark:bg-black/30 border border-amber-200 dark:border-amber-700 select-all">
+                {newRefreshToken}
+              </pre>
+            </div>
+          )}
+
           {loading ? (
             // Skeleton pour Spotify avec effet shimmer
             <div className="space-y-12">
@@ -253,8 +285,12 @@ export default function Spotify() {
           ) : error ? (
             <div className="p-6 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
               <p className="text-red-600 dark:text-red-400 mb-2">Erreur : {error}</p>
-              <p className="text-sm text-red-500 dark:text-red-500">
-                Vérifiez que les variables d'environnement Spotify sont bien configurées sur Vercel.
+              <p className="text-sm text-red-500 dark:text-red-400">
+                {errorReason === 'refresh_revoked'
+                  ? 'Le refresh token Spotify a été révoqué. Régénérez-le en ouvrant /api/spotify/auth, puis mettez à jour SPOTIFY_REFRESH_TOKEN sur Vercel.'
+                  : errorReason === 'missing_credentials'
+                    ? 'SPOTIFY_CLIENT_ID ou SPOTIFY_CLIENT_SECRET manquant sur Vercel.'
+                    : 'Vérifiez que les variables d\'environnement Spotify sont bien configurées sur Vercel.'}
               </p>
             </div>
           ) : (

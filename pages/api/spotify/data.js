@@ -8,11 +8,20 @@ export default async function handler(req, res) {
 
   try {
     // Récupérer un access token
-    const accessToken = await getSpotifyAccessToken()
+    const tokenResult = await getSpotifyAccessToken()
     
-    if (!accessToken) {
-      return res.status(500).json({ error: 'Impossible d\'obtenir un token d\'accès Spotify' })
+    if (!tokenResult?.accessToken) {
+      const reason = tokenResult?.reason || 'unknown'
+      const message =
+        reason === 'refresh_revoked'
+          ? 'Refresh token Spotify révoqué — régénérez-le via /api/spotify/auth'
+          : reason === 'missing_credentials'
+            ? 'Variables Spotify manquantes (SPOTIFY_CLIENT_ID / SPOTIFY_CLIENT_SECRET)'
+            : 'Impossible d\'obtenir un token d\'accès Spotify'
+      return res.status(500).json({ error: message, reason })
     }
+
+    const accessToken = tokenResult.accessToken
 
     // Récupérer le time_range depuis les query params (par défaut: short_term)
     const timeRange = req.query.time_range || 'short_term' // short_term, medium_term, long_term
@@ -50,7 +59,7 @@ async function getSpotifyAccessToken() {
     // Vérifier que les variables d'environnement sont configurées
     if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) {
       console.error('SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET not configured')
-      return null
+      return { accessToken: null, reason: 'missing_credentials' }
     }
 
     // Si on a un refresh token, l'utiliser pour obtenir un nouvel access token
@@ -73,12 +82,17 @@ async function getSpotifyAccessToken() {
         const data = await response.json()
         // Si un nouveau refresh token est fourni, on pourrait le sauvegarder
         // mais pour l'instant on garde celui en variable d'environnement
-        return data.access_token
+        return { accessToken: data.access_token, reason: null }
       } else {
         const errorData = await response.json().catch(() => ({}))
         console.error('Error refreshing Spotify token:', errorData)
-        // Si le refresh token est invalide, on ne peut pas continuer
-        return null
+        const revoked =
+          errorData.error === 'invalid_grant' ||
+          /revoked|expired|invalid/i.test(errorData.error_description || '')
+        return {
+          accessToken: null,
+          reason: revoked ? 'refresh_revoked' : 'refresh_failed'
+        }
       }
     }
 
@@ -97,14 +111,14 @@ async function getSpotifyAccessToken() {
 
     if (response.ok) {
       const data = await response.json()
-      return data.access_token
+      return { accessToken: data.access_token, reason: null }
     }
 
     console.error('Failed to get access token with client credentials')
-    return null
+    return { accessToken: null, reason: 'client_credentials_failed' }
   } catch (error) {
     console.error('Error getting Spotify access token:', error)
-    return null
+    return { accessToken: null, reason: 'exception' }
   }
 }
 
