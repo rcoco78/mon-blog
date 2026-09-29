@@ -3,42 +3,31 @@ import { useRouter } from 'next/router'
 import { getAllPosts } from '../lib/notion'
 import { list } from '@vercel/blob'
 import ViewCounter from '../components/ViewCounter'
-import { useState, useEffect, useMemo } from 'react'
-import SearchBar from '../components/SearchBar'
+import { useState, useEffect } from 'react'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
-import FAQ from '../components/FAQ'
-import SocialLinks from '../components/SocialLinks'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
+
+function canonicalTag(tag = '') {
+  if (/^freelanc/i.test(tag)) return 'Freelance'
+  return tag
+}
 
 export default function Blog({ posts }) {
   const router = useRouter()
   const initialSearch = typeof router.query?.search === 'string' ? router.query.search.trim() : ''
   const [selectedTag, setSelectedTag] = useState(null)
   const [searchText, setSearchText] = useState(initialSearch)
+  const [allTags, setAllTags] = useState([])
   const [filteredPosts, setFilteredPosts] = useState(posts)
   const [topPosts, setTopPosts] = useState([])
-  const [topPostsLoading, setTopPostsLoading] = useState(true)
   const [postsLoading, setPostsLoading] = useState(true)
   const [allViews, setAllViews] = useState({})
   const [blogStats, setBlogStats] = useState(null)
   const [blogStatsLoading, setBlogStatsLoading] = useState(true)
-  const [displayedCount, setDisplayedCount] = useState(12)
-  const POSTS_PER_PAGE = 12
-  const tagOptions = useMemo(() => {
-    const counts = new Map()
-    posts.forEach((post) => {
-      new Set(post.tags || []).forEach((tag) => {
-        if (tag) counts.set(tag, (counts.get(tag) || 0) + 1)
-      })
-    })
-
-    return [...counts.entries()].map(([tag, count]) => ({
-      label: `${tag} (${count})`,
-      value: tag,
-    }))
-  }, [posts])
+  const INITIAL_VISIBLE_POSTS = 40
+  const [displayedCount, setDisplayedCount] = useState(INITIAL_VISIBLE_POSTS)
 
   // Sync searchText with URL ?search= (pour SearchAction schema)
   useEffect(() => {
@@ -49,6 +38,9 @@ export default function Blog({ posts }) {
   }, [router.query.search])
 
   useEffect(() => {
+    // Extraire tous les tags uniques
+    const tags = [...new Set(posts.flatMap((post) => (post.tags || []).map(canonicalTag)))]
+    setAllTags(tags)
     // Petit délai pour afficher le skeleton
     const timer = setTimeout(() => {
       if (posts.length > 0) {
@@ -63,7 +55,6 @@ export default function Blog({ posts }) {
     const fetchTopPosts = async () => {
       if (!posts || posts.length === 0) {
         setTopPosts([])
-        setTopPostsLoading(false)
         return
       }
 
@@ -90,11 +81,9 @@ export default function Blog({ posts }) {
           .slice(0, 3)
         
         setTopPosts(sortedPosts)
-        setTopPostsLoading(false)
       } catch (error) {
         console.error('Erreur lors de la récupération des vues:', error)
         setTopPosts([])
-        setTopPostsLoading(false)
       }
     }
 
@@ -129,7 +118,7 @@ export default function Blog({ posts }) {
     let filtered = posts
 
     if (selectedTag) {
-      filtered = filtered.filter(post => post.tags.includes(selectedTag))
+      filtered = filtered.filter((post) => (post.tags || []).some((tag) => canonicalTag(tag) === selectedTag))
     }
 
     if (searchText.trim()) {
@@ -152,15 +141,10 @@ export default function Blog({ posts }) {
   }, [selectedTag, searchText, posts, allViews])
 
   useEffect(() => {
-    setDisplayedCount(POSTS_PER_PAGE)
+    setDisplayedCount(INITIAL_VISIBLE_POSTS)
   }, [selectedTag, searchText])
 
   // Mettre à jour l'URL quand searchText change (pour SearchAction + partage)
-  const handleSearchChange = (value) => {
-    setSearchText(value)
-    const url = value.trim() ? `/blog?search=${encodeURIComponent(value.trim())}` : '/blog'
-    router.replace(url, undefined, { shallow: true })
-  }
 
   const pageSEO = generatePageSEO({
     title: siteConfig.seo.pages.blog.title,
@@ -169,31 +153,10 @@ export default function Blog({ posts }) {
     keywords: siteConfig.seo.pages.blog.keywords
   })
 
-  const faqData = {
-    questions: [
-      {
-        '@type': 'Question',
-        name: 'Que trouve-t-on dans ce journal ?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Des notes de terrain sur le scraping, l’automatisation, l’outbound, les missions freelance et les projets que je construis.'
-        }
-      },
-      {
-        '@type': 'Question',
-        name: 'Par où commencer ?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Les articles les plus lus donnent un premier aperçu. La recherche et les tags permettent ensuite de suivre un sujet précis.'
-        }
-      }
-    ]
-  }
-
   // Structured Data pour Blog
   const blogStructuredData = {
-    name: 'Blog - Corentin Robert',
-    description: 'Notes de terrain sur la data, l’outbound, le freelance et les projets en cours.',
+    name: 'Journal',
+    description: 'Articles, réflexions et partages sur l\'entrepreneuriat, le scraping, l\'automatisation, le voyage et bien plus.',
     url: `${siteConfig.url}/blog`,
     blogPost: posts.slice(0, 10).map(post => ({
       '@type': 'BlogPosting',
@@ -203,85 +166,45 @@ export default function Blog({ posts }) {
     }))
   }
 
+  const topSlugs = topPosts.map((post) => post.slug)
+  const listedPosts = !selectedTag && !searchText.trim() && topSlugs.length
+    ? [...filteredPosts].sort((a, b) => {
+        const ia = topSlugs.indexOf(a.slug)
+        const ib = topSlugs.indexOf(b.slug)
+        if (ia === -1 && ib === -1) return 0
+        if (ia === -1) return 1
+        if (ib === -1) return -1
+        return ia - ib
+      })
+    : filteredPosts
+
+  const tagCounts = posts.reduce((counts, post) => {
+    const seen = new Set()
+    for (const tag of post.tags || []) {
+      const name = canonicalTag(tag)
+      if (seen.has(name)) continue
+      seen.add(name)
+      counts[name] = (counts[name] || 0) + 1
+    }
+    return counts
+  }, {})
+
   return (
     <>
       <SEOHead {...pageSEO} />
       <StructuredData type="Blog" data={blogStructuredData} />
-      <StructuredData type="FAQPage" data={faqData} />
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
-        <section className="mb-6">
-          <h1 className="font-semibold text-2xl mb-4 tracking-tighter">
-            Blog
-          </h1>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-0 tracking-tight">
-            Notes de terrain sur le scraping, l&apos;automatisation, l&apos;outbound et
-            la vie de freelance. J&apos;y documente aussi Datareacher, Outreacher et
-            Logement Atypique au fil de leur construction.
+        <section className="mb-8">
+          <h1 className="font-semibold text-2xl mb-3 tracking-tighter">Journal</h1>
+          <p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
+            Notes de terrain sur la data, l’outbound et le freelance.
           </p>
         </section>
-
-        {topPostsLoading ? (
-          <section className="mb-16">
-            <h2 className="font-semibold text-xl mb-6 tracking-tighter">Articles les plus lus</h2>
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 animate-pulse">
-                  <div className="flex flex-col md:flex-row md:items-center w-full">
-                    <div className="flex-shrink-0">
-                      <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
-                    </div>
-                    <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 mx-2 flex-shrink-0"></span>
-                    <div className="flex-grow md:max-w-[60%] w-full md:ml-0">
-                      <div className="h-5 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
-                    </div>
-                    <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
-                      <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : topPosts.length > 0 && (
-          <section className="mb-16">
-            <h2 className="font-semibold text-xl mb-6 tracking-tighter">Articles les plus lus</h2>
-            <div className="space-y-4">
-              {topPosts.map((post) => {
-                return (
-                  <Link key={post.id} href={`/blog/${post.slug}`} className="post-link group">
-                    <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 transition-all group-hover:translate-x-1">
-                      <div className="flex flex-col md:flex-row md:items-center w-full">
-                        <div className="flex-shrink-0">
-                          <p className="post-date text-sm whitespace-nowrap">{(() => {
-                            const date = new Date(post.date)
-                            const day = String(date.getDate()).padStart(2, '0')
-                            const month = String(date.getMonth() + 1).padStart(2, '0')
-                            const year = date.getFullYear()
-                            return `${day}-${month}-${year}`
-                          })()}</p>
-                        </div>
-                        <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 mx-2 flex-shrink-0"></span>
-                        <p className="post-title flex-grow w-full md:ml-0 flex items-center gap-2 min-w-0">
-                          <span className="truncate">{post.title}</span>
-                        </p>
-                        <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
-                          <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">
-                            {post.views} vues
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          </section>
-        )}
 
         <section className="mb-16">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <h2 className="font-semibold text-xl tracking-tighter">Tous les articles</h2>
+              <h2 className="font-semibold text-xl tracking-tighter">Articles</h2>
               <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
                 <span className="whitespace-nowrap">{filteredPosts.length} {filteredPosts.length === 1 ? 'article' : 'articles'}</span>
                 <span className="w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 flex-shrink-0 hidden sm:inline" aria-hidden></span>
@@ -330,14 +253,34 @@ export default function Blog({ posts }) {
               </span>
             )}
           </div>
-          <div className="mb-6 space-y-4">
-            <SearchBar 
-              tags={tagOptions}
-              selectedTag={selectedTag}
-              onTagSelect={setSelectedTag}
-              allLabel={`Tous (${posts.length})`}
-              variant="journal"
-            />
+          <div className="mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex flex-nowrap gap-x-4 overflow-x-auto pb-1 text-sm scrollbar-hide">
+              <button
+                type="button"
+                onClick={() => setSelectedTag(null)}
+                className={`shrink-0 whitespace-nowrap pb-1 border-b border-dashed ${
+                  selectedTag === null
+                    ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                }`}
+              >
+                Tous ({posts.length})
+              </button>
+              {allTags.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => setSelectedTag(tag)}
+                  className={`shrink-0 whitespace-nowrap pb-1 border-b border-dashed ${
+                    selectedTag === tag
+                      ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100'
+                      : 'border-transparent text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                  }`}
+                >
+                  {tag} ({tagCounts[tag] || 0})
+                </button>
+              ))}
+            </div>
           </div>
           {postsLoading ? (
             <div className="space-y-4">
@@ -361,7 +304,7 @@ export default function Blog({ posts }) {
           ) : filteredPosts && filteredPosts.length > 0 ? (
             <>
               <div className="space-y-4">
-                {filteredPosts.slice(0, displayedCount).map((post) => {
+                {listedPosts.slice(0, displayedCount).map((post) => {
                   return (
                     <Link key={post.id} href={`/blog/${post.slug}`} className="post-link group">
                       <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 transition-all group-hover:translate-x-1">
@@ -388,11 +331,11 @@ export default function Blog({ posts }) {
                   )
                 })}
               </div>
-              {displayedCount < filteredPosts.length && (
+              {filteredPosts.length > INITIAL_VISIBLE_POSTS && displayedCount < filteredPosts.length && (
                 <div className="mt-8 text-center">
                   <button
-                    onClick={() => setDisplayedCount(prev => Math.min(prev + POSTS_PER_PAGE, filteredPosts.length))}
-                    className="px-6 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-800 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900/50 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
+                    onClick={() => setDisplayedCount(prev => Math.min(prev + INITIAL_VISIBLE_POSTS, filteredPosts.length))}
+                    className="text-sm text-neutral-600 dark:text-neutral-400 underline underline-offset-4 hover:text-neutral-900 dark:hover:text-neutral-100"
                   >
                     Voir plus d&apos;articles ({filteredPosts.length - displayedCount} restant{filteredPosts.length - displayedCount > 1 ? 's' : ''})
                   </button>
@@ -421,56 +364,6 @@ export default function Blog({ posts }) {
           )}
         </section>
 
-        <section className="mb-16">
-          <h2 className="font-semibold text-xl mb-6 tracking-tighter">À propos du journal</h2>
-          <FAQ
-            items={[
-              {
-                question: "Que trouve-t-on dans ce journal ?",
-                answer: "Des notes de terrain sur le scraping, l’automatisation, l’outbound, les missions freelance et les projets que je construis."
-              },
-              {
-                question: "Par où commencer ?",
-                answer: "Les articles les plus lus donnent un premier aperçu. La recherche et les tags permettent ensuite de suivre un sujet précis."
-              }
-            ]}
-          />
-        </section>
-
-        <section className="mb-12 md:mb-16 pt-8 journal-rule text-center" aria-label="Continuer la lecture">
-          <h2 className="font-semibold text-xl mb-4 tracking-tighter">Continuer le fil</h2>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-6 max-w-xl mx-auto">
-            Recevez les prochains textes, ou venez poursuivre la conversation sur les réseaux.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
-            <Link
-              href="/newsletter"
-              className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
-            >
-              Lire la suite par email
-            </Link>
-            <SocialLinks />
-          </div>
-        </section>
-
-        <section className="mb-16">
-          <h2 className="font-semibold text-xl mb-6 tracking-tighter">Pour aller plus loin</h2>
-          <div className="space-y-2 text-neutral-600 dark:text-neutral-400">
-            <p>
-              <Link href="/cas-usage" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Cas d&apos;usage
-              </Link>
-              {' • '}
-              <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Marketplace
-              </Link>
-              {' • '}
-              <Link href="/newsletter" className="underline hover:text-neutral-900 dark:hover:text-neutral-100">
-                Newsletter
-              </Link>
-            </p>
-        </div>
-      </section>
     </main>
     </>
   )

@@ -1,10 +1,10 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { useState, useEffect } from 'react'
+import LookAtAvatar from '../components/LookAtAvatar'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
-import SearchBar from '../components/SearchBar'
 import SortDropdown from '../components/SortDropdown'
+import { pickFeaturedDatabases } from '../lib/marketplace-catalog'
 import FAQ from '../components/FAQ'
 import DatabaseListRow from '../components/marketplace/DatabaseListRow'
 import { generatePageSEO } from '../lib/seo'
@@ -18,39 +18,11 @@ export default function Marketplace({
 }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedPricing, setSelectedPricing] = useState(null) // '<100' | '100-200' | '200+' | 'free' | null
-  const [sortBy, setSortBy] = useState('views') // 'date' | 'price_desc' | 'views' — défaut: plus consultés
+  const [sortBy, setSortBy] = useState('date')
   const [searchQuery, setSearchQuery] = useState('')
-  const [showVideo, setShowVideo] = useState(false)
-  const [videoSeen, setVideoSeen] = useState(false)
   const [displayedCount, setDisplayedCount] = useState(8)
   const ITEMS_PER_PAGE = 8
   const datareacherHref = siteConfig.network.datareacher.href
-
-  // URL de la vidéo Tella
-  const videoUrl = 'https://www.tella.tv/video/freelance-en-scrapping-et-automatisation-342e'
-  const videoEmbedUrl = 'https://www.tella.tv/video/vid_cmjylsyom00bn04la9dfs342e/embed?b=1&title=1&a=1&loop=0&t=0&muted=0&wt=0'
-
-  // Vérifier si la vidéo a déjà été vue
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const seen = localStorage.getItem('profileVideoSeen') === 'true'
-      setVideoSeen(seen)
-    }
-  }, [])
-
-  // Ouvrir la popup vidéo
-  const handleVideoClick = () => {
-    setShowVideo(true)
-  }
-
-  // Marquer la vidéo comme vue quand on ferme la popup (après avoir regardé)
-  const handleCloseVideo = () => {
-    setShowVideo(false)
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('profileVideoSeen', 'true')
-      setVideoSeen(true)
-    }
-  }
 
   const pricingRanges = [
     { value: null, label: 'Tous' },
@@ -231,8 +203,8 @@ export default function Marketplace({
       <StructuredData
         type="Product"
         data={{
-          name: 'Marketplace — Bases Google Sheets',
-          description: 'Marketplace de bases de données pour la prospection et l\'analyse business. Bases de données vérifiées, structurées et régulièrement mises à jour, prêtes à l\'emploi pour enrichir vos CRM et optimiser vos campagnes de prospection.',
+          name: 'Bases de données B2B',
+          description: 'Fichiers B2B en Google Sheets. Achat, puis copie dans votre Drive.',
           url: `${siteConfig.url}/marketplace`,
           brand: { '@type': 'Brand', name: siteConfig.author, url: siteConfig.url },
           offers: {
@@ -270,10 +242,10 @@ export default function Marketplace({
       <main className="min-w-0 mt-6 flex flex-col overflow-x-hidden">
         <header className="mb-8">
           <h1 className="font-semibold text-2xl mb-3 tracking-tighter">
-            Marketplace
+            Bases de données B2B
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400 tracking-tight max-w-2xl">
-            Bases Google Sheets à copier après achat Stripe. Scripts de scraping :{' '}
+            Choisir une base, payer, copier le Google Sheet. Les scripts sont sur{' '}
             <a
               href={datareacherHref}
               target="_blank"
@@ -294,14 +266,7 @@ export default function Marketplace({
         </header>
 
         <section className="mb-8 overflow-x-hidden">
-          <h2 className="font-semibold text-xl mb-2 tracking-tighter">
-            Bases Google Sheets
-          </h2>
-          <p className="mb-6 text-sm text-neutral-500 dark:text-neutral-500">
-            Choisir · Payer · Copier le Sheet
-          </p>
-
-          <div className="hidden sm:block mb-6">
+          <div className="mb-6">
             <input
               type="search"
               value={searchQuery}
@@ -309,101 +274,125 @@ export default function Marketplace({
                 setSearchQuery(e.target.value)
                 setDisplayedCount(8)
               }}
-              placeholder="Rechercher…"
+              placeholder="Rechercher une base…"
               aria-label="Rechercher une base de données"
               className="w-full px-0 py-2 text-sm border-0 border-b border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:border-neutral-500 dark:focus:border-neutral-500 transition-colors"
             />
           </div>
 
-          <div className="flex flex-col gap-5 mb-8 min-w-0 overflow-x-hidden">
-            <div className="min-w-0 w-full overflow-hidden">
-              <SearchBar
-                tags={pricingRanges.filter((r) => r.value !== undefined && r.value !== null)}
-                selectedTag={selectedPricing}
-                onTagSelect={setSelectedPricing}
-                allLabel={pricingRanges.find((r) => r.value === null || r.value === undefined)?.label ?? 'Tous'}
-                allValue={null}
-              />
+          <div className="mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex flex-nowrap gap-x-4 overflow-x-auto pb-1 text-sm scrollbar-hide">
+              <button
+                type="button"
+                onClick={() => setSelectedCategory(null)}
+                className={`shrink-0 whitespace-nowrap pb-1 border-b border-dashed ${
+                  selectedCategory === null
+                    ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                }`}
+              >
+                Tous ({(dynamicDatabases || []).length})
+              </button>
+              {categories.map((category) => {
+                const count = (dynamicDatabases || []).filter((tool) => tool.category === category).length
+                const active = selectedCategory === category
+                return (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => setSelectedCategory(category)}
+                    className={`shrink-0 whitespace-nowrap pb-1 border-b border-dashed ${
+                      active
+                        ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100'
+                        : 'border-transparent text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                    }`}
+                  >
+                    {category} ({count})
+                  </button>
+                )
+              })}
             </div>
-            <div className="min-w-0 w-full overflow-hidden">
-              <SearchBar
-                tags={categories}
-                selectedTag={selectedCategory}
-                onTagSelect={setSelectedCategory}
-              />
-            </div>
-            <SortDropdown
-              id="marketplace-sort"
-              label="Trier"
-              value={sortBy}
-              onChange={setSortBy}
-              options={[
-                { value: 'date', label: 'Plus récents' },
-                { value: 'price_desc', label: 'Prix décroissant' },
-                { value: 'views', label: 'Plus consultés' },
-              ]}
-            />
           </div>
+
+          <SortDropdown
+            id="marketplace-sort"
+            label="Trier"
+            value={sortBy}
+            onChange={setSortBy}
+            options={[
+              { value: 'date', label: 'Plus récents' },
+              { value: 'price_desc', label: 'Prix décroissant' },
+              { value: 'views', label: 'Plus consultés' },
+            ]}
+          />
         </section>
 
-        <section className="mb-16">
-          {filteredTools.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-neutral-600 dark:text-neutral-400 mb-4">
-                Aucun résultat ne correspond à vos filtres.
-              </p>
-              <button
-                onClick={() => {
-                  setSelectedCategory(null)
-                  setSelectedPricing(null)
-                  setSortBy('views')
-                  setSearchQuery('')
-                }}
-                className="text-sm text-neutral-900 dark:text-neutral-100 underline hover:no-underline"
-              >
-                Réinitialiser les filtres
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                {filteredTools.length} base{filteredTools.length > 1 ? 's' : ''} de données
-              </p>
-              {(selectedCategory !== null || selectedPricing !== null) && (
-                <button
-                  onClick={() => {
-                    setSelectedCategory(null)
-                    setSelectedPricing(null)
-                  }}
-                  className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 underline hover:no-underline"
-                >
-                  Réinitialiser les filtres
-                </button>
+        {(() => {
+          const showFeatured = !searchQuery.trim() && selectedCategory === null && selectedPricing === null
+          const featured = showFeatured ? pickFeaturedDatabases(dynamicDatabases || []) : []
+          const featuredSlugs = new Set(featured.map((tool) => tool.slug))
+          const rest = showFeatured
+            ? filteredTools.filter((tool) => !featuredSlugs.has(tool.slug))
+            : filteredTools
+          if (filteredTools.length === 0) {
+            return (
+              <section className="mb-16">
+                <div className="py-12">
+                  <p className="text-neutral-600 dark:text-neutral-400 mb-4">
+                    Aucune base ne correspond.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setSelectedCategory(null)
+                      setSelectedPricing(null)
+                      setSortBy('date')
+                      setSearchQuery('')
+                    }}
+                    className="text-sm text-neutral-900 dark:text-neutral-100 underline hover:no-underline"
+                  >
+                    Réinitialiser
+                  </button>
+                </div>
+              </section>
+            )
+          }
+          return (
+            <>
+              {featured.length > 0 && (
+                <section className="mb-12">
+                  <h2 className="font-semibold text-xl mb-4 tracking-tighter">En ce moment</h2>
+                  <div className="flex flex-col">
+                    {featured.map((tool) => (
+                      <DatabaseListRow key={tool.slug || tool.name} tool={tool} />
+                    ))}
+                  </div>
+                </section>
               )}
-            </div>
-            <div className="flex flex-col">
-              {filteredTools.slice(0, displayedCount).map((tool) => (
-                <DatabaseListRow key={tool.slug || tool.name} tool={tool} />
-              ))}
-            </div>
-            {displayedCount < filteredTools.length && (
-              <div className="mt-8">
-                <button
-                  onClick={() =>
-                    setDisplayedCount((prev) =>
-                      Math.min(prev + ITEMS_PER_PAGE, filteredTools.length),
-                    )
-                  }
-                  className="text-sm text-neutral-600 dark:text-neutral-400 underline underline-offset-4 hover:no-underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-                >
-                  Voir plus ({filteredTools.length - displayedCount})
-                </button>
-              </div>
-            )}
-            </div>
-          )}
-        </section>
+              <section className="mb-16">
+                <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+                  {showFeatured ? 'Toutes' : `${rest.length} base${rest.length > 1 ? 's' : ''}`}
+                </p>
+                <div className="flex flex-col">
+                  {rest.slice(0, displayedCount).map((tool) => (
+                    <DatabaseListRow key={tool.slug || tool.name} tool={tool} />
+                  ))}
+                </div>
+                {displayedCount < rest.length && (
+                  <div className="mt-8">
+                    <button
+                      onClick={() =>
+                        setDisplayedCount((prev) => Math.min(prev + ITEMS_PER_PAGE, rest.length))
+                      }
+                      className="text-sm text-neutral-600 dark:text-neutral-400 underline underline-offset-4 hover:no-underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                    >
+                      Voir plus ({rest.length - displayedCount})
+                    </button>
+                  </div>
+                )}
+              </section>
+            </>
+          )
+        })()}
 
         {/* Avis clients marketplace */}
         {marketplaceReviews.length > 0 && (
@@ -499,95 +488,18 @@ export default function Marketplace({
 
         <section className="mb-12 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-center" aria-label="Contact">
           <div className="flex flex-col items-center mb-6">
-            <div 
-              className="relative inline-block mb-4 group cursor-pointer p-[2px] rounded-full"
-              onClick={handleVideoClick}
-            >
-              <svg 
-                className="absolute inset-0"
-                style={{ 
-                  width: 'calc(100% + 4px)', 
-                  height: 'calc(100% + 4px)',
-                  margin: '-2px',
-                  transform: 'rotate(-90deg)'
-                }}
-                viewBox="0 0 70 70"
-              >
-                <defs>
-                  <linearGradient id="instagram-gradient-marketplace" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#f09433" />
-                    <stop offset="25%" stopColor="#e6683c" />
-                    <stop offset="50%" stopColor="#dc2743" />
-                    <stop offset="75%" stopColor="#cc2366" />
-                    <stop offset="100%" stopColor="#bc1888" />
-                  </linearGradient>
-                </defs>
-                <circle
-                  cx="35"
-                  cy="35"
-                  r="33"
-                  fill="none"
-                  stroke={videoSeen ? "#a3a3a3" : "url(#instagram-gradient-marketplace)"}
-                  strokeWidth="2"
-                  strokeDasharray="207.35"
-                  strokeDashoffset={videoSeen ? "0" : "207.35"}
-                  className={videoSeen ? "" : "animate-draw-circle"}
-                  style={{
-                    transformOrigin: '35px 35px',
-                    transition: videoSeen ? 'stroke 0.5s ease-out' : 'none'
-                  }}
-                />
-              </svg>
-              <div className="rounded-full bg-white dark:bg-neutral-900 p-[2px]">
-                <Image
-                  src={siteConfig.profileImage}
-                  alt="Photo de profil de Corentin Robert"
-                  width={64}
-                  height={64}
-                  className="w-16 h-16 rounded-full object-cover transition-all group-hover:opacity-90"
-                  style={{ objectPosition: 'center 30%' }}
-                  priority
-                />
-              </div>
-              {/* Overlay grisé avec icône play au hover */}
-              <div className="absolute inset-0 flex items-center justify-center bg-neutral-900/70 dark:bg-neutral-900/70 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-play text-white" viewBox="0 0 16 16">
-                  <path d="M10.804 8 5 4.633v6.734zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696z"/>
-                </svg>
-              </div>
+            <div className="mb-4">
+              <LookAtAvatar
+                src={siteConfig.profileImage}
+                alt="Photo de profil de Corentin Robert"
+                size={64}
+                objectPosition="center 28%"
+                lookBasePath={siteConfig.profileLook?.basePath}
+                lookDirections={siteConfig.profileLook?.directions || []}
+                lookExt={siteConfig.profileLook?.ext || 'jpg'}
+                showRing
+              />
             </div>
-            
-            {/* Popup vidéo */}
-            {showVideo && videoEmbedUrl && (
-              <div 
-                className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-4 bg-neutral-900/80 dark:bg-neutral-900/80 backdrop-blur-sm"
-                onClick={handleCloseVideo}
-              >
-                <div 
-                  className="relative w-full max-w-[280px] md:max-w-sm rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shadow-2xl"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    onClick={handleCloseVideo}
-                    className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-neutral-900/90 dark:bg-neutral-100/90 text-white dark:text-neutral-900 hover:bg-neutral-900 dark:hover:bg-neutral-100 transition-colors"
-                    aria-label="Fermer la vidéo"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
-                    </svg>
-                  </button>
-                  <div style={{ position: 'relative', paddingBottom: '177.78%', height: 0 }}>
-                    <iframe
-                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
-                      src={videoEmbedUrl}
-                      allowFullScreen
-                      allowTransparency
-                      title="Présentation de Corentin Robert"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
             
             <h2 className="font-semibold text-xl mb-4 tracking-tighter">Besoin d'une base de données sur-mesure ?</h2>
           </div>

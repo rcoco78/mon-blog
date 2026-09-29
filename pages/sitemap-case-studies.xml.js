@@ -88,7 +88,7 @@ export const getServerSideProps = async ({ res }) => {
     views: viewsMap[cs.slug] || 0
   })).sort((a, b) => b.views !== a.views ? b.views - a.views : a.title.localeCompare(b.title))
 
-  // Ne soumettre à Google que les pages indexables (évite crawl budget sur thin content)
+  // Ne soumettre à Google que les pages indexables (trafic réel 28j — lib/case-studies-indexable-slugs.js)
   const indexableCaseStudies = caseStudiesWithViews.filter((cs) =>
     isCaseStudyIndexable(cs, cs.personalized || null),
   )

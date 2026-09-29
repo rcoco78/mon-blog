@@ -9,25 +9,26 @@ import { generatePageSEO } from '../lib/seo'
 import ContentListRow from '../components/ContentListRow'
 import { getProjectsCountPhrase } from '../lib/project-count'
 import { captureDataError } from '../lib/sentry'
+import { openCalendlyPopup } from '../lib/calendly'
 import { captureCta } from '../lib/posthog-client'
 import { FLOW } from '../lib/posthog-events'
 
 const DOORS = [
   siteConfig.network.datareacher,
   siteConfig.network.outreacher,
-  siteConfig.network.blog,
+  siteConfig.network.marketplace,
   siteConfig.network.logement,
 ]
 
 export default function Home({ homeData }) {
   const latestPosts = homeData?.latestPosts ?? homeData?.topPosts ?? []
-  const latestPost = homeData?.latestPost ?? null
   const metrics = homeData?.metrics ?? siteConfig.metrics
   const projectsPhrase = getProjectsCountPhrase(metrics)
+  const openCalendly = () => openCalendlyPopup('home')
 
   const pageSEO = generatePageSEO({
     title: 'Journal — data, outbound, ce que je construis',
-    description: `Corentin Robert. Journal public. ${projectsPhrase} livrés via Malt et Fiverr. Datareacher, Outreacher, Logement Atypique.`,
+    description: `Corentin Robert. Journal public. ${projectsPhrase} livrés via Malt et Fiverr. Datareacher, Outreacher, marketplace, Logement Atypique.`,
     path: '/',
     keywords: [
       'Corentin Robert',
@@ -48,7 +49,7 @@ export default function Home({ homeData }) {
         data={{
           name: 'Corentin Robert',
           jobTitle: 'Freelance scraping, data et outbound',
-          description: `Corentin Robert. Journal public. ${projectsPhrase} livrés. Datareacher, Outreacher, Logement Atypique.`,
+          description: `Corentin Robert. Journal public. ${projectsPhrase} livrés. Datareacher, Outreacher, marketplace, Logement Atypique.`,
           knowsAbout: ['Web Scraping', 'Data', 'Outbound', 'Automatisation'],
           sameAs: [
             siteConfig.social.linkedin,
@@ -101,48 +102,44 @@ export default function Home({ homeData }) {
           <p className="mb-3 text-neutral-800 dark:text-neutral-200 tracking-tight font-medium">
             {siteConfig.homepage.positioning}
           </p>
-          <p className="mb-3 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            D&apos;Airbnb et Shine à InstaNinja (environ 10K€ de MRR), puis aux missions
-            freelance : je note ici ce que le terrain m&apos;apprend.
+          <p className="mb-4 text-neutral-600 dark:text-neutral-400 tracking-tight">
+            Freelance scraping et automatisation. Une mission, si besoin —{' '}
+            <button
+              type="button"
+              onClick={openCalendly}
+              className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors"
+            >
+              réserver un appel
+            </button>
+            .
           </p>
-          <p className="mb-8 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Aujourd&apos;hui, je construis Datareacher, Outreacher et Logement Atypique.
+          <p className="mb-10 text-sm text-neutral-500 dark:text-neutral-500 tracking-tight">
+            La{' '}
+            <Link
+              href="/objectifs"
+              onClick={() => captureCta({ flow: FLOW.journal, source: 'home_intro', cta: 'objectifs' })}
+              className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"
+            >
+              progression 2026
+            </Link>{' '}
+            est en public. Sur{' '}
+            <a
+              href={siteConfig.social.youtube}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => captureCta({ flow: FLOW.journal, source: 'home_intro', cta: 'youtube' })}
+              className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"
+            >
+              YouTube
+            </a>
+            , le challenge une vidéo par jour.
           </p>
-
-          <div className="mb-10 journal-rule pt-5" aria-label="En ce moment">
-            <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-3">
-              En ce moment
-            </p>
-            <ul className="space-y-2.5 text-sm text-neutral-600 dark:text-neutral-400">
-              {latestPost?.slug && (
-                <li className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                  <span className="text-neutral-500 dark:text-neutral-500 shrink-0">Article</span>
-                  <Link
-                    href={`/blog/${latestPost.slug}`}
-                    className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-                  >
-                    {latestPost.title}
-                  </Link>
-                </li>
-              )}
-              <li className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className="text-neutral-500 dark:text-neutral-500 shrink-0">Objectifs</span>
-                <Link
-                  href="/objectifs"
-                  onClick={() => captureCta({ flow: FLOW.journal, source: 'home_now', cta: 'objectifs' })}
-                  className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-                >
-                  Progression 2026 en public
-                </Link>
-              </li>
-            </ul>
-          </div>
         </section>
 
-        <section aria-label="Les portes du réseau">
-          <h2 className="font-semibold text-xl mb-2 tracking-tighter">Ce que je construis et accompagne</h2>
+        <section className="journal-rule pt-5" aria-label="Ce que je construis">
+          <h2 className="font-semibold text-xl mb-2 tracking-tighter">Ce que je construis</h2>
           <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Trois projets en cours, une collaboration et ce journal pour garder une trace.
+            Quatre projets. Une fonction chacun.
           </p>
           <ul className="space-y-3 text-sm">
             {DOORS.map((door) => {
@@ -187,7 +184,13 @@ export default function Home({ homeData }) {
                         {title}
                       </a>
                     ) : (
-                      <Link href="/blog" className={className}>
+                      <Link
+                        href={door.href}
+                        onClick={() =>
+                          captureCta({ flow: FLOW.journal, source: 'home_doors', cta: door.id })
+                        }
+                        className={className}
+                      >
                         {title}
                       </Link>
                     )}
@@ -238,7 +241,6 @@ export default function Home({ homeData }) {
               className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
             >
               Tous les textes
-              {Number.isInteger(homeData?.postsCount) ? ` (${homeData.postsCount})` : ''}
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
               </svg>

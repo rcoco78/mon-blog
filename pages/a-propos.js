@@ -25,12 +25,6 @@ function trackProjectClick(project) {
   }
 }
 
-function statusLabel(status) {
-  if (status === 'active') return 'Actif'
-  if (status === 'paused') return 'En pause'
-  return 'Arrêté'
-}
-
 function NetworkLogo({ node }) {
   if (!node?.icon) return null
   return (
@@ -212,49 +206,15 @@ export default function About() {
         <h1 className="font-semibold text-2xl mb-8 tracking-tighter">À propos</h1>
         
         <p className="mb-3 text-neutral-800 dark:text-neutral-200 tracking-tight font-medium">
-          Je construis Datareacher, Outreacher et Logement Atypique.
+          Fondateur · Outreacher · Datareacher · Logement Atypique.
         </p>
         <p className="mb-3 text-neutral-600 dark:text-neutral-400 tracking-tight">
-          Avant, il y a eu le growth chez Airbnb et Shine, puis InstaNinja, monté
-          jusqu&apos;à environ 10K€ de MRR. Aujourd&apos;hui, les missions freelance en
-          scraping et automatisation restent mon terrain quotidien.
+          Ici, c&apos;est le journal. Je scrappe, j&apos;automatise, je livre de la data. Pour des dirigeants qui veulent des résultats — pas une stack à gérer.
         </p>
         <p className="mb-8 text-sm text-neutral-500 dark:text-neutral-500 tracking-tight">
-          Ce journal relie ces expériences, les trois projets en cours et ce qui
-          m&apos;occupe hors écran : handball, Hyrox et échecs.
+          28 ans, Paris. Avant : growth chez Airbnb, Shine, papernest. Aujourd&apos;hui : trois casquettes fondateur, plus le freelance.
         </p>
 
-        {/* Mini timeline métier */}
-        <div className="mb-8 journal-rule pt-6">
-          <h2 className="font-semibold text-sm mb-3 tracking-tight text-neutral-900 dark:text-neutral-100">Le fil</h2>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            {[
-              'Outreacher',
-              'Datareacher',
-              'Logement Atypique',
-              'Journal',
-            ].join(' → ')}
-          </p>
-          <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-500">
-            Prouver sur le terrain, documenter en public.
-          </p>
-        </div>
-
-        <div className="mb-8 space-y-4">
-          <div>
-            <h2 className="font-semibold text-sm mb-2 tracking-tight text-neutral-900 dark:text-neutral-100">Pour mes clients</h2>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 tracking-tight">
-              Missions scraping &amp; automatisation (Malt, Fiverr, direct). Outbound pour équipes commerciales via <strong className="text-neutral-800 dark:text-neutral-200">Outreacher</strong>.
-            </p>
-          </div>
-          <div>
-            <h2 className="font-semibold text-sm mb-2 tracking-tight text-neutral-900 dark:text-neutral-100">Ce que je construis</h2>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 tracking-tight">
-              Une marketplace de bases Google Sheets. Les scripts sont sur <Link href="https://datareacher.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Datareacher</strong></Link>. L&apos;outbound, sur <Link href="https://outreacher.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Outreacher</strong></Link>. En parallèle : <Link href="https://logement-atypique.fr" target="_blank" rel="noopener noreferrer" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"><strong className="text-neutral-900 dark:text-neutral-100">Logement Atypique</strong></Link> — on photographie et filme des logements d&apos;exception pour leur donner de la visibilité.
-            </p>
-          </div>
-        </div>
-        
         <div className="mb-8 space-y-6">
           <div>
             <p className="text-neutral-600 dark:text-neutral-400 tracking-tight mt-2">
@@ -263,9 +223,6 @@ export default function About() {
           </div>
           
           <div className="pt-4 journal-rule">
-            <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-              Suite : <Link href="/blog" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">articles</Link>, <Link href="/newsletter" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">newsletter</Link>, <Link href="/marketplace" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">marketplace</Link>, <Link href="/cas-usage" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">cas d&apos;usage</Link>, <Link href="/temoignages" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">témoignages</Link>, <Link href="/faq" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">FAQ</Link>, <Link href="/photos" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">photos</Link>.
-            </p>
             <p className="text-sm text-neutral-600 dark:text-neutral-400">
               Ce que j&apos;écoute en ce moment → <Link href="/spotify" className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors inline-flex items-center gap-1.5 group/link">
                 playlists &amp; artistes
@@ -313,7 +270,7 @@ export default function About() {
                   title="Logement Atypique"
                   href="https://logement-atypique.fr"
                   role="Fondateur"
-                  description="On sublime les lieux atypiques. Photo, vidéo, visibilité."
+                  description="On sublime les lieux atypiques. Photo, vidéo, visibilité. Avec Siméon."
                   logo={<NetworkLogo node={siteConfig.network.logement} />}
                   active
                 />
@@ -424,35 +381,13 @@ export default function About() {
         </div>
       </section>
 
-      {/* Section Projets */}
-      <section className="mb-16" aria-label="Projets clés">
-        <h2 className="font-semibold text-xl tracking-tighter mb-6">Mes Projets Clés</h2>
-        <div className="flex flex-col">
-          {siteConfig.projects
-            .filter((project) => {
-              const partnerIds = ['contributeurs-apify', 'lemlist', 'zapmail', 'outrank']
-              return !partnerIds.includes(project.id)
-            })
-            .map((project) => (
-              <ContentListRow
-                key={project.id || project.title}
-                href={project.link || null}
-                title={project.title}
-                meta={statusLabel(project.status)}
-                description={project.description}
-                onClick={project.link ? () => trackProjectClick(project) : undefined}
-              />
-            ))}
-        </div>
-      </section>
-
       {/* Section Partenaires */}
       <section className="mb-16" aria-label="Partenaires">
         <h2 className="font-semibold text-xl tracking-tighter mb-6">Partenaires</h2>
         <div className="flex flex-col">
           {siteConfig.projects
             .filter((project) => {
-              const partnerIds = ['contributeurs-apify', 'lemlist', 'zapmail', 'outrank']
+              const partnerIds = ['contributeurs-apify', 'lemlist', 'zapmail']
               return project.status === 'active' && partnerIds.includes(project.id)
             })
             .map((project) => (

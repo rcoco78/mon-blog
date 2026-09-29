@@ -82,28 +82,28 @@ export default function Layout({ children }) {
             </Link>
             <Link 
               className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
+                router.pathname.startsWith('/objectifs') ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
+              }`} 
+              href="/objectifs"
+            >
+              objectifs
+            </Link>
+            <Link 
+              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
+                router.pathname === '/marketplace' || router.pathname.startsWith('/marketplace/') ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
+              }`} 
+              href="/marketplace"
+            >
+              marketplace
+            </Link>
+            <Link 
+              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
                 router.pathname === '/a-propos' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
               }`} 
               href="/a-propos"
             >
               à propos
             </Link>
-            <a
-              className="transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md text-neutral-600 dark:text-neutral-400"
-              href={siteConfig.network.datareacher.href}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              datareacher
-            </a>
-            <a
-              className="transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md text-neutral-600 dark:text-neutral-400"
-              href={siteConfig.network.outreacher.href}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              outreacher
-            </a>
           </div>
           <div className="flex justify-end items-center gap-0.5 max-[480px]:hidden">
             <button
@@ -170,4 +170,4 @@ export default function Layout({ children }) {
       </div>
     </div>
   )
-} 
+}

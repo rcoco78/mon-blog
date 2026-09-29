@@ -31,12 +31,6 @@ async function getViewEvents() {
 
 const INITIAL_BATCH = 60
 const ITEMS_PER_PAGE = 20
-const PRICE_FILTERS = [
-  { value: null, label: 'Tous' },
-  { value: 'lt100', label: '< 100€' },
-  { value: '100-200', label: '100-200€' },
-  { value: '200plus', label: '200€+' },
-]
 const SORT_OPTIONS = [
   { value: 'date', label: 'Plus récents' },
   { value: 'price_desc', label: 'Prix décroissant' },
@@ -53,19 +47,16 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
   const [searchResults, setSearchResults] = useState(null)
   const [searchLoading, setSearchLoading] = useState(false)
   const [priceFilter, setPriceFilter] = useState(null)
-  const [sortBy, setSortBy] = useState('views') // défaut: plus consultés
+  const [sortBy, setSortBy] = useState('date')
   const [filteredTotal, setFilteredTotal] = useState(totalCount)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  const safeTopDatabases = Array.isArray(topDatabases) ? topDatabases : []
-  const topSlugs = new Set(safeTopDatabases.map(db => db.slug))
-
-  const hasActiveFilters = searchQuery.trim() || priceFilter || sortBy !== 'views'
+  const hasActiveFilters = searchQuery.trim() || priceFilter || sortBy !== 'date'
   const baseList = hasActiveFilters ? (searchResults || []) : categoryDatabasesList
-  const regularDatabases = Array.isArray(baseList) ? baseList.filter(db => !topSlugs.has(db.slug)) : []
+  const regularDatabases = Array.isArray(baseList) ? baseList : []
   const sortedDatabases = regularDatabases
   const displayedDatabases = sortedDatabases.slice(0, displayedCount)
   const hasMore = displayedCount < sortedDatabases.length
@@ -148,10 +139,10 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
   const effectiveTotal = hasActiveFilters ? filteredTotal : totalCount
 
   const pageSEO = generatePageSEO({
-    title: `Bases de données ${category} | Marketplace`,
-    description: `Découvrez toutes les bases de données ${category.toLowerCase()} disponibles. ${effectiveTotal} bases de données prêtes à l'emploi pour votre prospection et votre analyse.`,
+    title: `Bases de données ${category}`,
+    description: `${effectiveTotal} fichier${effectiveTotal > 1 ? 's' : ''} ${category.toLowerCase()}. Google Sheets, achat puis copie dans votre Drive.`,
     path: `/marketplace/${categorySlug}`,
-    keywords: [`bases de données ${category.toLowerCase()}`, `marketplace ${category.toLowerCase()}`, 'prospection', 'données B2B']
+    keywords: [`bases de données ${category.toLowerCase()}`, `fichier ${category.toLowerCase()}`, 'prospection', 'données B2B']
   })
 
   return (
@@ -169,10 +160,13 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
 
         <header className="mb-8">
           <h1 className="font-semibold text-2xl mb-2 tracking-tighter">
-            {category}
+            Bases {category.toLowerCase()}
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400 tracking-tight">
-            {effectiveTotal} base{effectiveTotal > 1 ? 's' : ''} Google Sheets.
+            {effectiveTotal} base{effectiveTotal > 1 ? 's' : ''}.{' '}
+            <Link href="/marketplace" className="underline underline-offset-4 hover:no-underline">
+              Toutes les bases
+            </Link>
           </p>
         </header>
 
@@ -198,59 +192,23 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
           )}
         </section>
 
-        {/* Filtres Prix + Tri */}
-        <section className="mb-8 space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">Prix</label>
-            <div className="flex flex-wrap gap-2">
-              {PRICE_FILTERS.map(({ value, label }) => (
-                <button
-                  key={value ?? 'all'}
-                  onClick={() => setPriceFilter(value)}
-                  className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
-                    priceFilter === value
-                      ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 border-neutral-900 dark:border-white'
-                      : 'bg-transparent border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <label htmlFor="sort-select" className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-2">Trier par</label>
-            <select
-              id="sort-select"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-1.5 text-xs rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 text-neutral-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white"
+        <section className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+          <span className="text-neutral-500">Trier</span>
+          {SORT_OPTIONS.map(({ value, label }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setSortBy(value)}
+              className={
+                sortBy === value
+                  ? 'text-neutral-900 dark:text-neutral-100 border-b border-dashed border-neutral-900 dark:border-neutral-100'
+                  : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100'
+              }
             >
-              {SORT_OPTIONS.map(({ value, label }) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
-          </div>
+              {label}
+            </button>
+          ))}
         </section>
-
-        {/* Top 3 Databases - Les plus consultées */}
-        {safeTopDatabases.length > 0 && (
-          <section className="mb-12">
-            <h2 className="font-semibold text-xl mb-2 tracking-tighter">
-              Les plus consultées
-            </h2>
-            <div>
-              {safeTopDatabases.map((db, index) => (
-                <DatabaseListRow
-                  key={db.slug}
-                  tool={db}
-                  showCategory={false}
-                  rank={index + 1}
-                />
-              ))}
-            </div>
-          </section>
-        )}
 
         {/* Liste des bases de données */}
         {searchLoading ? (
