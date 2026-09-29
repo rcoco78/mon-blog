@@ -6,6 +6,7 @@ import Block from '../../components/Block'
 import MarkdownRenderer from '../../components/MarkdownRenderer'
 import ArticleDoorCard from '../../components/ArticleDoorCard'
 import NewsletterForm from '../../components/NewsletterForm'
+import ArticleCallCta from '../../components/ArticleCallCta'
 import Link from 'next/link'
 import RelatedPosts from '../../components/RelatedPosts'
 import SeriesBanner from '../../components/SeriesBanner'
@@ -406,6 +407,7 @@ export default function Post({ post, allPosts }) {
                 content,
               }}
             />
+            <ArticleCallCta />
             <NewsletterForm compact={false} source="article" />
         </div>
       </article>

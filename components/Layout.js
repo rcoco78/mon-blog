@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { siteConfig } from '../lib/config'
 import SocialLinks from './SocialLinks'
+import { openCalendlyPopup } from '../lib/calendly'
 
 const ArrowIcon = () => (
   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -190,6 +191,13 @@ export default function Layout({ children }) {
             </Link>
           </div>
           <div className="flex justify-end items-center gap-0.5">
+            <button
+              type="button"
+              onClick={() => openCalendlyPopup('header')}
+              className="mr-1 text-sm underline underline-offset-4 text-neutral-800 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white whitespace-nowrap"
+            >
+              un appel
+            </button>
             <MusicNavLink active={router.pathname === '/spotify'} />
             <button
               aria-label="Toggle Dark Mode"
