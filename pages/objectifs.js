@@ -50,6 +50,227 @@ function isKeyResultNotStarted(kr) {
   return s === 'not started' || s === 'non demarre' || s === 'notstarted'
 }
 
+
+/** Nombre de jours calendaires entre deux chaînes de date (ISO ou locale). */
+function calendarDaysBetween(dateStrA, dateStrB) {
+  const a = new Date(dateStrA)
+  const b = new Date(dateStrB)
+  if (isNaN(a.getTime()) || isNaN(b.getTime())) return 0
+  const startA = new Date(a.getFullYear(), a.getMonth(), a.getDate()).getTime()
+  const startB = new Date(b.getFullYear(), b.getMonth(), b.getDate()).getTime()
+  return Math.round((startB - startA) / 86400000)
+}
+
+function toLocalYMD(dateInput) {
+  const x = dateInput instanceof Date ? dateInput : new Date(dateInput)
+  if (isNaN(x.getTime())) return null
+  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`
+}
+
+function addLocalDaysYMD(ymd, deltaDays) {
+  if (!ymd || typeof deltaDays !== 'number') return null
+  const [y, m, d] = ymd.split('-').map(Number)
+  if (!y || !m || !d) return null
+  const dt = new Date(y, m - 1, d + deltaDays)
+  if (isNaN(dt.getTime())) return null
+  return toLocalYMD(dt)
+}
+
+/** Au plus un point par jour : comble les trous avec la valeur précédente (pas d’interpolation). */
+function densifyHistoryWithForwardFill(history, maxFillBetween = 400) {
+  if (!Array.isArray(history) || history.length === 0) return []
+  const sorted = [...history]
+    .filter((h) => h && h.date != null && h.date !== '')
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  if (sorted.length === 0) return []
+
+  const out = []
+  for (let i = 0; i < sorted.length; i++) {
+    const cur = sorted[i]
+    out.push(cur)
+    if (i === sorted.length - 1) break
+    const next = sorted[i + 1]
+    const gap = calendarDaysBetween(cur.date, next.date)
+    if (gap <= 1) continue
+
+    const curYmd = toLocalYMD(cur.date)
+    const nextYmd = toLocalYMD(next.date)
+    if (!curYmd || !nextYmd) continue
+
+    const baseVal = Number(cur.valeur)
+    const v = Number.isFinite(baseVal) ? baseVal : 0
+    const maxSteps = Math.min(gap - 1, maxFillBetween)
+    for (let s = 1; s <= maxSteps; s++) {
+      const fillYmd = addLocalDaysYMD(curYmd, s)
+      if (!fillYmd || fillYmd >= nextYmd) break
+      out.push({
+        id: `daily-fill-${fillYmd}-${String(cur.id || i).slice(0, 12)}`,
+        date: fillYmd,
+        valeur: v,
+        syntheticDailyFill: true,
+      })
+    }
+  }
+  return out
+}
+
+/** Aligne l’historique sur le currentResult du Key Result. */
+function mergeHistoryWithCurrentKR(history, currentResult, syncPrefix = 'kr-sync') {
+  const cur = Number(currentResult)
+  if (!Number.isFinite(cur) || cur < 0) {
+    return Array.isArray(history) ? history : []
+  }
+  const rounded = Math.round(cur)
+  const h = Array.isArray(history) ? [...history] : []
+  const now = new Date()
+  const todayYMD = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+
+  if (h.length === 0) {
+    return [{ id: `${syncPrefix}-init`, date: todayYMD, valeur: rounded, syntheticFromKeyResult: true }]
+  }
+
+  const last = h[h.length - 1]
+  const lastNum = Number(last?.valeur)
+  let lastYMD = null
+  if (last?.date) {
+    const d = new Date(last.date)
+    if (!isNaN(d.getTime())) {
+      lastYMD = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    }
+  }
+
+  if (lastYMD === todayYMD) {
+    if (Number.isFinite(lastNum) && lastNum !== rounded) {
+      h[h.length - 1] = { ...last, valeur: rounded }
+    }
+    return h
+  }
+
+  if (Number.isFinite(lastNum) && lastNum === rounded) {
+    return h
+  }
+
+  h.push({
+    id: `${syncPrefix}-${todayYMD}`,
+    date: todayYMD,
+    valeur: rounded,
+    syntheticFromKeyResult: true,
+  })
+  return h
+}
+
+/** Décompose les KR CA Freelance / Affiliation / Logement (cibles + courants + ids). */
+function getCaBreakdown(keyResults, usdToEur) {
+  const caFreelanceKRs = keyResults.filter((kr) => {
+    const categoryLower = (kr.category || '').toLowerCase()
+    const nameLower = (kr.name || '').toLowerCase()
+    return (
+      (categoryLower.includes('freelance') || categoryLower.includes('freelancing')) &&
+      (nameLower.includes('ca') || nameLower.includes('chiffre')) &&
+      !nameLower.includes('affiliation')
+    )
+  })
+  const caFreelanceTotalKR =
+    caFreelanceKRs.find((kr) => (kr.name || '').toLowerCase().includes('total')) || null
+  const freelanceTarget = caFreelanceTotalKR
+    ? caFreelanceTotalKR.targetResult || 0
+    : caFreelanceKRs.length > 0
+      ? Math.max(...caFreelanceKRs.map((kr) => kr.targetResult || 0))
+      : 0
+  const freelanceCurrent = caFreelanceTotalKR
+    ? caFreelanceTotalKR.currentResult || 0
+    : caFreelanceKRs.length > 0
+      ? Math.max(...caFreelanceKRs.map((kr) => kr.currentResult || 0))
+      : 0
+  const freelanceKrId = caFreelanceTotalKR?.id || caFreelanceKRs[0]?.id || null
+
+  const caAffiliationKRs = keyResults.filter((kr) => {
+    const categoryLower = (kr.category || '').toLowerCase()
+    const nameLower = (kr.name || '').toLowerCase()
+    return (
+      (categoryLower.includes('affiliation') || categoryLower.includes('partenariats')) &&
+      (nameLower.includes('ca') || nameLower.includes('chiffre') || nameLower.includes('revenus'))
+    )
+  })
+  const caAffiliationTotalKR =
+    caAffiliationKRs.find((kr) => (kr.name || '').toLowerCase().includes('total')) || null
+  const affiliationTarget = caAffiliationTotalKR
+    ? caAffiliationTotalKR.targetResult || 0
+    : caAffiliationKRs.length > 0
+      ? caAffiliationKRs.reduce((sum, kr) => sum + (kr.targetResult || 0), 0)
+      : 0
+  // Même logique que la liste : somme des revenus individuels (Lemlist / Apify / Zapmail), en USD → EUR
+  const affiliationIndividuals = keyResults.filter((kr) => {
+    const nameLower = (kr.name || '').toLowerCase()
+    const categoryLower = (kr.category || '').toLowerCase()
+    return (
+      (nameLower.includes('revenus d\'affiliation') || nameLower.includes('affiliation')) &&
+      (nameLower.includes('apify') ||
+        nameLower.includes('lemlist') ||
+        nameLower.includes('zapier') ||
+        nameLower.includes('zapmail')) &&
+      (categoryLower.includes('affiliation') || categoryLower.includes('partenariats'))
+    )
+  })
+  const affiliationCurrentUsd = affiliationIndividuals.reduce(
+    (sum, kr) => sum + (kr.currentResult || 0),
+    0
+  )
+  const affiliationCurrent =
+    typeof usdToEur === 'function'
+      ? usdToEur(affiliationCurrentUsd)
+      : affiliationCurrentUsd * 0.92
+  const affiliationKrId =
+    caAffiliationTotalKR?.id || affiliationIndividuals[0]?.id || null
+
+  const caLogementAtypiqueKRs = keyResults.filter((kr) => {
+    const categoryLower = (kr.category || '').toLowerCase()
+    const nameLower = (kr.name || '').toLowerCase()
+    return (
+      (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial')) &&
+      (nameLower.includes('arr') || nameLower.includes('ca') || nameLower.includes('chiffre')) &&
+      nameLower.includes('logement')
+    )
+  })
+  const caLogementAtypiqueTotalKR =
+    caLogementAtypiqueKRs.find((kr) => (kr.name || '').toLowerCase().includes('arr')) || null
+  const logementTarget = caLogementAtypiqueTotalKR
+    ? caLogementAtypiqueTotalKR.targetResult || 0
+    : caLogementAtypiqueKRs.length > 0
+      ? Math.max(...caLogementAtypiqueKRs.map((kr) => kr.targetResult || 0))
+      : 0
+  const logementCurrent = caLogementAtypiqueTotalKR
+    ? caLogementAtypiqueTotalKR.currentResult || 0
+    : caLogementAtypiqueKRs.length > 0
+      ? Math.max(...caLogementAtypiqueKRs.map((kr) => kr.currentResult || 0))
+      : 0
+  const logementKrId = caLogementAtypiqueTotalKR?.id || caLogementAtypiqueKRs[0]?.id || null
+
+  return {
+    freelance: {
+      label: 'Freelance',
+      current: freelanceCurrent,
+      target: freelanceTarget,
+      krId: freelanceKrId,
+      unit: '€',
+    },
+    affiliation: {
+      label: 'Affiliation',
+      current: affiliationCurrent,
+      target: affiliationTarget,
+      krId: affiliationKrId,
+      unit: '€',
+    },
+    logement: {
+      label: 'Logement Atypique',
+      current: logementCurrent,
+      target: logementTarget,
+      krId: logementKrId,
+      unit: '€',
+    },
+  }
+}
+
 export default function DonneesPubliques() {
   const pageSEO = generatePageSEO({
     title: siteConfig.seo.pages.donneesPubliques.title,
@@ -64,7 +285,7 @@ export default function DonneesPubliques() {
   const [chessLoading, setChessLoading] = useState(true)
   const [chessHistory, setChessHistory] = useState([])
   const [chessHistoryLoading, setChessHistoryLoading] = useState(true)
-  const [selectedPeriod] = useState(7)
+  const [selectedPeriod] = useState(90)
   const [keyResultsHistory, setKeyResultsHistory] = useState({})
   const [historyLoading, setHistoryLoading] = useState(true)
 
@@ -715,46 +936,15 @@ export default function DonneesPubliques() {
           </p>
         </section>
 
-        {/* CA cumulé */}
+                {/* CA cumulé */}
         {!loading && (
           <section className="mb-12 pb-8 border-b border-neutral-200 dark:border-neutral-800" aria-label="CA cumulé objectif 2026">
             {(() => {
-              const caFreelanceKRs = keyResults.filter(kr => {
-                const categoryLower = (kr.category || '').toLowerCase()
-                const nameLower = (kr.name || '').toLowerCase()
-                return (categoryLower.includes('freelance') || categoryLower.includes('freelancing')) &&
-                       (nameLower.includes('ca') || nameLower.includes('chiffre')) &&
-                       !nameLower.includes('affiliation')
-              })
-              const caFreelanceTotalKR = caFreelanceKRs.find(kr => (kr.name || '').toLowerCase().includes('total'))
-              const caFreelance = caFreelanceTotalKR
-                ? (caFreelanceTotalKR.targetResult || 0)
-                : (caFreelanceKRs.length > 0 ? Math.max(...caFreelanceKRs.map(kr => kr.targetResult || 0)) : 0)
-
-              const caAffiliationKRs = keyResults.filter(kr => {
-                const categoryLower = (kr.category || '').toLowerCase()
-                const nameLower = (kr.name || '').toLowerCase()
-                return (categoryLower.includes('affiliation') || categoryLower.includes('partenariats')) &&
-                       (nameLower.includes('ca') || nameLower.includes('chiffre') || nameLower.includes('revenus'))
-              })
-              const caAffiliationTotalKR = caAffiliationKRs.find(kr => (kr.name || '').toLowerCase().includes('total'))
-              const caAffiliation = caAffiliationTotalKR
-                ? (caAffiliationTotalKR.targetResult || 0)
-                : (caAffiliationKRs.length > 0 ? caAffiliationKRs.reduce((sum, kr) => sum + (kr.targetResult || 0), 0) : 0)
-
-              const caLogementAtypiqueKRs = keyResults.filter(kr => {
-                const categoryLower = (kr.category || '').toLowerCase()
-                const nameLower = (kr.name || '').toLowerCase()
-                return (categoryLower.includes('logement') || categoryLower.includes('entrepreneurial')) &&
-                       (nameLower.includes('arr') || nameLower.includes('ca') || nameLower.includes('chiffre')) &&
-                       nameLower.includes('logement')
-              })
-              const caLogementAtypiqueTotalKR = caLogementAtypiqueKRs.find(kr => (kr.name || '').toLowerCase().includes('arr'))
-              const caLogementAtypique = caLogementAtypiqueTotalKR
-                ? (caLogementAtypiqueTotalKR.targetResult || 0)
-                : (caLogementAtypiqueKRs.length > 0 ? Math.max(...caLogementAtypiqueKRs.map(kr => kr.targetResult || 0)) : 0)
-
-              const totalCA = caFreelance + caAffiliation + caLogementAtypique
+              const ca = getCaBreakdown(keyResults, usdToEur)
+              const totalCA =
+                (ca.freelance.target || 0) +
+                (ca.affiliation.target || 0) +
+                (ca.logement.target || 0)
 
               return (
                 <>
@@ -766,19 +956,19 @@ export default function DonneesPubliques() {
                     <p>
                       Freelance{' '}
                       <span className="text-neutral-900 dark:text-neutral-100 tabular-nums">
-                        {caFreelance > 0 ? `${formatNumber(Math.round(caFreelance))} €` : '—'}
+                        {ca.freelance.target > 0 ? `${formatNumber(Math.round(ca.freelance.target))} €` : '—'}
                       </span>
                     </p>
                     <p>
                       Affiliation{' '}
                       <span className="text-neutral-900 dark:text-neutral-100 tabular-nums">
-                        {caAffiliation > 0 ? `${formatNumber(Math.round(caAffiliation))} €` : '—'}
+                        {ca.affiliation.target > 0 ? `${formatNumber(Math.round(ca.affiliation.target))} €` : '—'}
                       </span>
                     </p>
                     <p>
                       Logement Atypique{' '}
                       <span className="text-neutral-900 dark:text-neutral-100 tabular-nums">
-                        {caLogementAtypique > 0 ? `${formatNumber(Math.round(caLogementAtypique))} €` : '—'}
+                        {ca.logement.target > 0 ? `${formatNumber(Math.round(ca.logement.target))} €` : '—'}
                       </span>
                     </p>
                   </div>
@@ -805,7 +995,188 @@ export default function DonneesPubliques() {
           </section>
         )}
 
-        <section className="mb-16" aria-label="Objectifs par catégorie">
+        {/* Croissance — séries historiques KR si dispo, sinon actuel → cible par poste */}
+        {!loading && (
+          <section className="mb-12 pb-8 border-b border-neutral-200 dark:border-neutral-800" aria-label="Croissance">
+            {(() => {
+              const ca = getCaBreakdown(keyResults, usdToEur)
+              const postes = [ca.freelance, ca.affiliation, ca.logement]
+
+              const seriesForPoste = (poste) => {
+                if (!poste.krId) return []
+                let raw = keyResultsHistory[poste.krId] || []
+                if (poste.label === 'Affiliation' && raw.length > 0) {
+                  raw = raw.map((h) => ({
+                    ...h,
+                    valeur: usdToEur(Number(h.valeur) || 0),
+                  }))
+                }
+                const measured = raw.filter(
+                  (h) => h && !h.syntheticDailyFill && !h.syntheticFromKeyResult
+                )
+                if (measured.length < 2) return []
+                const merged = mergeHistoryWithCurrentKR(raw, poste.current, `kr-${poste.krId}`)
+                return densifyHistoryWithForwardFill(merged)
+              }
+
+              const temporalPostes = postes
+                .map((poste) => ({ poste, history: seriesForPoste(poste) }))
+                .filter(({ history }) => history.length >= 2)
+
+              const useTemporal = temporalPostes.length > 0 && !historyLoading
+              const hasHorizontalData = postes.some(
+                (poste) => (Number(poste.target) || 0) > 0 || (Number(poste.current) || 0) > 0
+              )
+
+              if (!useTemporal && !hasHorizontalData) {
+                return null
+              }
+
+              const renderTemporalBars = (history, height = 72) => {
+                const slice = history.slice(-Math.min(history.length, 36))
+                const values = slice.map((h) => {
+                  const n = Number(h.valeur)
+                  return Number.isFinite(n) ? n : 0
+                })
+                if (values.length === 0) return null
+                const minValue = Math.min(...values)
+                const maxValue = Math.max(...values)
+                const range = maxValue - minValue
+                let scaleMin
+                let scaleMax
+                if (range === 0) {
+                  scaleMin = Math.max(0, minValue - 1)
+                  scaleMax = minValue + 1
+                } else {
+                  scaleMax = maxValue + range * 0.05
+                  scaleMin = Math.max(0, minValue - range * 0.02)
+                }
+                const scaleRange = Math.max(scaleMax - scaleMin, 1e-9)
+                const firstDate = slice[0]?.date
+                const lastDate = slice[slice.length - 1]?.date
+                const fmt = (d) => {
+                  try {
+                    const x = new Date(d)
+                    if (!isNaN(x.getTime())) {
+                      return x.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
+                    }
+                  } catch (e) {
+                    /* ignore */
+                  }
+                  return ''
+                }
+
+                return (
+                  <div>
+                    <div
+                      className="flex items-stretch justify-between gap-px"
+                      style={{ height: `${height}px` }}
+                    >
+                      {slice.map((item, index) => {
+                        const v = Number(item.valeur)
+                        const safeV = Number.isFinite(v) ? v : 0
+                        const t = (safeV - scaleMin) / scaleRange
+                        const barPx = Math.max(2, Math.round(t * height))
+                        const dailyFill = Boolean(item.syntheticDailyFill)
+                        return (
+                          <div
+                            key={item.id || index}
+                            className="flex-1 min-w-0 flex flex-col justify-end"
+                            title={`${formatNumber(safeV)} · ${fmt(item.date)}`}
+                          >
+                            <div
+                              className={`w-full max-w-[10px] mx-auto bg-neutral-900 dark:bg-neutral-100 transition-all ${
+                                dailyFill ? 'opacity-35' : 'opacity-80'
+                              }`}
+                              style={{ height: `${barPx}px` }}
+                            />
+                          </div>
+                        )
+                      })}
+                    </div>
+                    <div className="flex justify-between mt-2 text-[11px] text-neutral-500 dark:text-neutral-500 tabular-nums">
+                      <span>{fmt(firstDate)}</span>
+                      <span>{fmt(lastDate)}</span>
+                    </div>
+                  </div>
+                )
+              }
+
+              return (
+                <>
+                  <h2 className="font-semibold text-xl mb-2 tracking-tighter">Croissance</h2>
+                  <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-6 tracking-tight">
+                    {useTemporal
+                      ? 'Évolution réelle des postes CA, d’après l’historique des Key Results.'
+                      : 'Avancement actuel de chaque poste CA vers sa cible 2026.'}
+                  </p>
+
+                  {useTemporal ? (
+                    <div className="space-y-8">
+                      {temporalPostes.map(({ poste, history }) => {
+                        const first = Number(history[0]?.valeur) || 0
+                        const last = Number(history[history.length - 1]?.valeur) || 0
+                        const delta = last - first
+                        return (
+                          <div key={poste.label}>
+                            <div className="flex items-baseline justify-between gap-3 mb-3">
+                              <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                                {poste.label}
+                              </p>
+                              <p className="text-xs text-neutral-500 dark:text-neutral-500 tabular-nums">
+                                {formatNumber(Math.round(last))}
+                                {poste.unit}
+                                {delta !== 0 && (
+                                  <span className="ml-2">
+                                    {delta > 0 ? '+' : ''}
+                                    {formatNumber(Math.round(delta))}
+                                  </span>
+                                )}
+                              </p>
+                            </div>
+                            {renderTemporalBars(history)}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <div className="space-y-5">
+                      {postes.map((poste) => {
+                        const target = Number(poste.target) || 0
+                        const current = Number(poste.current) || 0
+                        const pct = target > 0 ? Math.min(100, Math.round((current / target) * 100)) : 0
+                        if (target <= 0 && current <= 0) return null
+                        return (
+                          <div key={poste.label}>
+                            <div className="flex items-baseline justify-between gap-3 mb-1.5">
+                              <p className="text-sm text-neutral-900 dark:text-neutral-100">{poste.label}</p>
+                              <p className="text-xs text-neutral-500 dark:text-neutral-500 tabular-nums">
+                                {formatNumber(Math.round(current))}
+                                {poste.unit}
+                                {' / '}
+                                {formatNumber(Math.round(target))}
+                                {poste.unit}
+                                <span className="ml-2">{pct}%</span>
+                              </p>
+                            </div>
+                            <div className="w-full h-1 bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+                              <div
+                                className="h-full bg-neutral-900 dark:bg-neutral-100 transition-all duration-500"
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </>
+              )
+            })()}
+          </section>
+        )}
+
+<section className="mb-16" aria-label="Objectifs par catégorie">
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">Liste des objectifs</h2>
 
           {loading ? (
