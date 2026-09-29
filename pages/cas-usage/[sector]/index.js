@@ -12,6 +12,7 @@ import CaseStudyViewCounter from '../../../components/CaseStudyViewCounter'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { openCalendlyPopup } from '../../../lib/calendly'
+import { QuietSkeletonList } from '../../../components/QuietSkeleton'
 import { list } from '@vercel/blob'
 
 const VIEWS_EVENTS_FILENAME = 'case-studies-views-events.json'
@@ -163,60 +164,9 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies: initialCa
   if (router.isFallback) {
     return (
       <main className="min-w-0 mt-6 flex flex-col">
-        {/* Skeleton Breadcrumb */}
-        <nav className="mb-6">
-          <div className="flex items-center flex-wrap gap-x-1.5 sm:gap-x-2 gap-y-1">
-            <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-            <div className="h-4 w-1 bg-neutral-300 dark:bg-neutral-700"></div>
-            <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-            <div className="h-4 w-1 bg-neutral-300 dark:bg-neutral-700"></div>
-            <div className="h-4 w-32 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-          </div>
-        </nav>
-
-        {/* Skeleton Header */}
-        <section className="mb-8">
-          <div className="h-8 w-48 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-4"></div>
-          <div className="h-5 w-full bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
-          <div className="h-5 w-5/6 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-8"></div>
-        </section>
-
-        {/* Skeleton Top Case Studies */}
-        <section className="mb-12">
-          <div className="h-7 w-48 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-4"></div>
-          <div className="space-y-4">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
-                <div className="h-6 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
-                <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
-                <div className="h-4 w-2/3 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Skeleton Search */}
-        <section className="mb-12">
-          <div className="h-7 w-48 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-4"></div>
-          <div className="h-10 w-full bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-        </section>
-
-        {/* Skeleton Case Studies List */}
-        <section className="mb-16">
-          <div className="h-7 w-64 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-6"></div>
-          <div className="space-y-4">
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
-                <div className="h-6 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
-                <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-3"></div>
-                <div className="flex items-center gap-4">
-                  <div className="h-6 w-32 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-                  <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-6">Cas d&apos;usage</p>
+        <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Cas d&apos;usage</h1>
+        <QuietSkeletonList count={6} variant="list" label="Chargement des cas d’usage" />
       </main>
     )
   }
@@ -381,15 +331,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies: initialCa
               {(hasMore || canLoadMore) && (
                 <div id="load-more-sentinel" className="py-8">
                   {isLoading && (
-                    <div className="space-y-4">
-                      {[1, 2, 3].map(i => (
-                        <div key={i} className="p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 animate-pulse">
-                          <div className="h-6 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded mb-2"></div>
-                          <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded mb-3"></div>
-                          <div className="h-4 w-32 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
-                        </div>
-                      ))}
-                    </div>
+                    <QuietSkeletonList count={3} variant="list" label="Chargement" />
                   )}
                 </div>
               )}
@@ -402,11 +344,7 @@ export default function SectorCaseStudies({ sector, sectorCaseStudies: initialCa
               )}
             </>
           ) : searchLoading ? (
-            <div className="text-center py-12">
-              <p className="text-neutral-600 dark:text-neutral-400 animate-pulse">
-                Recherche en cours...
-              </p>
-            </div>
+            <QuietSkeletonList count={6} variant="list" label="Recherche" />
           ) : (
             <div className="text-center py-12">
               <p className="text-neutral-600 dark:text-neutral-400 mb-4">

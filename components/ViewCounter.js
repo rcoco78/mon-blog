@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { QuietBone } from './QuietSkeleton'
 
 export default function ViewCounter({ slug, increment = false }) {
   const [views, setViews] = useState(null)
@@ -30,7 +31,7 @@ export default function ViewCounter({ slug, increment = false }) {
   if (loading) {
     return (
       <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">
-        <span className="inline-block h-4 w-12 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></span>
+        <QuietBone inline className="h-3 w-10" />
       </span>
     )
   }

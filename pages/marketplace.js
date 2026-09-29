@@ -8,6 +8,7 @@ import { toEmbedVideoUrl } from '../lib/marketplace-videos'
 import FAQ from '../components/FAQ'
 import DatabaseListRow from '../components/marketplace/DatabaseListRow'
 import MarketplaceStoryBand from '../components/marketplace/MarketplaceStoryBand'
+import { MarketplaceListsSkeleton } from '../components/QuietSkeleton'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { averageStarRating } from '../lib/rating'
@@ -30,6 +31,19 @@ export default function Marketplace({
   const [displayedCount, setDisplayedCount] = useState(8)
   const ITEMS_PER_PAGE = 8
   const datareacherHref = siteConfig.network.datareacher.href
+  const hasCatalog = (dynamicDatabases || []).length > 0
+  const [catalogSettled, setCatalogSettled] = useState(hasCatalog)
+
+  useEffect(() => {
+    if (hasCatalog) {
+      setCatalogSettled(true)
+      return
+    }
+    const timer = window.setTimeout(() => setCatalogSettled(true), 4000)
+    return () => window.clearTimeout(timer)
+  }, [hasCatalog])
+
+  const showCatalogSkeleton = !hasCatalog && !catalogSettled
 
   const pricingRanges = [
     { value: null, label: 'Tous' },
@@ -349,7 +363,9 @@ export default function Marketplace({
           </div>
         </section>
 
-        {(() => {
+        {showCatalogSkeleton ? (
+          <MarketplaceListsSkeleton />
+        ) : (() => {
           const showFeatured = !searchQuery.trim() && selectedCategory === null && selectedPricing === null
           const featured = showFeatured ? pickFeaturedDatabases(dynamicDatabases || []) : []
           const storyTools = featured.filter((tool) =>

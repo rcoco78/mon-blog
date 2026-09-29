@@ -1,9 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import { Inter } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import Analytics from '../components/GoogleAnalytics'
 import '../styles/globals.css'
 import Layout from '../components/Layout'
+import { QuietRoutePlaceholder } from '../components/QuietSkeleton'
 import StructuredData from '../components/seo/StructuredData'
 import { siteConfig } from '../lib/config'
 import { initPostHog } from '../lib/posthog-client'
@@ -13,6 +15,36 @@ const inter = Inter({
   display: 'swap',
   variable: '--font-inter',
 })
+
+function RouteBody({ Component, pageProps }) {
+  const router = useRouter()
+  const [pendingPath, setPendingPath] = useState(null)
+
+  useEffect(() => {
+    const onStart = (href) => {
+      const path = href.split('#')[0].split('?')[0]
+      const current = router.asPath.split('#')[0].split('?')[0]
+      if (path === current) return
+      setPendingPath(path)
+    }
+    const clear = () => setPendingPath(null)
+    router.events.on('routeChangeStart', onStart)
+    router.events.on('routeChangeComplete', clear)
+    router.events.on('routeChangeError', clear)
+    return () => {
+      router.events.off('routeChangeStart', onStart)
+      router.events.off('routeChangeComplete', clear)
+      router.events.off('routeChangeError', clear)
+    }
+  }, [router])
+
+  if (pendingPath) {
+    const placeholder = QuietRoutePlaceholder({ path: pendingPath })
+    if (placeholder) return placeholder
+  }
+
+  return <Component {...pageProps} />
+}
 
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
@@ -55,7 +87,7 @@ function MyApp({ Component, pageProps }) {
         }} 
       />
       <Layout>
-        <Component {...pageProps} />
+        <RouteBody Component={Component} pageProps={pageProps} />
       </Layout>
       <Analytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
       </div>

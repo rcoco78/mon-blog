@@ -6,6 +6,7 @@ import { siteConfig } from '../lib/config'
 import { useState, useEffect } from 'react'
 import FAQ from '../components/FAQ'
 import { openCalendlyPopup } from '../lib/calendly'
+import { QuietBone, QuietSkeletonList } from '../components/QuietSkeleton'
 
 function isKeyResultCompleted(kr) {
   const t = Number(kr?.targetResult)
@@ -937,7 +938,15 @@ export default function DonneesPubliques() {
         </section>
 
                 {/* CA cumulé */}
-        {!loading && (
+        {loading ? (
+          <section className="mb-12 pb-8 border-b border-dashed border-neutral-300 dark:border-neutral-700" aria-busy="true">
+            <QuietBone className="h-3 w-28 mb-3" />
+            <QuietBone className="h-9 w-36 mb-4" />
+            <QuietBone className="h-3.5 w-48 mb-2" />
+            <QuietBone className="h-3.5 w-40 mb-2" />
+            <QuietBone className="h-3.5 w-52" />
+          </section>
+        ) : (
           <section className="mb-12 pb-8 border-b border-neutral-200 dark:border-neutral-800" aria-label="CA cumulé objectif 2026">
             {(() => {
               const ca = getCaBreakdown(keyResults, usdToEur)
@@ -1180,14 +1189,7 @@ export default function DonneesPubliques() {
           <h2 className="font-semibold text-xl mb-6 tracking-tighter">Liste des objectifs</h2>
 
           {loading ? (
-            <div className="border-t border-neutral-200 dark:border-neutral-800">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="py-4 border-b border-neutral-200 dark:border-neutral-800 animate-pulse">
-                  <div className="h-4 bg-neutral-200 dark:bg-neutral-700 w-2/3 mb-2"></div>
-                  <div className="h-3 bg-neutral-200 dark:bg-neutral-700 w-1/3"></div>
-                </div>
-              ))}
-            </div>
+            <QuietSkeletonList count={6} variant="kr" label="Chargement des objectifs" />
           ) : Object.keys(groupedByCategory).length === 0 ? (
             <div className="text-center py-12">
               <p className="text-neutral-600 dark:text-neutral-400 mb-2">

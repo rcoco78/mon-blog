@@ -18,6 +18,7 @@ import StructuredData from '../../components/seo/StructuredData'
 import { siteConfig } from '../../lib/config'
 import { fetchBlobJson, fetchBlobJsonByHead } from '../../lib/blob-cache'
 import { captureDataError } from '../../lib/sentry'
+import { QuietBone, QuietSkeletonList } from '../../components/QuietSkeleton'
 
 function extractPlainText(contentMarkdown, blocks, fallback = '') {
   const markdownText = normalizeMarkdown(contentMarkdown)
@@ -119,7 +120,12 @@ export default function Post({ post, allPosts }) {
     return (
       <>
         <SEOHead title="Chargement" description="Chargement de l'article" noindex />
-        <div>Chargement...</div>
+        <article className="flex-auto min-w-0 mt-6 flex flex-col">
+          <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-6">Journal</p>
+          <QuietBone className="h-8 w-4/5 mb-6" />
+          <QuietBone className="h-3 w-40 mb-8" />
+          <QuietSkeletonList count={8} variant="prose" label="Chargement de l’article" />
+        </article>
       </>
     )
   }
@@ -267,7 +273,7 @@ export default function Post({ post, allPosts }) {
                   <ViewCounter slug={post.slug} />
                 </div>
                 {loadingMarkdown ? (
-                  <div className="h-5 w-28 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+                  <QuietBone className="h-3.5 w-28" />
                 ) : (
                   <p>{readingTime} min de lecture</p>
                 )}
@@ -308,7 +314,7 @@ export default function Post({ post, allPosts }) {
                 <ViewCounter slug={post.slug} />
                 <span className="text-neutral-400 shrink-0">•</span>
                 {loadingMarkdown ? (
-                  <div className="h-5 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+                  <QuietBone className="h-3.5 w-24" />
                 ) : (
                   <span className="text-sm text-neutral-600 dark:text-neutral-400 whitespace-nowrap">
                     {readingTime} min de lecture
@@ -349,27 +355,18 @@ export default function Post({ post, allPosts }) {
         <div className="mt-8">
             {/* Sommaire - Skeleton pendant le chargement */}
             {loadingMarkdown ? (
-              <div className="mb-8 rounded-lg border border-neutral-200 dark:border-neutral-800 animate-pulse px-4 py-3.5 md:p-5">
-                <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded mb-3" />
-                <div className="hidden md:block space-y-2">
-                  <div className="h-3 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded" />
-                  <div className="h-3 w-2/3 bg-neutral-200 dark:bg-neutral-800 rounded" />
-                  <div className="h-3 w-1/2 bg-neutral-200 dark:bg-neutral-800 rounded" />
-                </div>
+              <div className="mb-8 py-3 border-y border-dashed border-neutral-300 dark:border-neutral-700">
+                <QuietBone className="h-3 w-24 mb-3" />
+                <QuietBone className="h-3 w-3/4 mb-2" />
+                <QuietBone className="h-3 w-2/3 mb-2" />
+                <QuietBone className="h-3 w-1/2" />
               </div>
             ) : contentMarkdown ? (
               <TableOfContents markdown={contentMarkdown} />
             ) : null}
 
             {loadingMarkdown ? (
-              <div className="space-y-4">
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className="animate-pulse">
-                    <div className="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-full mb-2"></div>
-                    <div className="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-5/6"></div>
-                  </div>
-                ))}
-              </div>
+              <QuietSkeletonList count={8} variant="prose" label="Chargement du contenu" />
             ) : contentMarkdown ? (
               <MarkdownRenderer>{contentMarkdown}</MarkdownRenderer>
             ) : blocks ? (

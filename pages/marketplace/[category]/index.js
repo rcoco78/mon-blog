@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import SEOHead from '../../../components/seo/SEOHead'
 import DatabaseListRow from '../../../components/marketplace/DatabaseListRow'
+import { QuietSkeletonList } from '../../../components/QuietSkeleton'
 import { generatePageSEO } from '../../../lib/seo'
 import { getDatabasesByCategory, getDatabasesAsTools } from '../../../lib/marketplace-databases'
 import { slugToCategory, categoryToSlug } from '../../../lib/marketplace-helpers'
@@ -221,7 +222,7 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
         {/* Liste des bases de données */}
         {searchLoading ? (
           <section className="mb-16">
-            <p className="text-neutral-600 dark:text-neutral-400 animate-pulse">Recherche en cours...</p>
+            <QuietSkeletonList count={6} variant="list" label="Recherche des bases" />
           </section>
         ) : displayedDatabases.length > 0 ? (
           <section className="mb-16">
@@ -238,15 +239,7 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
             {(hasMore || canLoadMore) && (
               <div id="load-more-sentinel" className="py-8">
                 {isLoading && (
-                  <div className="space-y-0">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="py-4 border-b border-neutral-200 dark:border-neutral-800 animate-pulse">
-                        <div className="h-5 w-2/3 bg-neutral-200 dark:bg-neutral-800 rounded mb-2"></div>
-                        <div className="h-3 w-1/3 bg-neutral-200 dark:bg-neutral-800 rounded mb-2"></div>
-                        <div className="h-4 w-full bg-neutral-200 dark:bg-neutral-800 rounded"></div>
-                      </div>
-                    ))}
-                  </div>
+                  <QuietSkeletonList count={3} variant="list" label="Chargement" />
                 )}
               </div>
             )}

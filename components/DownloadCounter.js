@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { QuietBone } from './QuietSkeleton'
 
 export default function DownloadCounter({ toolId, className = '' }) {
   const [count, setCount] = useState(null)
@@ -27,7 +28,7 @@ export default function DownloadCounter({ toolId, className = '' }) {
   if (isLoading) {
     return (
       <div className={`inline-flex items-center gap-2 ${className}`}>
-        <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+        <QuietBone className="h-3.5 w-16" />
         <span className="text-xs text-neutral-500 dark:text-neutral-500">téléchargements</span>
       </div>
     )

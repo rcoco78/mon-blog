@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { QuietBone } from './QuietSkeleton'
 
 /**
  * Affiche le nombre de vues d'un cas d'usage (comme ViewCounter pour le blog).
@@ -42,7 +43,7 @@ export default function CaseStudyViewCounter({ slug, sector, views: initialViews
   if (loading) {
     return (
       <span className="text-xs text-neutral-500 dark:text-neutral-500 tabular-nums">
-        <span className="inline-block h-3 w-10 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></span>
+        <QuietBone inline className="h-2.5 w-8" />
       </span>
     )
   }

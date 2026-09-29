@@ -8,6 +8,7 @@ import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
+import { QuietBone, QuietSkeletonList } from '../components/QuietSkeleton'
 
 function canonicalTag(tag = '') {
   if (/^freelanc/i.test(tag)) return 'Freelance'
@@ -22,7 +23,7 @@ export default function Blog({ posts }) {
   const [allTags, setAllTags] = useState([])
   const [filteredPosts, setFilteredPosts] = useState(posts)
   const [topPosts, setTopPosts] = useState([])
-  const [postsLoading, setPostsLoading] = useState(true)
+  const [postsLoading, setPostsLoading] = useState(!(posts && posts.length > 0))
   const [allViews, setAllViews] = useState({})
   const [blogStats, setBlogStats] = useState(null)
   const [blogStatsLoading, setBlogStatsLoading] = useState(true)
@@ -41,13 +42,7 @@ export default function Blog({ posts }) {
     // Extraire tous les tags uniques
     const tags = [...new Set(posts.flatMap((post) => (post.tags || []).map(canonicalTag)))]
     setAllTags(tags)
-    // Petit délai pour afficher le skeleton
-    const timer = setTimeout(() => {
-      if (posts.length > 0) {
-        setPostsLoading(false)
-      }
-    }, 300)
-    return () => clearTimeout(timer)
+    setPostsLoading(false)
   }, [posts])
 
   useEffect(() => {
@@ -219,9 +214,7 @@ export default function Blog({ posts }) {
                 {blogStatsLoading && (
                   <>
                     <span className="w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 flex-shrink-0 hidden sm:inline" aria-hidden></span>
-                    <span className="inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 animate-pulse whitespace-nowrap">
-                      <span className="w-10 h-4 rounded bg-neutral-200 dark:bg-neutral-700"></span>
-                    </span>
+                    <QuietBone inline className="h-3 w-16" />
                   </>
                 )}
                 {blogStats && !blogStatsLoading && blogStats.viewsDifference !== 0 && (
@@ -283,24 +276,7 @@ export default function Blog({ posts }) {
             </div>
           </div>
           {postsLoading ? (
-            <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 animate-pulse">
-                  <div className="flex flex-col md:flex-row md:items-center w-full">
-                    <div className="flex-shrink-0">
-                      <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
-                    </div>
-                    <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700 mx-2 flex-shrink-0"></span>
-                    <div className="flex-grow md:max-w-[60%] w-full md:ml-0">
-                      <div className="h-5 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
-                    </div>
-                    <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
-                      <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded"></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <QuietSkeletonList count={8} variant="post" label="Chargement des articles" />
           ) : filteredPosts && filteredPosts.length > 0 ? (
             <>
               <div className="space-y-4">

@@ -20,6 +20,7 @@ import CaseStudyViewCounter from '../../../components/CaseStudyViewCounter'
 import ReadingProgress from '../../../components/ReadingProgress'
 import PersonalVideo from '../../../components/PersonalVideo'
 import { openCalendlyPopup } from '../../../lib/calendly'
+import { QuietBone, QuietSkeletonList } from '../../../components/QuietSkeleton'
 
 // Fonction helper pour générer priceValidUntil (1 an dans le futur)
 const getPriceValidUntil = () => {
@@ -103,57 +104,10 @@ export default function CaseStudy({ caseStudy: caseStudyProp, relatedCaseStudies
   if (router.isFallback) {
     return (
       <main className="flex-auto min-w-0 mt-6 flex flex-col">
-        {/* Skeleton Breadcrumb */}
-        <nav className="mb-6">
-          <div className="flex items-center flex-wrap gap-x-1.5 sm:gap-x-2 gap-y-1">
-            <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-            <div className="h-4 w-1 bg-neutral-300 dark:bg-neutral-700"></div>
-            <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-            <div className="h-4 w-1 bg-neutral-300 dark:bg-neutral-700"></div>
-            <div className="h-4 w-32 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-            <div className="h-4 w-1 bg-neutral-300 dark:bg-neutral-700"></div>
-            <div className="h-4 w-48 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-          </div>
-        </nav>
-
-        {/* Skeleton Header */}
-        <section className="mb-16">
-          <div className="mb-3">
-            <div className="h-6 w-32 bg-neutral-200 dark:bg-neutral-800 rounded-full animate-pulse"></div>
-          </div>
-          <div className="h-10 w-3/4 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-3"></div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="h-4 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-            <div className="h-4 w-1 bg-neutral-300 dark:bg-neutral-700"></div>
-            <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-          </div>
-          <div className="h-5 w-full bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
-          <div className="h-5 w-5/6 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-8"></div>
-          
-          {/* Skeleton Métriques */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="p-3 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
-                <div className="h-6 w-6 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-2"></div>
-                <div className="h-6 w-16 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-1"></div>
-                <div className="h-4 w-24 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"></div>
-              </div>
-            ))}
-          </div>
-        </section>
-        
-        {/* Skeleton Sections */}
-        {[1, 2, 3, 4].map(i => (
-          <section key={i} className="mb-16">
-            <div className="border-t border-neutral-200 dark:border-neutral-800 pt-10">
-              <div className="h-8 w-64 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse mb-6"></div>
-              <div className="space-y-4">
-                <div className="h-24 w-full bg-neutral-200 dark:bg-neutral-800 rounded-lg animate-pulse"></div>
-                <div className="h-24 w-full bg-neutral-200 dark:bg-neutral-800 rounded-lg animate-pulse"></div>
-              </div>
-            </div>
-          </section>
-        ))}
+        <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-6">Cas d&apos;usage</p>
+        <QuietBone className="h-8 w-3/4 mb-4" />
+        <QuietBone className="h-3 w-40 mb-8" />
+        <QuietSkeletonList count={8} variant="prose" label="Chargement du cas d’usage" />
       </main>
     )
   }

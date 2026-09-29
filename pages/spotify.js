@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
+import { QuietSkeletonList } from '../components/QuietSkeleton'
 
 const TIME_RANGE_OPTIONS = [
   { value: 'short_term', label: '4 semaines' },
@@ -38,6 +39,7 @@ export default function Spotify() {
   const [error, setError] = useState(null)
   const [errorReason, setErrorReason] = useState(null)
   const [newRefreshToken, setNewRefreshToken] = useState(null)
+  const hasLoadedOnce = useRef(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -54,7 +56,9 @@ export default function Spotify() {
   useEffect(() => {
     const fetchSpotifyData = async () => {
       try {
-        setLoading(true)
+        if (!hasLoadedOnce.current) {
+          setLoading(true)
+        }
 
         // Récupérer les données depuis notre API avec le time_range sélectionné
         const response = await fetch(`/api/spotify/data?time_range=${timeRange}`)
@@ -76,6 +80,7 @@ export default function Spotify() {
         setError('Impossible de charger les données Spotify')
         setErrorReason(null)
       } finally {
+        hasLoadedOnce.current = true
         setLoading(false)
       }
     }
@@ -227,11 +232,8 @@ export default function Spotify() {
           )}
 
           {loading && (
-            <div className="mt-4 text-sm text-neutral-600 dark:text-neutral-400 space-y-1">
-              <p>Chargement des données Spotify…</p>
-              <p className="text-neutral-500 dark:text-neutral-500">
-                Top morceaux, artistes et écoutes récentes.
-              </p>
+            <div className="mt-6">
+              <QuietSkeletonList count={5} variant="rule" label="Chargement Spotify" />
             </div>
           )}
 
