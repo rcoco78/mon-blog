@@ -37,6 +37,90 @@ function FooterArrowLink({ href, children, active, external, title }) {
   )
 }
 
+function MusicNoteIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="17"
+      height="17"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="w-[17px] h-[17px]"
+      aria-hidden="true"
+    >
+      <path d="M9 18V5l12-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="18" cy="16" r="3" />
+    </svg>
+  )
+}
+
+function MusicEqIcon() {
+  return (
+    <span className="music-eq" aria-hidden="true">
+      <span />
+      <span />
+      <span />
+    </span>
+  )
+}
+
+function MusicNavLink({ active }) {
+  const [nowPlaying, setNowPlaying] = useState(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    const fetchNowPlaying = async () => {
+      try {
+        const response = await fetch('/api/spotify/data')
+        if (!response.ok) {
+          if (!cancelled) setNowPlaying(null)
+          return
+        }
+        const data = await response.json()
+        if (cancelled) return
+        if (data.error || !data.currentlyPlaying?.name) {
+          setNowPlaying(null)
+          return
+        }
+        setNowPlaying(data.currentlyPlaying)
+      } catch {
+        if (!cancelled) setNowPlaying(null)
+      }
+    }
+
+    fetchNowPlaying()
+    const interval = setInterval(fetchNowPlaying, 30000)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
+  }, [])
+
+  const trackName = nowPlaying?.name
+  const label = trackName ? `Musique — ${trackName}` : 'Musique'
+
+  return (
+    <Link
+      href="/spotify"
+      aria-label={label}
+      title={label}
+      className={`flex items-center justify-center transition-all py-1 px-2 sm:px-3 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 min-w-[40px] ${
+        active
+          ? 'text-neutral-900 dark:text-neutral-100 underline underline-offset-4 decoration-neutral-400 dark:decoration-neutral-500'
+          : 'text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100'
+      }`}
+    >
+      {trackName ? <MusicEqIcon /> : <MusicNoteIcon />}
+    </Link>
+  )
+}
+
 export default function Layout({ children }) {
   const { theme, resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
@@ -105,11 +189,12 @@ export default function Layout({ children }) {
               à propos
             </Link>
           </div>
-          <div className="flex justify-end items-center gap-0.5 max-[480px]:hidden">
+          <div className="flex justify-end items-center gap-0.5">
+            <MusicNavLink active={router.pathname === '/spotify'} />
             <button
               aria-label="Toggle Dark Mode"
               type="button"
-              className="flex items-center justify-center transition-all py-1 px-2 sm:px-3 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 min-w-[40px]"
+              className="flex items-center justify-center transition-all py-1 px-2 sm:px-3 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 min-w-[40px] max-[480px]:hidden"
               onClick={toggleTheme}
               disabled={!mounted}
             >
