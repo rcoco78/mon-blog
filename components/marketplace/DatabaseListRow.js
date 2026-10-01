@@ -12,7 +12,7 @@ import {
 } from '../../lib/marketplace-display'
 import { categoryToSlug } from '../../lib/marketplace-helpers'
 
-export default function DatabaseListRow({ tool, showCategory = true, rank = null, variant = 'list' }) {
+export default function DatabaseListRow({ tool, showCategory = true, rank = null, variant = 'list', views = null }) {
   if (!tool) return null
 
   const href =
@@ -35,10 +35,16 @@ export default function DatabaseListRow({ tool, showCategory = true, rank = null
       : 'Gratuit'
   const rows =
     tool.rowCount > 0 ? `${Number(tool.rowCount).toLocaleString('fr-FR')} entrées` : null
+  const viewCount = Number(views)
+  const viewsLabel =
+    Number.isFinite(viewCount) && viewCount > 0
+      ? `${viewCount.toLocaleString('fr-FR')} ${viewCount === 1 ? 'vue' : 'vues'}`
+      : null
 
   const meta = [
     showCategory && tool.category ? tool.category : null,
     rows,
+    viewsLabel,
     tool.isPaid ? null : 'Gratuit',
   ].filter(Boolean)
 

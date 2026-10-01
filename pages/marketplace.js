@@ -378,10 +378,18 @@ export default function Marketplace({
           const bySlug = new Map((dynamicDatabases || []).map((tool) => [tool.slug, tool]))
           const topViews = showFeatured
             ? topViewRanking
-                .map((item) => bySlug.get(item.slug))
-                .filter((tool) => tool && !storySlugs.has(tool.slug))
+                .map((item) => {
+                  const tool = bySlug.get(item.slug)
+                  if (!tool || storySlugs.has(tool.slug)) return null
+                  const views = Number(item.views)
+                  return {
+                    tool,
+                    views: Number.isFinite(views) && views > 0 ? views : null,
+                  }
+                })
+                .filter(Boolean)
             : []
-          const topSlugs = new Set(topViews.map((tool) => tool.slug))
+          const topSlugs = new Set(topViews.map((entry) => entry.tool.slug))
           const rest = showFeatured
             ? filteredTools.filter((tool) => !topSlugs.has(tool.slug))
             : filteredTools
@@ -416,8 +424,8 @@ export default function Marketplace({
                 <section className="mb-12">
                   <h2 className="font-semibold text-xl mb-4 tracking-tighter">Les plus vues</h2>
                   <div className="flex flex-col">
-                    {topViews.map((tool) => (
-                      <DatabaseListRow key={tool.slug || tool.name} tool={tool} />
+                    {topViews.map(({ tool, views }) => (
+                      <DatabaseListRow key={tool.slug || tool.name} tool={tool} views={views} />
                     ))}
                   </div>
                 </section>
