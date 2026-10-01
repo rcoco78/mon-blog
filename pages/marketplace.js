@@ -381,10 +381,10 @@ export default function Marketplace({
                 .map((item) => {
                   const tool = bySlug.get(item.slug)
                   if (!tool || storySlugs.has(tool.slug)) return null
-                  const views = Number(item.views)
+                  const views = tool.views == null || tool.views === '' ? null : Number(tool.views)
                   return {
                     tool,
-                    views: Number.isFinite(views) && views > 0 ? views : null,
+                    views: Number.isFinite(views) && views >= 0 ? views : null,
                   }
                 })
                 .filter(Boolean)
@@ -436,7 +436,7 @@ export default function Marketplace({
                 </p>
                 <div className="flex flex-col">
                   {rest.slice(0, displayedCount).map((tool) => (
-                    <DatabaseListRow key={tool.slug || tool.name} tool={tool} />
+                    <DatabaseListRow key={tool.slug || tool.name} tool={tool} views={tool.views} />
                   ))}
                 </div>
                 {displayedCount < rest.length && (
@@ -599,12 +599,12 @@ async function getMarketplaceViewEvents() {
       const res = await fetch(blob.url, { next: { revalidate: 300 } })
       if (res.ok) {
         const data = await res.json()
-        return Array.isArray(data) ? data : []
+        return Array.isArray(data) ? data : null
       }
     }
-    return []
+    return null
   } catch {
-    return []
+    return null
   }
 }
 
@@ -630,16 +630,19 @@ export async function getServerSideProps({ query }) {
       getMarketplaceViewEvents(),
       getMarketplaceVideoMapping(),
     ])
+    const viewsLoaded = Array.isArray(events)
     const viewsMap = {}
-    events.forEach((e) => {
-      if (e.slug && e.category) {
-        const k = `${e.category}/${e.slug}`
-        viewsMap[k] = (viewsMap[k] || 0) + 1
-      }
-    })
+    if (viewsLoaded) {
+      events.forEach((e) => {
+        if (e.slug && e.category) {
+          const k = `${e.category}/${e.slug}`
+          viewsMap[k] = (viewsMap[k] || 0) + 1
+        }
+      })
+    }
     dynamicDatabases = dynamicDatabases.map((db) => ({
       ...db,
-      views: viewsMap[`${db.category}/${db.slug}`] || 0,
+      views: viewsLoaded ? (viewsMap[`${db.category}/${db.slug}`] || 0) : null,
       videoUrl: videoMapping[db.slug] || null,
     }))
   } catch (error) {

@@ -14,12 +14,12 @@ async function getViewEvents() {
       const res = await fetch(blob.url, { next: { revalidate: 300 } })
       if (res.ok) {
         const data = await res.json()
-        return Array.isArray(data) ? data : []
+        return Array.isArray(data) ? data : null
       }
     }
-    return []
+    return null
   } catch {
-    return []
+    return null
   }
 }
 
@@ -36,7 +36,7 @@ function optimizeDatabase(db, toolsBySlug, categorySlug, views = 0) {
     price: db.price,
     lastEnriched: db.lastEnriched || null,
     date: db.date || null,
-    views: views || 0,
+    views: views == null ? null : views,
   }
 }
 
@@ -76,13 +76,16 @@ export default async function handler(req, res) {
       getViewEvents(),
     ])
 
+    const viewsLoaded = Array.isArray(events)
     const viewsMap = {}
-    events.forEach((e) => {
-      if (e.slug && e.category === category) {
-        const k = `${e.category}/${e.slug}`
-        viewsMap[k] = (viewsMap[k] || 0) + 1
-      }
-    })
+    if (viewsLoaded) {
+      events.forEach((e) => {
+        if (e.slug && e.category === category) {
+          const k = `${e.category}/${e.slug}`
+          viewsMap[k] = (viewsMap[k] || 0) + 1
+        }
+      })
+    }
 
     const toolsBySlug = Object.fromEntries((tools || []).map(t => [t.slug, t]))
     const slug = categoryToSlug(category) || 'autres'
@@ -92,7 +95,7 @@ export default async function handler(req, res) {
       return {
         ...db,
         description: tool?.description || db.description || db.shortDescription || '',
-        views: viewsMap[`${category}/${db.slug}`] || 0,
+        views: viewsLoaded ? (viewsMap[`${category}/${db.slug}`] || 0) : null,
       }
     })
 

@@ -35,9 +35,10 @@ export default function DatabaseListRow({ tool, showCategory = true, rank = null
       : 'Gratuit'
   const rows =
     tool.rowCount > 0 ? `${Number(tool.rowCount).toLocaleString('fr-FR')} entrées` : null
-  const viewCount = Number(views)
+  const source = views != null ? views : tool.views
+  const viewCount = source == null || source === '' ? NaN : Number(source)
   const viewsLabel =
-    Number.isFinite(viewCount) && viewCount > 0
+    Number.isFinite(viewCount) && viewCount >= 0
       ? `${viewCount.toLocaleString('fr-FR')} ${viewCount === 1 ? 'vue' : 'vues'}`
       : null
 

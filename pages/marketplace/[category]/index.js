@@ -20,13 +20,13 @@ async function getViewEvents() {
 
       if (response.ok) {
         const data = await response.json()
-        return Array.isArray(data) ? data : []
+        return Array.isArray(data) ? data : null
       }
     }
-    return []
+    return null
   } catch (error) {
     console.error('Error fetching view events:', error)
-    return []
+    return null
   }
 }
 
@@ -231,7 +231,7 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
             </h2>
             <div>
               {displayedDatabases.map((db) => (
-                <DatabaseListRow key={db.slug} tool={db} showCategory={false} />
+                <DatabaseListRow key={db.slug} tool={db} showCategory={false} views={db.views} />
               ))}
             </div>
             
@@ -342,19 +342,22 @@ export async function getStaticProps({ params }) {
 
   // Calculer les top 3 bases de données les plus consultées de cette catégorie
   let topDatabases = []
-  let databasesWithViews = categoryDatabasesWithLinks.map(db => ({ ...db, views: 0 }))
+  let databasesWithViews = categoryDatabasesWithLinks.map(db => ({ ...db, views: null }))
   try {
     const events = await getViewEvents()
+    const viewsLoaded = Array.isArray(events)
     const viewsMap = {}
-    events.forEach(event => {
-      if (event.slug && event.category === category) {
-        const key = `${event.category}/${event.slug}`
-        viewsMap[key] = (viewsMap[key] || 0) + 1
-      }
-    })
+    if (viewsLoaded) {
+      events.forEach(event => {
+        if (event.slug && event.category === category) {
+          const key = `${event.category}/${event.slug}`
+          viewsMap[key] = (viewsMap[key] || 0) + 1
+        }
+      })
+    }
     databasesWithViews = categoryDatabasesWithLinks.map(db => ({
       ...db,
-      views: viewsMap[`${category}/${db.slug}`] || 0
+      views: viewsLoaded ? (viewsMap[`${category}/${db.slug}`] || 0) : null
     }))
     const sorted = [...databasesWithViews].sort((a, b) => {
       if (b.views !== a.views) return b.views - a.views
@@ -364,7 +367,7 @@ export async function getStaticProps({ params }) {
     databasesWithViews = sorted // tri par vues pour l'affichage par défaut
   } catch (error) {
     console.error('Erreur lors du calcul des top databases:', error)
-    topDatabases = categoryDatabasesWithLinks.slice(0, 3).map(db => ({ ...db, views: 0, link: db.link || null }))
+    topDatabases = categoryDatabasesWithLinks.slice(0, 3).map(db => ({ ...db, views: null, link: db.link || null }))
   }
 
   const initialBatch = databasesWithViews.slice(0, INITIAL_BATCH).map(db => ({
@@ -378,7 +381,7 @@ export async function getStaticProps({ params }) {
     rowCount: db.rowCount || 0,
     lastEnriched: db.lastEnriched || null,
     date: db.date || null,
-    views: db.views || 0,
+    views: db.views == null ? null : db.views,
   }))
 
   return {

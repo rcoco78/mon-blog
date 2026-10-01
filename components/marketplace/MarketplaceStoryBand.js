@@ -49,9 +49,19 @@ function StoryMedia({ tool, title }) {
   )
 }
 
+function storyViewsLabel(tool) {
+  const viewCount = tool?.views == null || tool.views === '' ? NaN : Number(tool.views)
+  if (!Number.isFinite(viewCount) || viewCount < 0) return null
+  return `${viewCount.toLocaleString('fr-FR')} ${viewCount === 1 ? 'vue' : 'vues'}`
+}
+
 function StorySlide({ tool, carousel }) {
   const title = marketplaceHomeTitle(tool)
   const benefit = marketplaceBenefit(tool)
+  const viewsLabel = storyViewsLabel(tool)
+  const rows =
+    tool.rowCount > 0 ? `${Number(tool.rowCount).toLocaleString('fr-FR')} entrées` : null
+  const meta = [tool.category, rows, viewsLabel].filter(Boolean)
   const href =
     tool.link ||
     (tool.slug && tool.category
@@ -85,6 +95,9 @@ function StorySlide({ tool, carousel }) {
           <h3 className="font-semibold text-base tracking-tight text-neutral-900 dark:text-neutral-100">
             {title}
           </h3>
+          {meta.length > 0 && (
+            <p className="mt-1 text-xs text-neutral-500">{meta.join(' · ')}</p>
+          )}
           <p className="mt-1.5 text-sm text-neutral-600 dark:text-neutral-400">
             {benefit}
           </p>
