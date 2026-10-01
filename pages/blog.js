@@ -223,7 +223,18 @@ export default function Blog({ posts }) {
                     const totalViews = Object.keys(allViews).length > 0 
                       ? filteredPosts.reduce((sum, post) => sum + (allViews[post.slug] || 0), 0)
                       : filteredPosts.reduce((sum, post) => sum + (post.views || 0), 0)
-                    return `${totalViews} ${totalViews === 1 ? 'vue' : 'vues'}`
+                    const hasDelta = Object.keys(dayDelta).length > 0
+                    const delta = hasDelta
+                      ? filteredPosts.reduce((sum, post) => sum + (dayDelta[post.slug] || 0), 0)
+                      : null
+                    return (
+                      <>
+                        {totalViews} {totalViews === 1 ? 'vue' : 'vues'}
+                        {delta != null && (
+                          <span className="text-neutral-400"> ({delta > 0 ? '+' : ''}{delta})</span>
+                        )}
+                      </>
+                    )
                   })()}
                 </span>
                 {blogStatsLoading && (
