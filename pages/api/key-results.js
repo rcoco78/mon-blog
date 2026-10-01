@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
         if (response.ok) {
           const data = await response.json()
-          if (data.keyResults && Array.isArray(data.keyResults)) {
+          if (Array.isArray(data.keyResults) && data.keyResults.length > 0) {
             keyResults = data.keyResults
           }
         }

@@ -3,7 +3,7 @@
 // Cela évite les rate limits en limitant les appels à l'API Notion
 
 import { getKeyResults, getKeyResultHistory } from '../../../lib/notion'
-import { put } from '@vercel/blob'
+import { put, list } from '@vercel/blob'
 import { enrichKeyResultsWithApifyLive } from '../../../lib/apify-live-stats'
 import { enrichKeyResultsWithMarketplaceProof } from '../../../lib/project-count'
 
@@ -42,6 +42,27 @@ export default async function handler(req, res) {
       await enrichKeyResultsWithApifyLive(keyResultsRaw)
     )
     console.log(`✅ ${keyResults.length} Key Results récupérés`)
+
+    if (keyResults.length === 0) {
+      const blobs = await list({ prefix: KEY_RESULTS_BLOB })
+      const existing = blobs.blobs.find((blob) => blob.pathname === KEY_RESULTS_BLOB)
+      if (existing) {
+        const previous = await fetch(existing.url)
+        if (previous.ok) {
+          const data = await previous.json()
+          if (Array.isArray(data.keyResults) && data.keyResults.length > 0) {
+            console.warn('⚠️ Notion a renvoyé 0 key result, blob existant conservé')
+            return res.status(200).json({
+              success: true,
+              skipped: true,
+              message: 'Blob conservé : Notion a renvoyé une liste vide',
+              keyResultsCount: data.keyResults.length,
+              timestamp: new Date().toISOString()
+            })
+          }
+        }
+      }
+    }
 
     // 2. Sauvegarder les Key Results dans Blob Storage
     const keyResultsData = {
