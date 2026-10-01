@@ -40,12 +40,28 @@ export default async function handler(req, res) {
     // Calculer les vues pour chaque slug
     const slugArray = slugs.split(',')
     const viewsMap = {}
-    
-    slugArray.forEach(slug => {
-      viewsMap[slug] = events.filter(event => event.slug === slug).length
+    const dayDelta = {}
+    const dayKey = (date) =>
+      new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris' }).format(date)
+    const todayKey = dayKey(new Date())
+    const yesterdayKey = dayKey(new Date(Date.now() - 86400000))
+
+    slugArray.forEach((slug) => {
+      let total = 0
+      let today = 0
+      let yesterday = 0
+      for (const event of events) {
+        if (event.slug !== slug) continue
+        total += 1
+        const key = dayKey(new Date(event.timestamp))
+        if (key === todayKey) today += 1
+        else if (key === yesterdayKey) yesterday += 1
+      }
+      viewsMap[slug] = total
+      dayDelta[slug] = today - yesterday
     })
 
-    res.status(200).json(viewsMap)
+    res.status(200).json({ views: viewsMap, dayDelta })
   } catch (error) {
     console.error('Error fetching views:', error)
     res.status(500).json({ message: 'Error fetching views' })

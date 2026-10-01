@@ -31,6 +31,7 @@ export default function Blog({ posts }) {
   const [topPosts, setTopPosts] = useState([])
   const [postsLoading, setPostsLoading] = useState(!(posts && posts.length > 0))
   const [allViews, setAllViews] = useState({})
+  const [dayDelta, setDayDelta] = useState({})
   const [blogStats, setBlogStats] = useState(null)
   const [blogStatsLoading, setBlogStatsLoading] = useState(true)
   const INITIAL_VISIBLE_POSTS = 40
@@ -73,8 +74,10 @@ export default function Blog({ posts }) {
           throw new Error('Erreur lors de la récupération des vues')
         }
         
-        const viewsMap = await response.json()
-        setAllViews(viewsMap) // Stocker toutes les vues pour le calcul du total
+        const payload = await response.json()
+        const viewsMap = payload.views || payload
+        setAllViews(viewsMap)
+        setDayDelta(payload.dayDelta || {})
         
         // Ajouter les vues aux articles et trier
         const postsWithViews = posts.map(post => ({
@@ -313,6 +316,9 @@ export default function Blog({ posts }) {
                         <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
                           <span className="text-sm text-neutral-500 whitespace-nowrap">
                             {(allViews[post.slug] ?? post.views ?? 0).toLocaleString('fr-FR')} vues
+                            {dayDelta[post.slug] != null && (
+                              <span className="text-neutral-400"> ({dayDelta[post.slug] > 0 ? '+' : ''}{dayDelta[post.slug]})</span>
+                            )}
                           </span>
                         </div>
                       </div>
