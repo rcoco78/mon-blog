@@ -202,7 +202,7 @@ export default function Layout({ children }) {
             <button
               aria-label="Toggle Dark Mode"
               type="button"
-              className="flex items-center justify-center transition-all py-1 px-2 sm:px-3 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 min-w-[40px] max-[480px]:hidden"
+              className="flex items-center justify-center transition-all py-1 px-2 sm:px-3 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 min-w-[40px]"
               onClick={toggleTheme}
               disabled={!mounted}
             >

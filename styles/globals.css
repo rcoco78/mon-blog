@@ -20,6 +20,12 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Meta trop faible sur fond noir : neutral-500 reste en clair, passe à 400 en sombre. */
+.dark .text-neutral-500,
+.dark .dark\:text-neutral-500 {
+  color: #a3a3a3;
+}
+
 @layer components {
   /* Trait journal : dashed comme le chrome SaaS, sans tokens paper/ink */
   .journal-rule {
