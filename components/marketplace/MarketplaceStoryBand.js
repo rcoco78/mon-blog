@@ -12,6 +12,7 @@ import {
   priceTTC,
 } from '../../lib/marketplace-display'
 import { categoryToSlug } from '../../lib/marketplace-helpers'
+import { formatViewCount } from '../../lib/view-label'
 import { toEmbedVideoUrl } from '../../lib/marketplace-videos'
 
 function StoryMedia({ tool, title }) {
@@ -50,9 +51,9 @@ function StoryMedia({ tool, title }) {
 }
 
 function storyViewsLabel(tool) {
-  const viewCount = tool?.views == null || tool.views === '' ? NaN : Number(tool.views)
-  if (!Number.isFinite(viewCount) || viewCount < 0) return null
-  return `${viewCount.toLocaleString('fr-FR')} ${viewCount === 1 ? 'vue' : 'vues'}`
+  const source = tool?.views
+  if (source == null || source === '') return null
+  return formatViewCount(source)
 }
 
 function StorySlide({ tool, carousel }) {

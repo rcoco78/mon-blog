@@ -8,6 +8,7 @@ import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { QuietBone, QuietSkeletonList } from '../components/QuietSkeleton'
+import { formatViewCount } from '../lib/view-label'
 
 function canonicalTag(tag = '') {
   if (/^freelanc/i.test(tag)) return 'Freelance'
@@ -229,7 +230,7 @@ export default function Blog({ posts }) {
                       : null
                     return (
                       <>
-                        {totalViews} {totalViews === 1 ? 'vue' : 'vues'}
+                        {formatViewCount(totalViews)}
                         {delta != null && (
                           <span className="text-neutral-400"> ({delta > 0 ? '+' : ''}{delta})</span>
                         )}
@@ -326,7 +327,7 @@ export default function Blog({ posts }) {
                           </p>
                         <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
                           <span className="text-sm text-neutral-500 whitespace-nowrap">
-                            {(allViews[post.slug] ?? post.views ?? 0).toLocaleString('fr-FR')} vues
+                            {formatViewCount(allViews[post.slug] ?? post.views ?? 0)}
                             {dayDelta[post.slug] != null && (
                               <span className="text-neutral-400"> ({dayDelta[post.slug] > 0 ? '+' : ''}{dayDelta[post.slug]})</span>
                             )}

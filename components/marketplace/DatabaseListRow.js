@@ -11,6 +11,7 @@ import {
   priceTTC,
 } from '../../lib/marketplace-display'
 import { categoryToSlug } from '../../lib/marketplace-helpers'
+import { formatViewCount } from '../../lib/view-label'
 
 export default function DatabaseListRow({ tool, showCategory = true, rank = null, variant = 'list', views = null }) {
   if (!tool) return null
@@ -36,11 +37,7 @@ export default function DatabaseListRow({ tool, showCategory = true, rank = null
   const rows =
     tool.rowCount > 0 ? `${Number(tool.rowCount).toLocaleString('fr-FR')} entrées` : null
   const source = views != null ? views : tool.views
-  const viewCount = source == null || source === '' ? NaN : Number(source)
-  const viewsLabel =
-    Number.isFinite(viewCount) && viewCount >= 0
-      ? `${viewCount.toLocaleString('fr-FR')} ${viewCount === 1 ? 'vue' : 'vues'}`
-      : null
+  const viewsLabel = source == null || source === '' ? null : formatViewCount(source)
 
   const meta = [
     showCategory && tool.category ? tool.category : null,

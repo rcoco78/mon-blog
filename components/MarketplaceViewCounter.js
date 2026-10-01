@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { QuietBone } from './QuietSkeleton'
+import { formatViewCount } from '../lib/view-label'
 
 export default function MarketplaceViewCounter({ slug, category, increment = false }) {
   const [views, setViews] = useState(null)
@@ -63,7 +64,7 @@ export default function MarketplaceViewCounter({ slug, category, increment = fal
 
   return (
     <span className="text-sm text-neutral-600 dark:text-neutral-400 tabular-nums">
-      {views} {views <= 1 ? 'vue' : 'vues'}
+      {formatViewCount(views)}
     </span>
   )
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { QuietBone } from './QuietSkeleton'
+import { formatViewCount } from '../lib/view-label'
 
 /**
  * Affiche le nombre de vues d'un cas d'usage (comme ViewCounter pour le blog).
@@ -50,7 +51,7 @@ export default function CaseStudyViewCounter({ slug, sector, views: initialViews
 
   return (
     <span className="text-xs text-neutral-500 dark:text-neutral-500 tabular-nums">
-      {views} {views === 0 || views === 1 ? 'vue' : 'vues'}
+      {formatViewCount(views)}
     </span>
   )
 }
