@@ -10,6 +10,7 @@ import FAQ from '../components/FAQ'
 import DatabaseListRow from '../components/marketplace/DatabaseListRow'
 import MarketplaceStoryBand from '../components/marketplace/MarketplaceStoryBand'
 import { MarketplaceListsSkeleton } from '../components/QuietSkeleton'
+import { marketplaceHomeTitle } from '../lib/marketplace-display'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
 import { averageStarRating } from '../lib/rating'
@@ -123,7 +124,7 @@ export default function Marketplace({
     items: allTools.map((tool, index) => {
       const item = {
         '@type': tool.type === 'database' ? 'Dataset' : 'SoftwareApplication',
-        name: tool.name,
+        name: marketplaceHomeTitle(tool),
         description: tool.description,
         applicationCategory: 'BusinessApplication',
         offers: {

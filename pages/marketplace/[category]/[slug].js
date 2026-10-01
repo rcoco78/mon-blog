@@ -11,12 +11,11 @@ import FAQ from '../../../components/FAQ'
 import Toast, { useToast } from '../../../components/Toast'
 import MarketplaceViewCounter from '../../../components/MarketplaceViewCounter'
 import { isIadOrSafti, PACK_IAD_SAFTI, shouldNoindexDatabase } from '../../../lib/marketplace-catalog'
-import { formatEuros, marketplaceScopeText, marketplaceSeoTitle, priceHT, priceTTC } from '../../../lib/marketplace-display'
+import { formatEuros, marketplaceDistinctiveTitle, marketplaceScopeText, marketplaceSeoTitle, priceHT, priceTTC } from '../../../lib/marketplace-display'
 import DatabasePurchasePanel from '../../../components/marketplace/DatabasePurchasePanel'
 import { generatePageSEO } from '../../../lib/seo'
 import { siteConfig } from '../../../lib/config'
 import { categoryToSlug } from '../../../lib/marketplace-helpers'
-import { shortMarketplaceTitle } from '../../../lib/marketplace-display'
 import { getPosthogIdentityHeaders, captureCta } from '../../../lib/posthog-client'
 import { FLOW } from '../../../lib/posthog-events'
 
@@ -219,7 +218,11 @@ export default function MarketplaceDatabase({
 
   const toolData = {
     name: database.name,
-    displayName: shortMarketplaceTitle(database.name),
+    displayName: marketplaceDistinctiveTitle({
+      name: database.name,
+      slug: database.slug,
+      rowCount: database.rowCount,
+    }),
     description: database.shortDescription || database.description,
     fullDescription: database.description,
     category: database.category,
@@ -413,7 +416,7 @@ export default function MarketplaceDatabase({
       <StructuredData
         type="Product"
         data={{
-          name: toolData.name,
+          name: toolData.displayName,
           description: toolData.fullDescription,
           url: `${siteConfig.url}/marketplace/${categorySlug}/${database.slug}`,
           image: siteConfig.ogImage || `${siteConfig.url}/og-image.jpg`,
@@ -441,7 +444,7 @@ export default function MarketplaceDatabase({
       <StructuredData
         type="Dataset"
         data={{
-          name: toolData.name,
+          name: toolData.displayName,
           description: database.description,
           url: `${siteConfig.url}/marketplace/${categorySlug}/${database.slug}`,
           datePublished: database.date,
@@ -454,7 +457,7 @@ export default function MarketplaceDatabase({
         <StructuredData
           type="VideoObject"
           data={{
-            name: `${toolData.name} - Présentation vidéo`,
+            name: `${toolData.displayName} - Présentation vidéo`,
             description: toolData.description,
             thumbnailUrl:
               database.enrichedData?.videoThumbnail ||
@@ -474,7 +477,7 @@ export default function MarketplaceDatabase({
       <StructuredData
         type="HowTo"
         data={{
-          name: `Comment utiliser ${toolData.name}`,
+          name: `Comment utiliser ${toolData.displayName}`,
           description: `Recevoir et utiliser la base en 3 étapes`,
           steps: toolData.howToSteps,
         }}
@@ -710,7 +713,11 @@ export default function MarketplaceDatabase({
                       className="group flex items-baseline justify-between gap-4 py-3 border-b border-neutral-200 dark:border-neutral-800"
                     >
                       <span className="font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors min-w-0">
-                        {shortMarketplaceTitle(related.name)}
+                        {marketplaceDistinctiveTitle({
+                          name: related.name,
+                          slug: related.slug,
+                          rowCount: related.rowCount,
+                        })}
                       </span>
                       <span className="text-sm text-neutral-500 dark:text-neutral-500 tabular-nums whitespace-nowrap shrink-0">
                         {related.price ? `${related.price} €` : ''}
