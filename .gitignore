@@ -9,6 +9,9 @@
 # next.js
 /.next/
 /out/
+datareacher/node_modules
+datareacher/.next
+datareacher/out
 
 # production
 /build
