@@ -13,7 +13,24 @@ const TIME_RANGE_OPTIONS = [
 ]
 
 const rowClassName =
-  'group flex items-center gap-3 py-3 border-b border-dashed border-neutral-300 dark:border-neutral-700 hover:border-neutral-500 dark:hover:border-neutral-500 transition-colors'
+  'group flex items-center gap-3 py-3 border-b border-dashed border-neutral-300 dark:border-neutral-700'
+
+function TrackPreview({ track, playingId, onPlay }) {
+  const id = track?.id
+  const preview = track?.preview_url
+  if (!id && !preview) return null
+  const active = playingId === id
+  return (
+    <button
+      type="button"
+      onClick={() => onPlay(track)}
+      className="shrink-0 text-xs underline underline-offset-2 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100"
+      aria-pressed={active}
+    >
+      {active ? 'Stop' : 'Extrait'}
+    </button>
+  )
+}
 
 function CoverThumb({ src, alt, size = 32 }) {
   if (!src) return null
@@ -40,6 +57,29 @@ export default function Spotify() {
   const [errorReason, setErrorReason] = useState(null)
   const [newRefreshToken, setNewRefreshToken] = useState(null)
   const hasLoadedOnce = useRef(false)
+  const audioRef = useRef(null)
+  const [playingId, setPlayingId] = useState(null)
+
+  const playPreview = (track) => {
+    const id = track?.id
+    if (!id) return
+    if (playingId === id) {
+      audioRef.current?.pause()
+      setPlayingId(null)
+      return
+    }
+    if (track.preview_url) {
+      if (!audioRef.current) audioRef.current = new Audio()
+      const audio = audioRef.current
+      audio.src = track.preview_url
+      audio.play().catch(() => {})
+      audio.onended = () => setPlayingId(null)
+      setPlayingId(id)
+      return
+    }
+    audioRef.current?.pause()
+    setPlayingId(id)
+  }
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -268,6 +308,7 @@ export default function Spotify() {
                     <span className="text-neutral-600 dark:text-neutral-400 truncate">
                       {currentlyPlaying.artists?.map((a) => a.name).join(', ')}
                     </span>
+                    <TrackPreview track={currentlyPlaying} playingId={playingId} onPlay={playPreview} />
                     {currentlyPlaying.external_urls?.spotify && (
                       <a
                         href={currentlyPlaying.external_urls.spotify}
@@ -280,6 +321,15 @@ export default function Spotify() {
                     )}
                   </div>
                 </div>
+                {playingId === currentlyPlaying.id && !currentlyPlaying.preview_url && (
+                  <iframe
+                    title={`Extrait ${currentlyPlaying.name}`}
+                    src={`https://open.spotify.com/embed/track/${currentlyPlaying.id}?utm_source=generator`}
+                    className="mt-3 w-full h-20 border-0"
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    loading="lazy"
+                  />
+                )}
               </section>
             )}
 
@@ -313,13 +363,7 @@ export default function Spotify() {
                   </p>
                   <div>
                     {topTracks.map((track, index) => (
-                      <a
-                        key={track.id}
-                        href={track.external_urls?.spotify}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={rowClassName}
-                      >
+                      <div key={track.id} className={rowClassName}>
                         <span className="text-xs tabular-nums text-neutral-400 dark:text-neutral-500 w-5 flex-shrink-0">
                           {index + 1}
                         </span>
@@ -337,8 +381,18 @@ export default function Spotify() {
                             {track.duration_ms ? ` · ${formatDuration(track.duration_ms)}` : ''}
                           </p>
                         </div>
-                      </a>
+                        <TrackPreview track={track} playingId={playingId} onPlay={playPreview} />
+                      </div>
                     ))}
+                    {topTracks.some((track) => playingId === track.id && !track.preview_url) && (
+                      <iframe
+                        title="Extrait du morceau"
+                        src={`https://open.spotify.com/embed/track/${playingId}?utm_source=generator`}
+                        className="w-full h-20 border-0"
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy"
+                      />
+                    )}
                   </div>
                 </div>
               )}
@@ -393,11 +447,8 @@ export default function Spotify() {
                 </p>
                 <div>
                   {recentlyPlayed.slice(0, 10).map((track) => (
-                    <a
+                    <div
                       key={`${track.id}-${track.played_at || ''}`}
-                      href={track.external_urls?.spotify}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className={rowClassName}
                     >
                       <CoverThumb
@@ -416,8 +467,18 @@ export default function Spotify() {
                           {track.duration_ms ? ` · ${formatDuration(track.duration_ms)}` : ''}
                         </p>
                       </div>
-                    </a>
+                      <TrackPreview track={track} playingId={playingId} onPlay={playPreview} />
+                    </div>
                   ))}
+                  {recentlyPlayed.slice(0, 10).some((track) => playingId === track.id && !track.preview_url) && (
+                    <iframe
+                      title="Extrait du morceau"
+                      src={`https://open.spotify.com/embed/track/${playingId}?utm_source=generator`}
+                      className="w-full h-20 border-0"
+                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                      loading="lazy"
+                    />
+                  )}
                 </div>
               </section>
             )}
