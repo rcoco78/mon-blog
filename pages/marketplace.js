@@ -4,6 +4,7 @@ import LookAtAvatar from '../components/LookAtAvatar'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { pickFeaturedDatabases } from '../lib/marketplace-catalog'
+import { loadMarketplaceTopViews } from '../lib/marketplace-top-views'
 import { toEmbedVideoUrl } from '../lib/marketplace-videos'
 import FAQ from '../components/FAQ'
 import DatabaseListRow from '../components/marketplace/DatabaseListRow'
@@ -23,6 +24,7 @@ const SORT_OPTIONS = [
 export default function Marketplace({
   dynamicDatabases = [],
   marketplaceReviews = [],
+  topViewRanking = [],
 }) {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedPricing, setSelectedPricing] = useState(null) // '<100' | '100-200' | '200+' | 'free' | null
@@ -372,10 +374,15 @@ export default function Marketplace({
             Boolean(toEmbedVideoUrl(tool?.videoUrl || tool?.enrichedData?.videoUrl))
           )
           const storySlugs = new Set(storyTools.map((tool) => tool.slug))
-          const enCeMoment = featured.filter((tool) => !storySlugs.has(tool.slug))
-          const enCeMomentSlugs = new Set(enCeMoment.map((tool) => tool.slug))
+          const bySlug = new Map((dynamicDatabases || []).map((tool) => [tool.slug, tool]))
+          const topViews = showFeatured
+            ? topViewRanking
+                .map((item) => bySlug.get(item.slug))
+                .filter((tool) => tool && !storySlugs.has(tool.slug))
+            : []
+          const topSlugs = new Set(topViews.map((tool) => tool.slug))
           const rest = showFeatured
-            ? filteredTools.filter((tool) => !enCeMomentSlugs.has(tool.slug))
+            ? filteredTools.filter((tool) => !topSlugs.has(tool.slug))
             : filteredTools
           if (filteredTools.length === 0) {
             return (
@@ -404,11 +411,11 @@ export default function Marketplace({
               {storyTools.length > 0 && (
                 <MarketplaceStoryBand tools={storyTools} />
               )}
-              {enCeMoment.length > 0 && (
+              {topViews.length > 0 && (
                 <section className="mb-12">
-                  <h2 className="font-semibold text-xl mb-4 tracking-tighter">En ce moment</h2>
+                  <h2 className="font-semibold text-xl mb-4 tracking-tighter">Les plus vues</h2>
                   <div className="flex flex-col">
-                    {enCeMoment.map((tool) => (
+                    {topViews.map((tool) => (
                       <DatabaseListRow key={tool.slug || tool.name} tool={tool} />
                     ))}
                   </div>
@@ -630,6 +637,13 @@ export async function getServerSideProps({ query }) {
     console.error('❌ Erreur chargement bases de données:', error.message)
   }
   
+  let topViewRanking = []
+  try {
+    topViewRanking = await loadMarketplaceTopViews()
+  } catch (error) {
+    console.warn('Erreur chargement top vues marketplace:', error?.message)
+  }
+
   let marketplaceReviews = []
   try {
     const { getMarketplaceReviews } = await import('../lib/marketplace-reviews')
@@ -672,6 +686,7 @@ export async function getServerSideProps({ query }) {
     props: {
       dynamicDatabases,
       marketplaceReviews,
+      topViewRanking,
     }
   }
 }

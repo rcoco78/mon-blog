@@ -41,6 +41,10 @@
       "schedule": "0 12 * * *"
     },
     {
+      "path": "/api/cron/marketplace-top-views",
+      "schedule": "15 6 * * *"
+    },
+    {
       "path": "/api/cron/sync-stripe-products",
       "schedule": "0 13 * * *"
     },

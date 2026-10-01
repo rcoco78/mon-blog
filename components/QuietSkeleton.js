@@ -113,7 +113,7 @@ export function MarketplaceListsSkeleton() {
   return (
     <>
       <section className="mb-12" aria-busy="true">
-        <h2 className="font-semibold text-xl mb-4 tracking-tighter">En ce moment</h2>
+        <h2 className="font-semibold text-xl mb-4 tracking-tighter">Les plus vues</h2>
         <QuietSkeletonList count={6} variant="list" label="Chargement des bases" />
       </section>
       <section className="mb-16" aria-busy="true">

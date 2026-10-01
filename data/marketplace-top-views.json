@@ -1,0 +1,19 @@
+{
+  "source": "posthog",
+  "projectId": "251458",
+  "event": "$pageview",
+  "property": "$pathname",
+  "windowDays": 28,
+  "botsExcluded": true,
+  "minViews": 2,
+  "generatedAt": "2026-10-01T12:30:00.000Z",
+  "note": "Dernier classement connu. Le cron /api/cron/marketplace-top-views réécrit le blob quand POSTHOG_PERSONAL_API_KEY est défini.",
+  "items": [
+    { "category": "immobilier", "slug": "base-donnees-agents-immobiliers-iad-france", "views": 37 },
+    { "category": "immobilier", "slug": "agences-immobilieres-france-base-donnees", "views": 9 },
+    { "category": "b2b", "slug": "base-donnees-contacts-hse-qhse-france", "views": 9 },
+    { "category": "finance", "slug": "base-donnees-agences-gestion-patrimoine-france", "views": 8 },
+    { "category": "e-commerce", "slug": "restaurants-tripadvisor-uk-base-donnees", "views": 7 },
+    { "category": "finance", "slug": "contacts-conseillers-financiers-france", "views": 7 }
+  ]
+}
