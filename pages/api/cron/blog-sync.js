@@ -3,6 +3,7 @@
 
 import { Client } from '@notionhq/client'
 import { put } from '@vercel/blob'
+import { notionPlainText } from '../../../../lib/notion'
 
 const notion = new Client({
   auth: process.env.NOTION_TOKEN,
@@ -46,7 +47,7 @@ async function fetchAndSavePosts() {
   // Transformer les articles (filtrer les null)
   const posts = allPosts
     .map((page) => {
-    const title = page.properties.Title?.title?.[0]?.plain_text?.trim() || ''
+    const title = notionPlainText(page.properties.Title?.title)
     const date = page.properties.Date?.date?.start || ''
     const tags = page.properties.Tags?.multi_select?.map((tag) => tag.name.trim()) || []
     const metaDescription = page.properties['Meta Description']?.rich_text?.[0]?.plain_text?.trim() || ''

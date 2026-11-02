@@ -13,7 +13,7 @@ const ArrowIcon = () => (
 )
 
 function FooterArrowLink({ href, children, active, external, title }) {
-  const linkClass = `flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100 ${active ? 'text-neutral-900 dark:text-neutral-100 font-medium' : ''}`
+  const linkClass = `flex items-center min-h-11 transition-all hover:text-neutral-800 dark:hover:text-neutral-100 ${active ? 'text-neutral-900 dark:text-neutral-100 font-medium' : ''}`
   const content = (
     <>
       <ArrowIcon />
@@ -111,7 +111,7 @@ function MusicNavLink({ active }) {
       href="/spotify"
       aria-label={label}
       title={label}
-      className={`flex items-center justify-center transition-all py-1 px-2 sm:px-3 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 min-w-[40px] ${
+      className={`flex items-center justify-center transition-all min-h-11 min-w-11 px-2 sm:px-3 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 ${
         active
           ? 'text-neutral-900 dark:text-neutral-100 underline underline-offset-4 decoration-neutral-400 dark:decoration-neutral-500'
           : 'text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100'
@@ -145,12 +145,12 @@ export default function Layout({ children }) {
   const currentTheme = mounted ? (resolvedTheme || 'light') : 'light'
 
   return (
-    <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 overflow-x-hidden">
+    <div className={`mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 ${router.pathname === '/blog/[slug]' ? 'overflow-x-visible' : 'overflow-x-hidden'}`}>
       <div className="flex flex-col min-h-screen mt-8 sm:mt-8">
-        <nav className="flex flex-row items-center justify-between relative px-0 pb-8 fade md:overflow-auto scroll-pr-6 md:relative" id="nav">
-          <div className="flex flex-row items-start sm:items-center flex-wrap gap-x-1 sm:gap-x-2 gap-y-1">
+        <nav className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between relative px-0 pb-8 fade md:overflow-auto scroll-pr-6 md:relative" id="nav">
+          <div className="flex flex-row items-center flex-wrap gap-x-1 sm:gap-x-2">
             <Link 
-              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
+              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 inline-flex items-center min-h-11 relative pl-0 pr-2 sm:pr-3 rounded-md ${
                 router.pathname === '/' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
               }`} 
               href="/"
@@ -158,7 +158,7 @@ export default function Layout({ children }) {
               accueil
             </Link>
             <Link 
-              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
+              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 inline-flex items-center min-h-11 relative pl-0 pr-2 sm:pr-3 rounded-md ${
                 router.pathname.startsWith('/blog') ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
               }`} 
               href="/blog"
@@ -166,7 +166,7 @@ export default function Layout({ children }) {
               journal
             </Link>
             <Link 
-              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
+              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 inline-flex items-center min-h-11 relative pl-0 pr-2 sm:pr-3 rounded-md ${
                 router.pathname.startsWith('/objectifs') ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
               }`} 
               href="/objectifs"
@@ -174,7 +174,7 @@ export default function Layout({ children }) {
               objectifs
             </Link>
             <Link 
-              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
+              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 inline-flex items-center min-h-11 relative pl-0 pr-2 sm:pr-3 rounded-md ${
                 router.pathname === '/marketplace' || router.pathname.startsWith('/marketplace/') ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
               }`} 
               href="/marketplace"
@@ -182,7 +182,7 @@ export default function Layout({ children }) {
               marketplace
             </Link>
             <Link 
-              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 pl-0 pr-2 sm:pr-3 rounded-md ${
+              className={`transition-all hover:text-neutral-800 dark:hover:text-neutral-200 inline-flex items-center min-h-11 relative pl-0 pr-2 sm:pr-3 rounded-md ${
                 router.pathname === '/a-propos' ? 'text-neutral-900 dark:text-neutral-100 font-medium' : 'text-neutral-600 dark:text-neutral-400'
               }`} 
               href="/a-propos"
@@ -190,11 +190,11 @@ export default function Layout({ children }) {
               à propos
             </Link>
           </div>
-          <div className="flex justify-end items-center gap-0.5">
+          <div className="flex items-center gap-0.5 self-start sm:self-auto">
             <button
               type="button"
               onClick={() => openCalendlyPopup('header')}
-              className="mr-1 text-sm underline underline-offset-4 text-neutral-800 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white whitespace-nowrap"
+              className="inline-flex items-center min-h-11 mr-1 px-1 text-sm underline underline-offset-4 text-neutral-800 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white whitespace-nowrap"
             >
               un appel
             </button>
@@ -202,7 +202,7 @@ export default function Layout({ children }) {
             <button
               aria-label="Toggle Dark Mode"
               type="button"
-              className="flex items-center justify-center transition-all py-1 px-2 sm:px-3 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 min-w-[40px]"
+              className="flex items-center justify-center transition-all min-h-11 min-w-11 px-2 sm:px-3 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100"
               onClick={toggleTheme}
               disabled={!mounted}
             >
@@ -228,7 +228,7 @@ export default function Layout({ children }) {
                     <button
                       aria-label="Toggle Dark Mode"
                       type="button"
-                      className="flex items-center justify-center transition-all py-2 px-4 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 min-w-[40px]"
+                      className="flex items-center justify-center transition-all min-h-11 min-w-11 px-3 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100"
                       onClick={toggleTheme}
                       disabled={!mounted}
                     >
@@ -243,20 +243,18 @@ export default function Layout({ children }) {
                       )}
                     </button>
                   </div>
-                  <ul className="font-sm mt-8 flex flex-row flex-wrap gap-4 text-neutral-600 dark:text-neutral-300">
-                    <FooterArrowLink href="/blog" active={router.pathname.startsWith('/blog')}>journal</FooterArrowLink>
-                    <FooterArrowLink href="/objectifs" active={router.pathname === '/objectifs'}>objectifs</FooterArrowLink>
-                    <FooterArrowLink href="/marketplace" active={router.pathname === '/marketplace' || router.pathname.startsWith('/marketplace/')}>marketplace</FooterArrowLink>
+                  <ul className="font-sm mt-8 flex flex-row flex-wrap gap-4 text-neutral-700 dark:text-neutral-300">
                     <FooterArrowLink href={siteConfig.network.datareacher.href} external>datareacher</FooterArrowLink>
                     <FooterArrowLink href={siteConfig.network.outreacher.href} external>outreacher</FooterArrowLink>
                     <FooterArrowLink href={siteConfig.network.immoreacher.href} external>immoreacher</FooterArrowLink>
+                    <FooterArrowLink href="/marketplace">marketplace</FooterArrowLink>
                     <FooterArrowLink href={siteConfig.network.logement.href} external>logement atypique</FooterArrowLink>
                   </ul>
                   <div className="mt-5">
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                      <Link href="/contact" className="hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors">contact</Link>
+                    <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                      <Link href="/contact" className="hover:text-neutral-950 dark:hover:text-white transition-colors">contact</Link>
                       {' · '}
-                      <Link href="/confidentialite" className="hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors">confidentialité</Link>
+                      <Link href="/confidentialite" className="hover:text-neutral-950 dark:hover:text-white transition-colors">confidentialité</Link>
                     </p>
                     <SocialLinks className="-ml-3 mt-1" />
                   </div>

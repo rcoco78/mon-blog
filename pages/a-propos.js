@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import LookAtAvatar from '../components/LookAtAvatar'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
@@ -25,81 +24,48 @@ function trackProjectClick(project) {
   }
 }
 
-function NetworkLogo({ node }) {
-  if (!node?.icon) return null
+function Mark({ icon, iconOnDark, iconShape }) {
+  if (!icon) return null
   return (
     <span
-      className={`inline-flex w-6 h-6 shrink-0 items-center justify-center overflow-hidden ${
-        node.iconShape === 'round' ? '' : 'rounded-md'
-      } ${node.iconOnDark === 'plate' ? 'dark:bg-white dark:p-[3px]' : ''}`}
+      className={`mt-0.5 inline-flex w-6 h-6 shrink-0 items-center justify-center overflow-hidden ${
+        iconShape === 'round' ? '' : 'rounded-md'
+      } ${iconOnDark === 'plate' ? 'dark:bg-white dark:p-[3px]' : ''}`}
     >
       <img
-        src={node.icon}
+        src={icon}
         alt=""
         width={24}
         height={24}
         className={`w-full h-full ${
-          node.iconShape === 'round' ? 'rounded-full object-cover' : 'rounded-md object-contain'
+          iconShape === 'round' ? 'rounded-full object-cover' : 'rounded-md object-contain'
         }`}
       />
     </span>
   )
 }
 
-function TimelineDot({ active }) {
-  if (active) {
-    return (
-      <div
-        className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-green-500 border-2 border-white dark:border-neutral-900 z-10"
-        title="Projet actif"
-      >
-        <span className="absolute -inset-0.5 inline-flex rounded-full bg-green-400 opacity-40 animate-ping"></span>
-      </div>
-    )
-  }
-  return (
-    <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
-  )
-}
-
-function TimelineItem({ dates, title, href, role, description, logo, active, children }) {
-  const heading = href ? (
-    <Link
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center gap-1.5 hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors group/link"
-    >
-      {logo}
-      <span>{title}</span>
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="transform transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 flex-shrink-0">
-        <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-      </svg>
-    </Link>
+function FactLine({ dates, title, href, detail, icon, iconOnDark, children }) {
+  const name = href ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+      {title}
+    </a>
   ) : (
-    <span className="flex items-center gap-1.5">
-      {logo}
-      <span>{title}</span>
-    </span>
+    <span>{title}</span>
   )
 
   return (
-    <div className="relative flex flex-col sm:flex-row sm:gap-4">
-      <TimelineDot active={active} />
-      <div className="w-full sm:w-40 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">
-        {dates}
-      </div>
-      <div className="flex-1 min-w-0">
-        <h3 className="font-medium mb-1 flex items-center gap-2">{heading}</h3>
-        {role && (
-          <p className="text-xs text-neutral-500 dark:text-neutral-500 mb-1">{role}</p>
-        )}
-        {description && (
-          <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">{description}</p>
-        )}
-        {children}
-      </div>
-    </div>
+    <li className="relative py-4 text-neutral-800 dark:text-neutral-200 tracking-tight">
+      <p className="text-sm text-neutral-500 dark:text-neutral-500 tabular-nums">{dates}</p>
+      <p className="mt-1 flex items-center gap-2 font-medium text-neutral-900 dark:text-neutral-100">
+        <Mark icon={icon} iconOnDark={iconOnDark} />
+        {name}
+      </p>
+      {detail ? (
+        <p className="mt-1 text-neutral-600 dark:text-neutral-400">{detail}</p>
+      ) : null}
+      {children ? <div className="mt-1">{children}</div> : null}
+    </li>
   )
 }
 
@@ -213,156 +179,33 @@ export default function About() {
       {/* Section Parcours */}
       <section className="mb-16" aria-label="Parcours professionnel">
         <h2 className="font-semibold text-xl mb-6 tracking-tighter">Parcours</h2>
-        <div className="space-y-8">
-          {/* Projets entrepreneuriaux */}
-          <div>
-            <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-4 uppercase tracking-wide">Projets entrepreneuriaux</h3>
-            <div className="relative pl-4 sm:pl-6">
-              {/* Ligne verticale en pointillés */}
-              <div className="absolute left-0 top-0 bottom-0 w-[1px]" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0, transparent 4px, rgb(212 212 212) 4px, rgb(212 212 212) 8px)' }}></div>
-              <div className="absolute left-0 top-0 bottom-0 w-[1px] hidden dark:block" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0, transparent 4px, rgb(64 64 64) 4px, rgb(64 64 64) 8px)' }}></div>
-              <div className="space-y-6">
-                <TimelineItem
-                  dates="mars 2024 – aujourd’hui"
-                  title="Outreacher"
-                  href={siteConfig.network.outreacher.href}
-                  role="Fondateur"
-                  description="Une campagne en 14 jours. On la monte ensemble. C’est toi qui envoies."
-                  logo={<NetworkLogo node={siteConfig.network.outreacher} />}
-                  active
-                />
-                <TimelineItem
-                  dates="nov. 2026 – aujourd’hui"
-                  title="Immoreacher"
-                  href={siteConfig.network.immoreacher.href}
-                  role="Fondateur"
-                  description="La liste du matin. Mandataires et agences, à jour chaque jour."
-                  logo={<NetworkLogo node={siteConfig.network.immoreacher} />}
-                  active
-                />
-                <TimelineItem
-                  dates="sept. 2026 – aujourd’hui"
-                  title="Datareacher"
-                  href={siteConfig.network.datareacher.href}
-                  role="Fondateur"
-                  description="Tu as ta liste. Ce soir."
-                  logo={<NetworkLogo node={siteConfig.network.datareacher} />}
-                  active
-                />
-                <TimelineItem
-                  dates="sept. 2025 – aujourd’hui"
-                  title="Logement Atypique"
-                  href="https://logement-atypique.fr"
-                  role="Fondateur"
-                  description="On sublime les lieux atypiques. Photo, vidéo, visibilité. Avec Siméon."
-                  logo={<NetworkLogo node={siteConfig.network.logement} />}
-                  active
-                />
-                <TimelineItem
-                  dates="2023 – aujourd’hui"
-                  title="Freelance en scraping et automatisation"
-                  href={siteConfig.social.malt}
-                  description="160+ missions Malt finalisées • +250 missions Fiverr finalisées • +300 clients accompagnés"
-                  active
-                />
-                <TimelineItem
-                  dates="mars 2022 – août 2023"
-                  title="Rare Item Club"
-                  role="Fondateur"
-                  description="Achat-revente de sneakers « rares » via Vinted, Leboncoin, Ebay"
-                >
-                  {lessonsArticles.rareItemClub && (
-                    <Link
-                      href={`/blog/${lessonsArticles.rareItemClub}`}
-                      className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
-                    >
-                      Leçons apprises
-                    </Link>
-                  )}
-                </TimelineItem>
-                <TimelineItem
-                  dates="mai 2018 – août 2019"
-                  title="InstaNinja"
-                  role="Fondateur"
-                  description="Automatisation de compte Instagram — +400 clients total, 10K€ MRR"
-                >
-                  {lessonsArticles.instaninja && (
-                    <Link
-                      href={`/blog/${lessonsArticles.instaninja}`}
-                      className="text-xs text-neutral-500 dark:text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100 underline"
-                    >
-                      Leçons apprises
-                    </Link>
-                  )}
-                </TimelineItem>
-              </div>
-            </div>
-          </div>
-
-          {/* Expériences salariées */}
-          <div>
-            <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-4 uppercase tracking-wide">Expériences salariées</h3>
-            <div className="relative pl-4 sm:pl-6">
-              {/* Ligne verticale en pointillés */}
-              <div className="absolute left-0 top-0 bottom-0 w-[1px]" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0, transparent 4px, rgb(212 212 212) 4px, rgb(212 212 212) 8px)' }}></div>
-              <div className="absolute left-0 top-0 bottom-0 w-[1px] hidden dark:block" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0, transparent 4px, rgb(64 64 64) 4px, rgb(64 64 64) 8px)' }}></div>
-              <div className="space-y-6">
-                <TimelineItem
-                  dates="2023"
-                  title="White Bird"
-                  role="Growth"
-                  description="Pilotage du marketing pour le développement de réseau de franchises"
-                />
-                <TimelineItem
-                  dates="févr. 2021 – févr. 2022"
-                  title="Shine"
-                  role="Growth"
-                  description="Déploiement de dashboards et projets pour intégrer Legalplace au sein de Shine, pour que les équipes Sales et Support aient l’ensemble des données au bon endroit"
-                />
-                <TimelineItem
-                  dates="juin 2020 – déc. 2020"
-                  title="papernest"
-                  role="Growth"
-                  description="Analyse et amélioration des publicités Facebook Ads"
-                />
-                <TimelineItem
-                  dates="janv. 2018 – juil. 2018"
-                  title="Airbnb"
-                  role="Growth"
-                  description="Développement d’Airbnb Experiences pour la France et Middle East & Africa"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Formation */}
-          <div>
-            <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400 mb-4 uppercase tracking-wide">Formation</h3>
-            <div className="relative pl-4 sm:pl-6">
-              {/* Ligne verticale en pointillés */}
-              <div className="absolute left-0 top-0 bottom-0 w-[1px]" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0, transparent 4px, rgb(212 212 212) 4px, rgb(212 212 212) 8px)' }}></div>
-              <div className="absolute left-0 top-0 bottom-0 w-[1px] hidden dark:block" style={{ background: 'repeating-linear-gradient(to bottom, transparent 0, transparent 4px, rgb(64 64 64) 4px, rgb(64 64 64) 8px)' }}></div>
-              <div className="space-y-6">
-                <div className="relative flex flex-col sm:flex-row sm:gap-4">
-                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
-                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2020-2021</div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium mb-1">HETIC</h3>
-                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">Développement web, marketing digital et UX design</p>
-                  </div>
-                </div>
-                <div className="relative flex flex-col sm:flex-row sm:gap-4">
-                  <div className="absolute -left-4 sm:-left-6 top-2 w-2 h-2 -translate-x-1/2 rounded-full bg-neutral-900 dark:bg-neutral-100 border-2 border-white dark:border-neutral-900 z-10"></div>
-                  <div className="w-full sm:w-28 sm:flex-shrink-0 text-sm text-neutral-500 mb-1 sm:mb-0 tabular-nums pl-0 sm:pl-4">2015-2018</div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium mb-1">EDC Paris Business School</h3>
-                    <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">École de commerce post-bac</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ul className="border-l border-dashed border-neutral-300 dark:border-neutral-700 pl-5">
+          <FactLine dates="nov. 2026 – aujourd’hui" title="Immoreacher" href={siteConfig.network.immoreacher.href} icon={siteConfig.network.immoreacher.icon} iconOnDark={siteConfig.network.immoreacher.iconOnDark} detail="La liste du matin. Mandataires et agences, à jour chaque jour." />
+          <FactLine dates="sept. 2026 – aujourd’hui" title="Datareacher" href={siteConfig.network.datareacher.href} icon={siteConfig.network.datareacher.icon} iconOnDark={siteConfig.network.datareacher.iconOnDark} detail="Tu as ta liste. Ce soir." />
+          <FactLine dates="sept. 2025 – aujourd’hui" title="Logement Atypique" href="https://logement-atypique.fr" icon={siteConfig.network.logement.icon} iconOnDark={siteConfig.network.logement.iconOnDark} detail="Lieux atypiques, photo et vidéo, avec Siméon." />
+          <FactLine dates="mars 2024 – aujourd’hui" title="Outreacher" href={siteConfig.network.outreacher.href} icon={siteConfig.network.outreacher.icon} iconOnDark={siteConfig.network.outreacher.iconOnDark} detail="Une campagne en 14 jours. C’est toi qui envoies." />
+          <FactLine dates="2023 – aujourd’hui" title="Freelance" href={siteConfig.social.malt} detail="160+ missions Malt · +250 missions Fiverr · +300 clients." />
+          <FactLine dates="2023" title="White Bird" detail="Growth. Réseau de franchises." />
+          <FactLine dates="mars 2022 – août 2023" title="Rare Item Club" detail="Achat-revente de sneakers via Vinted, Leboncoin, Ebay.">
+            {lessonsArticles.rareItemClub && (
+              <Link href={`/blog/${lessonsArticles.rareItemClub}`} className="underline underline-offset-2">
+                Leçons apprises
+              </Link>
+            )}
+          </FactLine>
+          <FactLine dates="févr. 2021 – févr. 2022" title="Shine" detail="Growth. Données Sales et Support après l’intégration de Legalplace." />
+          <FactLine dates="2020-2021" title="HETIC" detail="Développement web, marketing digital et UX design." />
+          <FactLine dates="juin 2020 – déc. 2020" title="papernest" detail="Growth. Publicités Facebook Ads." />
+          <FactLine dates="mai 2018 – août 2019" title="InstaNinja" detail="Automatisation de compte Instagram — +400 clients, 10K€ MRR.">
+            {lessonsArticles.instaninja && (
+              <Link href={`/blog/${lessonsArticles.instaninja}`} className="underline underline-offset-2">
+                Leçons apprises
+              </Link>
+            )}
+          </FactLine>
+          <FactLine dates="janv. 2018 – juil. 2018" title="Airbnb" detail="Growth. Airbnb Experiences, France et Middle East & Africa." />
+          <FactLine dates="2015-2018" title="EDC Paris Business School" detail="École de commerce post-bac." />
+        </ul>
       </section>
 
       {/* Section Partenaires */}
@@ -381,6 +224,13 @@ export default function About() {
                 title={project.title}
                 meta="Partenaire"
                 description={project.description}
+                clampDescription={false}
+                mark={
+                  <Mark
+                    icon={project.icon}
+                    iconOnDark={project.iconOnDark}
+                  />
+                }
                 onClick={project.link ? () => trackProjectClick(project) : undefined}
               />
             ))}
@@ -388,43 +238,21 @@ export default function About() {
       </section>
 
       {/* Call-to-Action */}
-      <section className="mb-16 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-center" aria-label="Contact">
-        <div className="flex flex-col items-center mb-6">
-          <div className="mb-4">
-            <LookAtAvatar
-              src={siteConfig.profileImage}
-              alt="Photo de profil de Corentin Robert"
-              size={64}
-              objectPosition="center 28%"
-              lookBasePath={siteConfig.profileLook?.basePath}
-              lookDirections={siteConfig.profileLook?.directions || []}
-              lookExt={siteConfig.profileLook?.ext || 'jpg'}
-              showRing
-            />
-          </div>
-          <h2 className="font-semibold text-xl mb-4 tracking-tighter">Discutons de votre projet</h2>
-        </div>
-        <p className="text-neutral-600 dark:text-neutral-400 mb-6 max-w-xl mx-auto">
-          Réservez un créneau ou contactez-moi directement.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-          <button
-            onClick={openCalendly}
-            disabled={!mounted}
-            className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Réserver un créneau
-          </button>
-          <Link 
-            href={siteConfig.social.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block px-6 py-3 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-          >
-            Me contacter sur LinkedIn
-          </Link>
-        </div>
-      </section>
+      <p className="mb-16 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 tracking-tight">
+        Vingt minutes pour cadrer le projet.{' '}
+        <button
+          type="button"
+          onClick={openCalendly}
+          disabled={!mounted}
+          className="underline underline-offset-2 text-neutral-900 dark:text-neutral-100 disabled:opacity-50"
+        >
+          Réserver un appel
+        </button>
+        {' · '}
+        <Link href={siteConfig.social.linkedin} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+          LinkedIn
+        </Link>.
+      </p>
     </main>
     </>
   )

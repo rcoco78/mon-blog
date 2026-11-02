@@ -8,7 +8,6 @@ import {
   marketplaceBenefit,
   formatEuros,
   priceHT,
-  priceTTC,
 } from '../../lib/marketplace-display'
 import { categoryToSlug } from '../../lib/marketplace-helpers'
 import { formatViewCount } from '../../lib/view-label'
@@ -23,27 +22,22 @@ export default function DatabaseListRow({ tool, showCategory = true, rank = null
       : '#')
   const title = marketplaceHomeTitle(tool)
   const benefit = marketplaceBenefit(tool)
+  const amount = tool.annualPrice || tool.price
   const price =
-    tool.isPaid && (tool.annualPrice || tool.price)
-      ? (
-          <span className="inline-flex flex-col items-end leading-tight">
-            <span>{formatEuros(priceTTC(tool.annualPrice || tool.price))} €</span>
-            <span className="text-xs font-normal text-neutral-500">
-              {formatEuros(priceHT(tool.annualPrice || tool.price))} € HT
-            </span>
-          </span>
-        )
+    tool.isPaid && amount
+      ? `${formatEuros(priceHT(amount))} € HT`
       : 'Gratuit'
   const rows =
     tool.rowCount > 0 ? `${Number(tool.rowCount).toLocaleString('fr-FR')} entrées` : null
   const source = views != null ? views : tool.views
-  const viewsLabel = source == null || source === '' ? null : formatViewCount(source)
+  const viewCount = Number(source)
+  const viewsLabel =
+    Number.isFinite(viewCount) && viewCount > 0 ? formatViewCount(viewCount) : null
 
   const meta = [
-    showCategory && tool.category ? tool.category : null,
     rows,
+    showCategory && tool.category ? tool.category : null,
     viewsLabel,
-    tool.isPaid ? null : 'Gratuit',
   ].filter(Boolean)
 
   const displayTitle =

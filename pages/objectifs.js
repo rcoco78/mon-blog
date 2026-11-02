@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import FAQ from '../components/FAQ'
 import { openCalendlyPopup } from '../lib/calendly'
 import { QuietBone, QuietSkeletonList } from '../components/QuietSkeleton'
+import { formatFrenchDate } from '../lib/format-date'
 
 function isKeyResultCompleted(kr) {
   const t = Number(kr?.targetResult)
@@ -160,6 +161,44 @@ function mergeHistoryWithCurrentKR(history, currentResult, syncPrefix = 'kr-sync
   return h
 }
 
+const AFFILIATION_SERVICES = ['apify', 'lemlist', 'zapier', 'zapmail']
+
+function isAffiliationServiceKr(kr) {
+  const nameLower = (kr.name || '').toLowerCase()
+  const categoryLower = (kr.category || '').toLowerCase()
+  return (
+    (nameLower.includes('revenus d\'affiliation') || nameLower.includes('affiliation')) &&
+    AFFILIATION_SERVICES.some((service) => nameLower.includes(service)) &&
+    (categoryLower.includes('affiliation') || categoryLower.includes('partenariats'))
+  )
+}
+
+function isAffiliationTotalKr(kr) {
+  const nameLower = (kr.name || '').toLowerCase()
+  const categoryLower = (kr.category || '').toLowerCase()
+  return (
+    (nameLower.includes('revenus d\'affiliation') ||
+      nameLower.includes('ca affiliation') ||
+      nameLower.includes('chiffre d\'affaires affiliation')) &&
+    !AFFILIATION_SERVICES.some((service) => nameLower.includes(service)) &&
+    (categoryLower.includes('affiliation') || categoryLower.includes('partenariats'))
+  )
+}
+
+/** Réalisé = somme des KR de service (USD→EUR). Cible = target du KR total, déjà en EUR. */
+function affiliationDisplayPair(keyResults, usdToEur) {
+  const individuals = (keyResults || []).filter(isAffiliationServiceKr)
+  const usd = individuals.reduce((sum, kr) => sum + (Number(kr.currentResult) || 0), 0)
+  const current = typeof usdToEur === 'function' ? usdToEur(usd) : usd * 0.92
+  const totalKr = (keyResults || []).find(isAffiliationTotalKr) || null
+  const target = Number(totalKr?.targetResult) || 0
+  return {
+    current,
+    target,
+    krId: totalKr?.id || individuals[0]?.id || null,
+  }
+}
+
 /** Décompose les KR CA Freelance / Affiliation / Logement (cibles + courants + ids). */
 function getCaBreakdown(keyResults, usdToEur) {
   const caFreelanceKRs = keyResults.filter((kr) => {
@@ -185,44 +224,10 @@ function getCaBreakdown(keyResults, usdToEur) {
       : 0
   const freelanceKrId = caFreelanceTotalKR?.id || caFreelanceKRs[0]?.id || null
 
-  const caAffiliationKRs = keyResults.filter((kr) => {
-    const categoryLower = (kr.category || '').toLowerCase()
-    const nameLower = (kr.name || '').toLowerCase()
-    return (
-      (categoryLower.includes('affiliation') || categoryLower.includes('partenariats')) &&
-      (nameLower.includes('ca') || nameLower.includes('chiffre') || nameLower.includes('revenus'))
-    )
-  })
-  const caAffiliationTotalKR =
-    caAffiliationKRs.find((kr) => (kr.name || '').toLowerCase().includes('total')) || null
-  const affiliationTarget = caAffiliationTotalKR
-    ? caAffiliationTotalKR.targetResult || 0
-    : caAffiliationKRs.length > 0
-      ? caAffiliationKRs.reduce((sum, kr) => sum + (kr.targetResult || 0), 0)
-      : 0
-  // Même logique que la liste : somme des revenus individuels (Lemlist / Apify / Zapmail), en USD → EUR
-  const affiliationIndividuals = keyResults.filter((kr) => {
-    const nameLower = (kr.name || '').toLowerCase()
-    const categoryLower = (kr.category || '').toLowerCase()
-    return (
-      (nameLower.includes('revenus d\'affiliation') || nameLower.includes('affiliation')) &&
-      (nameLower.includes('apify') ||
-        nameLower.includes('lemlist') ||
-        nameLower.includes('zapier') ||
-        nameLower.includes('zapmail')) &&
-      (categoryLower.includes('affiliation') || categoryLower.includes('partenariats'))
-    )
-  })
-  const affiliationCurrentUsd = affiliationIndividuals.reduce(
-    (sum, kr) => sum + (kr.currentResult || 0),
-    0
-  )
-  const affiliationCurrent =
-    typeof usdToEur === 'function'
-      ? usdToEur(affiliationCurrentUsd)
-      : affiliationCurrentUsd * 0.92
-  const affiliationKrId =
-    caAffiliationTotalKR?.id || affiliationIndividuals[0]?.id || null
+  const affiliationPair = affiliationDisplayPair(keyResults, usdToEur)
+  const affiliationTarget = affiliationPair.target
+  const affiliationCurrent = affiliationPair.current
+  const affiliationKrId = affiliationPair.krId
 
   const caLogementAtypiqueKRs = keyResults.filter((kr) => {
     const categoryLower = (kr.category || '').toLowerCase()
@@ -950,51 +955,54 @@ export default function DonneesPubliques() {
           <section className="mb-12 pb-8 border-b border-neutral-200 dark:border-neutral-800" aria-label="CA cumulé objectif 2026">
             {(() => {
               const ca = getCaBreakdown(keyResults, usdToEur)
-              const totalCA =
-                (ca.freelance.target || 0) +
-                (ca.affiliation.target || 0) +
-                (ca.logement.target || 0)
+              const postes = [ca.freelance, ca.affiliation, ca.logement]
+              const encaisse = postes.reduce((sum, poste) => sum + (Number(poste.current) || 0), 0)
+              const cible = postes.reduce((sum, poste) => sum + (Number(poste.target) || 0), 0)
+              const pct = cible > 0 ? Math.min(100, Math.round((encaisse / cible) * 100)) : 0
+              const money = (value) => `${formatNumber(Math.round(Number(value) || 0))} €`
 
               return (
                 <>
-                  <p className="text-sm text-neutral-500 dark:text-neutral-500 mb-1">CA cumulé 2026</p>
-                  <p className="text-4xl font-semibold text-neutral-900 dark:text-neutral-100 mb-4 tracking-tighter tabular-nums">
-                    {totalCA > 0 ? `${formatNumber(Math.round(totalCA))} €` : '—'}
+                  <p className="text-sm text-neutral-700 dark:text-neutral-300 mb-1">CA cumulé 2026</p>
+                  <p className="text-4xl font-semibold text-neutral-900 dark:text-neutral-100 tracking-tighter tabular-nums">
+                    {encaisse > 0 || cible > 0 ? money(encaisse) : '—'}
                   </p>
-                  <div className="space-y-1 text-sm text-neutral-600 dark:text-neutral-400 mb-4">
-                    <p>
-                      Freelance{' '}
-                      <span className="text-neutral-900 dark:text-neutral-100 tabular-nums">
-                        {ca.freelance.target > 0 ? `${formatNumber(Math.round(ca.freelance.target))} €` : '—'}
-                      </span>
-                    </p>
-                    <p>
-                      Affiliation{' '}
-                      <span className="text-neutral-900 dark:text-neutral-100 tabular-nums">
-                        {ca.affiliation.target > 0 ? `${formatNumber(Math.round(ca.affiliation.target))} €` : '—'}
-                      </span>
-                    </p>
-                    <p>
-                      Logement Atypique{' '}
-                      <span className="text-neutral-900 dark:text-neutral-100 tabular-nums">
-                        {ca.logement.target > 0 ? `${formatNumber(Math.round(ca.logement.target))} €` : '—'}
-                      </span>
-                    </p>
-                  </div>
-                  {overallProgress > 0 && (
-                    <div className="mb-4">
+                  {cible > 0 && (
+                    <div className="mt-3 mb-4">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-neutral-500 dark:text-neutral-500">Progression</span>
-                        <span className="text-xs text-neutral-500 dark:text-neutral-500 tabular-nums">{overallProgress}%</span>
+                        <span className="text-sm text-neutral-700 dark:text-neutral-300">encaissé / cible</span>
+                        <span className="text-sm text-neutral-700 dark:text-neutral-300 tabular-nums">{pct}%</span>
                       </div>
-                      <div className="w-full h-1 bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+                      <div
+                        className="w-full h-1 bg-neutral-200 dark:bg-neutral-800 overflow-hidden"
+                        role="progressbar"
+                        aria-valuenow={pct}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label="encaissé / cible"
+                      >
                         <div
                           className="h-full bg-neutral-900 dark:bg-neutral-100 transition-all duration-500"
-                          style={{ width: `${Math.min(100, overallProgress)}%` }}
+                          style={{ width: `${pct}%` }}
                         />
                       </div>
                     </div>
                   )}
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4 tabular-nums">
+                    cible {money(cible)}
+                  </p>
+                  <div className="space-y-1 text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+                    {postes.map((poste) => (
+                      <p key={poste.label}>
+                        {poste.label}{' '}
+                        <span className="text-neutral-900 dark:text-neutral-100 tabular-nums">
+                          {money(poste.current)}
+                          {' / '}
+                          {money(poste.target)}
+                        </span>
+                      </p>
+                    ))}
+                  </div>
                   <p className="text-sm text-neutral-500 dark:text-neutral-500">
                     Note Malt &amp; Fiverr 5/5 · délai moyen &lt; 7 jours · 20–30 projets / mois
                   </p>
@@ -1063,17 +1071,7 @@ export default function DonneesPubliques() {
                 const scaleRange = Math.max(scaleMax - scaleMin, 1e-9)
                 const firstDate = slice[0]?.date
                 const lastDate = slice[slice.length - 1]?.date
-                const fmt = (d) => {
-                  try {
-                    const x = new Date(d)
-                    if (!isNaN(x.getTime())) {
-                      return x.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
-                    }
-                  } catch (e) {
-                    /* ignore */
-                  }
-                  return ''
-                }
+                const fmt = (d) => formatFrenchDate(d)
 
                 return (
                   <div>
@@ -1407,9 +1405,9 @@ export default function DonneesPubliques() {
                         <button
                           onClick={openCalendly}
                           className="text-sm underline hover:text-neutral-900 dark:hover:text-neutral-100 text-neutral-600 dark:text-neutral-400 flex-shrink-0 self-start"
-                          aria-label="Réserver un créneau Calendly"
+                          aria-label="Réserver un appel"
                         >
-                          Réserver un créneau
+                          Réserver un appel
                         </button>
                       </div>
                     </div>
@@ -1557,22 +1555,9 @@ export default function DonneesPubliques() {
                                     }
                                     
                                     // Pour "Revenus d'affiliation" (sans nom de service), calculer la somme de tous les revenus d'affiliation individuels
-                                    const isAffiliationTotal = (nameLower.includes('revenus d\'affiliation') || nameLower.includes('ca affiliation') || nameLower.includes('chiffre d\'affaires affiliation')) &&
-                                                               !nameLower.includes('apify') && !nameLower.includes('lemlist') && !nameLower.includes('zapier') &&
-                                                               (categoryLower.includes('affiliation') || categoryLower.includes('partenariats'))
-                                    
-                                    if (isAffiliationTotal) {
-                                      // Somme de tous les revenus d'affiliation individuels (en USD, convertis en EUR)
-                                      const affiliationKRs = keyResults.filter(otherKr => {
-                                        const otherNameLower = (otherKr.name || '').toLowerCase()
-                                        const otherCategoryLower = (otherKr.category || '').toLowerCase()
-                                        return (otherNameLower.includes('revenus d\'affiliation') || otherNameLower.includes('affiliation')) &&
-                                               (otherNameLower.includes('apify') || otherNameLower.includes('lemlist') || otherNameLower.includes('zapier')) &&
-                                               (otherCategoryLower.includes('affiliation') || otherCategoryLower.includes('partenariats'))
-                                      })
-                                      const totalAffiliationUSD = affiliationKRs.reduce((sum, otherKr) => sum + (otherKr.currentResult || 0), 0)
-                                      const totalAffiliationEUR = usdToEur(totalAffiliationUSD)
-                                      return formatNumber(Math.round(totalAffiliationEUR))
+                                    if (isAffiliationTotalKr(kr)) {
+                                      const pair = affiliationDisplayPair(keyResults, usdToEur)
+                                      return formatNumber(Math.round(pair.current))
                                     }
                                     // Pour les revenus d'affiliation individuels, convertir USD en EUR
                                     if (isAffiliationRevenue(kr)) {
@@ -1585,6 +1570,10 @@ export default function DonneesPubliques() {
                               <span className="tabular-nums">
                                 {(() => {
                                   // Convertir les targetResult des revenus d'affiliation de USD en EUR
+                                  if (isAffiliationTotalKr(kr)) {
+                                    const pair = affiliationDisplayPair(keyResults, usdToEur)
+                                    return formatNumber(Math.round(pair.target))
+                                  }
                                   if (isAffiliationRevenue(kr)) {
                                     return formatNumber(Math.round(usdToEur(kr.targetResult || 0)))
                                   }
@@ -1620,30 +1609,16 @@ export default function DonneesPubliques() {
                                   // Calculer le remaining et progress avec la valeur réelle pour "Revenus d'affiliation"
                                   const nameLower = (kr.name || '').toLowerCase()
                                   const categoryLower = (kr.category || '').toLowerCase()
-                                  const isAffiliationTotal = (nameLower.includes('revenus d\'affiliation') || nameLower.includes('ca affiliation') || nameLower.includes('chiffre d\'affaires affiliation')) &&
-                                                             !nameLower.includes('apify') && !nameLower.includes('lemlist') && !nameLower.includes('zapier') &&
-                                                             (categoryLower.includes('affiliation') || categoryLower.includes('partenariats'))
-                                  
                                   let actualCurrentResult = kr.currentResult || 0
                                   let actualTargetResult = kr.targetResult || 0
                                   
-                                  // Convertir USD en EUR pour les revenus d'affiliation
-                                  if (isAffiliationRevenue(kr)) {
+                                  if (isAffiliationTotalKr(kr)) {
+                                    const pair = affiliationDisplayPair(keyResults, usdToEur)
+                                    actualCurrentResult = Math.round(pair.current)
+                                    actualTargetResult = Math.round(pair.target)
+                                  } else if (isAffiliationRevenue(kr)) {
                                     actualCurrentResult = usdToEur(actualCurrentResult)
                                     actualTargetResult = usdToEur(actualTargetResult)
-                                  }
-                                  
-                                  if (isAffiliationTotal) {
-                                    const affiliationKRs = keyResults.filter(otherKr => {
-                                      const otherNameLower = (otherKr.name || '').toLowerCase()
-                                      const otherCategoryLower = (otherKr.category || '').toLowerCase()
-                                      return (otherNameLower.includes('revenus d\'affiliation') || otherNameLower.includes('affiliation')) &&
-                                             (otherNameLower.includes('apify') || otherNameLower.includes('lemlist') || otherNameLower.includes('zapier')) &&
-                                             (otherCategoryLower.includes('affiliation') || otherCategoryLower.includes('partenariats'))
-                                    })
-                                    const totalAffiliationUSD = affiliationKRs.reduce((sum, otherKr) => sum + (otherKr.currentResult || 0), 0)
-                                    actualCurrentResult = usdToEur(totalAffiliationUSD)
-                                    // Le targetResult du total est déjà en EUR dans les données, pas besoin de conversion
                                   }
                                   
                                   const actualRemaining = actualTargetResult - actualCurrentResult
@@ -1696,25 +1671,15 @@ export default function DonneesPubliques() {
                                 }
                               }
                               
-                              const isAffiliationTotal = (nameLower.includes('revenus d\'affiliation') || nameLower.includes('ca affiliation') || nameLower.includes('chiffre d\'affaires affiliation')) &&
-                                                         !nameLower.includes('apify') && !nameLower.includes('lemlist') && !nameLower.includes('zapier') &&
-                                                         (categoryLower.includes('affiliation') || categoryLower.includes('partenariats'))
-                              
                               let actualProgress = kr.progress || 0
                               
                               if (isChessKR && actualTargetResult > 0) {
                                 actualProgress = (actualCurrentResult / actualTargetResult) * 100
-                              } else if (isAffiliationTotal) {
-                                const affiliationKRs = keyResults.filter(otherKr => {
-                                  const otherNameLower = (otherKr.name || '').toLowerCase()
-                                  const otherCategoryLower = (otherKr.category || '').toLowerCase()
-                                  return (otherNameLower.includes('revenus d\'affiliation') || otherNameLower.includes('affiliation')) &&
-                                         (otherNameLower.includes('apify') || otherNameLower.includes('lemlist') || otherNameLower.includes('zapier')) &&
-                                         (otherCategoryLower.includes('affiliation') || otherCategoryLower.includes('partenariats'))
-                                })
-                                const totalAffiliationUSD = affiliationKRs.reduce((sum, otherKr) => sum + (otherKr.currentResult || 0), 0)
-                                const totalAffiliationEUR = usdToEur(totalAffiliationUSD)
-                                actualProgress = kr.targetResult > 0 ? (totalAffiliationEUR / kr.targetResult) * 100 : 0
+                              } else if (isAffiliationTotalKr(kr)) {
+                                const pair = affiliationDisplayPair(keyResults, usdToEur)
+                                actualCurrentResult = Math.round(pair.current)
+                                actualTargetResult = Math.round(pair.target)
+                                actualProgress = actualTargetResult > 0 ? (actualCurrentResult / actualTargetResult) * 100 : 0
                               } else if (isAffiliationRevenue(kr)) {
                                 // Pour les revenus d'affiliation individuels, convertir USD en EUR
                                 const currentEUR = usdToEur(kr.currentResult || 0)
@@ -1784,24 +1749,24 @@ export default function DonneesPubliques() {
                 )
               },
               {
-                question: "Quel est votre délai de livraison réel ?",
+                question: "Quel est ton délai de livraison réel ?",
                 answer: (
                   <>
                     <p className="mb-3">
                       Livraison en moins d'une semaine pour 90% des projets. Concrètement : un scraping simple (1 site, données structurées) : <strong>2-3 jours</strong>, un scraping complexe (multi-sites, anti-bot) : <strong>5-7 jours</strong>, une automatisation complète : <strong>5-7 jours</strong>.
                     </p>
                     <p>
-                      Si votre projet est urgent (livraison en 48h), c'est possible selon ma disponibilité. On en discute lors de l'appel initial. Je privilégie la rapidité sans compromettre la qualité : vous avez vos données rapidement pour pouvoir les exploiter sans attendre.
+                      Si ton projet est urgent (livraison en 48h), c'est possible selon ma disponibilité. On en discute lors de l'appel initial. Je privilégie la rapidité sans compromettre la qualité : tu as tes données rapidement pour pouvoir les exploiter sans attendre.
                     </p>
                   </>
                 )
               },
               {
-                question: "Comment garantissez-vous la pérennité de vos solutions ?",
+                question: "Comment tu garantis la pérennité de tes solutions ?",
                 answer: (
                   <>
                     <p className="mb-3">
-                      Je construis des solutions robustes qui fonctionnent dans le temps : 1) Code maintenable et documenté, 2) Gestion des erreurs et cas limites, 3) Solutions hébergées sur Apify (pour les scrapers publics) qui gèrent l'infrastructure, 4) Documentation complète pour que vous puissiez comprendre et maintenir si besoin.
+                      Je construis des solutions robustes qui fonctionnent dans le temps : 1) Code maintenable et documenté, 2) Gestion des erreurs et cas limites, 3) Solutions hébergées sur Apify (pour les scrapers publics) qui gèrent l'infrastructure, 4) Documentation complète pour que tu puisses comprendre et maintenir si besoin.
                     </p>
                     <p>
                       Pour les projets sur-mesure, je propose des options de maintenance (corrections si le site source change, évolutions, support). La plupart des solutions tournent des années sans intervention. Exemple : mes scrapers Apify fonctionnent depuis 2+ ans avec 150+ utilisateurs actifs.
@@ -1810,14 +1775,14 @@ export default function DonneesPubliques() {
                 )
               },
               {
-                question: "Quelle est votre capacité et disponibilité pour prendre de nouveaux projets ?",
+                question: "Quelle est ta capacité et ta disponibilité pour prendre de nouveaux projets ?",
                 answer: (
                   <>
                     <p className="mb-3">
-                      Je traite <strong>20-30 projets par mois</strong> avec un suivi rigoureux de chaque mission. Disponibilité : jusqu'à <strong>4 appels de 20 minutes par jour</strong> pour discuter de nouveaux projets (<button onClick={openCalendly} className="underline hover:text-neutral-900 dark:hover:text-neutral-100">réservez via Calendly</button>).
+                      Je traite <strong>20-30 projets par mois</strong> avec un suivi rigoureux de chaque mission. Disponibilité : jusqu'à <strong>4 appels de 20 minutes par jour</strong> pour discuter de nouveaux projets (<button onClick={openCalendly} className="underline hover:text-neutral-900 dark:hover:text-neutral-100">réserve via Calendly</button>).
                     </p>
                     <p>
-                      Secteurs d'expertise : j'ai une expérience particulière dans <strong>l'immobilier</strong> et la <strong>santé</strong>, mais je travaille avec des entreprises de tous secteurs (e-commerce, SaaS, services, etc.). Si votre projet est urgent, on peut s'organiser. Si je suis à capacité, je vous indique un délai réaliste dès le départ. Transparence totale sur les disponibilités.
+                      Secteurs d'expertise : j'ai une expérience particulière dans <strong>l'immobilier</strong> et la <strong>santé</strong>, mais je travaille avec des entreprises de tous secteurs (e-commerce, SaaS, services, etc.). Si ton projet est urgent, on peut s'organiser. Si je suis à capacité, je t'indique un délai réaliste dès le départ. Transparence totale sur les disponibilités.
                     </p>
                   </>
                 )
@@ -1826,11 +1791,11 @@ export default function DonneesPubliques() {
                 question: "Comment se déroule un projet de A à Z ?",
                 answer: (
                   <>
-                    <p className="mb-2"><strong>1. Appel de 20 minutes (gratuit)</strong> : on discute de votre besoin, votre contexte, vos contraintes. Je pose des questions pour bien comprendre.</p>
-                    <p className="mb-2"><strong>2. Proposition détaillée</strong> : sous 24-48h, je vous envoie une proposition avec approche technique, délais, prix, format de livraison.</p>
-                    <p className="mb-2"><strong>3. Validation</strong> : vous validez la proposition, on signe (ou pas, selon votre préférence), je démarre.</p>
-                    <p className="mb-2"><strong>4. Développement</strong> : je code, je teste, je vous tiens informé de l'avancement.</p>
-                    <p><strong>5. Livraison</strong> : vous recevez les données/outil + documentation. On fait un point pour s'assurer que tout correspond à vos attentes. Ajustements si nécessaire (inclus).</p>
+                    <p className="mb-2"><strong>1. Appel de 20 minutes (gratuit)</strong> : on discute de ton besoin, ton contexte, tes contraintes. Je pose des questions pour bien comprendre.</p>
+                    <p className="mb-2"><strong>2. Proposition détaillée</strong> : sous 24-48h, je t'envoie une proposition avec approche technique, délais, prix, format de livraison.</p>
+                    <p className="mb-2"><strong>3. Validation</strong> : tu valides la proposition, on signe (ou pas, selon ta préférence), je démarre.</p>
+                    <p className="mb-2"><strong>4. Développement</strong> : je code, je teste, je te tiens informé de l'avancement.</p>
+                    <p><strong>5. Livraison</strong> : tu reçois les données/outil + documentation. On fait un point pour s'assurer que tout correspond à tes attentes. Ajustements si nécessaire (inclus).</p>
                   </>
                 )
               },
@@ -1839,40 +1804,40 @@ export default function DonneesPubliques() {
                 answer: (
                   <>
                     <p className="mb-3">
-                      <strong>Réactivité :</strong> vous avez vos données en moins d'une semaine vs 1-2 mois avec une agence. Vous pouvez prendre des décisions rapidement, réagir aux opportunités, lancer vos campagnes sans attendre.
+                      <strong>Réactivité :</strong> tu as tes données en moins d'une semaine vs 1-2 mois avec une agence. Tu peux prendre des décisions rapidement, réagir aux opportunités, lancer tes campagnes sans attendre.
                     </p>
                     <p>
-                      <strong>Systèmes pérennes :</strong> je construis des solutions qui tournent dans le temps. Exemple : un scraper qui collecte les prix concurrents quotidiennement. Une fois livré, il continue de tourner automatiquement. Vous gagnez du temps chaque jour, pas juste une fois. Les solutions Apify que je développe sont utilisées par 150+ personnes, preuve de leur robustesse.
+                      <strong>Systèmes pérennes :</strong> je construis des solutions qui tournent dans le temps. Exemple : un scraper qui collecte les prix concurrents quotidiennement. Une fois livré, il continue de tourner automatiquement. Tu gagnes du temps chaque jour, pas juste une fois. Les solutions Apify que je développe sont utilisées par 150+ personnes, preuve de leur robustesse.
                     </p>
                   </>
                 )
               },
               {
-                question: "Proposez-vous un support après la livraison ?",
+                question: "Tu proposes un support après la livraison ?",
                 answer: (
                   <>
                     <p className="mb-3">
-                      Oui, le support post-livraison est inclus : 1) <strong>Ajustements mineurs</strong> (corrections, petits changements) : inclus pendant 1 mois après livraison, 2) <strong>Support technique</strong> : si vous avez des questions sur l'utilisation, je réponds sous 24h, 3) <strong>Maintenance optionnelle</strong> : si le site source change et casse le scraper, je peux le corriger (tarif selon la complexité).
+                      Oui, le support post-livraison est inclus : 1) <strong>Ajustements mineurs</strong> (corrections, petits changements) : inclus pendant 1 mois après livraison, 2) <strong>Support technique</strong> : si tu as des questions sur l'utilisation, je réponds sous 24h, 3) <strong>Maintenance optionnelle</strong> : si le site source change et casse le scraper, je peux le corriger (tarif selon la complexité).
                     </p>
                     <p>
-                      Pour les projets complexes, je propose des packages de maintenance mensuels. L'objectif : que vous soyez autonome, mais je reste disponible si besoin.
+                      Pour les projets complexes, je propose des packages de maintenance mensuels. L'objectif : que tu sois autonome, mais je reste disponible si besoin.
                     </p>
                   </>
                 )
               },
               {
-                question: "Comment garantissez-vous la confidentialité de mes données ?",
+                question: "Comment tu garantis la confidentialité de tes données ?",
                 answer: (
                   <>
-                    <p className="mb-2"><strong>Confidentialité totale :</strong> 1) Pas de partage : vos données ne sont jamais partagées, vendues ou utilisées à d'autres fins, 2) Sécurité : accès sécurisé aux données, pas de stockage inutile, suppression après livraison si vous le souhaitez, 3) RGPD : respect strict du RGPD pour les données personnelles, 4) Transparence : je vous explique exactement ce que je fais avec vos données.</p>
+                    <p className="mb-2"><strong>Confidentialité totale :</strong> 1) Pas de partage : tes données ne sont jamais partagées, vendues ou utilisées à d'autres fins, 2) Sécurité : accès sécurisé aux données, pas de stockage inutile, suppression après livraison si tu le souhaites, 3) RGPD : respect strict du RGPD pour les données personnelles, 4) Transparence : je t'explique exactement ce que je fais avec tes données.</p>
                     <p>
-                      Pour les projets sensibles, on peut signer un NDA. Votre business reste votre business, je suis juste l'outil technique.
+                      Pour les projets sensibles, on peut signer un NDA. Ton business reste ton business, je suis juste l'outil technique.
                     </p>
                   </>
                 )
               },
               {
-                question: "Quelle est votre vision à long terme ?",
+                question: "Quelle est ta vision à long terme ?",
                 answer: (
                   <>
                     <p className="mb-3">
@@ -1933,7 +1898,7 @@ export default function DonneesPubliques() {
               <button
                 onClick={openCalendly}
                 className="underline hover:text-neutral-900 dark:hover:text-neutral-100 text-neutral-800 dark:text-neutral-200"
-                aria-label="Réserver un créneau Calendly"
+                aria-label="Réserver un appel"
               >
                 Réserver un appel
               </button>

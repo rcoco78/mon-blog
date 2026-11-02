@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { displayPostTitle } from '../lib/post-title'
 import { getPrimarySeries, getSeriesPosts } from '../lib/blog-series'
 
 function canonicalTag(tag = '') {
@@ -86,7 +87,7 @@ export default function RelatedPosts({ currentPost, allPosts }) {
           <Link key={post.slug} href={`/blog/${post.slug}`} className="group block">
             <div className="flex items-center">
               <h3 className="font-medium text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-800 dark:group-hover:text-neutral-200 truncate mr-2">
-                {post.title}
+                {displayPostTitle(post)}
               </h3>
               <div className="flex items-center ml-1.5 flex-shrink-0">
                 {(post.tags || []).slice(0, 1).map((tag) => (
@@ -110,7 +111,7 @@ export default function RelatedPosts({ currentPost, allPosts }) {
             href={`/blog/${series.hub}`}
             className="text-neutral-800 dark:text-neutral-200 underline underline-offset-2 hover:no-underline"
           >
-            {allPosts.find((p) => p.slug === series.hub)?.title || 'voir le hub'}
+            {displayPostTitle(allPosts.find((p) => p.slug === series.hub) || {}) || 'voir le hub'}
           </Link>
         </p>
       ) : null}

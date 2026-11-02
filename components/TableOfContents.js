@@ -121,14 +121,14 @@ export default function TableOfContents({ markdown }) {
   const scrollToHeading = (id) => {
     const element = document.getElementById(id)
     if (!element) return
-    element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const top = element.getBoundingClientRect().top + window.scrollY - 72
+    window.scrollTo({ top, behavior: 'smooth' })
     setActiveId(id)
   }
 
   return (
     <>
-      {/* Mobile / tablette : sommaire repliable */}
-      <details className="md:hidden mb-8 rounded-lg border border-neutral-200 dark:border-neutral-800 group">
+      <details className="xl:hidden sticky top-0 z-20 mb-8 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-[rgb(var(--background-rgb))] group">
         <summary className="cursor-pointer list-none flex items-center justify-between gap-3 px-4 py-3.5 select-none [&::-webkit-details-marker]:hidden">
           <span className="uppercase tracking-wide text-neutral-500 dark:text-neutral-500 text-xs font-medium">
             Sommaire
@@ -146,18 +146,19 @@ export default function TableOfContents({ markdown }) {
             </svg>
           </span>
         </summary>
-        <div className="px-4 pb-4 pt-1 border-t border-neutral-200 dark:border-neutral-800">
+        <div className="px-4 pb-4 pt-1 border-t border-neutral-200 dark:border-neutral-800 max-h-[50vh] overflow-y-auto">
           <TocNav headings={headings} activeId={activeId} onNavigate={scrollToHeading} />
         </div>
       </details>
 
-      {/* Desktop : bloc dans le flux de lecture */}
-      <div className="hidden md:block mb-8 p-5 rounded-lg border border-neutral-200 dark:border-neutral-800">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-3">
-          Sommaire
-        </h2>
-        <TocNav headings={headings} activeId={activeId} onNavigate={scrollToHeading} />
-      </div>
+      <aside className="hidden xl:block absolute inset-y-0 left-full ml-8 w-56">
+        <div className="sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto p-5 rounded-lg border border-neutral-200 dark:border-neutral-800 bg-[rgb(var(--background-rgb))]">
+          <h2 className="text-sm font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-500 mb-3">
+            Sommaire
+          </h2>
+          <TocNav headings={headings} activeId={activeId} onNavigate={scrollToHeading} />
+        </div>
+      </aside>
     </>
   )
 }

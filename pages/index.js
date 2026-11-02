@@ -12,6 +12,8 @@ import { captureDataError } from '../lib/sentry'
 import { openCalendlyPopup } from '../lib/calendly'
 import { captureCta } from '../lib/posthog-client'
 import { FLOW } from '../lib/posthog-events'
+import { displayPostTitle } from '../lib/post-title'
+import { formatFrenchDate } from '../lib/format-date'
 
 const DOORS = [
   siteConfig.network.datareacher,
@@ -20,6 +22,63 @@ const DOORS = [
   siteConfig.network.marketplace,
   siteConfig.network.logement,
 ]
+
+/** Fonction + méthode, dans le même ordre de phrase. Logement Atypique reprend sa description + le volume. */
+const DOOR_LINES = {
+  datareacher: {
+    fn: 'Données et scripts.',
+    method: 'Je scrappe, je livre la liste.',
+  },
+  outreacher: {
+    fn: 'Outbound.',
+    method: 'Je monte la campagne, tu appuies sur envoi.',
+  },
+  immoreacher: {
+    fn: 'La liste du matin.',
+    method: 'Mandataires et agences, à jour chaque jour.',
+  },
+  marketplace: {
+    fn: 'Fichiers Sheets B2B.',
+    method: 'Tu choisis, tu paies.',
+  },
+}
+
+function doorCaption(door, metrics) {
+  const lines = DOOR_LINES[door.id]
+  if (lines) return `${lines.fn} ${lines.method}`
+  if (door.id !== 'logement-atypique') return null
+  const volume = (metrics || []).find(
+    (metric) =>
+      metric?.source === 'Logement Atypique' ||
+      String(metric?.label || '').toLowerCase().includes('abonné')
+  )
+  const volumeText = volume?.value && volume?.label ? `${volume.value} ${volume.label}.` : null
+  return [door.description, volumeText].filter(Boolean).join(' ') || null
+}
+
+const WORD_LINK =
+  'underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 dark:focus-visible:outline-neutral-100 transition-colors'
+
+function DoorMark({ door }) {
+  if (!door?.icon) return null
+  return (
+    <span
+      className={`mt-0.5 inline-flex w-6 h-6 shrink-0 items-center justify-center overflow-hidden ${
+        door.iconShape === 'round' ? '' : 'rounded-md'
+      } ${door.iconOnDark === 'plate' ? 'dark:bg-white dark:p-[3px]' : ''}`}
+    >
+      <img
+        src={door.icon}
+        alt=""
+        width={24}
+        height={24}
+        className={`w-full h-full ${
+          door.iconShape === 'round' ? 'rounded-full object-cover' : 'rounded-md object-contain'
+        }`}
+      />
+    </span>
+  )
+}
 
 export default function Home({ homeData }) {
   const latestPosts = homeData?.latestPosts ?? homeData?.topPosts ?? []
@@ -87,12 +146,12 @@ export default function Home({ homeData }) {
         }}
       />
 
-      <main className="flex-auto min-w-0 mt-6 flex flex-col mb-0">
-        <section aria-label="Présentation">
+      <main className="flex-auto min-w-0 mt-6 flex flex-col mb-8">
+        <header>
           <LookAtAvatar
             src={siteConfig.profileImage}
             alt="Photo de profil de Corentin Robert"
-            size={96}
+            size={72}
             objectPosition="center 28%"
             lookBasePath={siteConfig.profileLook?.basePath}
             lookDirections={siteConfig.profileLook?.directions || []}
@@ -100,103 +159,67 @@ export default function Home({ homeData }) {
             showRing
           />
 
-          <h1 className="font-semibold text-2xl mb-4 tracking-tighter">Corentin Robert</h1>
-          <p className="mb-3 text-neutral-800 dark:text-neutral-200 tracking-tight font-medium">
+          <h1 className="font-semibold text-2xl mb-3 tracking-tighter text-balance">Corentin Robert</h1>
+          <p className="text-neutral-800 dark:text-neutral-200 tracking-tight">
             {siteConfig.homepage.positioning}
           </p>
-          <p className="mb-4 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Freelance scraping et automatisation. Une mission, si besoin —{' '}
+          <p className="mt-4">
             <button
               type="button"
               onClick={openCalendly}
-              className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors"
+              className={`inline-flex items-center min-h-11 text-neutral-900 dark:text-neutral-100 ${WORD_LINK}`}
             >
-              réserver un appel
+              Réserver un appel
             </button>
-            .
           </p>
-          <p className="mb-10 text-sm text-neutral-500 dark:text-neutral-500 tracking-tight">
-            La{' '}
-            <Link
-              href="/objectifs"
-              onClick={() => captureCta({ flow: FLOW.journal, source: 'home_intro', cta: 'objectifs' })}
-              className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"
-            >
-              progression 2026
-            </Link>{' '}
-            est en public. Sur{' '}
-            <a
-              href={siteConfig.social.youtube}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => captureCta({ flow: FLOW.journal, source: 'home_intro', cta: 'youtube' })}
-              className="underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors"
-            >
-              YouTube
-            </a>
-            , le challenge une vidéo par jour.
-          </p>
-        </section>
+        </header>
 
-        <section className="journal-rule pt-5" aria-label="Ce que je construis">
-          <h2 className="font-semibold text-xl mb-2 tracking-tighter">Ce que je construis</h2>
-          <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Cinq projets. Une fonction chacun.
-          </p>
-          <ul className="space-y-3 text-sm">
+        <section className="journal-rule mt-8 pt-6" aria-labelledby="home-projets">
+          <h2 id="home-projets" className="font-semibold text-xl tracking-tighter mb-1">
+            Ce que je construis
+          </h2>
+          <ul>
             {DOORS.map((door) => {
-              const className =
-                'underline underline-offset-2 decoration-neutral-300 dark:decoration-neutral-600 hover:decoration-neutral-900 dark:hover:decoration-neutral-100 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors'
-              const title = (
-                <span className="text-neutral-900 dark:text-neutral-100 font-medium">{door.title}</span>
-              )
-              const icon = door.icon ? (
-                <span
-                  className={`inline-flex w-6 h-6 shrink-0 items-center justify-center overflow-hidden ${
-                    door.iconShape === 'round' ? '' : 'rounded-md'
-                  } ${door.iconOnDark === 'plate' ? 'dark:bg-white dark:p-[3px]' : ''}`}
-                >
-                  <img
-                    src={door.icon}
-                    alt=""
-                    width={24}
-                    height={24}
-                    className={`w-full h-full ${
-                      door.iconShape === 'round'
-                        ? 'rounded-full object-cover'
-                        : 'rounded-md object-contain'
-                    }`}
-                  />
+              const caption = doorCaption(door, metrics)
+              const name = (
+                <span className="font-semibold text-base tracking-tight text-neutral-900 dark:text-neutral-100">
+                  {door.title}
                 </span>
-              ) : null
+              )
               return (
-                <li key={door.id} className="flex items-center gap-3">
-                  {icon}
-                  <div className="min-w-0 flex flex-col sm:flex-row sm:flex-wrap sm:items-baseline gap-x-2 gap-y-0.5">
-                    {door.external ? (
-                      <a
-                        href={door.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() =>
-                          captureCta({ flow: FLOW.journal, source: 'home_doors', cta: door.id })
-                        }
-                        className={className}
-                      >
-                        {title}
-                      </a>
-                    ) : (
-                      <Link
-                        href={door.href}
-                        onClick={() =>
-                          captureCta({ flow: FLOW.journal, source: 'home_doors', cta: door.id })
-                        }
-                        className={className}
-                      >
-                        {title}
-                      </Link>
-                    )}
-                    <span className="text-neutral-600 dark:text-neutral-400">{door.description}</span>
+                <li key={door.id} className="py-4 border-b border-dashed border-neutral-300 dark:border-neutral-700">
+                  <div className="flex items-start gap-3">
+                    <DoorMark door={door} />
+                    <div className="min-w-0">
+                      {door.external ? (
+                        <a
+                          href={door.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() =>
+                            captureCta({ flow: FLOW.journal, source: 'home_doors', cta: door.id })
+                          }
+                          className={WORD_LINK}
+                        >
+                          {name}
+                        </a>
+                      ) : (
+                        <Link
+                          href={door.href}
+                          onClick={() =>
+                            captureCta({ flow: FLOW.journal, source: 'home_doors', cta: door.id })
+                          }
+                          className={WORD_LINK}
+                        >
+                          {name}
+                        </Link>
+                      )}
+                      {caption ? (
+                        <p className="mt-1.5 text-sm text-neutral-600 dark:text-neutral-400 tracking-tight">
+                          {caption}
+                        </p>
+                      ) : null}
+                    </div>
                   </div>
                 </li>
               )
@@ -204,50 +227,34 @@ export default function Home({ homeData }) {
           </ul>
         </section>
 
-        <section className="mt-12 mb-8" aria-label="Derniers textes">
-          <h2 className="font-semibold text-xl mb-2 tracking-tighter">Derniers textes</h2>
-          <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Le journal, dans l’ordre.
-          </p>
-          <div className="flex flex-col space-y-4">
-            {latestPosts.length > 0 ? (
-              latestPosts.map((post) => {
-                const d = new Date(post.date)
-                const dateLabel = Number.isNaN(d.getTime())
-                  ? null
-                  : d.toLocaleDateString('fr-FR', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric',
-                    })
-                return (
-                  <ContentListRow
-                    key={post.slug}
-                    href={`/blog/${post.slug}`}
-                    title={post.title}
-                    meta={dateLabel}
-                    description={post.metaDescription || null}
-                    variant="list"
-                  />
-                )
-              })
-            ) : (
-              <p className="text-sm text-neutral-600 dark:text-neutral-400 py-4">
-                Aucun texte pour le moment.
-              </p>
-            )}
-          </div>
-          <div className="mt-6">
-            <Link
-              href="/blog"
-              className="text-sm font-normal text-neutral-500 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors inline-flex items-center gap-1.5"
-            >
+        <section className="journal-rule mt-8 pt-6" aria-labelledby="home-textes">
+          <h2 id="home-textes" className="font-semibold text-xl tracking-tighter mb-1">
+            Derniers textes
+          </h2>
+          {latestPosts.length > 0 ? (
+            latestPosts.map((post) => {
+              const dateLabel = formatFrenchDate(post.date) || null
+              return (
+                <ContentListRow
+                  key={post.slug}
+                  href={`/blog/${post.slug}`}
+                  title={displayPostTitle(post)}
+                  meta={dateLabel}
+                  description={post.metaDescription || null}
+                  variant="list"
+                />
+              )
+            })
+          ) : (
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 py-4">
+              Aucun texte pour le moment.
+            </p>
+          )}
+          <p className="mt-4">
+            <Link href="/blog" className={`text-sm text-neutral-800 dark:text-neutral-200 ${WORD_LINK}`}>
               Tous les textes
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z" fill="currentColor" />
-              </svg>
             </Link>
-          </div>
+          </p>
         </section>
       </main>
     </>

@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import LookAtAvatar from '../components/LookAtAvatar'
 import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { pickFeaturedDatabases } from '../lib/marketplace-catalog'
@@ -268,13 +267,17 @@ export default function Marketplace({
           <h1 className="font-semibold text-2xl mb-3 tracking-tighter">
             Bases de données B2B
           </h1>
-          <p className="text-neutral-600 dark:text-neutral-400 tracking-tight max-w-2xl">
-            Choisir une base, payer, copier le Google Sheet. Les scripts sont sur{' '}
+          <p className="text-neutral-700 dark:text-neutral-300 tracking-tight max-w-2xl">
+            Je rassemble les contacts, je date la base, je la publie en Google Sheet.
+            {allTools.length > 0
+              ? ` ${allTools.length} base${allTools.length > 1 ? 's' : ''} déjà publiée${allTools.length > 1 ? 's' : ''}.`
+              : ' '}
+            Les scripts sont sur{' '}
             <a
               href={datareacherHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="underline underline-offset-2 hover:text-neutral-900 dark:hover:text-neutral-100"
+              className="underline underline-offset-2 text-neutral-900 dark:text-neutral-100 hover:text-neutral-700 dark:hover:text-neutral-300"
             >
               datareacher.fr
             </a>
@@ -300,19 +303,19 @@ export default function Marketplace({
               }}
               placeholder="Rechercher une base…"
               aria-label="Rechercher une base de données"
-              className="w-full px-0 py-2 text-sm border-0 border-b border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:outline-none focus:border-neutral-500 dark:focus:border-neutral-500 transition-colors"
+              className="w-full min-h-11 px-0 py-2 text-base sm:text-sm border-0 border-b border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-600 dark:placeholder:text-neutral-400 focus:outline-none focus:border-neutral-500 dark:focus:border-neutral-500 transition-colors"
             />
           </div>
 
           <div className="mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
-            <div className="flex flex-nowrap gap-x-4 overflow-x-auto pb-1 text-sm scrollbar-hide">
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
               <button
                 type="button"
                 onClick={() => setSelectedCategory(null)}
-                className={`shrink-0 whitespace-nowrap pb-1 border-b border-dashed ${
+                className={`inline-flex items-center min-h-11 shrink-0 whitespace-nowrap border-b border-dashed ${
                   selectedCategory === null
                     ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100'
-                    : 'border-transparent text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                    : 'border-transparent text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white'
                 }`}
               >
                 Tous ({(dynamicDatabases || []).length})
@@ -325,10 +328,10 @@ export default function Marketplace({
                     key={category}
                     type="button"
                     onClick={() => setSelectedCategory(category)}
-                    className={`shrink-0 whitespace-nowrap pb-1 border-b border-dashed ${
+                    className={`inline-flex items-center min-h-11 shrink-0 whitespace-nowrap border-b border-dashed ${
                       active
                         ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100'
-                        : 'border-transparent text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                        : 'border-transparent text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white'
                     }`}
                   >
                     {category} ({count})
@@ -344,7 +347,7 @@ export default function Marketplace({
             role="group"
             aria-label="Trier"
           >
-            <span className="text-neutral-500 dark:text-neutral-500">Trier</span>
+            <span className="text-neutral-700 dark:text-neutral-300">Trier</span>
             {SORT_OPTIONS.map(({ value, label }) => {
               const active = sortBy === value
               return (
@@ -356,7 +359,7 @@ export default function Marketplace({
                   className={`shrink-0 whitespace-nowrap pb-1 border-b border-dashed ${
                     active
                       ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100'
-                      : 'border-transparent text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                      : 'border-transparent text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white'
                   }`}
                 >
                   {label}
@@ -548,43 +551,21 @@ export default function Marketplace({
           />
         </section>
 
-        <section className="mb-12 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-center" aria-label="Contact">
-          <div className="flex flex-col items-center mb-6">
-            <div className="mb-4">
-              <LookAtAvatar
-                src={siteConfig.profileImage}
-                alt="Photo de profil de Corentin Robert"
-                size={64}
-                objectPosition="center 28%"
-                lookBasePath={siteConfig.profileLook?.basePath}
-                lookDirections={siteConfig.profileLook?.directions || []}
-                lookExt={siteConfig.profileLook?.ext || 'jpg'}
-                showRing
-              />
-            </div>
-            
-            <h2 className="font-semibold text-xl mb-4 tracking-tighter">Besoin d'une base de données sur-mesure ?</h2>
-          </div>
-          <p className="text-neutral-600 dark:text-neutral-400 mb-6 max-w-xl mx-auto">
-            Si vous avez besoin d'une base de données personnalisée pour votre secteur d'activité, je peux créer une base adaptée à vos besoins spécifiques.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-            <button
-              onClick={openCalendly}
-              className="px-6 py-3 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
-            >
-              Discutons de votre projet
-            </button>
-            <Link 
-              href={siteConfig.social.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block px-6 py-3 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-            >
-              Me contacter sur LinkedIn
-            </Link>
-          </div>
-        </section>
+        <p className="mb-12 pt-8 border-t border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 tracking-tight">
+          {`Cette base n’est pas dans la liste${
+            allTools.length > 0
+              ? ` — ${allTools.length} base${allTools.length > 1 ? 's' : ''} déjà publiée${allTools.length > 1 ? 's' : ''}`
+              : ''
+          }. `}
+          <button
+            type="button"
+            onClick={openCalendly}
+            className="underline underline-offset-2 text-neutral-900 dark:text-neutral-100"
+          >
+            Réserver un appel
+          </button>
+          .
+        </p>
     </main>
     </>
   )

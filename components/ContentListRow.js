@@ -22,6 +22,8 @@ export default function ContentListRow({
   onClick,
   external = false,
   variant = 'list',
+  mark = null,
+  clampDescription = true,
 }) {
   if (!title) return null
 
@@ -29,18 +31,21 @@ export default function ContentListRow({
   const metaText = Array.isArray(meta) ? meta.filter(Boolean).join(' · ') : meta
   const content = (
     <>
-      <div className="min-w-0 flex-1">
-        <h3 className="font-semibold text-base tracking-tight text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
-          {title}
-        </h3>
-        {metaText && (
-          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">{metaText}</p>
-        )}
-        {description && (
-          <p className="mt-1.5 text-sm text-neutral-600 dark:text-neutral-400 line-clamp-2">
-            {description}
-          </p>
-        )}
+      <div className="min-w-0 flex-1 flex items-start gap-3">
+        {mark}
+        <div className="min-w-0 flex-1">
+          <h3 className="font-semibold text-base tracking-tight text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-600 dark:group-hover:text-neutral-300 transition-colors">
+            {title}
+          </h3>
+          {metaText && (
+            <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">{metaText}</p>
+          )}
+          {description && (
+            <p className={`mt-1.5 text-sm text-neutral-600 dark:text-neutral-400 ${clampDescription ? 'line-clamp-2' : ''}`}>
+              {description}
+            </p>
+          )}
+        </div>
       </div>
       {trailing != null && trailing !== '' && (
         <div className="flex-shrink-0 text-right pt-0.5">

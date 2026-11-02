@@ -7,8 +7,10 @@ import SEOHead from '../components/seo/SEOHead'
 import StructuredData from '../components/seo/StructuredData'
 import { generatePageSEO } from '../lib/seo'
 import { siteConfig } from '../lib/config'
-import { QuietBone, QuietSkeletonList } from '../components/QuietSkeleton'
+import { QuietSkeletonList } from '../components/QuietSkeleton'
 import { formatViewCount } from '../lib/view-label'
+import { displayPostTitle } from '../lib/post-title'
+import { formatFrenchDate } from '../lib/format-date'
 
 function canonicalTag(tag = '') {
   if (/^freelanc/i.test(tag)) return 'Freelance'
@@ -29,12 +31,10 @@ export default function Blog({ posts }) {
   const [searchText, setSearchText] = useState(initialSearch)
   const [allTags, setAllTags] = useState([])
   const [filteredPosts, setFilteredPosts] = useState(posts)
-  const [topPosts, setTopPosts] = useState([])
   const [postsLoading, setPostsLoading] = useState(!(posts && posts.length > 0))
   const [allViews, setAllViews] = useState({})
-  const [dayDelta, setDayDelta] = useState({})
-  const [blogStats, setBlogStats] = useState(null)
-  const [blogStatsLoading, setBlogStatsLoading] = useState(true)
+  const [viewsReady, setViewsReady] = useState(false)
+  const [tagsOpen, setTagsOpen] = useState(false)
   const INITIAL_VISIBLE_POSTS = 40
   const [displayedCount, setDisplayedCount] = useState(INITIAL_VISIBLE_POSTS)
 
@@ -61,9 +61,8 @@ export default function Blog({ posts }) {
 
   useEffect(() => {
     // Récupérer les articles les plus lus
-    const fetchTopPosts = async () => {
+    const fetchViews = async () => {
       if (!posts || posts.length === 0) {
-        setTopPosts([])
         return
       }
 
@@ -78,50 +77,14 @@ export default function Blog({ posts }) {
         const payload = await response.json()
         const viewsMap = payload.views || payload
         setAllViews(viewsMap)
-        setDayDelta(payload.dayDelta || {})
-        
-        // Ajouter les vues aux articles et trier
-        const postsWithViews = posts.map(post => ({
-          ...post,
-          views: viewsMap[post.slug] || 0
-        }))
-        
-        // Trier par nombre de vues (ordre décroissant) et prendre les 3 premiers
-        const sortedPosts = postsWithViews
-          .sort((a, b) => b.views - a.views)
-          .slice(0, 3)
-        
-        setTopPosts(sortedPosts)
+        setViewsReady(true)
       } catch (error) {
         console.error('Erreur lors de la récupération des vues:', error)
-        setTopPosts([])
+        setViewsReady(true)
       }
     }
 
-    fetchTopPosts()
-  }, [posts])
-
-  useEffect(() => {
-    // Récupérer les statistiques du blog (nombre d'articles et vues avec croissance J-3)
-    const fetchBlogStats = async () => {
-      try {
-        setBlogStatsLoading(true)
-        const response = await fetch(`/api/blog-stats?postsCount=${posts.length}`)
-        
-        if (response.ok) {
-          const stats = await response.json()
-          setBlogStats(stats)
-        }
-      } catch (error) {
-        console.error('Erreur lors de la récupération des statistiques du blog:', error)
-      } finally {
-        setBlogStatsLoading(false)
-      }
-    }
-
-    if (posts.length > 0) {
-      fetchBlogStats()
-    }
+    fetchViews()
   }, [posts])
 
   useEffect(() => {
@@ -143,10 +106,13 @@ export default function Blog({ posts }) {
     }
 
     // Ajouter les vues aux posts filtrés si disponibles
-    const filteredWithViews = filtered.map(post => ({
-      ...post,
-      views: allViews[post.slug] || post.views || 0
-    }))
+    const byDateDesc = (a, b) => new Date(b.date || 0) - new Date(a.date || 0)
+    const filteredWithViews = filtered
+      .map(post => ({
+        ...post,
+        views: allViews[post.slug] || post.views || 0
+      }))
+      .sort(byDateDesc)
 
     setFilteredPosts(filteredWithViews)
   }, [selectedTag, searchText, posts, allViews])
@@ -171,23 +137,11 @@ export default function Blog({ posts }) {
     url: `${siteConfig.url}/blog`,
     blogPost: posts.slice(0, 10).map(post => ({
       '@type': 'BlogPosting',
-      headline: post.title,
+      headline: displayPostTitle(post),
       url: `${siteConfig.url}/blog/${post.slug}`,
       datePublished: post.date
     }))
   }
-
-  const topSlugs = topPosts.map((post) => post.slug)
-  const listedPosts = !selectedTag && !searchText.trim() && topSlugs.length
-    ? [...filteredPosts].sort((a, b) => {
-        const ia = topSlugs.indexOf(a.slug)
-        const ib = topSlugs.indexOf(b.slug)
-        if (ia === -1 && ib === -1) return 0
-        if (ia === -1) return 1
-        if (ib === -1) return -1
-        return ia - ib
-      })
-    : filteredPosts
 
   const tagCounts = posts.reduce((counts, post) => {
     const seen = new Set()
@@ -199,6 +153,15 @@ export default function Blog({ posts }) {
     }
     return counts
   }, {})
+
+  const TAGS_VISIBLE = 4
+  const rankedTags = [...allTags].sort((a, b) => (tagCounts[b] || 0) - (tagCounts[a] || 0) || a.localeCompare(b, 'fr'))
+  const hiddenCount = Math.max(0, rankedTags.length - TAGS_VISIBLE)
+  const visibleTags = tagsOpen
+    ? rankedTags
+    : rankedTags.slice(0, TAGS_VISIBLE).concat(
+        selectedTag && !rankedTags.slice(0, TAGS_VISIBLE).includes(selectedTag) ? [selectedTag] : []
+      )
 
   return (
     <>
@@ -219,52 +182,16 @@ export default function Blog({ posts }) {
               <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
                 <span className="whitespace-nowrap">{filteredPosts.length} {filteredPosts.length === 1 ? 'article' : 'articles'}</span>
                 <span className="w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 flex-shrink-0 hidden sm:inline" aria-hidden></span>
-                <span className="whitespace-nowrap">
-                  {(() => {
-                    const totalViews = Object.keys(allViews).length > 0 
-                      ? filteredPosts.reduce((sum, post) => sum + (allViews[post.slug] || 0), 0)
-                      : filteredPosts.reduce((sum, post) => sum + (post.views || 0), 0)
-                    const hasDelta = Object.keys(dayDelta).length > 0
-                    const delta = hasDelta
-                      ? filteredPosts.reduce((sum, post) => sum + (dayDelta[post.slug] || 0), 0)
-                      : null
-                    return (
-                      <>
-                        {formatViewCount(totalViews)}
-                        {delta != null && (
-                          <span className="text-neutral-400"> ({delta > 0 ? '+' : ''}{delta})</span>
-                        )}
-                      </>
-                    )
-                  })()}
-                </span>
-                {blogStatsLoading && (
-                  <>
-                    <span className="w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 flex-shrink-0 hidden sm:inline" aria-hidden></span>
-                    <QuietBone inline className="h-3 w-16" />
-                  </>
-                )}
-                {blogStats && !blogStatsLoading && blogStats.viewsDifference !== 0 && (
-                  <>
-                    <span className="w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 flex-shrink-0 hidden sm:inline" aria-hidden></span>
-                    <span className={`inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded whitespace-nowrap shrink-0 ${
-                      blogStats.viewsIsPositive 
-                        ? 'text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20' 
-                        : 'text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20'
-                    }`} title="Différence vs il y a 3 jours">
-                      {blogStats.viewsIsPositive ? (
-                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-                          <path d="M6 2L2 6H5V10H7V6H10L6 2Z" fill="currentColor" />
-                        </svg>
-                      ) : (
-                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-                          <path d="M6 10L10 6H7V2H5V6H2L6 10Z" fill="currentColor" />
-                        </svg>
-                      )}
-                      <span>{blogStats.viewsIsPositive ? '+' : ''}{blogStats.viewsDifference} vs J-3</span>
-                    </span>
-                  </>
-                )}
+                {viewsReady && (() => {
+                  const totalViews = filteredPosts.reduce((sum, post) => sum + (allViews[post.slug] || 0), 0)
+                  if (totalViews <= 0) return null
+                  return (
+                    <>
+                      <span className="w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 flex-shrink-0 hidden sm:inline" aria-hidden></span>
+                      <span className="whitespace-nowrap">{formatViewCount(totalViews)}</span>
+                    </>
+                  )
+                })()}
               </span>
             </div>
             {(selectedTag || searchText.trim()) && filteredPosts.length > 0 && (
@@ -273,33 +200,42 @@ export default function Blog({ posts }) {
               </span>
             )}
           </div>
-          <div className="mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
-            <div className="flex flex-nowrap gap-x-4 overflow-x-auto pb-1 text-sm scrollbar-hide">
+          <div className="mb-6">
+            <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
               <button
                 type="button"
                 onClick={() => selectTag(null)}
-                className={`shrink-0 whitespace-nowrap pb-1 border-b border-dashed ${
+                className={`whitespace-nowrap pb-1 border-b border-dashed ${
                   selectedTag === null
                     ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100'
-                    : 'border-transparent text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                    : 'border-transparent text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white'
                 }`}
               >
                 Tous ({posts.length})
               </button>
-              {allTags.map((tag) => (
+              {visibleTags.map((tag) => (
                 <button
                   key={tag}
                   type="button"
                   onClick={() => selectTag(tag)}
-                  className={`shrink-0 whitespace-nowrap pb-1 border-b border-dashed ${
+                  className={`whitespace-nowrap pb-1 border-b border-dashed ${
                     selectedTag === tag
                       ? 'border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100'
-                      : 'border-transparent text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                      : 'border-transparent text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white'
                   }`}
                 >
                   {tag} ({tagCounts[tag] || 0})
                 </button>
               ))}
+              {hiddenCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setTagsOpen((open) => !open)}
+                  className="whitespace-nowrap pb-1 border-b border-dashed border-transparent text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white"
+                >
+                  {tagsOpen ? 'Moins' : `Plus (${hiddenCount})`}
+                </button>
+              )}
             </div>
           </div>
           {postsLoading ? (
@@ -307,32 +243,25 @@ export default function Blog({ posts }) {
           ) : filteredPosts && filteredPosts.length > 0 ? (
             <>
               <div className="space-y-4">
-                {listedPosts.slice(0, displayedCount).map((post) => {
+                {filteredPosts.slice(0, displayedCount).map((post) => {
                   return (
                     <Link key={post.id} href={`/blog/${post.slug}`} className="post-link group">
                       <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2 transition-all group-hover:translate-x-1">
-                      <div className="flex flex-col md:flex-row md:items-center w-full">
+                      <div className="flex flex-col md:flex-row md:items-baseline w-full">
                         <div className="flex-shrink-0">
-                          <p className="post-date text-sm whitespace-nowrap">{(() => {
-                            const date = new Date(post.date)
-                            const day = String(date.getDate()).padStart(2, '0')
-                            const month = String(date.getMonth() + 1).padStart(2, '0')
-                            const year = date.getFullYear()
-                            return `${day}-${month}-${year}`
-                          })()}</p>
+                          <p className="post-date text-sm whitespace-nowrap">{formatFrenchDate(post.date)}</p>
                         </div>
                           <span className="hidden md:inline-block w-0.5 h-0.5 rounded-full bg-neutral-400 dark:bg-neutral-500 mx-2 flex-shrink-0"></span>
-                          <p className="post-title flex-grow w-full md:ml-0 flex items-center gap-2 min-w-0">
-                            <span className="truncate">{post.title}</span>
+                          <p className="post-title flex-grow w-full md:ml-0 min-w-0 leading-snug">
+                            {displayPostTitle(post)}
                           </p>
+                        {viewsReady && (allViews[post.slug] || 0) > 0 && (
                         <div className="md:ml-auto flex-shrink-0 mt-1 md:mt-0">
-                          <span className="text-sm text-neutral-500 whitespace-nowrap">
-                            {formatViewCount(allViews[post.slug] ?? post.views ?? 0)}
-                            {dayDelta[post.slug] != null && (
-                              <span className="text-neutral-400"> ({dayDelta[post.slug] > 0 ? '+' : ''}{dayDelta[post.slug]})</span>
-                            )}
+                          <span className="text-sm text-neutral-700 dark:text-neutral-300 whitespace-nowrap">
+                            {formatViewCount(allViews[post.slug])}
                           </span>
                         </div>
+                        )}
                       </div>
                     </div>
                   </Link>

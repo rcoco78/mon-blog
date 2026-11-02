@@ -20,6 +20,8 @@ import { siteConfig } from '../../lib/config'
 import { fetchBlobJson, fetchBlobJsonByHead } from '../../lib/blob-cache'
 import { captureDataError } from '../../lib/sentry'
 import { QuietBone, QuietSkeletonList } from '../../components/QuietSkeleton'
+import { displayPostTitle } from '../../lib/post-title'
+import { formatFrenchDate } from '../../lib/format-date'
 
 function extractPlainText(contentMarkdown, blocks, fallback = '') {
   const markdownText = normalizeMarkdown(contentMarkdown)
@@ -143,6 +145,10 @@ export default function Post({ post, allPosts }) {
 
   const wordCount = content.trim().split(/\s+/).filter((word) => word.length > 0).length
   const readingTime = loadingMarkdown && !hasInitialContent ? null : Math.max(1, Math.ceil(wordCount / 200))
+  const visibleTitle = displayPostTitle({
+    ...post,
+    contentMarkdown: contentMarkdown || post.contentMarkdown,
+  })
 
   const articleUrl = `${siteConfig.url}/blog/${post.slug}`
 
@@ -150,7 +156,7 @@ export default function Post({ post, allPosts }) {
     ? post.metaDescription.substring(0, 160).replace(/\s+\S*$/, '')
     : content
       ? content.substring(0, 155).replace(/\s+\S*$/, '...')
-      : `Découvrez ${post.title} sur le blog de Corentin Robert. Article sur le scraping, l'automatisation et le growth hacking.`
+      : `Découvrez ${visibleTitle} sur le blog de Corentin Robert. Article sur le scraping, l'automatisation et le growth hacking.`
 
   const articleBody = content.substring(0, 5000)
 
@@ -180,7 +186,7 @@ export default function Post({ post, allPosts }) {
     {
       '@type': 'ListItem',
       position: 3,
-      name: post.title,
+      name: visibleTitle,
       item: articleUrl
     }
   ]
@@ -188,7 +194,7 @@ export default function Post({ post, allPosts }) {
   return (
     <>
       <SEOHead
-        title={post.title}
+        title={visibleTitle}
         description={metaDescription}
         canonical={articleUrl}
         ogImage={post.coverImage || siteConfig.ogImage || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'}
@@ -198,14 +204,14 @@ export default function Post({ post, allPosts }) {
         modifiedTime={post.lastEdited || post.date}
         tags={post.tags || []}
         article={true}
-        imageAlt={post.title}
+        imageAlt={visibleTitle}
       />
       
       {/* BlogPosting Schema enrichi - Optimisé pour Google */}
       <StructuredData
         type="BlogPosting"
         data={{
-          title: post.title,
+          title: visibleTitle,
           description: metaDescription,
           image: images.length > 0 ? images : siteConfig.ogImage,
           datePublished: post.date,
@@ -245,7 +251,7 @@ export default function Post({ post, allPosts }) {
                 {
                   '@type': 'ListItem',
                   position: 3,
-                  name: post.title,
+                  name: visibleTitle,
                   item: articleUrl
                 }
               ]
@@ -257,22 +263,14 @@ export default function Post({ post, allPosts }) {
             </Link>
           </p>
           <h1 className="font-semibold text-3xl sm:text-4xl tracking-tighter text-neutral-900 dark:text-neutral-100 mb-5 leading-tight">
-            {post.title}
+            {visibleTitle}
           </h1>
           <div className="flex flex-col space-y-4">
             {/* Version mobile — meta aérées */}
             <div className="md:hidden flex flex-col gap-4">
               <div className="flex flex-col gap-2.5 text-sm text-neutral-600 dark:text-neutral-400">
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <time dateTime={post.date}>
-                    {(() => {
-                      const date = new Date(post.date)
-                      const day = String(date.getDate()).padStart(2, '0')
-                      const month = String(date.getMonth() + 1).padStart(2, '0')
-                      const year = date.getFullYear()
-                      return `${day}-${month}-${year}`
-                    })()}
-                  </time>
+                  <time dateTime={post.date}>{formatFrenchDate(post.date)}</time>
                   <span className="text-neutral-400" aria-hidden>
                     ·
                   </span>
@@ -298,7 +296,7 @@ export default function Post({ post, allPosts }) {
                 )}
               </div>
               <div className="pt-3 border-t border-neutral-200 dark:border-neutral-800">
-                <ShareButtons url={articleUrl} title={post.title} />
+                <ShareButtons url={articleUrl} title={visibleTitle} />
               </div>
             </div>
 
@@ -309,13 +307,7 @@ export default function Post({ post, allPosts }) {
                   dateTime={post.date} 
                   className="text-sm text-neutral-600 dark:text-neutral-400 whitespace-nowrap"
                 >
-                  {(() => {
-                    const date = new Date(post.date)
-                    const day = String(date.getDate()).padStart(2, '0')
-                    const month = String(date.getMonth() + 1).padStart(2, '0')
-                    const year = date.getFullYear()
-                    return `${day}-${month}-${year}`
-                  })()}
+                  {formatFrenchDate(post.date)}
                 </time>
                 <span className="text-neutral-400 shrink-0">•</span>
                 <ViewCounter slug={post.slug} />
@@ -345,7 +337,7 @@ export default function Post({ post, allPosts }) {
               <div className="flex items-center space-x-3">
                 <ShareButtons 
                   url={articleUrl}
-                  title={post.title} 
+                  title={visibleTitle} 
                 />
               </div>
             </div>
@@ -360,7 +352,7 @@ export default function Post({ post, allPosts }) {
           </div>
         ) : null}
         
-        <div className="mt-8">
+        <div className="relative mt-8">
             {/* Sommaire - Skeleton pendant le chargement */}
             {loadingMarkdown ? (
               <div className="mb-8 py-3 border-y border-dashed border-neutral-300 dark:border-neutral-700">
@@ -385,30 +377,29 @@ export default function Post({ post, allPosts }) {
               </div>
             ) : null}
 
-            {/* Partage social en fin d'article */}
-            <div className="mt-12 pt-8 border-t border-neutral-200 dark:border-neutral-800">
+            <div className="mt-10 space-y-2">
+              <ArticleDoorCard
+                post={{
+                  title: visibleTitle,
+                  tags: post.tags,
+                  metaDescription: post.metaDescription,
+                  content,
+                }}
+              />
+              <ArticleCallCta />
+            </div>
+
+            <div className="mt-16 pt-8 journal-rule space-y-10">
               <div className="flex flex-wrap items-center gap-3">
-                <span className="text-sm text-neutral-600 dark:text-neutral-400">Partager cet article :</span>
-                <ShareButtons 
+                <span className="text-sm text-neutral-700 dark:text-neutral-300">Partager</span>
+                <ShareButtons
                   url={articleUrl}
-                  title={post.title} 
+                  title={visibleTitle}
                 />
               </div>
-        </div>
-
-            {/* Articles similaires */}
-        <RelatedPosts currentPost={post} allPosts={allPosts} />
-
-            <ArticleDoorCard
-              post={{
-                title: post.title,
-                tags: post.tags,
-                metaDescription: post.metaDescription,
-                content,
-              }}
-            />
-            <ArticleCallCta />
-            <NewsletterForm compact={false} source="article" />
+              <RelatedPosts currentPost={post} allPosts={allPosts} />
+              <NewsletterForm compact source="article" />
+            </div>
         </div>
       </article>
     </>

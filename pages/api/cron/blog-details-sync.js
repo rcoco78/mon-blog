@@ -4,6 +4,7 @@
 import { Client } from '@notionhq/client'
 import { put, list } from '@vercel/blob'
 import { NotionToMarkdown } from 'notion-to-md'
+import { notionPlainText } from '../../../../lib/notion'
 
 const notion = new Client({
   auth: process.env.NOTION_TOKEN,
@@ -170,7 +171,7 @@ async function fetchAndSavePostDetails() {
 
       const posts = response.results
         .map((page) => {
-          const title = page.properties.Title?.title?.[0]?.plain_text?.trim() || ''
+          const title = notionPlainText(page.properties.Title?.title)
           // Récupérer le slug depuis Notion (propriété "/slug")
           const slug = page.properties['/slug']?.rich_text?.[0]?.plain_text?.trim() || ''
           

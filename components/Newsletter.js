@@ -104,7 +104,7 @@ export default function Newsletter() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="flex-grow px-3 py-2 rounded-md border border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-700"
+          className="flex-grow px-3 py-2 rounded-md border border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-600 dark:placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-300 dark:focus:ring-neutral-700"
         />
         <button
           type="submit"

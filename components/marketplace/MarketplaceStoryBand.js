@@ -9,7 +9,6 @@ import {
   marketplaceBenefit,
   formatEuros,
   priceHT,
-  priceTTC,
 } from '../../lib/marketplace-display'
 import { categoryToSlug } from '../../lib/marketplace-helpers'
 import { formatViewCount } from '../../lib/view-label'
@@ -51,9 +50,9 @@ function StoryMedia({ tool, title }) {
 }
 
 function storyViewsLabel(tool) {
-  const source = tool?.views
-  if (source == null || source === '') return null
-  return formatViewCount(source)
+  const n = Number(tool?.views)
+  if (!Number.isFinite(n) || n <= 0) return null
+  return formatViewCount(n)
 }
 
 function StorySlide({ tool, carousel }) {
@@ -71,13 +70,8 @@ function StorySlide({ tool, carousel }) {
   const priceAmount = tool.annualPrice || tool.price
   const price = tool.isPaid && priceAmount != null && priceAmount !== ''
     ? (
-        <span className="inline-flex flex-col items-end leading-tight tabular-nums">
-          <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-            {formatEuros(priceTTC(priceAmount))} €
-          </span>
-          <span className="text-xs font-normal text-neutral-500">
-            {formatEuros(priceHT(priceAmount))} € HT
-          </span>
+        <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100 tabular-nums">
+          {formatEuros(priceHT(priceAmount))} € HT
         </span>
       )
     : (

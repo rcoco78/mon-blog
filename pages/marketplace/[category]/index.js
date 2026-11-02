@@ -181,7 +181,7 @@ export default function CategoryMarketplace({ category, categoryDatabases, total
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Rechercher…"
-            className="w-full px-0 py-2 text-sm border-0 border-b border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-900 dark:text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors"
+            className="w-full px-0 py-2 text-sm border-0 border-b border-neutral-200 dark:border-neutral-800 bg-transparent text-neutral-900 dark:text-white placeholder:text-neutral-600 dark:placeholder:text-neutral-400 focus:outline-none focus:border-neutral-500 transition-colors"
           />
           {searchQuery && (
             <button
