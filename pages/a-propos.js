@@ -134,7 +134,7 @@ export default function About() {
         name: siteConfig.author,
         description: siteConfig.seo.pages.aPropos.description,
         url: `${siteConfig.url}/a-propos`,
-        jobTitle: 'Fondateur · Outreacher · Datareacher · Logement Atypique',
+        jobTitle: 'Fondateur · Outreacher · Datareacher · Immoreacher · Logement Atypique',
         knowsAbout: ['Web Scraping', 'Data Automation', 'Outbound Marketing', 'Python', 'JavaScript', 'API Development'],
         alumniOf: {
           '@type': 'EducationalOrganization',
@@ -146,6 +146,7 @@ export default function About() {
           siteConfig.social.malt,
           siteConfig.network.datareacher.href,
           siteConfig.network.outreacher.href,
+          siteConfig.network.immoreacher.href,
           'https://apify.com?fpr=0n7ukq',
           'https://github.com/rcoco78'
         ]
@@ -180,13 +181,13 @@ export default function About() {
         <h1 className="font-semibold text-2xl mb-8 tracking-tighter">À propos</h1>
         
         <p className="mb-3 text-neutral-800 dark:text-neutral-200 tracking-tight font-medium">
-          Fondateur · Outreacher · Datareacher · Logement Atypique.
+          Fondateur · Outreacher · Datareacher · Immoreacher · Logement Atypique.
         </p>
         <p className="mb-3 text-neutral-600 dark:text-neutral-400 tracking-tight">
           Ici, c&apos;est le journal. Je scrappe, j&apos;automatise, je livre de la data. Pour des dirigeants qui veulent des résultats — pas une stack à gérer.
         </p>
         <p className="mb-8 text-sm text-neutral-500 dark:text-neutral-500 tracking-tight">
-          28 ans, Paris. Avant : growth chez Airbnb, Shine, papernest. Aujourd&apos;hui : trois casquettes fondateur, plus le freelance.
+          28 ans, Paris. Avant : growth chez Airbnb, Shine, papernest. Aujourd&apos;hui : quatre casquettes fondateur, plus le freelance.
         </p>
 
         <div className="mb-8 space-y-6">
@@ -228,6 +229,15 @@ export default function About() {
                   role="Fondateur"
                   description="Une campagne en 14 jours. On la monte ensemble. C’est toi qui envoies."
                   logo={<NetworkLogo node={siteConfig.network.outreacher} />}
+                  active
+                />
+                <TimelineItem
+                  dates="nov. 2026 – aujourd’hui"
+                  title="Immoreacher"
+                  href={siteConfig.network.immoreacher.href}
+                  role="Fondateur"
+                  description="La liste du matin. Mandataires et agences, à jour chaque jour."
+                  logo={<NetworkLogo node={siteConfig.network.immoreacher} />}
                   active
                 />
                 <TimelineItem

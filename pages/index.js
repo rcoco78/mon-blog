@@ -16,6 +16,7 @@ import { FLOW } from '../lib/posthog-events'
 const DOORS = [
   siteConfig.network.datareacher,
   siteConfig.network.outreacher,
+  siteConfig.network.immoreacher,
   siteConfig.network.marketplace,
   siteConfig.network.logement,
 ]
@@ -28,7 +29,7 @@ export default function Home({ homeData }) {
 
   const pageSEO = generatePageSEO({
     title: 'Journal — data, outbound, ce que je construis',
-    description: `Corentin Robert. Journal public. ${projectsPhrase} livrés via Malt et Fiverr. Datareacher, Outreacher, marketplace, Logement Atypique.`,
+    description: `Corentin Robert. Journal public. ${projectsPhrase} livrés via Malt et Fiverr. Datareacher, Outreacher, Immoreacher, marketplace, Logement Atypique.`,
     path: '/',
     keywords: [
       'Corentin Robert',
@@ -49,7 +50,7 @@ export default function Home({ homeData }) {
         data={{
           name: 'Corentin Robert',
           jobTitle: 'Freelance scraping, data et outbound',
-          description: `Corentin Robert. Journal public. ${projectsPhrase} livrés. Datareacher, Outreacher, marketplace, Logement Atypique.`,
+          description: `Corentin Robert. Journal public. ${projectsPhrase} livrés. Datareacher, Outreacher, Immoreacher, marketplace, Logement Atypique.`,
           knowsAbout: ['Web Scraping', 'Data', 'Outbound', 'Automatisation'],
           sameAs: [
             siteConfig.social.linkedin,
@@ -58,6 +59,7 @@ export default function Home({ homeData }) {
             siteConfig.social.github,
             siteConfig.network.datareacher.href,
             siteConfig.network.outreacher.href,
+            siteConfig.network.immoreacher.href,
           ],
         }}
       />
@@ -139,7 +141,7 @@ export default function Home({ homeData }) {
         <section className="journal-rule pt-5" aria-label="Ce que je construis">
           <h2 className="font-semibold text-xl mb-2 tracking-tighter">Ce que je construis</h2>
           <p className="mb-6 text-neutral-600 dark:text-neutral-400 tracking-tight">
-            Quatre projets. Une fonction chacun.
+            Cinq projets. Une fonction chacun.
           </p>
           <ul className="space-y-3 text-sm">
             {DOORS.map((door) => {
