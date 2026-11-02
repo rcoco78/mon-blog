@@ -4,7 +4,7 @@
 import { Client } from '@notionhq/client'
 import { put, list } from '@vercel/blob'
 import { NotionToMarkdown } from 'notion-to-md'
-import { notionPlainText } from '../../../../lib/notion'
+import { notionPlainText } from '../../../lib/notion'
 
 const notion = new Client({
   auth: process.env.NOTION_TOKEN,

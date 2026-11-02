@@ -3,7 +3,7 @@
 
 import { Client } from '@notionhq/client'
 import { put } from '@vercel/blob'
-import { notionPlainText } from '../../../../lib/notion'
+import { notionPlainText } from '../../../lib/notion'
 
 const notion = new Client({
   auth: process.env.NOTION_TOKEN,
