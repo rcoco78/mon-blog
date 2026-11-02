@@ -9,6 +9,7 @@ import { QuietRoutePlaceholder } from '../components/QuietSkeleton'
 import StructuredData from '../components/seo/StructuredData'
 import { siteConfig } from '../lib/config'
 import { initPostHog } from '../lib/posthog-client'
+import { preventSameUrlHardNavigationNoise } from '../lib/sentry-filters'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -49,6 +50,7 @@ function RouteBody({ Component, pageProps }) {
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
     initPostHog()
+    return preventSameUrlHardNavigationNoise()
   }, [])
 
   return (

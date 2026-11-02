@@ -2,7 +2,7 @@
 import * as Sentry from '@sentry/nextjs'
 import posthog from 'posthog-js'
 import { POSTHOG_PROJECT_TOKEN, posthogInitOptions } from './lib/posthog-config'
-import { isNativeWebViewBridgeNoise } from './lib/sentry-filters'
+import { shouldDropSentryEvent } from './lib/sentry-filters'
 
 if (POSTHOG_PROJECT_TOKEN) {
   posthog.init(POSTHOG_PROJECT_TOKEN, posthogInitOptions)
@@ -15,7 +15,8 @@ Sentry.init({
   enabled: !!(process.env.NEXT_PUBLIC_SENTRY_DSN || process.env.SENTRY_DSN),
   // Bruit tiers (WebView / extensions) — pas notre code
   // Fixes CORENTIN-BLOG-7 (Instagram iOS), CORENTIN-BLOG-8 (MetaMask),
-  // CORENTIN-BLOG-9 (Instagram Android / pont Java)
+  // CORENTIN-BLOG-9 (Instagram Android / pont Java),
+  // CORENTIN-BLOG-A (Instagram Android / hard-nav Next vers la même URL)
   ignoreErrors: [
     /webkit\.messageHandlers/i,
     /sendPageHideMessage/i,
@@ -25,6 +26,7 @@ Sentry.init({
     /Failed to connect to MetaMask/i,
     /MetaMask extension not found/i,
     /MetaMask/i,
+    /Invariant: attempted to hard navigate to the same URL/i,
   ],
   denyUrls: [
     /navigation_performance_logger/i,
@@ -35,7 +37,7 @@ Sentry.init({
     /^moz-extension:\/\//i,
   ],
   beforeSend(event) {
-    if (isNativeWebViewBridgeNoise(event)) {
+    if (shouldDropSentryEvent(event)) {
       return null
     }
     return event
